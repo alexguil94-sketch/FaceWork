@@ -55,6 +55,7 @@ Astuce : l’URL `/app` redirige vers `/app/feed.html` (config dans `netlify.tom
 3. Clique **Run**
 
 Ça crée : `profiles`, `posts`, `channels`, `dm_threads`, `roles`, etc + RLS + triggers (compteurs likes/messages).
+Si tu avais déjà appliqué une ancienne version, relance le fichier : il ajoute aussi les colonnes fichiers (`file_url`, `file_name`) pour les messages.
 
 ### 2) Configurer l’auth
 1. Supabase → **Authentication → Providers** : active **Email**
@@ -75,12 +76,16 @@ Astuce : l’URL `/app` redirige vers `/app/feed.html` (config dans `netlify.tom
 ⚠️ La clé **Publishable/Anon** est faite pour être utilisée côté navigateur (elle n’est pas “secrète” comme la `service_role`). Ne mets jamais `service_role` dans un projet front-only.
 
 ### 4) Upload de fichiers (Storage)
-Pour déposer des fichiers directement dans une publication (glisser‑déposer sur le feed) :
+Pour déposer des fichiers directement (publications **et** messages dans canaux/DM) :
 1. Supabase → **Storage** → crée un bucket nommé `facework` (recommandé : **privé**)
 2. Supabase → **SQL Editor** → copie/colle `supabase/storage.sql` → **Run** (policies RLS par entreprise)
 3. (Si tu changes le nom du bucket) mets à jour `SUPABASE_BUCKET` dans `js/env.js`
 
-### 5) Comment ça marche dans l’app
+### 5) Visio + partage d’écran
+- La visio utilise **WebRTC** et **Supabase Realtime** (signaling) : bouton 📹 dans les canaux et les DM.
+- Ça marche en **HTTPS** (Netlify) ou sur **localhost** (Live Server). Sans serveur TURN, certains réseaux peuvent bloquer la connexion.
+
+### 6) Comment ça marche dans l’app
 - **Entreprise / workspace** : tu la saisis sur `login.html` (champ “Entreprise / workspace”). Toutes les données sont isolées par ce champ.
 - **Premier membre d’un workspace** : devient **admin** automatiquement (trigger SQL).
 - **Admin → Membres** : les membres apparaissent après s’être connectés (Supabase Auth), puis l’admin peut leur attribuer des rôles.

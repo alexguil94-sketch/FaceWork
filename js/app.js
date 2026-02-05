@@ -142,6 +142,27 @@
     return `${h.slice(0,8)}-${h.slice(8,12)}-${h.slice(12,16)}-${h.slice(16,20)}-${h.slice(20)}`;
   }
 
+  async function openDataUrl(dataUrl){
+    const s = String(dataUrl || "").trim();
+    if(!s || !s.startsWith("data:")) return false;
+    try{
+      const r = await fetch(s);
+      const blob = await r.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.target = "_blank";
+      a.rel = "noopener";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(()=>{ try{ URL.revokeObjectURL(blobUrl); }catch(e){ /* ignore */ } }, 60_000);
+      return true;
+    }catch(e){
+      return false;
+    }
+  }
+
   async function openFileFromPost({ fileUrl, fileName } = {}){
     const sbUrl = parseSbStorageUrl(fileUrl);
     if(sbUrl && sb){
@@ -239,6 +260,565 @@
 
     form.__fileUiBound = true;
   }
+
+  function bindChatFileUI(container){
+    const root = container || document;
+    const form = $("#chatForm", root);
+    if(!form || form.__fileUiBound) return;
+
+    const fileInput = $("#chatFile", root);
+    const addBtn = $("[data-chat-add]", root);
+    const attach = $("#chatAttach", root);
+    const label = $("#chatAttachLabel", root);
+    const clearBtn = $("[data-chat-attach-clear]", root);
+    const msgs = $("#chatMsgs", root);
+
+    function setFile(file){
+      form.__selectedFile = file || null;
+      if(!file && fileInput) fileInput.value = "";
+      attach && attach.classList.toggle("hidden", !file);
+      if(label){
+        label.textContent = file ? `${file.name} • ${fmtBytes(file.size)}` : "Aucun fichier";
+      }
+    }
+    setFile(null);
+
+    addBtn && addBtn.addEventListener("click", ()=> fileInput?.click());
+    fileInput && fileInput.addEventListener("change", ()=> setFile(fileInput.files?.[0] || null));
+    clearBtn && clearBtn.addEventListener("click", (e)=>{
+      e.preventDefault();
+      e.stopPropagation();
+      setFile(null);
+    });
+
+    function prevent(e){ e.preventDefault(); e.stopPropagation(); }
+    function setDrag(on){ form.classList.toggle("dragover", !!on); }
+    [msgs, form].filter(Boolean).forEach(el=>{
+      el.addEventListener("dragenter", (e)=>{ prevent(e); setDrag(true); });
+      el.addEventListener("dragover", (e)=>{ prevent(e); setDrag(true); });
+      el.addEventListener("dragleave", (e)=>{ prevent(e); setDrag(false); });
+      el.addEventListener("drop", (e)=>{
+        prevent(e);
+        setDrag(false);
+        const f = e.dataTransfer?.files?.[0] || null;
+        if(f) setFile(f);
+      });
+    });
+
+    form.__fileUiBound = true;
+  }
+
+  function clearChatSelectedFile(container){
+    const root = container || document;
+    const form = $("#chatForm", root);
+    const fileInput = $("#chatFile", root);
+    const attach = $("#chatAttach", root);
+    const label = $("#chatAttachLabel", root);
+    try{ if(fileInput) fileInput.value = ""; }catch(e){ /* ignore */ }
+    if(form) form.__selectedFile = null;
+    attach && attach.classList.add("hidden");
+    label && (label.textContent = "Aucun fichier");
+    form && form.classList.remove("dragover");
+  }
+
+  // ---------- VISIO (WebRTC + Supabase Realtime signalling)
+  const CALL_ICE = {
+    iceServers: [
+      { urls: "stun:stun.l.google.com:19302" },
+      { urls: "stun:global.stun.twilio.com:3478?transport=udp" },
+    ],
+  };
+
+  const callState = {
+    active: false,
+    joining: false,
+    roomId: "",
+    title: "",
+    myId: "",
+    channel: null,
+    peers: new Map(), // peerId -> { pc, stream, makingOffer }
+    peerMeta: new Map(), // peerId -> { name }
+    localStream: null,
+    audioTrack: null,
+    cameraTrack: null,
+    videoTrack: null,
+    screenTrack: null,
+    ui: null,
+    tiles: new Map(), // id -> { tile, video, label }
+  };
+
+  function ensureCallUI(){
+    if(callState.ui) return callState.ui;
+    const html = `
+      <div class="call-overlay hidden" id="callOverlay" role="dialog" aria-modal="true" aria-label="Visio">
+        <div class="call-modal card" role="document">
+          <div class="call-header">
+            <div class="call-head-left">
+              <div class="call-title" id="callTitle">Visio</div>
+              <div class="call-sub" id="callSub">—</div>
+            </div>
+            <button class="btn icon ghost" type="button" title="Fermer" data-call-close>✕</button>
+          </div>
+          <div class="call-grid" id="callGrid"></div>
+          <div class="call-controls">
+            <div class="call-ctrl-left">
+              <button class="btn icon" type="button" title="Micro" data-call-mic>🎙️</button>
+              <button class="btn icon" type="button" title="Caméra" data-call-cam>🎥</button>
+              <button class="btn icon" type="button" title="Partager écran" data-call-share>🖥️</button>
+            </div>
+            <button class="btn danger" type="button" data-call-hangup>Raccrocher</button>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.insertAdjacentHTML("beforeend", html);
+
+    const overlay = document.getElementById("callOverlay");
+    const titleEl = document.getElementById("callTitle");
+    const subEl = document.getElementById("callSub");
+    const grid = document.getElementById("callGrid");
+    const closeBtn = overlay.querySelector("[data-call-close]");
+    const hangupBtn = overlay.querySelector("[data-call-hangup]");
+    const micBtn = overlay.querySelector("[data-call-mic]");
+    const camBtn = overlay.querySelector("[data-call-cam]");
+    const shareBtn = overlay.querySelector("[data-call-share]");
+
+    overlay.addEventListener("click", (e)=>{
+      if(e.target === overlay){
+        leaveCall();
+      }
+    });
+    closeBtn.addEventListener("click", ()=> leaveCall());
+    hangupBtn.addEventListener("click", ()=> leaveCall());
+    micBtn.addEventListener("click", ()=> toggleMic());
+    camBtn.addEventListener("click", ()=> toggleCam());
+    shareBtn.addEventListener("click", ()=> toggleShareScreen());
+    window.addEventListener("keydown", (e)=>{
+      if(e.key === "Escape" && !overlay.classList.contains("hidden")){
+        leaveCall();
+      }
+    });
+
+    callState.ui = { overlay, titleEl, subEl, grid, micBtn, camBtn, shareBtn };
+    return callState.ui;
+  }
+
+  function setCallHeader({ title, sub } = {}){
+    const ui = ensureCallUI();
+    if(title != null) ui.titleEl.textContent = String(title || "Visio");
+    if(sub != null) ui.subEl.textContent = String(sub || "—");
+  }
+
+  function showCallOverlay(show){
+    const ui = ensureCallUI();
+    ui.overlay.classList.toggle("hidden", !show);
+  }
+
+  function tileLabelFor(id){
+    if(id === "local") return "Moi";
+    const meta = callState.peerMeta.get(String(id)) || {};
+    return String(meta.name || "Participant");
+  }
+
+  function upsertTile(id, stream){
+    const ui = ensureCallUI();
+    const key = String(id);
+    let t = callState.tiles.get(key);
+    if(!t){
+      const tile = document.createElement("div");
+      tile.className = "call-tile";
+      tile.setAttribute("data-call-tile", key);
+      tile.innerHTML = `
+        <video class="call-video" playsinline autoplay></video>
+        <div class="call-label"></div>
+      `;
+      ui.grid.appendChild(tile);
+      const video = tile.querySelector("video");
+      const label = tile.querySelector(".call-label");
+      t = { tile, video, label };
+      callState.tiles.set(key, t);
+    }
+    t.label.textContent = tileLabelFor(key);
+    if(stream){
+      try{ t.video.srcObject = stream; }catch(e){ /* ignore */ }
+      t.video.muted = (key === "local");
+      t.video.play?.().catch(()=>{});
+    }
+  }
+
+  function removeTile(id){
+    const key = String(id);
+    const t = callState.tiles.get(key);
+    if(!t) return;
+    t.tile.remove();
+    callState.tiles.delete(key);
+  }
+
+  function resetTiles(){
+    const ui = ensureCallUI();
+    ui.grid.innerHTML = "";
+    callState.tiles.clear();
+  }
+
+  function sendSignal(to, data){
+    const ch = callState.channel;
+    if(!ch) return;
+    const payload = { to: String(to), from: String(callState.myId), data: data || {} };
+    ch.send({ type: "broadcast", event: "signal", payload });
+  }
+
+  function shouldInitiate(peerId){
+    return String(callState.myId) < String(peerId);
+  }
+
+  async function ensurePeer(peerId){
+    const id = String(peerId);
+    if(!id || id === String(callState.myId)) return null;
+    if(callState.peers.has(id)) return callState.peers.get(id);
+
+    const pc = new RTCPeerConnection(CALL_ICE);
+    const remoteStream = new MediaStream();
+
+    try{
+      (callState.localStream?.getTracks() || []).forEach(track=>{
+        try{ pc.addTrack(track, callState.localStream); }catch(e){ /* ignore */ }
+      });
+    }catch(e){ /* ignore */ }
+
+    pc.ontrack = (e)=>{
+      if(e.track) remoteStream.addTrack(e.track);
+      upsertTile(id, remoteStream);
+    };
+    pc.onicecandidate = (e)=>{
+      if(e.candidate){
+        sendSignal(id, { type: "candidate", candidate: (e.candidate.toJSON ? e.candidate.toJSON() : e.candidate) });
+      }
+    };
+    pc.onconnectionstatechange = ()=>{
+      const st = pc.connectionState;
+      if(st === "failed" || st === "disconnected" || st === "closed"){
+        // keep tile, but allow reconnect by re-joining
+      }
+    };
+
+    const peer = { pc, stream: remoteStream, makingOffer: false, needOffer: true };
+    callState.peers.set(id, peer);
+    upsertTile(id, remoteStream);
+    return peer;
+  }
+
+  async function makeOffer(peerId){
+    const id = String(peerId);
+    const peer = await ensurePeer(id);
+    if(!peer || peer.makingOffer) return;
+    peer.makingOffer = true;
+    try{
+      const offer = await peer.pc.createOffer();
+      await peer.pc.setLocalDescription(offer);
+      const ld = peer.pc.localDescription;
+      sendSignal(id, { type: "offer", sdp: ld ? { type: ld.type, sdp: ld.sdp } : null });
+    }catch(e){
+      console.warn("Offer failed", e);
+    }finally{
+      peer.makingOffer = false;
+    }
+  }
+
+  async function handleSignal(payload){
+    const p = payload || {};
+    if(String(p.to || "") !== String(callState.myId)) return;
+    const from = String(p.from || "");
+    if(!from || from === String(callState.myId)) return;
+    const data = p.data || {};
+
+    if(data.type === "offer"){
+      const peer = await ensurePeer(from);
+      if(!peer) return;
+      try{
+        if(!data.sdp) return;
+        await peer.pc.setRemoteDescription(data.sdp);
+        const answer = await peer.pc.createAnswer();
+        await peer.pc.setLocalDescription(answer);
+        const ld = peer.pc.localDescription;
+        sendSignal(from, { type: "answer", sdp: ld ? { type: ld.type, sdp: ld.sdp } : null });
+      }catch(e){
+        console.warn("Handle offer failed", e);
+      }
+      return;
+    }
+    if(data.type === "answer"){
+      const peer = await ensurePeer(from);
+      if(!peer) return;
+      try{
+        if(!data.sdp) return;
+        await peer.pc.setRemoteDescription(data.sdp);
+      }catch(e){
+        console.warn("Handle answer failed", e);
+      }
+      return;
+    }
+    if(data.type === "candidate"){
+      const peer = await ensurePeer(from);
+      if(!peer) return;
+      try{
+        await peer.pc.addIceCandidate(data.candidate);
+      }catch(e){
+        // ignore (can happen if candidate arrives early)
+      }
+    }
+  }
+
+  async function syncCallPeers(){
+    const ch = callState.channel;
+    if(!ch) return;
+    const state = ch.presenceState ? ch.presenceState() : {};
+    const ids = Object.keys(state || {}).map(String).filter(id=> id && id !== String(callState.myId));
+
+    // update meta
+    ids.forEach(id=>{
+      const meta = (state[id] && state[id][0]) || {};
+      callState.peerMeta.set(String(id), { name: meta.name || meta.user?.name || meta.user_name || "" });
+    });
+
+    // remove peers who left
+    Array.from(callState.peers.keys()).forEach(id=>{
+      if(!ids.includes(String(id))){
+        try{ callState.peers.get(id)?.pc?.close?.(); }catch(e){ /* ignore */ }
+        callState.peers.delete(id);
+        callState.peerMeta.delete(id);
+        removeTile(id);
+      }
+    });
+
+    // ensure connections
+    for(const id of ids){
+      const peer = await ensurePeer(id);
+      if(peer && shouldInitiate(id) && peer.needOffer){
+        peer.needOffer = false;
+        await makeOffer(id);
+      }
+    }
+
+    // update labels and header
+    callState.tiles.forEach((t, id)=>{ t.label.textContent = tileLabelFor(id); });
+    setCallHeader({ sub: `${1 + ids.length} participant(s)` });
+  }
+
+  async function getLocalMedia(){
+    try{
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+      return stream;
+    }catch(e){
+      // fallback to audio-only
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+      return stream;
+    }
+  }
+
+  async function joinCall({ roomId, title } = {}){
+    if(!sbEnabled || !sb){
+      window.fwToast?.("Visio", "La visio nécessite Supabase (Realtime) + HTTPS.");
+      return;
+    }
+    const rid = String(roomId || "").trim();
+    if(!rid) return;
+
+    if(callState.joining) return;
+    if(callState.active && callState.roomId === rid){
+      showCallOverlay(true);
+      return;
+    }
+
+    callState.joining = true;
+    try{
+      await leaveCall();
+      const myId = await sbUserId();
+      if(!myId){
+        window.fwToast?.("Visio", "Connecte-toi d’abord.");
+        return;
+      }
+      callState.active = true;
+      callState.roomId = rid;
+      callState.title = String(title || "Visio");
+      callState.myId = String(myId);
+
+      setCallHeader({ title: callState.title, sub: "Connexion…" });
+      showCallOverlay(true);
+      resetTiles();
+
+      window.fwToast?.("Visio", "Autorise micro/caméra…");
+      const stream = await getLocalMedia();
+      callState.localStream = stream;
+      callState.audioTrack = stream.getAudioTracks?.()[0] || null;
+      callState.cameraTrack = stream.getVideoTracks?.()[0] || null;
+      callState.videoTrack = callState.cameraTrack;
+      upsertTile("local", stream);
+
+      const realtime = sb.channel(`fw-call:${rid}`, {
+        config: {
+          broadcast: { self: true },
+          presence: { key: String(myId) },
+        },
+      });
+      callState.channel = realtime;
+
+      realtime.on("broadcast", { event: "signal" }, ({ payload })=> handleSignal(payload));
+      realtime.on("presence", { event: "sync" }, ()=>{ syncCallPeers(); });
+      realtime.on("presence", { event: "join" }, ()=>{ syncCallPeers(); });
+      realtime.on("presence", { event: "leave" }, ({ key })=>{
+        const id = String(key || "");
+        if(!id) return;
+        try{ callState.peers.get(id)?.pc?.close?.(); }catch(e){ /* ignore */ }
+        callState.peers.delete(id);
+        callState.peerMeta.delete(id);
+        removeTile(id);
+        syncCallPeers();
+      });
+
+      await new Promise((resolve, reject)=>{
+        const t = setTimeout(()=> reject(new Error("realtime_timeout")), 12_000);
+        realtime.subscribe((status)=>{
+          if(status === "SUBSCRIBED"){
+            clearTimeout(t);
+            resolve();
+          }
+        });
+      });
+
+      await realtime.track({ name: getUser()?.name || "Utilisateur" });
+      await syncCallPeers();
+      window.fwToast?.("Visio", "Connecté.");
+    }catch(e){
+      console.error("joinCall failed", e);
+      window.fwToast?.("Visio", "Impossible de démarrer la visio.");
+      await leaveCall();
+    }finally{
+      callState.joining = false;
+    }
+  }
+
+  async function leaveCall(){
+    if(!callState.active && !callState.channel) {
+      showCallOverlay(false);
+      return;
+    }
+
+    // stop screen share if any
+    if(callState.screenTrack){
+      try{ callState.screenTrack.stop(); }catch(e){ /* ignore */ }
+      callState.screenTrack = null;
+    }
+
+    // close peers
+    for(const [id, peer] of callState.peers.entries()){
+      try{ peer.pc.close(); }catch(e){ /* ignore */ }
+      removeTile(id);
+    }
+    callState.peers.clear();
+    callState.peerMeta.clear();
+
+    // unsubscribe realtime
+    try{ callState.channel?.untrack?.(); }catch(e){ /* ignore */ }
+    try{ callState.channel?.unsubscribe?.(); }catch(e){ /* ignore */ }
+    callState.channel = null;
+
+    // stop local tracks
+    try{
+      (callState.localStream?.getTracks?.() || []).forEach(t=>{ try{ t.stop(); }catch(e){ /* ignore */ } });
+    }catch(e){ /* ignore */ }
+
+    callState.localStream = null;
+    callState.audioTrack = null;
+    callState.cameraTrack = null;
+    callState.videoTrack = null;
+
+    callState.active = false;
+    callState.roomId = "";
+    callState.title = "";
+    callState.myId = "";
+
+    showCallOverlay(false);
+    resetTiles();
+  }
+
+  function currentVideoSender(pc){
+    const senders = pc?.getSenders ? pc.getSenders() : [];
+    return senders.find(s=> s.track && s.track.kind === "video") || null;
+  }
+
+  async function toggleMic(){
+    const t = callState.audioTrack;
+    if(!t){
+      window.fwToast?.("Micro", "Audio indisponible.");
+      return;
+    }
+    t.enabled = !t.enabled;
+    const ui = ensureCallUI();
+    ui.micBtn.textContent = t.enabled ? "🎙️" : "🔇";
+  }
+
+  async function toggleCam(){
+    const t = callState.videoTrack;
+    if(!t){
+      window.fwToast?.("Caméra", "Vidéo indisponible.");
+      return;
+    }
+    t.enabled = !t.enabled;
+    const ui = ensureCallUI();
+    ui.camBtn.textContent = t.enabled ? "🎥" : "🚫";
+  }
+
+  async function toggleShareScreen(){
+    if(!callState.active){
+      window.fwToast?.("Partage écran", "Démarre une visio d’abord.");
+      return;
+    }
+
+    // stop share
+    if(callState.screenTrack){
+      try{ callState.screenTrack.stop(); }catch(e){ /* ignore */ }
+      callState.screenTrack = null;
+      if(callState.cameraTrack){
+        callState.videoTrack = callState.cameraTrack;
+        for(const peer of callState.peers.values()){
+          const sender = currentVideoSender(peer.pc);
+          sender && sender.replaceTrack?.(callState.cameraTrack);
+        }
+        upsertTile("local", callState.localStream);
+      }
+      ensureCallUI().shareBtn.textContent = "🖥️";
+      return;
+    }
+
+    try{
+      const display = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+      const screenTrack = display.getVideoTracks?.()[0];
+      if(!screenTrack) return;
+
+      callState.screenTrack = screenTrack;
+      callState.videoTrack = screenTrack;
+      screenTrack.onended = ()=>{ toggleShareScreen(); };
+
+      for(const peer of callState.peers.values()){
+        const sender = currentVideoSender(peer.pc);
+        sender && sender.replaceTrack?.(screenTrack);
+      }
+
+      // local preview: show screen
+      upsertTile("local", new MediaStream([screenTrack, ...(callState.audioTrack ? [callState.audioTrack] : [])]));
+      ensureCallUI().shareBtn.textContent = "⏹️";
+    }catch(e){
+      window.fwToast?.("Partage écran", "Partage écran refusé ou indisponible.");
+    }
+  }
+
+  // Expose for handlers in channels/DM
+  window.fwCall = {
+    join: joinCall,
+    leave: leaveCall,
+    active: ()=> callState.active,
+    roomId: ()=> callState.roomId,
+  };
 
   // ---------- Seed data
   function seed(){
@@ -909,19 +1489,21 @@
       const msgsRoot = $("#chatMsgs", panel);
       const form = $("#chatForm", panel);
       const input = $("#chatInput", panel);
-      const addBtn = $("[data-chat-add]", panel);
+      const callBtn = $("[data-chat-call]", panel);
       const searchBtn = $("[data-chat-search]", panel);
       const infoBtn = $("[data-chat-info]", panel);
 
+      bindChatFileUI(panel);
+      callBtn && (callBtn.onclick = ()=> window.fwToast?.("Visio", "Active Supabase pour la visio + partage d’écran."));
+
       const map = loadChannelMsgs();
       const msgs = map[key] || [];
-      msgsRoot.innerHTML = msgs.length ? msgs.map(m=> renderChatMessageHtml(m, u)).join("") : emptyChatHtml("Aucun message", "Écris le premier message pour lancer la discussion.");
+      msgsRoot.innerHTML = msgs.length ? msgs.map((m,i)=> renderChatMessageHtml(m, u, i)).join("") : emptyChatHtml("Aucun message", "Écris le premier message pour lancer la discussion.");
       msgsRoot.scrollTop = msgsRoot.scrollHeight;
 
       const btn = document.querySelector(`[data-ch="${key}"]`);
       btn?.querySelector(".badge") && (btn.querySelector(".badge").textContent = String((map[key] || []).length));
 
-      addBtn && (addBtn.onclick = ()=> window.fwToast?.("Bientôt", "Ajout de fichiers à brancher ensuite."));
       searchBtn && (searchBtn.onclick = ()=> window.fwToast?.("Recherche", "Recherche à implémenter ensuite."));
       infoBtn && (infoBtn.onclick = ()=> window.fwToast?.("Infos", `Salon: ${title}`));
       if(input){
@@ -937,16 +1519,62 @@
         });
       }
 
-      form && (form.onsubmit = (ev)=>{
+      msgsRoot && (msgsRoot.onclick = async (e)=>{
+        const idxRaw = e.target.closest("[data-open-file]")?.getAttribute("data-open-file");
+        if(idxRaw == null) return;
+        const i = Number(idxRaw);
+        const m = msgs[i];
+        if(!m) return;
+        if(m.fileData?.dataUrl){
+          const ok = await openDataUrl(m.fileData.dataUrl);
+          if(!ok) window.fwToast?.("Fichier","Impossible d’ouvrir ce fichier.");
+          return;
+        }
+        await openFileFromPost({ fileUrl: m.fileUrl, fileName: m.fileName });
+      });
+
+      form && (form.onsubmit = async (ev)=>{
         ev.preventDefault();
         const text = (input?.value || "").trim();
-        if(!text) return;
+        const selectedFile = form.__selectedFile || null;
+        if(!text && !selectedFile) return;
+
+        let fileName = "";
+        let fileData = null;
+        if(selectedFile){
+          if(selectedFile.size > 1_000_000){
+            window.fwToast?.("Fichier trop gros","En démo locale, limite ~1 Mo. Active Supabase pour l’upload.");
+            return;
+          }
+          try{
+            const dataUrl = await new Promise((resolve, reject)=>{
+              const fr = new FileReader();
+              fr.onerror = ()=> reject(new Error("read_error"));
+              fr.onload = ()=> resolve(String(fr.result || ""));
+              fr.readAsDataURL(selectedFile);
+            });
+            fileData = { dataUrl, type: selectedFile.type || "", size: selectedFile.size || 0 };
+            fileName = selectedFile.name || "fichier";
+          }catch(e){
+            window.fwToast?.("Erreur","Impossible de lire le fichier.");
+            return;
+          }
+        }
+
         const map = loadChannelMsgs();
         map[key] = map[key] || [];
-        map[key].push({from: u.name || "Moi", text, at: nowStr()});
+        map[key].push({
+          from: u.name || "Moi",
+          text,
+          fileName,
+          fileUrl: "",
+          fileData,
+          at: nowStr(),
+        });
         saveChannelMsgs(map);
         input.value = "";
         input.style.height = "";
+        clearChatSelectedFile(panel);
         showChannel(key);
       });
     }
@@ -1046,6 +1674,11 @@
       const p = profile || {};
       const name = String(p.name || "Utilisateur");
       const time = fmtTime(r.created_at);
+      const text = String(r.text || "");
+      const fileUrl = String(r.file_url || "");
+      const fileName = String(r.file_name || "");
+      const hasFile = !!(fileUrl || fileName);
+      const fileLabel = fileName || (fileUrl ? (fileUrl.split("/").pop() || "Fichier") : "Fichier");
       return `
         <div class="msg">
           ${msgAvatarHtml(p, "avatar msg-avatar")}
@@ -1054,7 +1687,19 @@
               <span class="msg-name">${escapeHtml(name)}</span>
               <span class="msg-time">${escapeHtml(time)}</span>
             </div>
-            <div class="msg-text">${escapeHtml(String(r.text || ""))}</div>
+            ${text ? `<div class="msg-text">${escapeHtml(text)}</div>` : ""}
+            ${hasFile ? `
+              <button class="file-box msg-file" type="button" data-open-file="1" data-file-url="${escapeHtml(fileUrl)}" data-file-name="${escapeHtml(fileName)}">
+                <div class="file-left">
+                  <div class="file-ico" aria-hidden="true">📄</div>
+                  <div class="file-meta">
+                    <div class="file-title">Ouvrir le fichier</div>
+                    <div class="file-sub">${escapeHtml(fileLabel)}</div>
+                  </div>
+                </div>
+                <span class="badge">Ouvrir</span>
+              </button>
+            ` : ""}
           </div>
         </div>
       `;
@@ -1080,9 +1725,15 @@
       const msgsRoot = $("#chatMsgs", panel);
       const form = $("#chatForm", panel);
       const input = $("#chatInput", panel);
-      const addBtn = $("[data-chat-add]", panel);
+      const callBtn = $("[data-chat-call]", panel);
       const searchBtn = $("[data-chat-search]", panel);
       const infoBtn = $("[data-chat-info]", panel);
+
+      bindChatFileUI(panel);
+      callBtn && (callBtn.onclick = ()=> window.fwCall?.join?.({
+        roomId: `${company}::channel::${String(ch.id)}`,
+        title: `Visio • ${icon === "#" ? "#" : ""}${name}`,
+      }));
 
       const msgRes = await sb
         .from("channel_messages")
@@ -1112,7 +1763,14 @@
         : emptyChatHtml("Aucun message", "Écris le premier message pour lancer la discussion.");
       msgsRoot.scrollTop = msgsRoot.scrollHeight;
 
-      addBtn && (addBtn.onclick = ()=> window.fwToast?.("Bientôt", "Ajout de fichiers à brancher ensuite."));
+      msgsRoot && (msgsRoot.onclick = async (e)=>{
+        const btn = e.target.closest("[data-file-url]");
+        if(!btn) return;
+        const fileUrl = btn.getAttribute("data-file-url") || "";
+        const fileName = btn.getAttribute("data-file-name") || "";
+        await openFileFromPost({ fileUrl, fileName });
+      });
+
       searchBtn && (searchBtn.onclick = ()=> window.fwToast?.("Recherche", "Recherche à implémenter ensuite."));
       infoBtn && (infoBtn.onclick = ()=> window.fwToast?.("Infos", `Salon: ${name}`));
 
@@ -1132,19 +1790,56 @@
       form && (form.onsubmit = async (ev)=>{
         ev.preventDefault();
         const text = (input?.value || "").trim();
-        if(!text) return;
+        const selectedFile = form.__selectedFile || null;
+        if(!text && !selectedFile) return;
+
+        let fileUrl = "";
+        let fileName = "";
+        let uploadedPath = "";
+
+        if(selectedFile){
+          if(/[\\\/]/.test(company)){
+            window.fwToast?.("Entreprise invalide","Évite / ou \\ dans le nom d’entreprise/workspace.");
+            return;
+          }
+          const safeName = safeFileName(selectedFile.name);
+          const msgId = uuid();
+          uploadedPath = `${company}/channels/${String(ch.id)}/${msgId}/${safeName}`;
+
+          window.fwToast?.("Upload","Envoi du fichier…");
+          const up = await sb.storage.from(STORAGE_BUCKET).upload(uploadedPath, selectedFile, {
+            upsert: false,
+            contentType: selectedFile.type || undefined,
+            cacheControl: "3600",
+          });
+          if(up.error){
+            const msg = up.error?.message || "Upload impossible. Vérifie le bucket + les policies Storage.";
+            window.fwToast?.("Upload", msg);
+            console.error("Upload", up.error);
+            return;
+          }
+          fileUrl = `sb://${STORAGE_BUCKET}/${uploadedPath}`;
+          fileName = String(selectedFile.name || safeName);
+        }
+
         const res = await sb.from("channel_messages").insert({
           company,
           channel_id: ch.id,
           user_id: uid,
-          text,
+          text: text || "",
+          file_url: fileUrl,
+          file_name: fileName,
         });
         if(res.error){
+          if(uploadedPath){
+            try{ await sb.storage.from(STORAGE_BUCKET).remove([uploadedPath]); }catch(e){ /* ignore */ }
+          }
           sbToastError("Message", res.error);
           return;
         }
         input.value = "";
         input.style.height = "";
+        clearChatSelectedFile(panel);
         await showChannel(ch);
       });
     }
@@ -1231,19 +1926,21 @@
       const dmMsgs = $("#chatMsgs", convo);
       const form = $("#chatForm", convo);
       const input = $("#chatInput", convo);
-      const addBtn = $("[data-chat-add]", convo);
+      const callBtn = $("[data-chat-call]", convo);
       const searchBtn = $("[data-chat-search]", convo);
       const infoBtn = $("[data-chat-info]", convo);
 
+      bindChatFileUI(convo);
+      callBtn && (callBtn.onclick = ()=> window.fwToast?.("Visio", "Active Supabase pour la visio + partage d’écran."));
+
       const dms = loadDMs();
       const msgs = dms[name] || [];
-      dmMsgs.innerHTML = msgs.length ? msgs.map(m=> renderChatMessageHtml(m, u)).join("") : emptyChatHtml("Aucun message", "Envoie le premier message.");
+      dmMsgs.innerHTML = msgs.length ? msgs.map((m,i)=> renderChatMessageHtml(m, u, i)).join("") : emptyChatHtml("Aucun message", "Envoie le premier message.");
       dmMsgs.scrollTop = dmMsgs.scrollHeight;
 
       const btn = document.querySelector(`[data-dm="${name}"]`);
       btn?.querySelector(".badge") && (btn.querySelector(".badge").textContent = String(msgs.length));
 
-      addBtn && (addBtn.onclick = ()=> window.fwToast?.("Bientôt", "Ajout de fichiers à brancher ensuite."));
       searchBtn && (searchBtn.onclick = ()=> window.fwToast?.("Recherche", "Recherche à implémenter ensuite."));
       infoBtn && (infoBtn.onclick = ()=> window.fwToast?.("Infos", `DM avec ${name}`));
       if(input){
@@ -1259,16 +1956,62 @@
         });
       }
 
-      form && (form.onsubmit = (ev)=>{
+      dmMsgs && (dmMsgs.onclick = async (e)=>{
+        const idxRaw = e.target.closest("[data-open-file]")?.getAttribute("data-open-file");
+        if(idxRaw == null) return;
+        const i = Number(idxRaw);
+        const m = msgs[i];
+        if(!m) return;
+        if(m.fileData?.dataUrl){
+          const ok = await openDataUrl(m.fileData.dataUrl);
+          if(!ok) window.fwToast?.("Fichier","Impossible d’ouvrir ce fichier.");
+          return;
+        }
+        await openFileFromPost({ fileUrl: m.fileUrl, fileName: m.fileName });
+      });
+
+      form && (form.onsubmit = async (ev)=>{
         ev.preventDefault();
         const text = (input?.value || "").trim();
-        if(!text) return;
+        const selectedFile = form.__selectedFile || null;
+        if(!text && !selectedFile) return;
+
+        let fileName = "";
+        let fileData = null;
+        if(selectedFile){
+          if(selectedFile.size > 1_000_000){
+            window.fwToast?.("Fichier trop gros","En démo locale, limite ~1 Mo. Active Supabase pour l’upload.");
+            return;
+          }
+          try{
+            const dataUrl = await new Promise((resolve, reject)=>{
+              const fr = new FileReader();
+              fr.onerror = ()=> reject(new Error("read_error"));
+              fr.onload = ()=> resolve(String(fr.result || ""));
+              fr.readAsDataURL(selectedFile);
+            });
+            fileData = { dataUrl, type: selectedFile.type || "", size: selectedFile.size || 0 };
+            fileName = selectedFile.name || "fichier";
+          }catch(e){
+            window.fwToast?.("Erreur","Impossible de lire le fichier.");
+            return;
+          }
+        }
+
         const dms = loadDMs();
         dms[name] = dms[name] || [];
-        dms[name].push({from: u.name || "Moi", text, at: nowStr()});
+        dms[name].push({
+          from: u.name || "Moi",
+          text,
+          fileName,
+          fileUrl: "",
+          fileData,
+          at: nowStr(),
+        });
         saveDMs(dms);
         input.value = "";
         input.style.height = "";
+        clearChatSelectedFile(convo);
         showDM(name);
       });
     }
@@ -1370,6 +2113,11 @@
       const p = profile || {};
       const name = String(p.name || "Utilisateur");
       const time = fmtTime(r.created_at);
+      const text = String(r.text || "");
+      const fileUrl = String(r.file_url || "");
+      const fileName = String(r.file_name || "");
+      const hasFile = !!(fileUrl || fileName);
+      const fileLabel = fileName || (fileUrl ? (fileUrl.split("/").pop() || "Fichier") : "Fichier");
       return `
         <div class="msg">
           ${msgAvatarHtml(p, "avatar msg-avatar")}
@@ -1378,7 +2126,19 @@
               <span class="msg-name">${escapeHtml(name)}</span>
               <span class="msg-time">${escapeHtml(time)}</span>
             </div>
-            <div class="msg-text">${escapeHtml(String(r.text || ""))}</div>
+            ${text ? `<div class="msg-text">${escapeHtml(text)}</div>` : ""}
+            ${hasFile ? `
+              <button class="file-box msg-file" type="button" data-open-file="1" data-file-url="${escapeHtml(fileUrl)}" data-file-name="${escapeHtml(fileName)}">
+                <div class="file-left">
+                  <div class="file-ico" aria-hidden="true">📄</div>
+                  <div class="file-meta">
+                    <div class="file-title">Ouvrir le fichier</div>
+                    <div class="file-sub">${escapeHtml(fileLabel)}</div>
+                  </div>
+                </div>
+                <span class="badge">Ouvrir</span>
+              </button>
+            ` : ""}
           </div>
         </div>
       `;
@@ -1404,9 +2164,15 @@
       const dmMsgs = $("#chatMsgs", convo);
       const form = $("#chatForm", convo);
       const input = $("#chatInput", convo);
-      const addBtn = $("[data-chat-add]", convo);
+      const callBtn = $("[data-chat-call]", convo);
       const searchBtn = $("[data-chat-search]", convo);
       const infoBtn = $("[data-chat-info]", convo);
+
+      bindChatFileUI(convo);
+      callBtn && (callBtn.onclick = ()=> window.fwCall?.join?.({
+        roomId: `${company}::dm::${String(t.id)}`,
+        title: `Visio • @${other.name || "contact"}`,
+      }));
 
       const msgsRes = await sb
         .from("dm_messages")
@@ -1434,7 +2200,14 @@
         : emptyChatHtml("Aucun message", "Envoie le premier message.");
       dmMsgs.scrollTop = dmMsgs.scrollHeight;
 
-      addBtn && (addBtn.onclick = ()=> window.fwToast?.("Bientôt", "Ajout de fichiers à brancher ensuite."));
+      dmMsgs && (dmMsgs.onclick = async (e)=>{
+        const btn = e.target.closest("[data-file-url]");
+        if(!btn) return;
+        const fileUrl = btn.getAttribute("data-file-url") || "";
+        const fileName = btn.getAttribute("data-file-name") || "";
+        await openFileFromPost({ fileUrl, fileName });
+      });
+
       searchBtn && (searchBtn.onclick = ()=> window.fwToast?.("Recherche", "Recherche à implémenter ensuite."));
       infoBtn && (infoBtn.onclick = ()=> window.fwToast?.("Infos", `DM avec ${other.name || "contact"}`));
 
@@ -1454,20 +2227,56 @@
       form && (form.onsubmit = async (ev)=>{
         ev.preventDefault();
         const text = (input?.value || "").trim();
-        if(!text) return;
+        const selectedFile = form.__selectedFile || null;
+        if(!text && !selectedFile) return;
+
+        let fileUrl = "";
+        let fileName = "";
+        let uploadedPath = "";
+
+        if(selectedFile){
+          if(/[\\\/]/.test(company)){
+            window.fwToast?.("Entreprise invalide","Évite / ou \\ dans le nom d’entreprise/workspace.");
+            return;
+          }
+          const safeName = safeFileName(selectedFile.name);
+          const msgId = uuid();
+          uploadedPath = `${company}/dms/${String(t.id)}/${msgId}/${safeName}`;
+
+          window.fwToast?.("Upload","Envoi du fichier…");
+          const up = await sb.storage.from(STORAGE_BUCKET).upload(uploadedPath, selectedFile, {
+            upsert: false,
+            contentType: selectedFile.type || undefined,
+            cacheControl: "3600",
+          });
+          if(up.error){
+            const msg = up.error?.message || "Upload impossible. Vérifie le bucket + les policies Storage.";
+            window.fwToast?.("Upload", msg);
+            console.error("Upload", up.error);
+            return;
+          }
+          fileUrl = `sb://${STORAGE_BUCKET}/${uploadedPath}`;
+          fileName = String(selectedFile.name || safeName);
+        }
 
         const res = await sb.from("dm_messages").insert({
           company,
           thread_id: t.id,
           sender_id: uid,
-          text,
+          text: text || "",
+          file_url: fileUrl,
+          file_name: fileName,
         });
         if(res.error){
+          if(uploadedPath){
+            try{ await sb.storage.from(STORAGE_BUCKET).remove([uploadedPath]); }catch(e){ /* ignore */ }
+          }
           sbToastError("DM", res.error);
           return;
         }
         input.value = "";
         input.style.height = "";
+        clearChatSelectedFile(convo);
         await showDM(t);
       });
     }
@@ -2705,6 +3514,7 @@
             </div>
           </div>
           <div class="chat-actions">
+            <button class="btn icon ghost" type="button" title="Visio" data-chat-call>📹</button>
             <button class="btn icon ghost" type="button" title="Rechercher" data-chat-search>🔎</button>
             <button class="btn icon ghost" type="button" title="Infos" data-chat-info>ℹ️</button>
           </div>
@@ -2712,15 +3522,24 @@
 
         <div class="chat-messages" id="chatMsgs"></div>
 
+        <div class="chat-attach hidden" id="chatAttach" aria-live="polite">
+          <div class="chat-attach-left">
+            <span class="badge">📎 Fichier</span>
+            <div class="chat-attach-label truncate" id="chatAttachLabel">Aucun fichier</div>
+          </div>
+          <button class="btn small ghost" type="button" data-chat-attach-clear>Retirer</button>
+        </div>
+
         <form class="chat-composer" id="chatForm" autocomplete="off">
-          <button class="btn icon ghost" type="button" title="Ajouter" data-chat-add>＋</button>
+          <input id="chatFile" type="file" class="sr-only"/>
+          <button class="btn icon ghost" type="button" title="Ajouter un fichier" data-chat-add>＋</button>
           <textarea class="chat-input" id="chatInput" rows="1" placeholder="${escapeHtml(placeholder || "Écrire un message…")}"></textarea>
           <button class="btn primary send" type="submit">Envoyer</button>
         </form>
       </div>
     `;
   }
-  function renderChatMessageHtml(message, user){
+  function renderChatMessageHtml(message, user, idx){
     const m = message || {};
     const fromRaw = String(m.from || "Utilisateur");
     const isMe = fromRaw === "Moi" || fromRaw === (user?.name || "");
@@ -2728,6 +3547,11 @@
     const name = system ? "Système" : (isMe ? (user?.name || "Moi") : fromRaw);
     const time = shortAt(m.at || "");
     const text = String(m.text || "");
+    const fileName = String(m.fileName || m.file_name || "");
+    const fileUrl = String(m.fileUrl || m.file_url || "");
+    const fileDataUrl = String(m.fileData?.dataUrl || "");
+    const hasFile = !!(fileName || fileUrl || fileDataUrl);
+    const fileLabel = fileName || (fileUrl ? (String(fileUrl).split("/").pop() || "Fichier") : "Fichier");
 
     const avatar = system
       ? `<div class="avatar msg-avatar" style="background: rgba(255,255,255,.10)">FW</div>`
@@ -2741,7 +3565,19 @@
             <span class="msg-name">${escapeHtml(name)}</span>
             <span class="msg-time">${escapeHtml(time)}</span>
           </div>
-          <div class="msg-text">${escapeHtml(text)}</div>
+          ${text ? `<div class="msg-text">${escapeHtml(text)}</div>` : ""}
+          ${hasFile ? `
+            <button class="file-box msg-file" type="button" data-open-file="${escapeHtml(String(idx ?? ""))}">
+              <div class="file-left">
+                <div class="file-ico" aria-hidden="true">📄</div>
+                <div class="file-meta">
+                  <div class="file-title">Ouvrir le fichier</div>
+                  <div class="file-sub">${escapeHtml(fileLabel)}</div>
+                </div>
+              </div>
+              <span class="badge">Ouvrir</span>
+            </button>
+          ` : ""}
         </div>
       </div>
     `;

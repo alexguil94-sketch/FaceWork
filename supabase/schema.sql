@@ -77,6 +77,8 @@ create table if not exists public.channel_messages (
   channel_id uuid not null references public.channels(id) on delete cascade,
   user_id uuid not null references public.profiles(id) on delete cascade,
   text text not null,
+  file_url text not null default '',
+  file_name text not null default '',
   created_at timestamptz not null default now()
 );
 
@@ -98,8 +100,16 @@ create table if not exists public.dm_messages (
   thread_id uuid not null references public.dm_threads(id) on delete cascade,
   sender_id uuid not null references public.profiles(id) on delete cascade,
   text text not null,
+  file_url text not null default '',
+  file_name text not null default '',
   created_at timestamptz not null default now()
 );
+
+-- Idempotent upgrades (in case tables already exist)
+alter table public.channel_messages add column if not exists file_url text not null default '';
+alter table public.channel_messages add column if not exists file_name text not null default '';
+alter table public.dm_messages add column if not exists file_url text not null default '';
+alter table public.dm_messages add column if not exists file_name text not null default '';
 
 -- -------------------------------------------------------------------
 -- Seed per company (roles + default channels) + first admin assignment
