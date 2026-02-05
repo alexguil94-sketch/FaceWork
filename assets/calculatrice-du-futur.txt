@@ -1,0 +1,6 @@
+Calculatrice du futur — Démo FaceWork
+
+Ce fichier est un exemple de “document interne” partagé dans FaceWork.
+Tu peux le remplacer par ton propre PDF/Doc en mettant une URL dans la publication.
+
+— FaceWork

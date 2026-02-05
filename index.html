@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>FaceWork — Réseau social inter‑entreprise</title>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+  <header class="navbar">
+    <div class="container inner">
+      <a class="brand" href="index.html" aria-label="FaceWork accueil">
+        <div class="logo" aria-hidden="true"><img src="assets/fw-logo.png" alt=""/></div>
+        <div>
+          <div style="line-height:1; font-size:18px">FaceWork</div>
+          <div style="color:var(--muted); font-size:12px; font-weight:800">Le réseau social inter‑entreprise</div>
+        </div>
+      </a>
+
+      <nav class="navlinks" aria-label="Navigation">
+        <a href="#features">Fonctionnalités</a>
+        <a href="#about">À propos</a>
+        <a href="#contact">Contact</a>
+      </nav>
+
+      <div class="nav-actions">
+        <button class="btn icon" data-theme-toggle title="Basculer thème">🌓</button>
+        <a class="btn primary" href="login.html">Commencer</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div class="hero-top">
+        <span class="pill">Réseau Social Professionnel</span>
+        <label class="searchbar" aria-label="Rechercher">
+          <span class="icon" aria-hidden="true">🔎</span>
+          <input type="search" placeholder="Rechercher..." />
+        </label>
+      </div>
+
+      <h1 class="h1"><span class="grad">Connectez</span><br/>vos équipes</h1>
+      <p class="lead">
+        FaceWork révolutionne la communication inter‑entreprise avec une plateforme moderne, sécurisée et intuitive.
+        Rejoignez la nouvelle génération de réseaux professionnels.
+      </p>
+
+      <div class="hero-actions">
+        <a class="btn primary" href="login.html">Démarrer gratuitement</a>
+        <a class="btn" href="#features">En savoir plus</a>
+      </div>
+
+      <div class="stats" aria-label="Statistiques">
+        <div class="stat">
+          <div class="num">50K+</div>
+          <div class="cap">Utilisateurs actifs</div>
+        </div>
+        <div class="stat">
+          <div class="num">200+</div>
+          <div class="cap">Entreprises</div>
+        </div>
+        <div class="stat">
+          <div class="num">99.9%</div>
+          <div class="cap">Satisfaction</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="features" class="section-head">
+      <h2>Fonctionnalités puissantes</h2>
+      <p>Tout ce dont vous avez besoin pour collaborer efficacement.</p>
+    </section>
+
+    <section class="features-grid" aria-label="Fonctionnalités">
+      <article class="feature-card">
+        <div class="feature-icon" aria-hidden="true">💬</div>
+        <h3>Messagerie instantanée</h3>
+        <p>Communiquez en temps réel avec vos collègues via des conversations privées ou en groupe.</p>
+      </article>
+
+      <article class="feature-card">
+        <div class="feature-icon" aria-hidden="true">📎</div>
+        <h3>Partage de documents</h3>
+        <p>Partagez facilement des fichiers, photos et présentations avec votre équipe.</p>
+      </article>
+
+      <article class="feature-card">
+        <div class="feature-icon" aria-hidden="true">🛡️</div>
+        <h3>Sécurité avancée</h3>
+        <p>Vos données sont protégées avec un chiffrement et des contrôles d’accès avancés.</p>
+      </article>
+    </section>
+
+    <section id="about" class="spacer"></section>
+    <section class="card about-card">
+      <h2 style="margin:0 0 10px; font-size:28px">À propos de FaceWork</h2>
+      <p class="page-sub" style="margin:0; line-height:1.7">
+        FaceWork est né de la volonté de créer un espace de collaboration moderne et efficace pour les professionnels.
+        Notre mission est de faciliter la communication inter‑entreprise et de renforcer les liens entre les équipes,
+        tout en garantissant la sécurité et la confidentialité des échanges.
+      </p>
+    </section>
+
+    <section id="contact" class="spacer"></section>
+    <section class="cta">
+      <h3>Prêt à commencer ?</h3>
+      <p>Rejoignez des milliers de professionnels qui utilisent déjà FaceWork.</p>
+      <a class="btn primary" href="login.html">Commencer maintenant</a>
+    </section>
+
+    <footer class="footer">
+      <div class="inner container">
+        <div>
+          <div style="font-weight:950; color:var(--text)">FaceWork</div>
+          <div style="margin-top:6px">Plateforme de communication inter‑entreprise — démo statique HTML/CSS/JS.</div>
+        </div>
+        <div class="col" style="gap:8px">
+          <div class="badge">Liens</div>
+          <a href="login.html">Connexion</a>
+          <a href="app/feed.html">Accéder à l’app</a>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <div class="toast" role="status" aria-live="polite">
+    <div class="t">Info</div>
+    <div class="d">—</div>
+  </div>
+
+  <script src="js/site.js"></script>
+</body>
+</html>

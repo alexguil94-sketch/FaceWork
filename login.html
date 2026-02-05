@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Connexion — FaceWork</title>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+  <header class="navbar">
+    <div class="container inner">
+      <a class="brand" href="index.html" aria-label="FaceWork accueil">
+        <div class="logo" aria-hidden="true"><img src="assets/fw-logo.png" alt=""/></div>
+        <div>
+          <div style="line-height:1; font-size:18px">FaceWork</div>
+          <div style="color:var(--muted); font-size:12px; font-weight:800">Le réseau social inter‑entreprise</div>
+        </div>
+      </a>
+
+      <div class="nav-actions">
+        <button class="btn icon" data-theme-toggle title="Basculer thème">🌓</button>
+        <a class="btn" href="index.html">Retour</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="auth">
+      <div class="auth-left">
+        <div class="row" style="gap:12px">
+          <div class="logo" aria-hidden="true" style="width:56px;height:56px;border-radius:16px"><img src="assets/fw-logo.png" alt=""/></div>
+          <div>
+            <div class="badge">Réseau Social Inter‑Entreprise</div>
+            <div style="margin-top:6px; color:var(--muted); font-weight:800">Connectez‑vous avec des pros de votre secteur</div>
+          </div>
+        </div>
+
+        <h2>Réseau Social<br/>Inter‑Entreprise</h2>
+        <p>
+          Connectez‑vous avec des professionnels de votre secteur et développez votre réseau.
+          Accédez à votre espace pour retrouver vos canaux, publications et messages.
+        </p>
+
+        <div class="mini">
+          <span class="pill">✅ Feed + réactions</span>
+          <span class="pill">✅ Canaux (type Discord)</span>
+          <span class="pill">✅ DM</span>
+          <span class="pill">🌓 Dark/Light</span>
+        </div>
+      </div>
+
+      <div class="card auth-right">
+        <div class="form">
+          <div style="text-align:center">
+            <h3>Connexion</h3>
+            <p>Bienvenue sur votre espace</p>
+          </div>
+
+          <form id="loginForm" class="grid">
+            <div>
+              <div class="label">Email</div>
+              <div class="field">
+                <span class="field-icon" aria-hidden="true">✉️</span>
+                <input class="input" id="email" type="email" placeholder="vous@exemple.com" autocomplete="email"/>
+              </div>
+            </div>
+            <div>
+              <div class="label">Mot de passe</div>
+              <div class="field">
+                <span class="field-icon" aria-hidden="true">🔒</span>
+                <input class="input" id="password" type="password" placeholder="••••••••" autocomplete="current-password"/>
+              </div>
+            </div>
+
+            <button class="btn primary block" type="submit">Se connecter</button>
+
+            <div class="or">ou continuer avec</div>
+
+            <div class="row">
+              <button class="btn" type="button" id="btnGoogle" style="flex:1">🟡 Google</button>
+              <button class="btn" type="button" id="btnDiscord" style="flex:1">🟣 Discord</button>
+            </div>
+
+            <div class="note">
+              Pas encore de compte ? <a href="#" onclick="fwToast('Info','Inscription à ajouter ensuite 🙂'); return false;">S’inscrire</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" role="status" aria-live="polite">
+    <div class="t">Info</div>
+    <div class="d">—</div>
+  </div>
+
+  <script src="js/site.js"></script>
+  <script src="js/login.js"></script>
+</body>
+</html>

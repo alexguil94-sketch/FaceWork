@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Canaux — FaceWork</title>
+  <link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body>
+  <div class="app">
+    
+<header class="appbar">
+  <div class="container inner">
+    <a class="brand" href="feed.html" aria-label="FaceWork">
+      <div class="logo" aria-hidden="true"><img src="../assets/fw-logo.png" alt=""/></div>
+      <div style="line-height:1.1">
+        <div style="font-size:18px; font-weight:950">FaceWork</div>
+        <div style="font-size:12px; color:var(--muted); font-weight:800">Espace entreprise</div>
+      </div>
+    </a>
+
+    <nav class="appnav" aria-label="Navigation application">
+      <a data-app-nav href="feed.html">🏠 Accueil</a>
+      <a data-app-nav href="feed.html">📰 Publications</a>
+      <a data-app-nav href="channels.html"># Canaux</a>
+      <a data-app-nav href="messages.html">💬 Messages</a>
+      <a data-app-nav href="admin.html">🛡️ Admin</a>
+      <a data-app-nav href="settings.html">⚙️ Paramètres</a>
+    </nav>
+
+    <div class="userbox">
+      <button class="btn icon" data-theme-toggle title="Basculer thème">🌓</button>
+      <div class="row" style="gap:10px">
+        <div class="avatar" data-user-avatar>FW</div>
+        <div style="display:flex; flex-direction:column; line-height:1.1">
+          <div style="font-weight:950" data-user-name>Utilisateur</div>
+          <div class="sub" data-user-company>Entreprise</div>
+        </div>
+      </div>
+      <button class="btn small" data-logout title="Se déconnecter" aria-label="Se déconnecter">
+        <span aria-hidden="true">↩</span>
+        <span class="hide-sm">Déconnexion</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+    <main class="main">
+      <div class="container">
+        <h1 class="page-title">Canaux</h1>
+        <p class="page-sub">Organisez vos discussions par thèmes, comme sur Discord.</p>
+
+        <div class="spacer"></div>
+
+        <section class="workbench card">
+          <aside class="workbench-sidebar">
+            <div class="row" style="justify-content:space-between">
+              <div class="badge">Canaux</div>
+              <button class="btn small primary" id="createChannel">＋ Créer un canal</button>
+            </div>
+
+            <div class="side-title"><span># Canaux publics</span></div>
+            <div class="ch-list" data-ch-list="public"></div>
+
+            <div class="side-title"><span>🎙️ Canaux vocaux</span></div>
+            <div class="ch-list" data-ch-list="voice"></div>
+
+            <div class="side-title"><span>🔒 Canaux privés</span></div>
+            <div class="ch-list" data-ch-list="private"></div>
+          </aside>
+
+          <section id="channelPanel" class="workbench-main">
+            <div class="empty">
+              <div>
+                <div class="big">#</div>
+                <div class="title">Sélectionnez un canal</div>
+                <div class="hint">Ou créez‑en un nouveau !</div>
+              </div>
+            </div>
+          </section>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" role="status" aria-live="polite">
+    <div class="t">Info</div>
+    <div class="d">—</div>
+  </div>
+
+  <script src="../js/site.js"></script>
+  <script src="../js/app.js"></script>
+</body>
+</html>

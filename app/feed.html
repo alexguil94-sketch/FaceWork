@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Publications — FaceWork</title>
+  <link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body>
+  <div class="app">
+    
+<header class="appbar">
+  <div class="container inner">
+    <a class="brand" href="feed.html" aria-label="FaceWork">
+      <div class="logo" aria-hidden="true"><img src="../assets/fw-logo.png" alt=""/></div>
+      <div style="line-height:1.1">
+        <div style="font-size:18px; font-weight:950">FaceWork</div>
+        <div style="font-size:12px; color:var(--muted); font-weight:800">Espace entreprise</div>
+      </div>
+    </a>
+
+    <nav class="appnav" aria-label="Navigation application">
+      <a data-app-nav href="feed.html">🏠 Accueil</a>
+      <a data-app-nav href="feed.html">📰 Publications</a>
+      <a data-app-nav href="channels.html"># Canaux</a>
+      <a data-app-nav href="messages.html">💬 Messages</a>
+      <a data-app-nav href="admin.html">🛡️ Admin</a>
+      <a data-app-nav href="settings.html">⚙️ Paramètres</a>
+    </nav>
+
+    <div class="userbox">
+      <button class="btn icon" data-theme-toggle title="Basculer thème">🌓</button>
+      <div class="row" style="gap:10px">
+        <div class="avatar" data-user-avatar>FW</div>
+        <div style="display:flex; flex-direction:column; line-height:1.1">
+          <div style="font-weight:950" data-user-name>Utilisateur</div>
+          <div class="sub" data-user-company>Entreprise</div>
+        </div>
+      </div>
+      <button class="btn small" data-logout title="Se déconnecter" aria-label="Se déconnecter">
+        <span aria-hidden="true">↩</span>
+        <span class="hide-sm">Déconnexion</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+    <main class="main">
+      <div class="container">
+        <div class="row" style="justify-content:space-between; flex-wrap:wrap; gap:12px">
+          <div>
+            <h1 class="page-title">Publications Internes</h1>
+            <p class="page-sub">Partagez des documents, photos et présentations avec votre équipe.</p>
+          </div>
+          <a class="btn primary" href="#composer">＋ Nouvelle publication</a>
+        </div>
+
+        <div class="spacer"></div>
+
+        <section id="composer" class="card panel">
+          <div class="badge">Composer</div>
+          <h2 style="margin:10px 0 6px; font-size:26px">Créer une publication</h2>
+          <p class="page-sub">Démo locale : tes posts sont enregistrés dans le navigateur (localStorage).</p>
+          <div class="hr"></div>
+
+          <form id="newPostForm" class="grid2">
+            <div class="col">
+              <div>
+                <div class="label">Titre</div>
+                <input class="input" id="postTitle" placeholder="Ex: Calculatrice du futur"/>
+              </div>
+              <div>
+                <div class="label">Message</div>
+                <textarea class="input" id="postBody" rows="4" placeholder="Explique ce que tu partages…"></textarea>
+              </div>
+              <div>
+                <div class="label">Lien du fichier (optionnel)</div>
+                <div class="field">
+                  <span class="field-icon" aria-hidden="true">🔗</span>
+                  <input class="input" id="postFileUrl" type="url" placeholder="https://... ou ../assets/mon-fichier.pdf"/>
+                </div>
+              </div>
+              <div>
+                <div class="label">Nom du fichier (optionnel)</div>
+                <input class="input" id="postFileName" placeholder="Ex: calculatrice-du-futur.pdf"/>
+              </div>
+              <button class="btn primary block" type="submit">Publier</button>
+            </div>
+
+            <div class="post">
+              <h4>Conseil</h4>
+              <p>Ajoute un lien de fichier pour afficher un bloc “Télécharger le fichier” comme sur la maquette.</p>
+              <div class="actions" style="margin-top:14px">
+                <span class="badge">partage docs</span>
+                <span class="badge">réactions</span>
+                <span class="badge">commentaires (à venir)</span>
+              </div>
+            </div>
+          </form>
+        </section>
+
+        <div class="spacer"></div>
+
+        <section class="card panel">
+          <div class="row" style="justify-content:space-between; flex-wrap:wrap">
+            <div>
+              <div class="badge">Flux</div>
+              <h2 style="margin:10px 0 0; font-size:26px">Dernières publications</h2>
+            </div>
+            <div class="badge">Astuce : clique ❤️</div>
+          </div>
+          <div class="hr"></div>
+
+          <div id="feedList" class="col" style="gap:14px"></div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" role="status" aria-live="polite">
+    <div class="t">Info</div>
+    <div class="d">—</div>
+  </div>
+
+  <script src="../js/site.js"></script>
+  <script src="../js/app.js"></script>
+</body>
+</html>
