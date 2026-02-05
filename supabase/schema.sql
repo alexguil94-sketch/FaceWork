@@ -10,34 +10,6 @@
 create extension if not exists pgcrypto;
 
 -- -------------------------------------------------------------------
--- Helpers for RLS
--- -------------------------------------------------------------------
-create or replace function public.current_company()
-returns text
-language sql
-stable
-security definer
-set search_path = public
-as $$
-  select company from public.profiles where id = auth.uid()
-$$;
-
-create or replace function public.is_admin()
-returns boolean
-language sql
-stable
-security definer
-set search_path = public
-as $$
-  select exists (
-    select 1
-    from public.profiles
-    where id = auth.uid()
-      and role = 'admin'
-  )
-$$;
-
--- -------------------------------------------------------------------
 -- Core tables
 -- -------------------------------------------------------------------
 create table if not exists public.profiles (
@@ -319,6 +291,36 @@ after insert on public.dm_messages
 for each row execute function public.dm_messages_after_insert();
 
 -- -------------------------------------------------------------------
+-- Helpers for RLS
+-- -------------------------------------------------------------------
+-- Must be defined AFTER the referenced tables exist (e.g. profiles),
+-- otherwise Postgres raises: relation "public.profiles" does not exist.
+create or replace function public.current_company()
+returns text
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select company from public.profiles where id = auth.uid()
+$$;
+
+create or replace function public.is_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.profiles
+    where id = auth.uid()
+      and role = 'admin'
+  )
+$$;
+
+-- -------------------------------------------------------------------
 -- RLS (Row Level Security)
 -- -------------------------------------------------------------------
 alter table public.profiles enable row level security;
@@ -562,4 +564,3 @@ grant select, insert, update, delete on
   public.dm_threads,
   public.dm_messages
 to authenticated;
-
