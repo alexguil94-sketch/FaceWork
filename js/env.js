@@ -5,10 +5,9 @@
 // ⚠️ La clé "Publishable/Anon" est prévue pour être utilisée côté navigateur.
 // Ne JAMAIS mettre la clé "service_role" ici.
 window.FW_ENV = window.FW_ENV || {
-  SUPABASE_URL: "",
-  SUPABASE_KEY: "",
+  SUPABASE_URL: "https://livucppvekqyfswehasz.supabase.co",
+  SUPABASE_KEY: "sb_publishable_M5pvdKQccPb-v1xy9Y_k7w_VhmX5HeG",
 
   // Optionnel : workspace/entreprise par défaut (tu peux aussi le saisir sur la page login)
-  SUPABASE_COMPANY: "HeroForgeWeb",
+  SUPABASE_COMPANY: "Entreprise",
 };
-
