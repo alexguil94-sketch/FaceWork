@@ -15,12 +15,13 @@
     return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}`;
   }
 
-  function makeUser(email){
+  function makeUser(email, company){
     const nameGuess = (email || "utilisateur").split("@")[0].replace(/[._-]+/g," ").trim();
     const name = nameGuess ? nameGuess.split(/\s+/).map(s=>s[0]?.toUpperCase()+s.slice(1)).join(" ") : "Utilisateur";
     return {
+      id: "",
       name,
-      company: "HeroForgeWeb",
+      company: company || "HeroForgeWeb",
       email: email || "vous@exemple.com",
       role: "admin",
       joinedAt: dateStr(),
@@ -29,28 +30,74 @@
     };
   }
 
-  form.addEventListener("submit", (ev)=>{
+  // Prefill company
+  const companyInput = $("#company");
+  if(companyInput && !companyInput.value){
+    companyInput.value = window.fwSupabase?.companyDefault || "HeroForgeWeb";
+  }
+
+  form.addEventListener("submit", async (ev)=>{
     ev.preventDefault();
     const email = $("#email").value.trim();
     const pwd = $("#password").value.trim();
+    const company = $("#company")?.value.trim() || window.fwSupabase?.companyDefault || "HeroForgeWeb";
     if(!email || !pwd){
-      window.fwToast?.("Champs manquants","Entre un email et un mot de passe (démo).");
+      window.fwToast?.("Champs manquants","Entre un email et un mot de passe.");
       return;
     }
-    setUser(makeUser(email));
-    window.fwToast?.("Connecté","Bienvenue sur FaceWork !");
+    // Supabase mode
+    if(window.fwSupabase?.enabled && window.fwSupabase?.client){
+      const sb = window.fwSupabase.client;
+      const nameGuess = (email || "utilisateur").split("@")[0].replace(/[._-]+/g," ").trim();
+      const name = nameGuess ? nameGuess.split(/\s+/).map(s=>s[0]?.toUpperCase()+s.slice(1)).join(" ") : "Utilisateur";
+
+      window.fwToast?.("Connexion","Connexion à Supabase...");
+      const signIn = await sb.auth.signInWithPassword({ email, password: pwd });
+      if(signIn.error){
+        const create = confirm("Compte introuvable ou mauvais mot de passe.\n\nCréer un compte avec cet email ?");
+        if(!create) return;
+
+        const signUp = await sb.auth.signUp({
+          email,
+          password: pwd,
+          options: { data: { name, company } },
+        });
+        if(signUp.error){
+          window.fwToast?.("Erreur", signUp.error.message || "Impossible de créer le compte.");
+          return;
+        }
+        if(!signUp.data?.session){
+          window.fwToast?.("Vérification email","Compte créé. Vérifie tes emails puis reconnecte-toi.");
+          return;
+        }
+      }
+
+      const profile = await window.fwSupabase.ensureProfile({ name, company });
+      if(!profile){
+        window.fwToast?.("Schéma Supabase manquant","Applique le fichier SQL (tables + RLS) puis recharge.");
+        return;
+      }
+      await window.fwSupabase.syncLocalUser();
+      window.fwToast?.("Connecté","Bienvenue sur FaceWork !");
+      setTimeout(go, 450);
+      return;
+    }
+
+    // Demo mode (localStorage)
+    setUser(makeUser(email, company));
+    window.fwToast?.("Connecté","Bienvenue sur FaceWork (démo locale) !");
     setTimeout(go, 450);
   });
 
   $("#btnGoogle")?.addEventListener("click", ()=>{
-    setUser(makeUser("alexis.g@heroforgeweb.com"));
-    window.fwToast?.("Connecté via Google","Bienvenue !");
+    setUser(makeUser("alexis.g@heroforgeweb.com", $("#company")?.value.trim() || window.fwSupabase?.companyDefault || "HeroForgeWeb"));
+    window.fwToast?.("Connecté via Google","Bienvenue ! (démo)");
     setTimeout(go, 450);
   });
 
   $("#btnDiscord")?.addEventListener("click", ()=>{
-    setUser(makeUser("alexis.g@heroforgeweb.com"));
-    window.fwToast?.("Connecté via Discord","Bienvenue !");
+    setUser(makeUser("alexis.g@heroforgeweb.com", $("#company")?.value.trim() || window.fwSupabase?.companyDefault || "HeroForgeWeb"));
+    window.fwToast?.("Connecté via Discord","Bienvenue ! (démo)");
     setTimeout(go, 450);
   });
 })();

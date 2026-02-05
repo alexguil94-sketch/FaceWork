@@ -3,6 +3,9 @@
   const { $, $$, getUser, setUser } = window.fw || {};
   if(!$) return;
 
+  const sb = (window.fwSupabase?.enabled && window.fwSupabase?.client) ? window.fwSupabase.client : null;
+  const sbEnabled = !!sb;
+
   const nowStr = ()=>{
     const d = new Date();
     const pad = (n)=> String(n).padStart(2,"0");
@@ -14,6 +17,53 @@
     const pad = (n)=> String(n).padStart(2,"0");
     return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}`;
   };
+
+  function loginHref(){
+    const inApp = (window.location.pathname.includes("/app/") || window.location.href.includes("/app/"));
+    return inApp ? "../login.html" : "login.html";
+  }
+
+  function companyFromUser(){
+    const u = getUser() || {};
+    return String(u.company || window.fwSupabase?.companyDefault || "Entreprise").trim() || "Entreprise";
+  }
+
+  let __sbSession = null;
+  async function sbSession(){
+    if(!sb) return null;
+    if(__sbSession) return __sbSession;
+    const { data, error } = await sb.auth.getSession();
+    if(error) return null;
+    __sbSession = data?.session || null;
+    return __sbSession;
+  }
+  async function sbUser(){
+    const s = await sbSession();
+    return s?.user || null;
+  }
+  async function sbUserId(){
+    const u = await sbUser();
+    return u?.id || "";
+  }
+
+  function fmtTs(ts){
+    const d = new Date(ts);
+    if(Number.isNaN(d.getTime())) return String(ts || "");
+    const pad = (n)=> String(n).padStart(2,"0");
+    return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} • ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+  function fmtTime(ts){
+    const d = new Date(ts);
+    if(Number.isNaN(d.getTime())) return "";
+    const pad = (n)=> String(n).padStart(2,"0");
+    return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+
+  function sbToastError(title, error){
+    const msg = error?.message || error?.error_description || "Erreur Supabase";
+    console.error(title, error);
+    window.fwToast?.(title, msg);
+  }
 
   // ---------- Seed data
   function seed(){
@@ -190,7 +240,7 @@
       return String(Date.now()) + String(Math.random()).slice(2);
     }
   }
-  seed();
+  if(!sbEnabled) seed();
 
   // ---------- FEED
   function loadPosts(){
@@ -312,7 +362,209 @@
       });
     }
   }
-  renderFeed();
+
+  async function renderFeedSupabase(){
+    const root = $("#feedList");
+    if(!root) return;
+
+    const uid = await sbUserId();
+    if(!uid){
+      window.fwSupabase?.requireAuth?.({ redirectTo: loginHref() });
+      return;
+    }
+
+    const company = companyFromUser();
+
+    const { data: posts, error } = await sb
+      .from("posts")
+      .select("*")
+      .eq("company", company)
+      .order("created_at", { ascending: false });
+    if(error){
+      sbToastError("Supabase", error);
+      root.innerHTML = "";
+      return;
+    }
+
+    const authorIds = Array.from(new Set((posts || []).map(p=> p?.author_id).filter(Boolean)));
+    let authors = [];
+    if(authorIds.length){
+      const res = await sb
+        .from("profiles")
+        .select("id,name,company,avatar_url,avatar_bg")
+        .in("id", authorIds);
+      if(!res.error) authors = res.data || [];
+    }
+    const authorById = new Map((authors || []).map(a=> [String(a.id), a]));
+
+    let likedSet = new Set();
+    const likesRes = await sb
+      .from("post_likes")
+      .select("post_id")
+      .eq("company", company)
+      .eq("user_id", uid);
+    if(!likesRes.error){
+      likedSet = new Set((likesRes.data || []).map(x=> String(x.post_id)));
+    }
+
+    const meRole = String(getUser()?.role || "").trim().toLowerCase();
+
+    root.innerHTML = "";
+    (posts || []).forEach(p=>{
+      const author = authorById.get(String(p.author_id)) || {};
+      const name = String(author.name || "Utilisateur");
+      const comp = String(author.company || company);
+      const createdAt = fmtTs(p.created_at);
+      const fileUrl = String(p.file_url || "");
+      const fileName = String(p.file_name || "");
+      const canDelete = String(p.author_id) === String(uid) || meRole === "admin";
+      const likeCount = Number(p.likes_count || 0);
+      const isLiked = likedSet.has(String(p.id));
+
+      const avatar = author.avatar_url
+        ? `<div class="avatar" aria-hidden="true"><img src="${escapeHtml(author.avatar_url)}" alt=""/></div>`
+        : `<div class="avatar" aria-hidden="true"${author.avatar_bg ? ` style="background:${escapeHtml(author.avatar_bg)}"` : ""}>${escapeHtml(initials(name))}</div>`;
+
+      const el = document.createElement("div");
+      el.className = "post";
+      el.innerHTML = `
+        <div class="top">
+          <div class="who">
+            ${avatar}
+            <div class="meta">
+              <div class="name">${escapeHtml(name)} <span class="badge" style="margin-left:8px">${escapeHtml(comp)}</span></div>
+              <div class="time">${escapeHtml(createdAt)}${(fileName || fileUrl) ? " • 📄 Fichier" : ""}</div>
+            </div>
+          </div>
+          ${canDelete ? `<button class="btn icon ghost" title="Supprimer" data-del="${escapeHtml(p.id)}">🗑️</button>` : `<span></span>`}
+        </div>
+        <h4>${escapeHtml(p.title || "Publication")}</h4>
+        ${(fileName || fileUrl) ? `
+          <button class="file-box" type="button" data-open="${escapeHtml(p.id)}">
+            <div class="file-left">
+              <div class="file-ico" aria-hidden="true">📄</div>
+              <div class="file-meta">
+                <div class="file-title">Télécharger le fichier</div>
+                <div class="file-sub">${escapeHtml(fileName || "Cliquez pour ouvrir")}</div>
+              </div>
+            </div>
+            <span class="badge">Ouvrir</span>
+          </button>
+        ` : ""}
+        ${p.body ? `<p>${escapeHtml(p.body)}</p>` : ""}
+        <div class="actions">
+          <button class="iconbtn${isLiked ? " active" : ""}" data-like="${escapeHtml(p.id)}" aria-pressed="${isLiked ? "true" : "false"}">❤️ <span>${likeCount}</span></button>
+          <span class="badge">0 commentaires</span>
+        </div>
+      `;
+      root.appendChild(el);
+    });
+
+    if(!root.__sbBound){
+      root.__sbBound = true;
+      root.addEventListener("click", async (e)=>{
+        const likeBtn = e.target.closest("[data-like]");
+        const delId = e.target.closest("[data-del]")?.getAttribute("data-del");
+        const openId = e.target.closest("[data-open]")?.getAttribute("data-open");
+
+        if(likeBtn){
+          const postId = likeBtn.getAttribute("data-like");
+          const isLiked = likeBtn.getAttribute("aria-pressed") === "true" || likeBtn.classList.contains("active");
+          const uid = await sbUserId();
+          const company = companyFromUser();
+          if(!uid) return;
+
+          if(isLiked){
+            const res = await sb
+              .from("post_likes")
+              .delete()
+              .eq("company", company)
+              .eq("post_id", postId)
+              .eq("user_id", uid);
+            if(res.error) sbToastError("Like", res.error);
+          }else{
+            const res = await sb
+              .from("post_likes")
+              .insert({ company, post_id: postId, user_id: uid });
+            if(res.error) sbToastError("Like", res.error);
+          }
+          await renderFeedSupabase();
+          return;
+        }
+
+        if(delId){
+          const ok = confirm("Supprimer cette publication ?");
+          if(!ok) return;
+          const company = companyFromUser();
+          const res = await sb.from("posts").delete().eq("company", company).eq("id", delId);
+          if(res.error) sbToastError("Suppression", res.error);
+          await renderFeedSupabase();
+          return;
+        }
+
+        if(openId){
+          const btn = e.target.closest("[data-open]");
+          const url = btn?.getAttribute("data-file-url") || "";
+          // Fallback: re-fetch the post (simple + safe)
+          const company = companyFromUser();
+          const res = await sb.from("posts").select("file_url").eq("company", company).eq("id", openId).maybeSingle();
+          const href = safeUrl(res.data?.file_url || url);
+          if(!href){
+            window.fwToast?.("Aucun lien","Ajoute un lien de fichier dans “Nouvelle publication”.");
+            return;
+          }
+          window.open(href, "_blank");
+        }
+      });
+    }
+
+    const form = $("#newPostForm");
+    if(form && !form.__sbBound){
+      form.__sbBound = true;
+      form.addEventListener("submit", async (ev)=>{
+        ev.preventDefault();
+        const uid = await sbUserId();
+        if(!uid) return;
+
+        const title = $("#postTitle")?.value.trim() || "";
+        const body  = $("#postBody")?.value.trim() || "";
+        const fileUrl = $("#postFileUrl")?.value.trim() || "";
+        const fileNameInput = $("#postFileName")?.value.trim() || "";
+
+        let fileName = fileNameInput;
+        if(!fileName && fileUrl){
+          try{ fileName = new URL(fileUrl, window.location.href).pathname.split("/").pop() || ""; }catch(e){ /* ignore */ }
+        }
+        if(!title && !body && !fileUrl){
+          window.fwToast?.("Oups","Écris au moins un titre ou un message.");
+          return;
+        }
+
+        const company = companyFromUser();
+        const res = await sb.from("posts").insert({
+          company,
+          author_id: uid,
+          title: title || "Sans titre",
+          body: body || "",
+          file_url: fileUrl || "",
+          file_name: fileName || "",
+        });
+        if(res.error){
+          sbToastError("Publication", res.error);
+          return;
+        }
+
+        $("#postTitle") && ($("#postTitle").value = "");
+        $("#postBody") && ($("#postBody").value = "");
+        $("#postFileUrl") && ($("#postFileUrl").value = "");
+        $("#postFileName") && ($("#postFileName").value = "");
+
+        await renderFeedSupabase();
+        window.fwToast?.("Publié","Ta publication est en ligne.");
+      });
+    }
+  }
+  sbEnabled ? renderFeedSupabase() : renderFeed();
 
   // ---------- CHANNELS
   function loadChannels(){
@@ -445,7 +697,210 @@
       });
     }
   }
-  renderChannels();
+
+  async function renderChannelsSupabase(){
+    const panel = $("#channelPanel");
+    if(!panel) return;
+
+    const uid = await sbUserId();
+    if(!uid){
+      window.fwSupabase?.requireAuth?.({ redirectTo: loginHref() });
+      return;
+    }
+
+    const company = companyFromUser();
+    const meRole = String(getUser()?.role || "").trim().toLowerCase();
+
+    const { data: chans, error } = await sb
+      .from("channels")
+      .select("*")
+      .eq("company", company)
+      .order("type", { ascending: true })
+      .order("name", { ascending: true });
+    if(error){
+      sbToastError("Canaux", error);
+      panel.innerHTML = emptyChatHtml("Erreur", "Impossible de charger les canaux.");
+      return;
+    }
+
+    const channels = chans || [];
+    const allIds = [];
+    const sections = [
+      {key:"public", title:"Canaux publics", icon:"#"},
+      {key:"voice", title:"Canaux vocaux", icon:"🎙️"},
+      {key:"private", title:"Canaux privés", icon:"🔒"},
+    ];
+
+    sections.forEach(s=>{
+      const list = $(`[data-ch-list="${s.key}"]`);
+      if(!list) return;
+      list.innerHTML = "";
+      channels.filter(c=> String(c.type) === s.key).forEach(ch=>{
+        allIds.push(String(ch.id));
+        const count = Number(ch.message_count || 0);
+        const b = document.createElement("button");
+        b.className = "ch-item";
+        b.setAttribute("data-ch-id", String(ch.id));
+        b.innerHTML = `<span><span class="hash">${s.icon}</span> ${escapeHtml(ch.name || "canal")}</span><span class="badge">${count}</span>`;
+        b.addEventListener("click", ()=> showChannel(ch));
+        list.appendChild(b);
+      });
+    });
+
+    function msgAvatarHtml(profile, className){
+      const p = profile || {};
+      const u = {
+        name: p.name || "Utilisateur",
+        avatarUrl: p.avatar_url || "",
+        avatarBg: p.avatar_bg || "",
+      };
+      const cls = className || "avatar msg-avatar";
+      if(u.avatarUrl) return `<div class="${cls}"><img src="${escapeHtml(u.avatarUrl)}" alt=""/></div>`;
+      const bg = u.avatarBg ? ` style="background:${escapeHtml(u.avatarBg)}"` : "";
+      return `<div class="${cls}"${bg}>${escapeHtml(initials(u.name))}</div>`;
+    }
+    function renderSbChatMessageHtml(row, profile){
+      const r = row || {};
+      const p = profile || {};
+      const name = String(p.name || "Utilisateur");
+      const time = fmtTime(r.created_at);
+      return `
+        <div class="msg">
+          ${msgAvatarHtml(p, "avatar msg-avatar")}
+          <div class="msg-body">
+            <div class="msg-head">
+              <span class="msg-name">${escapeHtml(name)}</span>
+              <span class="msg-time">${escapeHtml(time)}</span>
+            </div>
+            <div class="msg-text">${escapeHtml(String(r.text || ""))}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function showChannel(channel){
+      const ch = channel || {};
+      localStorage.setItem("fwActiveChannelId", String(ch.id || ""));
+      document.querySelectorAll("[data-ch-id]").forEach(x=> x.classList.toggle("active", x.getAttribute("data-ch-id") === String(ch.id)));
+
+      const type = String(ch.type || "public");
+      const name = String(ch.name || "canal");
+      const icon = (type === "voice") ? "🎙️" : (type === "private") ? "🔒" : "#";
+      const subtitle = (type === "voice") ? "Salon vocal (démo UI)" : "Salon texte (style Discord)";
+
+      panel.innerHTML = chatShellHtml({
+        icon,
+        title: name,
+        subtitle,
+        placeholder: `Message ${icon === "#" ? "#" : ""}${name}`,
+      });
+
+      const msgsRoot = $("#chatMsgs", panel);
+      const form = $("#chatForm", panel);
+      const input = $("#chatInput", panel);
+      const addBtn = $("[data-chat-add]", panel);
+      const searchBtn = $("[data-chat-search]", panel);
+      const infoBtn = $("[data-chat-info]", panel);
+
+      const msgRes = await sb
+        .from("channel_messages")
+        .select("*")
+        .eq("company", company)
+        .eq("channel_id", ch.id)
+        .order("created_at", { ascending: true })
+        .limit(200);
+      if(msgRes.error){
+        sbToastError("Messages", msgRes.error);
+        msgsRoot.innerHTML = emptyChatHtml("Erreur", "Impossible de charger les messages.");
+        return;
+      }
+
+      const msgs = msgRes.data || [];
+      const userIds = Array.from(new Set(msgs.map(m=> m?.user_id).filter(Boolean).map(String)));
+      let profilesById = new Map();
+      if(userIds.length){
+        const profRes = await sb.from("profiles").select("id,name,avatar_url,avatar_bg").in("id", userIds);
+        if(!profRes.error){
+          profilesById = new Map((profRes.data || []).map(p=> [String(p.id), p]));
+        }
+      }
+
+      msgsRoot.innerHTML = msgs.length
+        ? msgs.map(m=> renderSbChatMessageHtml(m, profilesById.get(String(m.user_id)))).join("")
+        : emptyChatHtml("Aucun message", "Écris le premier message pour lancer la discussion.");
+      msgsRoot.scrollTop = msgsRoot.scrollHeight;
+
+      addBtn && (addBtn.onclick = ()=> window.fwToast?.("Bientôt", "Ajout de fichiers à brancher ensuite."));
+      searchBtn && (searchBtn.onclick = ()=> window.fwToast?.("Recherche", "Recherche à implémenter ensuite."));
+      infoBtn && (infoBtn.onclick = ()=> window.fwToast?.("Infos", `Salon: ${name}`));
+
+      if(input){
+        input.addEventListener("input", ()=>{
+          input.style.height = "0px";
+          input.style.height = Math.min(input.scrollHeight, 160) + "px";
+        });
+        input.addEventListener("keydown", (ev)=>{
+          if(ev.key === "Enter" && !ev.shiftKey){
+            ev.preventDefault();
+            form?.requestSubmit?.();
+          }
+        });
+      }
+
+      form && (form.onsubmit = async (ev)=>{
+        ev.preventDefault();
+        const text = (input?.value || "").trim();
+        if(!text) return;
+        const res = await sb.from("channel_messages").insert({
+          company,
+          channel_id: ch.id,
+          user_id: uid,
+          text,
+        });
+        if(res.error){
+          sbToastError("Message", res.error);
+          return;
+        }
+        input.value = "";
+        input.style.height = "";
+        await showChannel(ch);
+      });
+    }
+
+    let current = localStorage.getItem("fwActiveChannelId") || "";
+    if(!current || !allIds.includes(String(current))) current = allIds[0] || "";
+    if(current){
+      const ch = channels.find(x=> String(x.id) === String(current)) || channels[0];
+      await showChannel(ch);
+    }else{
+      panel.innerHTML = emptyChatHtml("Aucun canal", "Crée un canal pour commencer.");
+    }
+
+    const createBtn = $("#createChannel");
+    if(createBtn && !createBtn.__sbBound){
+      createBtn.__sbBound = true;
+      createBtn.addEventListener("click", async ()=>{
+        if(meRole !== "admin"){
+          window.fwToast?.("Accès refusé","Seul un admin peut créer des canaux (démo).");
+          return;
+        }
+        const type = (prompt("Type de canal ? public / private / voice", "public") || "public").toLowerCase();
+        const name = (prompt("Nom du canal (ex: general)", "nouveau-canal") || "").trim().toLowerCase();
+        if(!name) return;
+        const map = {public:"public", private:"private", voice:"voice"};
+        const k = map[type] || "public";
+        const res = await sb.from("channels").insert({ company, type: k, name }).select("*").single();
+        if(res.error){
+          sbToastError("Canal", res.error);
+          return;
+        }
+        localStorage.setItem("fwActiveChannelId", String(res.data?.id || ""));
+        await renderChannelsSupabase();
+        window.fwToast?.("Canal créé", `#${name} ajouté.`);
+      });
+    }
+  }
+  sbEnabled ? renderChannelsSupabase() : renderChannels();
 
   // ---------- MESSAGES (DM)
   function loadDMs(){
@@ -554,7 +1009,233 @@
     if(!current || !dms[current]) current = names[0] || "";
     current ? showDM(current) : (convo.innerHTML = emptyChatHtml("Aucun contact", "Crée un DM pour commencer."));
   }
-  renderDM();
+
+  async function renderDMSupabase(){
+    const list = $("#dmList");
+    const convo = $("#dmConvo");
+    if(!list || !convo) return;
+
+    const uid = await sbUserId();
+    if(!uid){
+      window.fwSupabase?.requireAuth?.({ redirectTo: loginHref() });
+      return;
+    }
+
+    const company = companyFromUser();
+
+    const threadsRes = await sb
+      .from("dm_threads")
+      .select("*")
+      .eq("company", company)
+      .or(`user1.eq.${uid},user2.eq.${uid}`)
+      .order("last_message_at", { ascending: false })
+      .order("created_at", { ascending: false });
+
+    if(threadsRes.error){
+      sbToastError("DM", threadsRes.error);
+      convo.innerHTML = emptyChatHtml("Erreur", "Impossible de charger les messages.");
+      return;
+    }
+
+    const threads = threadsRes.data || [];
+    const otherIds = Array.from(new Set(threads.map(t=> (String(t.user1) === String(uid)) ? t.user2 : t.user1).filter(Boolean).map(String)));
+
+    let othersById = new Map();
+    if(otherIds.length){
+      const profRes = await sb
+        .from("profiles")
+        .select("id,name,email,avatar_url,avatar_bg")
+        .in("id", otherIds);
+      if(!profRes.error){
+        othersById = new Map((profRes.data || []).map(p=> [String(p.id), p]));
+      }
+    }
+
+    list.innerHTML = "";
+    threads.forEach(t=>{
+      const otherId = (String(t.user1) === String(uid)) ? String(t.user2) : String(t.user1);
+      const other = othersById.get(otherId) || { name: "Contact" };
+      const count = Number(t.message_count || 0);
+
+      const b = document.createElement("button");
+      b.className = "ch-item";
+      b.setAttribute("data-dm-thread", String(t.id));
+      b.innerHTML = `
+        <span class="item-left">
+          ${renderNameAvatarHtml(other.name || "C", "mini-avatar")}
+          <span class="truncate">${escapeHtml(other.name || "Contact")}</span>
+        </span>
+        <span class="badge">${count}</span>
+      `;
+      b.addEventListener("click", ()=> showDM(t));
+      list.appendChild(b);
+    });
+
+    function msgAvatarHtml(profile, className){
+      const p = profile || {};
+      const u = {
+        name: p.name || "Utilisateur",
+        avatarUrl: p.avatar_url || "",
+        avatarBg: p.avatar_bg || "",
+      };
+      const cls = className || "avatar msg-avatar";
+      if(u.avatarUrl) return `<div class="${cls}"><img src="${escapeHtml(u.avatarUrl)}" alt=""/></div>`;
+      const bg = u.avatarBg ? ` style="background:${escapeHtml(u.avatarBg)}"` : "";
+      return `<div class="${cls}"${bg}>${escapeHtml(initials(u.name))}</div>`;
+    }
+    function renderSbChatMessageHtml(row, profile){
+      const r = row || {};
+      const p = profile || {};
+      const name = String(p.name || "Utilisateur");
+      const time = fmtTime(r.created_at);
+      return `
+        <div class="msg">
+          ${msgAvatarHtml(p, "avatar msg-avatar")}
+          <div class="msg-body">
+            <div class="msg-head">
+              <span class="msg-name">${escapeHtml(name)}</span>
+              <span class="msg-time">${escapeHtml(time)}</span>
+            </div>
+            <div class="msg-text">${escapeHtml(String(r.text || ""))}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function showDM(thread){
+      const t = thread || {};
+      localStorage.setItem("fwActiveDMThreadId", String(t.id || ""));
+      document.querySelectorAll("[data-dm-thread]").forEach(x=> x.classList.toggle("active", x.getAttribute("data-dm-thread") === String(t.id)));
+
+      const otherId = (String(t.user1) === String(uid)) ? String(t.user2) : String(t.user1);
+      const other = othersById.get(otherId) || { name: "Contact" };
+
+      convo.innerHTML = t.id ? chatShellHtml({
+        icon: "@",
+        title: other.name || "Contact",
+        subtitle: "Discussion privée (style Discord)",
+        placeholder: `Message @${other.name || "contact"}`,
+      }) : emptyChatHtml("Aucun message", "Crée une discussion pour commencer.");
+
+      if(!t.id) return;
+
+      const dmMsgs = $("#chatMsgs", convo);
+      const form = $("#chatForm", convo);
+      const input = $("#chatInput", convo);
+      const addBtn = $("[data-chat-add]", convo);
+      const searchBtn = $("[data-chat-search]", convo);
+      const infoBtn = $("[data-chat-info]", convo);
+
+      const msgsRes = await sb
+        .from("dm_messages")
+        .select("*")
+        .eq("company", company)
+        .eq("thread_id", t.id)
+        .order("created_at", { ascending: true })
+        .limit(200);
+      if(msgsRes.error){
+        sbToastError("DM", msgsRes.error);
+        dmMsgs.innerHTML = emptyChatHtml("Erreur", "Impossible de charger les messages.");
+        return;
+      }
+
+      const msgs = msgsRes.data || [];
+      const senderIds = Array.from(new Set(msgs.map(m=> m?.sender_id).filter(Boolean).map(String)));
+      let sendersById = new Map();
+      if(senderIds.length){
+        const profRes = await sb.from("profiles").select("id,name,avatar_url,avatar_bg").in("id", senderIds);
+        if(!profRes.error) sendersById = new Map((profRes.data || []).map(p=> [String(p.id), p]));
+      }
+
+      dmMsgs.innerHTML = msgs.length
+        ? msgs.map(m=> renderSbChatMessageHtml(m, sendersById.get(String(m.sender_id)))).join("")
+        : emptyChatHtml("Aucun message", "Envoie le premier message.");
+      dmMsgs.scrollTop = dmMsgs.scrollHeight;
+
+      addBtn && (addBtn.onclick = ()=> window.fwToast?.("Bientôt", "Ajout de fichiers à brancher ensuite."));
+      searchBtn && (searchBtn.onclick = ()=> window.fwToast?.("Recherche", "Recherche à implémenter ensuite."));
+      infoBtn && (infoBtn.onclick = ()=> window.fwToast?.("Infos", `DM avec ${other.name || "contact"}`));
+
+      if(input){
+        input.addEventListener("input", ()=>{
+          input.style.height = "0px";
+          input.style.height = Math.min(input.scrollHeight, 160) + "px";
+        });
+        input.addEventListener("keydown", (ev)=>{
+          if(ev.key === "Enter" && !ev.shiftKey){
+            ev.preventDefault();
+            form?.requestSubmit?.();
+          }
+        });
+      }
+
+      form && (form.onsubmit = async (ev)=>{
+        ev.preventDefault();
+        const text = (input?.value || "").trim();
+        if(!text) return;
+
+        const res = await sb.from("dm_messages").insert({
+          company,
+          thread_id: t.id,
+          sender_id: uid,
+          text,
+        });
+        if(res.error){
+          sbToastError("DM", res.error);
+          return;
+        }
+        input.value = "";
+        input.style.height = "";
+        await showDM(t);
+      });
+    }
+
+    const createBtn = $("#createDM");
+    if(createBtn && !createBtn.__sbBound){
+      createBtn.__sbBound = true;
+      createBtn.addEventListener("click", async ()=>{
+        const email = (prompt("Email du contact", "camille@exemple.com") || "").trim();
+        if(!email) return;
+        const pRes = await sb
+          .from("profiles")
+          .select("id,name,email")
+          .eq("company", company)
+          .eq("email", email)
+          .maybeSingle();
+        if(pRes.error){
+          sbToastError("Contact", pRes.error);
+          return;
+        }
+        const other = pRes.data;
+        if(!other?.id){
+          window.fwToast?.("Introuvable","Le membre doit se connecter au moins une fois pour apparaître.");
+          return;
+        }
+        if(String(other.id) === String(uid)){
+          window.fwToast?.("Info","Tu ne peux pas créer un DM avec toi-même.");
+          return;
+        }
+        const ids = [String(uid), String(other.id)].sort();
+        const up = await sb
+          .from("dm_threads")
+          .upsert({ company, user1: ids[0], user2: ids[1] }, { onConflict: "company,user1,user2" })
+          .select("*")
+          .single();
+        if(up.error){
+          sbToastError("DM", up.error);
+          return;
+        }
+        localStorage.setItem("fwActiveDMThreadId", String(up.data?.id || ""));
+        await renderDMSupabase();
+        window.fwToast?.("DM créé", `Discussion avec ${other.name || email}.`);
+      });
+    }
+
+    let current = localStorage.getItem("fwActiveDMThreadId") || "";
+    if(!current || !threads.some(t=> String(t.id) === String(current))) current = threads[0]?.id || "";
+    current ? await showDM(threads.find(t=> String(t.id) === String(current))) : (convo.innerHTML = emptyChatHtml("Aucun contact", "Crée un DM pour commencer."));
+  }
+  sbEnabled ? renderDMSupabase() : renderDM();
 
   // ---------- SETTINGS
   function renderSettings(){
@@ -660,7 +1341,137 @@
       window.fwToast?.("Réinitialisé","Données de démo supprimées.");
     });
   }
-  renderSettings();
+
+  async function renderSettingsSupabase(){
+    const form = $("#settingsForm");
+    if(!form) return;
+
+    const uid = await sbUserId();
+    if(!uid){
+      window.fwSupabase?.requireAuth?.({ redirectTo: loginHref() });
+      return;
+    }
+
+    const initialsLocal = (name)=>{
+      const parts = String(name || "U").trim().split(/\s+/).filter(Boolean);
+      return parts.slice(0,2).map(s=>s[0]?.toUpperCase() || "U").join("") || "U";
+    };
+
+    const updateProfile = async (patch)=>{
+      const payload = {};
+      if(patch && Object.prototype.hasOwnProperty.call(patch, "name")) payload.name = patch.name;
+      if(patch && Object.prototype.hasOwnProperty.call(patch, "company")) payload.company = patch.company;
+      if(patch && Object.prototype.hasOwnProperty.call(patch, "avatarUrl")) payload.avatar_url = patch.avatarUrl;
+      if(patch && Object.prototype.hasOwnProperty.call(patch, "avatarBg")) payload.avatar_bg = patch.avatarBg;
+
+      const res = await sb.from("profiles").update(payload).eq("id", uid);
+      if(res.error){
+        sbToastError("Profil", res.error);
+        return false;
+      }
+      await window.fwSupabase?.syncLocalUser?.();
+      return true;
+    };
+
+    const u = getUser() || {};
+    $("#setName") && ($("#setName").value = u.name || "");
+    $("#setCompany") && ($("#setCompany").value = u.company || "");
+    $("#avatarUrl") && ($("#avatarUrl").value = u.avatarUrl || "");
+
+    // In Supabase mode, company is the workspace key: keep it read-only (demo safety).
+    const companyInput = $("#setCompany");
+    if(companyInput){
+      companyInput.disabled = true;
+      companyInput.title = "Entreprise gérée par le workspace Supabase (démo)";
+    }
+
+    // Avatar presets (colors)
+    const presetsRoot = $("#avatarPresets");
+    if(presetsRoot && !presetsRoot.__built){
+      presetsRoot.__built = true;
+      const bgs = [
+        "linear-gradient(135deg, rgba(255,106,0,.95), rgba(255,45,120,.95))",
+        "linear-gradient(135deg, rgba(46,231,255,.70), rgba(123,92,255,.86))",
+        "linear-gradient(135deg, rgba(34,197,94,.85), rgba(14,165,233,.75))",
+        "linear-gradient(135deg, rgba(250,204,21,.92), rgba(249,115,22,.85))",
+        "linear-gradient(135deg, rgba(239,68,68,.86), rgba(255,45,120,.78))",
+        "linear-gradient(135deg, rgba(168,85,247,.84), rgba(59,130,246,.72))",
+      ];
+      const label = initialsLocal(u.name || "Utilisateur");
+      bgs.forEach(bg=>{
+        const el = document.createElement("div");
+        el.className = "preset";
+        el.style.background = bg;
+        el.textContent = label;
+        el.title = "Choisir cet avatar";
+        el.addEventListener("click", async ()=>{
+          await updateProfile({ avatarBg: bg, avatarUrl: "" });
+          $("#avatarUrl") && ($("#avatarUrl").value = "");
+          window.fwToast?.("Avatar","Couleur appliquée.");
+        });
+        presetsRoot.appendChild(el);
+      });
+    }
+
+    // Avatar URL
+    const urlInput = $("#avatarUrl");
+    if(urlInput && !urlInput.__sbBound){
+      urlInput.__sbBound = true;
+      urlInput.addEventListener("change", async ()=>{
+        const url = urlInput.value.trim();
+        await updateProfile({ avatarUrl: url, avatarBg: url ? "" : (getUser()?.avatarBg || "") });
+        url && window.fwToast?.("Avatar","URL enregistrée.");
+      });
+    }
+
+    // Avatar upload (stored as dataURL in DB for demo)
+    const fileInput = $("#avatarFile");
+    if(fileInput && !fileInput.__sbBound){
+      fileInput.__sbBound = true;
+      fileInput.addEventListener("change", ()=>{
+        const file = fileInput.files && fileInput.files[0];
+        if(!file) return;
+        if(file.size > 2000000){
+          window.fwToast?.("Image trop lourde","Choisis une image de moins de 2 MB (démo).");
+          fileInput.value = "";
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = async ()=>{
+          await updateProfile({ avatarUrl: String(reader.result || ""), avatarBg: "" });
+          $("#avatarUrl") && ($("#avatarUrl").value = "");
+          window.fwToast?.("Avatar","Image enregistrée.");
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Save profile
+    if(!form.__sbBound){
+      form.__sbBound = true;
+      form.addEventListener("submit", async (ev)=>{
+        ev.preventDefault();
+        const name = $("#setName")?.value.trim() || "Utilisateur";
+        await updateProfile({ name });
+        presetsRoot?.querySelectorAll(".preset").forEach(p=> p.textContent = initialsLocal(name));
+        window.fwToast?.("Enregistré","Profil mis à jour.");
+      });
+    }
+
+    $("#clearDemo")?.addEventListener("click", ()=>{
+      localStorage.removeItem("fwPosts");
+      localStorage.removeItem("fwChannels");
+      localStorage.removeItem("fwDMs");
+      localStorage.removeItem("fwRoles");
+      localStorage.removeItem("fwMembers");
+      localStorage.removeItem("fwActiveAdmin");
+      localStorage.removeItem("fwActiveChannelId");
+      localStorage.removeItem("fwActiveDMThreadId");
+      window.fwToast?.("Nettoyé","Cache local supprimé (Supabase inchangé).");
+    });
+  }
+
+  sbEnabled ? renderSettingsSupabase() : renderSettings();
 
   // ---------- ADMIN (roles/members)
   const ADMIN_ACTIVE_KEY = "fwActiveAdmin";
@@ -1219,7 +2030,332 @@
 
     main.innerHTML = emptyAdminHtml("🛡️","Sélectionne","Choisis un rôle ou un membre à gauche.");
   }
-  renderAdmin();
+  async function renderAdminSupabase(){
+    const rolesRoot = $("#adminRolesList");
+    const membersRoot = $("#adminMembersList");
+    const main = $("#adminMain");
+    if(!rolesRoot || !membersRoot || !main) return;
+
+    const uid = await sbUserId();
+    if(!uid){
+      window.fwSupabase?.requireAuth?.({ redirectTo: loginHref() });
+      return;
+    }
+
+    const company = companyFromUser();
+
+    const rolesRes = await sb.from("roles").select("*").eq("company", company).order("name", { ascending: true });
+    if(rolesRes.error){
+      sbToastError("Rôles", rolesRes.error);
+      main.innerHTML = emptyAdminHtml("🛡️","Erreur","Impossible de charger les rôles.");
+      return;
+    }
+    const roles = rolesRes.data || [];
+
+    const profRes = await sb
+      .from("profiles")
+      .select("id,name,email,company,avatar_url,avatar_bg,created_at")
+      .eq("company", company)
+      .order("name", { ascending: true });
+    if(profRes.error){
+      sbToastError("Membres", profRes.error);
+      main.innerHTML = emptyAdminHtml("🛡️","Erreur","Impossible de charger les membres.");
+      return;
+    }
+    const profiles = profRes.data || [];
+
+    const mrRes = await sb.from("member_roles").select("user_id,role_id").eq("company", company);
+    if(mrRes.error){
+      sbToastError("Membres", mrRes.error);
+      main.innerHTML = emptyAdminHtml("🛡️","Erreur","Impossible de charger les rôles des membres.");
+      return;
+    }
+
+    const roleIdsByUser = new Map();
+    (mrRes.data || []).forEach(r=>{
+      const k = String(r.user_id);
+      if(!roleIdsByUser.has(k)) roleIdsByUser.set(k, []);
+      roleIdsByUser.get(k).push(String(r.role_id));
+    });
+
+    const members = profiles.map(p=>({
+      id: String(p.id),
+      name: p.name || "Utilisateur",
+      email: p.email || "",
+      company: p.company || company,
+      joinedAt: (fmtTs(p.created_at).split(" •")[0] || ""),
+      roleIds: roleIdsByUser.get(String(p.id)) || [],
+      avatarUrl: p.avatar_url || "",
+      avatarBg: p.avatar_bg || "",
+    }));
+
+    const u = getUser() || {};
+    const me = members.find(m=> String(m.id) === String(uid)) || null;
+    const canManage = canManageAdmin(u, me, roles);
+
+    const createRoleBtn = $("#createRole");
+    const createMemberBtn = $("#createMember");
+    if(createRoleBtn) createRoleBtn.disabled = !canManage;
+    if(createMemberBtn) createMemberBtn.disabled = !canManage;
+
+    const sortedRoles = roles.slice().sort((a,b)=>{
+      const an = String(a?.name || "");
+      const bn = String(b?.name || "");
+      const aIsAdmin = an.trim().toLowerCase() === "admin";
+      const bIsAdmin = bn.trim().toLowerCase() === "admin";
+      if(aIsAdmin && !bIsAdmin) return -1;
+      if(bIsAdmin && !aIsAdmin) return 1;
+      return an.localeCompare(bn, "fr");
+    });
+    const sortedMembers = members.slice().sort((a,b)=> String(a?.name || "").localeCompare(String(b?.name || ""), "fr"));
+
+    let active = String(localStorage.getItem(ADMIN_ACTIVE_KEY) || "");
+    const setDefaultActive = ()=>{
+      const adminRole = sortedRoles.find(r=> String(r?.name || "").trim().toLowerCase() === "admin");
+      if(adminRole?.id) return `role:${adminRole.id}`;
+      if(sortedRoles[0]?.id) return `role:${sortedRoles[0].id}`;
+      if(sortedMembers[0]?.id) return `member:${sortedMembers[0].id}`;
+      return "";
+    };
+    if(!active) active = setDefaultActive();
+
+    const [activeType, activeId] = active.split(":");
+    const validRole = activeType === "role" && sortedRoles.some(r=> String(r.id) === String(activeId));
+    const validMember = activeType === "member" && sortedMembers.some(m=> String(m.id) === String(activeId));
+    if(!validRole && !validMember){
+      active = setDefaultActive();
+    }
+    localStorage.setItem(ADMIN_ACTIVE_KEY, active);
+
+    // Sidebar lists
+    rolesRoot.innerHTML = "";
+    sortedRoles.forEach(r=>{
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "ch-item";
+      b.setAttribute("data-admin-role", String(r.id));
+      if(active === `role:${r.id}`) b.classList.add("active");
+      const c = normalizeHexColor(r.color || "#7c3aed");
+      const count = roleMemberCount(r.id, members);
+      b.innerHTML = `
+        <span class="item-left truncate">
+          <span class="role-dot" style="background:${escapeHtml(c)}" aria-hidden="true"></span>
+          <span class="truncate">${escapeHtml(r.name || "Rôle")}</span>
+        </span>
+        <span class="badge">${count}</span>
+      `;
+      rolesRoot.appendChild(b);
+    });
+
+    membersRoot.innerHTML = "";
+    sortedMembers.forEach(m=>{
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "ch-item";
+      b.setAttribute("data-admin-member", String(m.id));
+      if(active === `member:${m.id}`) b.classList.add("active");
+      const r = primaryRole(m, roles);
+      const c = normalizeHexColor(r?.color || "#7c3aed");
+      b.innerHTML = `
+        <span class="item-left truncate">
+          ${renderNameAvatarHtml(m.name || "M", "mini-avatar")}
+          <span class="truncate">${escapeHtml(m.name || "Membre")}</span>
+        </span>
+        <span class="role-pill"><span class="role-dot" style="background:${escapeHtml(c)}" aria-hidden="true"></span>${escapeHtml(r?.name || "—")}</span>
+      `;
+      membersRoot.appendChild(b);
+    });
+
+    if(!rolesRoot.__sbBound){
+      rolesRoot.__sbBound = true;
+      rolesRoot.addEventListener("click", (e)=>{
+        const btn = e.target.closest("[data-admin-role]");
+        if(!btn) return;
+        localStorage.setItem(ADMIN_ACTIVE_KEY, `role:${btn.getAttribute("data-admin-role")}`);
+        renderAdminSupabase();
+      });
+    }
+    if(!membersRoot.__sbBound){
+      membersRoot.__sbBound = true;
+      membersRoot.addEventListener("click", (e)=>{
+        const btn = e.target.closest("[data-admin-member]");
+        if(!btn) return;
+        localStorage.setItem(ADMIN_ACTIVE_KEY, `member:${btn.getAttribute("data-admin-member")}`);
+        renderAdminSupabase();
+      });
+    }
+
+    if(createRoleBtn && !createRoleBtn.__sbBound){
+      createRoleBtn.__sbBound = true;
+      createRoleBtn.addEventListener("click", async ()=>{
+        if(createRoleBtn.disabled){
+          window.fwToast?.("Accès refusé","Tu n'as pas la permission de créer un rôle.");
+          return;
+        }
+        const name = (prompt("Nom du rôle", "Nouveau rôle") || "").trim();
+        if(!name) return;
+        const color = normalizeHexColor(prompt("Couleur (hex)", "#7c3aed") || "#7c3aed");
+        const ins = await sb.from("roles").insert({ company, name, color, perms: {} }).select("*").single();
+        if(ins.error){
+          sbToastError("Rôle", ins.error);
+          return;
+        }
+        localStorage.setItem(ADMIN_ACTIVE_KEY, `role:${ins.data?.id}`);
+        await renderAdminSupabase();
+        window.fwToast?.("Rôle créé", name);
+      });
+    }
+
+    if(createMemberBtn && !createMemberBtn.__sbBound){
+      createMemberBtn.__sbBound = true;
+      createMemberBtn.addEventListener("click", ()=>{
+        window.fwToast?.("Info","Les membres apparaissent ici après s'être connectés (Supabase Auth).");
+      });
+    }
+
+    if(!canManage){
+      main.innerHTML = emptyAdminHtml("🔒","Accès réservé","Cette section est disponible pour les admins.");
+      return;
+    }
+
+    // Main panel
+    const current = String(localStorage.getItem(ADMIN_ACTIVE_KEY) || "");
+    const [type, id] = current.split(":");
+
+    if(type === "role"){
+      const role = roles.find(r=> String(r.id) === String(id));
+      if(!role){
+        main.innerHTML = emptyAdminHtml("🛡️","Rôle introuvable","Sélectionne un rôle à gauche.");
+        return;
+      }
+      main.innerHTML = roleEditorHtml(role, roles, members);
+
+      const form = $("#adminRoleForm", main);
+      const nameInput = $("#roleName", main);
+      const colorInput = $("#roleColor", main);
+      const colorPicker = $("#roleColorPicker", main);
+      const adminCb = $("#perm_admin", main);
+      const manageRolesCb = $("#perm_manageRoles", main);
+      const manageMembersCb = $("#perm_manageMembers", main);
+      const manageChannelsCb = $("#perm_manageChannels", main);
+
+      const syncPermUi = ()=>{
+        const isAdmin = !!adminCb?.checked;
+        [manageRolesCb, manageMembersCb, manageChannelsCb].forEach(cb=>{
+          if(!cb) return;
+          cb.disabled = isAdmin;
+          if(isAdmin) cb.checked = true;
+        });
+      };
+      adminCb?.addEventListener("change", syncPermUi);
+      syncPermUi();
+
+      const syncColor = (raw)=>{
+        const c = normalizeHexColor(raw, normalizeHexColor(role.color || "#7c3aed"));
+        if(colorInput) colorInput.value = c;
+        if(colorPicker) colorPicker.value = c;
+      };
+      colorPicker?.addEventListener("input", ()=> syncColor(colorPicker.value));
+      colorInput?.addEventListener("change", ()=> syncColor(colorInput.value));
+
+      form?.addEventListener("submit", async (ev)=>{
+        ev.preventDefault();
+        const name = (nameInput?.value || "").trim();
+        if(!name){
+          window.fwToast?.("Nom manquant","Entre un nom de rôle.");
+          return;
+        }
+        const color = normalizeHexColor(colorInput?.value || "");
+        const perms = {
+          admin: !!adminCb?.checked,
+          manageRoles: !!manageRolesCb?.checked,
+          manageMembers: !!manageMembersCb?.checked,
+          manageChannels: !!manageChannelsCb?.checked,
+        };
+        const up = await sb.from("roles").update({ name, color, perms }).eq("company", company).eq("id", id);
+        if(up.error){
+          sbToastError("Rôle", up.error);
+          return;
+        }
+        await renderAdminSupabase();
+        window.fwToast?.("Enregistré","Rôle mis à jour.");
+      });
+
+      $("#deleteRole", main)?.addEventListener("click", async ()=>{
+        if(roles.length <= 1){
+          window.fwToast?.("Impossible","Tu ne peux pas supprimer le dernier rôle.");
+          return;
+        }
+        const ok = confirm(`Supprimer le rôle "${role.name}" ?`);
+        if(!ok) return;
+        const del = await sb.from("roles").delete().eq("company", company).eq("id", id);
+        if(del.error){
+          sbToastError("Rôle", del.error);
+          return;
+        }
+        localStorage.removeItem(ADMIN_ACTIVE_KEY);
+        await renderAdminSupabase();
+        window.fwToast?.("Supprimé","Rôle supprimé.");
+      });
+      return;
+    }
+
+    if(type === "member"){
+      const member = members.find(m=> String(m.id) === String(id));
+      if(!member){
+        main.innerHTML = emptyAdminHtml("👤","Membre introuvable","Sélectionne un membre à gauche.");
+        return;
+      }
+      main.innerHTML = memberEditorHtml(member, roles);
+
+      // Read-only fields in demo
+      $("#memEmail", main) && ($("#memEmail", main).disabled = true);
+      $("#memCompany", main) && ($("#memCompany", main).disabled = true);
+
+      $("#adminMemberForm", main)?.addEventListener("submit", async (ev)=>{
+        ev.preventDefault();
+        const name = ($("#memName", main)?.value || "").trim() || "Membre";
+        const selected = Array.from(main.querySelectorAll('input[name="memberRole"]:checked'))
+          .map(el=> String(el.value))
+          .filter(Boolean);
+
+        const up = await sb.from("profiles").update({ name }).eq("id", id).eq("company", company);
+        if(up.error){
+          sbToastError("Membre", up.error);
+          return;
+        }
+
+        const del = await sb.from("member_roles").delete().eq("company", company).eq("user_id", id);
+        if(del.error){
+          sbToastError("Rôles", del.error);
+          return;
+        }
+        if(selected.length){
+          const ins = await sb.from("member_roles").insert(selected.map(role_id=>({ company, user_id: id, role_id })));
+          if(ins.error){
+            sbToastError("Rôles", ins.error);
+            return;
+          }
+        }
+
+        if(String(id) === String(uid)){
+          await window.fwSupabase?.syncLocalUser?.();
+        }
+
+        await renderAdminSupabase();
+        window.fwToast?.("Enregistré","Membre mis à jour.");
+      });
+
+      $("#deleteMember", main)?.addEventListener("click", ()=>{
+        window.fwToast?.("Indisponible","Suppression d’un compte non disponible en front-only (Supabase Auth).");
+      });
+      return;
+    }
+
+    main.innerHTML = emptyAdminHtml("🛡️","Sélectionne","Choisis un rôle ou un membre à gauche.");
+  }
+
+  sbEnabled ? renderAdminSupabase() : renderAdmin();
 
   // ---------- Utilities
   function initials(name){

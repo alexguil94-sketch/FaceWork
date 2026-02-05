@@ -25,16 +25,20 @@
     });
   });
 
-  // ---------- Auth (demo)
+  // ---------- Auth (localStorage + optional Supabase)
   const USER_KEY = "fwUser";
   function getUser(){
     try{ return JSON.parse(localStorage.getItem(USER_KEY) || "null"); }catch(e){ return null; }
   }
   function setUser(u){ localStorage.setItem(USER_KEY, JSON.stringify(u)); }
-  function logout(){
-    localStorage.removeItem(USER_KEY);
+  async function logout(){
     const inApp = (window.location.pathname.includes("/app/") || window.location.href.includes("/app/"));
-    window.location.href = inApp ? "../login.html" : "login.html";
+    const base = inApp ? "../login.html" : "login.html";
+    try{ localStorage.removeItem(USER_KEY); }catch(e){ /* ignore */ }
+    if(window.fwSupabase?.enabled){
+      try{ await window.fwSupabase.signOut(); }catch(e){ /* ignore */ }
+    }
+    window.location.href = base;
   }
 
   // Put user in UI if elements exist
@@ -75,18 +79,21 @@
   hydrateUserUI();
 
   // Logout buttons
-  $$("[data-logout]").forEach(b=>b.addEventListener("click", logout));
+  $$("[data-logout]").forEach(b=>b.addEventListener("click", ()=> logout()));
 
   // ---------- Guard app pages
   function isAppPage(){
     return window.location.pathname.includes("/app/") || window.location.pathname.endsWith("/app");
   }
   if(isAppPage()){
-    const u = getUser();
-    if(!u){
-      // redirect to login
-      const base = window.location.pathname.includes("/app/") ? "../login.html" : "login.html";
-      window.location.href = base;
+    const base = window.location.pathname.includes("/app/") ? "../login.html" : "login.html";
+    if(window.fwSupabase?.enabled){
+      // async guard via Supabase session
+      window.fwSupabase.requireAuth({ redirectTo: base });
+    }else{
+      // demo guard via localStorage
+      const u = getUser();
+      if(!u) window.location.href = base;
     }
   }
 
@@ -123,4 +130,18 @@
     applyTheme,
     hydrateUserUI,
   };
+
+  // Keep local user in sync with Supabase session (if enabled)
+  if(window.fwSupabase?.enabled && window.fwSupabase?.client?.auth?.onAuthStateChange){
+    window.fwSupabase.syncLocalUser();
+    window.fwSupabase.client.auth.onAuthStateChange((event)=>{
+      if(event === "SIGNED_OUT"){
+        try{ localStorage.removeItem(USER_KEY); }catch(e){ /* ignore */ }
+        hydrateUserUI();
+        return;
+      }
+      // SIGNED_IN / TOKEN_REFRESHED / USER_UPDATED
+      window.fwSupabase.syncLocalUser();
+    });
+  }
 })();

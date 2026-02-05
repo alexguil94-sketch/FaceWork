@@ -673,6 +673,11 @@ html[data-theme="light"] .userbox{
   cursor:pointer;
 }
 .iconbtn:hover{background: rgba(255,255,255,.10); color: var(--text)}
+.iconbtn.active{
+  background: rgba(255,45,120,.16);
+  border-color: rgba(255,45,120,.28);
+  color: var(--text);
+}
 .iconbtn.danger{color: rgba(255,120,150,.90)}
 
 /* Layouts */
