@@ -60,7 +60,7 @@
         <section id="composer" class="card panel">
           <div class="badge">Composer</div>
           <h2 style="margin:10px 0 6px; font-size:26px">Créer une publication</h2>
-          <p class="page-sub">Démo locale : tes posts sont enregistrés dans le navigateur (localStorage).</p>
+          <p class="page-sub" id="composerSub">Démo locale : tes posts sont enregistrés dans le navigateur (localStorage).</p>
           <div class="hr"></div>
 
           <form id="newPostForm" class="grid2">
@@ -79,6 +79,23 @@
                   <span class="field-icon" aria-hidden="true">🔗</span>
                   <input class="input" id="postFileUrl" type="url" placeholder="https://... ou ../assets/mon-fichier.pdf"/>
                 </div>
+              </div>
+              <div>
+                <div class="label">Déposer un fichier (glisse‑dépose ou clique)</div>
+                <div id="postDrop" class="dropzone" tabindex="0" role="button" aria-label="Déposer un fichier ou cliquer pour choisir">
+                  <div class="drop-ico" aria-hidden="true">📎</div>
+                  <div class="drop-meta">
+                    <div class="drop-title">Dépose un fichier ici</div>
+                    <div class="drop-sub">ou clique pour sélectionner depuis ton PC</div>
+                    <div class="drop-file" id="postFileInfo">Aucun fichier sélectionné</div>
+                  </div>
+                  <button class="btn small ghost" type="button" id="postFileClear">Retirer</button>
+                </div>
+                <input id="postFile" type="file" class="sr-only" />
+              </div>
+              <div>
+                <div class="label">Dossier (optionnel)</div>
+                <input class="input" id="postFolder" placeholder="Ex: RH, Marketing, Projets/2026"/>
               </div>
               <div>
                 <div class="label">Nom du fichier (optionnel)</div>

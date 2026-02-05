@@ -74,10 +74,15 @@ Astuce : l’URL `/app` redirige vers `/app/feed.html` (config dans `netlify.tom
 
 ⚠️ La clé **Publishable/Anon** est faite pour être utilisée côté navigateur (elle n’est pas “secrète” comme la `service_role`). Ne mets jamais `service_role` dans un projet front-only.
 
-### 4) Comment ça marche dans l’app
+### 4) Upload de fichiers (Storage)
+Pour déposer des fichiers directement dans une publication (glisser‑déposer sur le feed) :
+1. Supabase → **Storage** → crée un bucket nommé `facework` (recommandé : **privé**)
+2. Supabase → **SQL Editor** → copie/colle `supabase/storage.sql` → **Run** (policies RLS par entreprise)
+3. (Si tu changes le nom du bucket) mets à jour `SUPABASE_BUCKET` dans `js/env.js`
+
+### 5) Comment ça marche dans l’app
 - **Entreprise / workspace** : tu la saisis sur `login.html` (champ “Entreprise / workspace”). Toutes les données sont isolées par ce champ.
 - **Premier membre d’un workspace** : devient **admin** automatiquement (trigger SQL).
 - **Admin → Membres** : les membres apparaissent après s’être connectés (Supabase Auth), puis l’admin peut leur attribuer des rôles.
 
 Amuse-toi bien.
-

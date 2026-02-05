@@ -8,6 +8,9 @@ window.FW_ENV = window.FW_ENV || {
   SUPABASE_URL: "https://livucppvekqyfswehasz.supabase.co",
   SUPABASE_KEY: "sb_publishable_M5pvdKQccPb-v1xy9Y_k7w_VhmX5HeG",
 
+  // Bucket Supabase Storage pour l'upload de fichiers (public ou privé selon tes policies)
+  SUPABASE_BUCKET: "facework",
+
   // Optionnel : workspace/entreprise par défaut (tu peux aussi le saisir sur la page login)
   SUPABASE_COMPANY: "Entreprise",
 };

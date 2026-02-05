@@ -65,6 +65,181 @@
     window.fwToast?.(title, msg);
   }
 
+  const STORAGE_BUCKET = String(window.FW_ENV?.SUPABASE_BUCKET || "facework").trim() || "facework";
+
+  function normalizeCompanyForPath(company){
+    // Keep it readable, but prevent path traversal / accidental slashes.
+    return String(company || "")
+      .trim()
+      .replace(/[\\\/]+/g, "-")
+      .replace(/\s+/g, " ")
+      .slice(0, 60) || "Entreprise";
+  }
+
+  function normalizeFolderPath(raw){
+    const s = String(raw || "").trim();
+    if(!s) return "";
+    const parts = s
+      .split(/[\\\/]+/g)
+      .map(x=> x.trim())
+      .filter(Boolean)
+      .slice(0, 8);
+    const clean = parts
+      .map(p=> p
+        .normalize("NFKD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9._-]+/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^[-.]+|[-.]+$/g, "")
+        .slice(0, 40)
+      )
+      .filter(Boolean);
+    return clean.join("/");
+  }
+
+  function safeFileName(name){
+    const n = String(name || "").trim();
+    if(!n) return "fichier";
+    const parts = n.split(".");
+    const ext = parts.length > 1 ? parts.pop() : "";
+    const base = parts.join(".") || "fichier";
+    const baseSafe = base
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-zA-Z0-9._-]+/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^[-.]+|[-.]+$/g, "")
+      .slice(0, 80) || "fichier";
+    const extSafe = ext
+      ? ext.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]+/g, "").slice(0, 12)
+      : "";
+    return extSafe ? `${baseSafe}.${extSafe}` : baseSafe;
+  }
+
+  function parseSbStorageUrl(raw){
+    const s = String(raw || "").trim();
+    const m = s.match(/^sb:\/\/([^\/]+)\/(.+)$/i);
+    if(!m) return null;
+    return { bucket: m[1], path: m[2] };
+  }
+
+  function fmtBytes(bytes){
+    const b = Number(bytes || 0);
+    if(!Number.isFinite(b) || b <= 0) return "0 B";
+    const units = ["B","KB","MB","GB"];
+    const i = Math.min(Math.floor(Math.log(b) / Math.log(1024)), units.length - 1);
+    const v = b / Math.pow(1024, i);
+    return `${v.toFixed(v >= 10 || i === 0 ? 0 : 1)} ${units[i]}`;
+  }
+
+  function uuid(){
+    if(crypto?.randomUUID) return crypto.randomUUID();
+    const a = new Uint8Array(16);
+    crypto.getRandomValues(a);
+    a[6] = (a[6] & 0x0f) | 0x40;
+    a[8] = (a[8] & 0x3f) | 0x80;
+    const h = Array.from(a, b=> b.toString(16).padStart(2,"0")).join("");
+    return `${h.slice(0,8)}-${h.slice(8,12)}-${h.slice(12,16)}-${h.slice(16,20)}-${h.slice(20)}`;
+  }
+
+  async function openFileFromPost({ fileUrl, fileName } = {}){
+    const sbUrl = parseSbStorageUrl(fileUrl);
+    if(sbUrl && sb){
+      window.fwToast?.("Téléchargement","Récupération du fichier…");
+      const res = await sb.storage.from(sbUrl.bucket).download(sbUrl.path);
+      if(res.error){
+        sbToastError("Fichier", res.error);
+        return;
+      }
+      const blobUrl = URL.createObjectURL(res.data);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.target = "_blank";
+      a.rel = "noopener";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(()=>{ try{ URL.revokeObjectURL(blobUrl); }catch(e){ /* ignore */ } }, 60_000);
+      return;
+    }
+
+    const href = safeUrl(fileUrl);
+    if(!href){
+      window.fwToast?.("Aucun lien","Ajoute un lien de fichier ou dépose un fichier dans le formulaire.");
+      return;
+    }
+    window.open(href, "_blank");
+  }
+
+  function bindComposerFileUI(){
+    const form = $("#newPostForm");
+    if(!form || form.__fileUiBound) return;
+
+    const sub = $("#composerSub");
+    if(sub){
+      sub.textContent = sbEnabled
+        ? "Supabase : tes posts et fichiers sont stockés en base + Storage."
+        : "Démo locale : tes posts sont enregistrés dans le navigateur (localStorage).";
+    }
+
+    const drop = $("#postDrop");
+    const input = $("#postFile");
+    const info = $("#postFileInfo");
+    const clear = $("#postFileClear");
+
+    function setSelectedFile(file){
+      form.__selectedFile = file || null;
+      if(info){
+        info.textContent = file ? `${file.name} • ${fmtBytes(file.size)}` : "Aucun fichier sélectionné";
+      }
+      const fileNameEl = $("#postFileName");
+      if(file && fileNameEl && !String(fileNameEl.value || "").trim()){
+        fileNameEl.value = file.name;
+      }
+      const fileUrlEl = $("#postFileUrl");
+      if(file && fileUrlEl){
+        fileUrlEl.value = "";
+      }
+    }
+
+    setSelectedFile(null);
+
+    input?.addEventListener("change", ()=>{
+      const f = input.files?.[0] || null;
+      setSelectedFile(f);
+    });
+
+    clear?.addEventListener("click", (ev)=>{
+      ev.preventDefault();
+      ev.stopPropagation();
+      if(input) input.value = "";
+      setSelectedFile(null);
+    });
+
+    function prevent(e){ e.preventDefault(); e.stopPropagation(); }
+    drop?.addEventListener("click", ()=>{
+      input?.click();
+    });
+    drop?.addEventListener("keydown", (e)=>{
+      if(e.key === "Enter" || e.key === " "){
+        e.preventDefault();
+        input?.click();
+      }
+    });
+
+    drop?.addEventListener("dragenter", (e)=>{ prevent(e); drop.classList.add("dragover"); });
+    drop?.addEventListener("dragover", (e)=>{ prevent(e); drop.classList.add("dragover"); });
+    drop?.addEventListener("dragleave", (e)=>{ prevent(e); drop.classList.remove("dragover"); });
+    drop?.addEventListener("drop", (e)=>{
+      prevent(e);
+      drop.classList.remove("dragover");
+      const file = e.dataTransfer?.files?.[0] || null;
+      if(file) setSelectedFile(file);
+    });
+
+    form.__fileUiBound = true;
+  }
+
   // ---------- Seed data
   function seed(){
     if(!localStorage.getItem("fwPosts")){
@@ -251,6 +426,7 @@
   function renderFeed(){
     const root = $("#feedList");
     if(!root) return;
+    bindComposerFileUI();
     const posts = loadPosts();
     root.innerHTML = "";
     posts.slice().reverse().forEach(p=>{
@@ -269,7 +445,7 @@
         </div>
         <h4>${escapeHtml(p.title || "Publication")}</h4>
         ${(p.fileName || p.fileUrl) ? `
-          <button class="file-box" type="button" data-open="${p.id}">
+          <button class="file-box" type="button" data-open="${p.id}" data-file-url="${escapeHtml(p.fileUrl || "")}" data-file-name="${escapeHtml(p.fileName || "")}">
             <div class="file-left">
               <div class="file-ico" aria-hidden="true">📄</div>
               <div class="file-meta">
@@ -291,7 +467,7 @@
 
     if(!root.__bound){
       root.__bound = true;
-      root.addEventListener("click", (e)=>{
+      root.addEventListener("click", async (e)=>{
         const likeId = e.target.closest("[data-like]")?.getAttribute("data-like");
         const delId = e.target.closest("[data-del]")?.getAttribute("data-del");
         const openId = e.target.closest("[data-open]")?.getAttribute("data-open");
@@ -310,12 +486,26 @@
         if(openId){
           const posts = loadPosts();
           const p = posts.find(x=>x.id===openId);
-          const href = safeUrl(p?.fileUrl);
-          if(!href){
-            window.fwToast?.("Aucun lien","Ajoute un lien de fichier dans “Nouvelle publication”.");
-            return;
+          if(p?.fileData?.dataUrl){
+            try{
+              const r = await fetch(p.fileData.dataUrl);
+              const blob = await r.blob();
+              const blobUrl = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = blobUrl;
+              a.target = "_blank";
+              a.rel = "noopener";
+              document.body.appendChild(a);
+              a.click();
+              a.remove();
+              setTimeout(()=>{ try{ URL.revokeObjectURL(blobUrl); }catch(e){ /* ignore */ } }, 60_000);
+              return;
+            }catch(e){
+              window.fwToast?.("Fichier","Impossible d’ouvrir ce fichier en démo locale.");
+              return;
+            }
           }
-          window.open(href, "_blank");
+          await openFileFromPost({ fileUrl: p?.fileUrl, fileName: p?.fileName });
         }
       });
     }
@@ -324,30 +514,55 @@
     const form = $("#newPostForm");
     if(form && !form.__bound){
       form.__bound = true;
-      form.addEventListener("submit", (ev)=>{
+      form.addEventListener("submit", async (ev)=>{
         ev.preventDefault();
         const u = getUser() || {name:"Utilisateur", company:"Entreprise"};
+        const company = normalizeCompanyForPath(u.company || "Entreprise");
         const title = $("#postTitle").value.trim();
         const body  = $("#postBody").value.trim();
         const fileUrl = $("#postFileUrl")?.value.trim() || "";
         const fileNameInput = $("#postFileName")?.value.trim() || "";
+        const selectedFile = form.__selectedFile || null;
         let fileName = fileNameInput;
         if(!fileName && fileUrl){
           try{ fileName = new URL(fileUrl, window.location.href).pathname.split("/").pop() || ""; }catch(e){ /* ignore */ }
         }
-        if(!title && !body && !fileUrl){
+        if(!title && !body && !fileUrl && !selectedFile){
           window.fwToast?.("Oups","Écris au moins un titre ou un message.");
           return;
         }
+
+        let fileData = null;
+        if(selectedFile){
+          if(selectedFile.size > 1_000_000){
+            window.fwToast?.("Fichier trop gros","En démo locale, limite ~1 Mo. Active Supabase pour l’upload.");
+            return;
+          }
+          try{
+            const dataUrl = await new Promise((resolve, reject)=>{
+              const fr = new FileReader();
+              fr.onerror = ()=> reject(new Error("read_error"));
+              fr.onload = ()=> resolve(String(fr.result || ""));
+              fr.readAsDataURL(selectedFile);
+            });
+            fileData = { dataUrl, type: selectedFile.type || "", size: selectedFile.size || 0 };
+            fileName = fileName || selectedFile.name || "fichier";
+          }catch(e){
+            window.fwToast?.("Erreur","Impossible de lire le fichier.");
+            return;
+          }
+        }
+
         const posts = loadPosts();
         posts.push({
           id: cryptoRandom(),
           author: u.name,
-          company: u.company,
+          company,
           title: title || "Sans titre",
           body: body || "",
           fileName,
           fileUrl,
+          fileData,
           likes: 0,
           comments: 0,
           createdAt: nowStr()
@@ -357,6 +572,10 @@
         $("#postBody").value = "";
         $("#postFileUrl") && ($("#postFileUrl").value = "");
         $("#postFileName") && ($("#postFileName").value = "");
+        $("#postFolder") && ($("#postFolder").value = "");
+        $("#postFile") && ($("#postFile").value = "");
+        form.__selectedFile = null;
+        $("#postFileInfo") && ($("#postFileInfo").textContent = "Aucun fichier sélectionné");
         renderFeed();
         window.fwToast?.("Publié","Ta publication est en ligne.");
       });
@@ -366,6 +585,7 @@
   async function renderFeedSupabase(){
     const root = $("#feedList");
     if(!root) return;
+    bindComposerFileUI();
 
     const uid = await sbUserId();
     if(!uid){
@@ -440,7 +660,7 @@
         </div>
         <h4>${escapeHtml(p.title || "Publication")}</h4>
         ${(fileName || fileUrl) ? `
-          <button class="file-box" type="button" data-open="${escapeHtml(p.id)}">
+          <button class="file-box" type="button" data-open="${escapeHtml(p.id)}" data-file-url="${escapeHtml(fileUrl)}" data-file-name="${escapeHtml(fileName)}">
             <div class="file-left">
               <div class="file-ico" aria-hidden="true">📄</div>
               <div class="file-meta">
@@ -496,24 +716,44 @@
           const ok = confirm("Supprimer cette publication ?");
           if(!ok) return;
           const company = companyFromUser();
+          let fileUrl = "";
+          const pre = await sb
+            .from("posts")
+            .select("file_url")
+            .eq("company", company)
+            .eq("id", delId)
+            .maybeSingle();
+          if(!pre.error) fileUrl = String(pre.data?.file_url || "");
+
           const res = await sb.from("posts").delete().eq("company", company).eq("id", delId);
           if(res.error) sbToastError("Suppression", res.error);
+          const sbUrl = parseSbStorageUrl(fileUrl);
+          if(!res.error && sbUrl){
+            const rm = await sb.storage.from(sbUrl.bucket).remove([sbUrl.path]);
+            if(rm.error){
+              console.warn("Storage remove failed", rm.error);
+            }
+          }
           await renderFeedSupabase();
           return;
         }
 
         if(openId){
           const btn = e.target.closest("[data-open]");
-          const url = btn?.getAttribute("data-file-url") || "";
+          const urlAttr = btn?.getAttribute("data-file-url") || "";
+          const nameAttr = btn?.getAttribute("data-file-name") || "";
+
           // Fallback: re-fetch the post (simple + safe)
           const company = companyFromUser();
-          const res = await sb.from("posts").select("file_url").eq("company", company).eq("id", openId).maybeSingle();
-          const href = safeUrl(res.data?.file_url || url);
-          if(!href){
-            window.fwToast?.("Aucun lien","Ajoute un lien de fichier dans “Nouvelle publication”.");
-            return;
-          }
-          window.open(href, "_blank");
+          const res = await sb
+            .from("posts")
+            .select("file_url,file_name")
+            .eq("company", company)
+            .eq("id", openId)
+            .maybeSingle();
+          const fileUrl = String(res.data?.file_url || urlAttr || "");
+          const fileName = String(res.data?.file_name || nameAttr || "");
+          await openFileFromPost({ fileUrl, fileName });
         }
       });
     }
@@ -528,20 +768,54 @@
 
         const title = $("#postTitle")?.value.trim() || "";
         const body  = $("#postBody")?.value.trim() || "";
-        const fileUrl = $("#postFileUrl")?.value.trim() || "";
+        let fileUrl = $("#postFileUrl")?.value.trim() || "";
         const fileNameInput = $("#postFileName")?.value.trim() || "";
+        const folderInput = $("#postFolder")?.value || "";
+        const selectedFile = form.__selectedFile || null;
 
         let fileName = fileNameInput;
         if(!fileName && fileUrl){
           try{ fileName = new URL(fileUrl, window.location.href).pathname.split("/").pop() || ""; }catch(e){ /* ignore */ }
         }
-        if(!title && !body && !fileUrl){
+        if(!title && !body && !fileUrl && !selectedFile){
           window.fwToast?.("Oups","Écris au moins un titre ou un message.");
           return;
         }
 
         const company = companyFromUser();
+        if(/[\\\/]/.test(company)){
+          window.fwToast?.("Entreprise invalide","Évite / ou \\ dans le nom d’entreprise/workspace.");
+          return;
+        }
+
+        const postId = uuid();
+        let uploadedPath = "";
+
+        if(selectedFile){
+          const subFolder = normalizeFolderPath(folderInput);
+          const safeName = safeFileName(selectedFile.name);
+          uploadedPath = `${company}/posts/${subFolder ? subFolder + "/" : ""}${postId}/${safeName}`;
+
+          window.fwToast?.("Upload","Envoi du fichier…");
+          const up = await sb.storage.from(STORAGE_BUCKET).upload(uploadedPath, selectedFile, {
+            upsert: false,
+            contentType: selectedFile.type || undefined,
+            cacheControl: "3600",
+          });
+          if(up.error){
+            const msg = up.error?.message || "Upload impossible. Vérifie le bucket + les policies Storage.";
+            window.fwToast?.("Upload", msg);
+            console.error("Upload", up.error);
+            return;
+          }
+
+          fileUrl = `sb://${STORAGE_BUCKET}/${uploadedPath}`;
+          fileName = fileName || selectedFile.name || safeName;
+        }
+
+        window.fwToast?.("Publication","Enregistrement…");
         const res = await sb.from("posts").insert({
+          id: postId,
           company,
           author_id: uid,
           title: title || "Sans titre",
@@ -550,6 +824,10 @@
           file_name: fileName || "",
         });
         if(res.error){
+          // Best-effort cleanup if upload succeeded but post insert failed.
+          if(uploadedPath){
+            try{ await sb.storage.from(STORAGE_BUCKET).remove([uploadedPath]); }catch(e){ /* ignore */ }
+          }
           sbToastError("Publication", res.error);
           return;
         }
@@ -558,6 +836,10 @@
         $("#postBody") && ($("#postBody").value = "");
         $("#postFileUrl") && ($("#postFileUrl").value = "");
         $("#postFileName") && ($("#postFileName").value = "");
+        $("#postFolder") && ($("#postFolder").value = "");
+        $("#postFile") && ($("#postFile").value = "");
+        form.__selectedFile = null;
+        $("#postFileInfo") && ($("#postFileInfo").textContent = "Aucun fichier sélectionné");
 
         await renderFeedSupabase();
         window.fwToast?.("Publié","Ta publication est en ligne.");

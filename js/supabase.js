@@ -20,6 +20,14 @@
 
   const PROFILE_TABLE = "profiles";
 
+  function normCompany(company){
+    return String(company || "")
+      .trim()
+      .replace(/[\\\/]+/g, "-")
+      .replace(/\s+/g, " ")
+      .slice(0, 60) || "Entreprise";
+  }
+
   function toFwUser(profile, sessionUser){
     const p = profile || {};
     const su = sessionUser || {};
@@ -67,7 +75,7 @@
       id,
       email,
       name: String(name || user.user_metadata?.name || email.split("@")[0] || "Utilisateur").trim() || "Utilisateur",
-      company: String(company || COMPANY_DEFAULT || "Entreprise").trim() || "Entreprise",
+      company: normCompany(company || COMPANY_DEFAULT || "Entreprise"),
       avatar_url: String(avatarUrl || "").trim(),
       avatar_bg: String(avatarBg || "").trim(),
     };
@@ -132,4 +140,3 @@
     requireAuth,
   };
 })();
-

@@ -930,6 +930,60 @@ html[data-theme="light"] .chat-composer{background: rgba(255,255,255,.55)}
 .chat-input::placeholder{color: rgba(255,255,255,.55)}
 .chat-input:focus{border-color: rgba(255,255,255,.35)}
 
+/* Feed: upload dropzone */
+.dropzone{
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px dashed rgba(255,255,255,.22);
+  background: rgba(0,0,0,.18);
+  display:flex;
+  align-items:center;
+  gap: 12px;
+  cursor:pointer;
+  user-select:none;
+  outline: none;
+  transition: border-color .12s ease, background .12s ease, transform .08s ease;
+}
+html[data-theme="light"] .dropzone{
+  background: rgba(255,255,255,.55);
+  border-color: rgba(0,0,0,.18);
+}
+.dropzone:hover{background: rgba(255,255,255,.05)}
+.dropzone:active{transform: translateY(1px)}
+.dropzone:focus-visible{
+  border-color: rgba(124,58,237,.85);
+  box-shadow: 0 0 0 3px rgba(124,58,237,.18);
+}
+.dropzone.dragover{
+  border-color: rgba(124,58,237,.85);
+  background: rgba(124,58,237,.12);
+}
+.drop-ico{
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.07);
+  display:grid;
+  place-items:center;
+  flex:0 0 auto;
+  font-weight: 950;
+}
+.drop-meta{flex:1; min-width:0; display:flex; flex-direction:column; gap:2px}
+.drop-title{font-weight: 900}
+.drop-sub{font-size: 12px; color: var(--muted); font-weight: 750}
+.drop-file{
+  margin-top: 6px;
+  font-size: 12px;
+  color: rgba(255,255,255,.86);
+  font-weight: 850;
+  overflow:hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+html[data-theme="light"] .drop-file{color: rgba(0,0,0,.70)}
+
 /* Feed: attachment block */
 .file-box{
   margin-top: 12px;

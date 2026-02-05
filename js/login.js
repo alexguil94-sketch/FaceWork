@@ -21,13 +21,21 @@
     return {
       id: "",
       name,
-      company: company || "HeroForgeWeb",
+      company: normCompany(company || "HeroForgeWeb"),
       email: email || "vous@exemple.com",
       role: "admin",
       joinedAt: dateStr(),
       avatarUrl: "",
       avatarBg: "",
     };
+  }
+
+  function normCompany(company){
+    return String(company || "")
+      .trim()
+      .replace(/[\\\/]+/g, "-")
+      .replace(/\s+/g, " ")
+      .slice(0, 60) || "Entreprise";
   }
 
   // Prefill company
@@ -40,7 +48,7 @@
     ev.preventDefault();
     const email = $("#email").value.trim();
     const pwd = $("#password").value.trim();
-    const company = $("#company")?.value.trim() || window.fwSupabase?.companyDefault || "HeroForgeWeb";
+    const company = normCompany($("#company")?.value || window.fwSupabase?.companyDefault || "HeroForgeWeb");
     if(!email || !pwd){
       window.fwToast?.("Champs manquants","Entre un email et un mot de passe.");
       return;
@@ -90,13 +98,13 @@
   });
 
   $("#btnGoogle")?.addEventListener("click", ()=>{
-    setUser(makeUser("alexis.g@heroforgeweb.com", $("#company")?.value.trim() || window.fwSupabase?.companyDefault || "HeroForgeWeb"));
+    setUser(makeUser("alexis.g@heroforgeweb.com", normCompany($("#company")?.value || window.fwSupabase?.companyDefault || "HeroForgeWeb")));
     window.fwToast?.("Connecté via Google","Bienvenue ! (démo)");
     setTimeout(go, 450);
   });
 
   $("#btnDiscord")?.addEventListener("click", ()=>{
-    setUser(makeUser("alexis.g@heroforgeweb.com", $("#company")?.value.trim() || window.fwSupabase?.companyDefault || "HeroForgeWeb"));
+    setUser(makeUser("alexis.g@heroforgeweb.com", normCompany($("#company")?.value || window.fwSupabase?.companyDefault || "HeroForgeWeb")));
     window.fwToast?.("Connecté via Discord","Bienvenue ! (démo)");
     setTimeout(go, 450);
   });
