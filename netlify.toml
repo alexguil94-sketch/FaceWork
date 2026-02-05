@@ -1,0 +1,14 @@
+[build]
+  publish = "."
+  command = ""
+
+[[redirects]]
+  from = "/app"
+  to = "/app/feed.html"
+  status = 302
+
+[[redirects]]
+  from = "/app/"
+  to = "/app/feed.html"
+  status = 302
+
