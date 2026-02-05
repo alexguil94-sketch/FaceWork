@@ -354,7 +354,12 @@ on public.profiles
 for update
 to authenticated
 using (id = auth.uid())
-with check (id = auth.uid() and company = public.current_company());
+with check (
+  id = auth.uid()
+  and company = public.current_company()
+  -- Prevent privilege escalation: members cannot self-promote by changing their role.
+  and role = (select p.role from public.profiles p where p.id = auth.uid())
+);
 
 drop policy if exists profiles_update_admin on public.profiles;
 create policy profiles_update_admin
