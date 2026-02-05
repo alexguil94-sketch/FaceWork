@@ -22,6 +22,7 @@ Si tu vois des comportements bizarres, utilise Live Server.
 - `app/feed.html` : Publications
 - `app/channels.html` : Canaux
 - `app/messages.html` : Messages (DM)
+- `app/admin.html` : Admin (rôles / membres)
 - `app/settings.html` : Paramètres
 
 ## Fichiers importants
@@ -32,5 +33,26 @@ Si tu vois des comportements bizarres, utilise Live Server.
 ## Modifier les textes / couleurs
 - Textes : directement dans les fichiers `.html`
 - Couleurs : dans `css/style.css` → section `:root`
+
+## Git + Netlify (déploiement)
+1. Crée un repo GitHub (vide)
+2. Dans ce dossier, ajoute le remote puis push :
+   - `git remote add origin <URL_DU_REPO>`
+   - `git push -u origin main`
+3. Sur Netlify :
+   - **Add new site → Import an existing project**
+   - Choisis ton repo
+   - Netlify détecte `netlify.toml` (publish = `.`), puis déploie
+
+Astuce : l’URL `/app` redirige vers `/app/feed.html` (config dans `netlify.toml`).
+
+## Supabase (connexion du projet)
+Ce kit est 100% statique et utilise `localStorage` pour la démo. Pour brancher Supabase :
+1. Supabase → **Project Settings → API Keys** : récupère **Project URL** + **Publishable/Anon key**
+2. Supabase → **Authentication → URL Configuration** :
+   - **Site URL** = ton domaine Netlify (ex: `https://ton-site.netlify.app`)
+   - **Redirect URLs** = ajoute aussi ton URL locale Live Server (ex: `http://127.0.0.1:5502`)
+
+Note : la **Publishable/Anon key** est faite pour être utilisée côté navigateur (elle n’est pas “secrète” comme la `service_role`). Active toujours la **RLS** + policies dans Supabase avant de mettre en prod.
 
 Amuse-toi bien 😄
