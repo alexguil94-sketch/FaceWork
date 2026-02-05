@@ -367,7 +367,7 @@ on public.profiles
 for update
 to authenticated
 using (public.is_admin() and company = public.current_company())
-with check (company = public.current_company());
+with check (public.is_admin() and company = public.current_company());
 
 -- Roles
 drop policy if exists roles_select_company on public.roles;
