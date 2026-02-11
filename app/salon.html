@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Canaux — FaceWork</title>
+  <title>Salons — FaceWork</title>
   <link rel="stylesheet" href="../css/style.css"/>
 </head>
-<body>
+<body data-channels-mode="salon">
   <div class="app">
     
 <header class="appbar">
@@ -38,8 +38,8 @@
 
     <main class="main">
       <div class="container">
-        <h1 class="page-title">Canaux</h1>
-        <p class="page-sub">Organisez vos discussions par thèmes, comme sur Discord.</p>
+        <h1 class="page-title">Salons</h1>
+        <p class="page-sub">Choisissez un salon (canal) à gauche, comme sur Discord.</p>
 
         <div class="spacer"></div>
 
@@ -71,19 +71,20 @@
               <span class="dock-label">Réglages</span>
             </a>
           </nav>
+
           <aside class="workbench-sidebar">
             <div class="row" style="justify-content:space-between">
-              <div class="badge">Canaux</div>
-              <button class="btn small primary" id="createChannel">＋ Créer un canal</button>
+              <div class="badge">Salons</div>
+              <button class="btn small primary" id="createChannel">＋ Créer un salon</button>
             </div>
 
-            <div class="side-title"><span># Canaux publics</span></div>
+            <div class="side-title"><span># Salons publics</span></div>
             <div class="ch-list" data-ch-list="public"></div>
 
-            <div class="side-title"><span>🎙️ Canaux vocaux</span></div>
+            <div class="side-title"><span>🎙️ Salons vocaux</span></div>
             <div class="ch-list" data-ch-list="voice"></div>
 
-            <div class="side-title"><span>🔒 Canaux privés</span></div>
+            <div class="side-title"><span>🔒 Salons privés</span></div>
             <div class="ch-list" data-ch-list="private"></div>
           </aside>
 
@@ -91,7 +92,7 @@
             <div class="empty">
               <div>
                 <div class="big">#</div>
-                <div class="title">Sélectionnez un canal</div>
+                <div class="title">Sélectionnez un salon</div>
                 <div class="hint">Ou créez‑en un nouveau !</div>
               </div>
             </div>

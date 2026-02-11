@@ -19,6 +19,7 @@ Si tu vois des comportements bizarres, utilise Live Server.
 - `index.html` : Landing
 - `login.html` : Connexion (démo localStorage + Supabase si configuré)
 - `app/feed.html` : Publications
+- `app/salon.html` : Salons (liste)
 - `app/channels.html` : Canaux
 - `app/messages.html` : Messages (DM)
 - `app/admin.html` : Admin (rôles / membres)

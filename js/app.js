@@ -1442,6 +1442,9 @@
     const panel = $("#channelPanel");
     if(!panel) return;
 
+    const channelsMode = String(document.body?.getAttribute("data-channels-mode") || "").trim().toLowerCase();
+    const listOnly = channelsMode === "salon";
+
     const c = loadChannels();
     const allKeys = [];
     const sections = [
@@ -1581,7 +1584,14 @@
 
     let current = localStorage.getItem("fwActiveChannel") || "";
     if(!current || !allKeys.includes(current)) current = allKeys[0] || "";
-    current ? showChannel(current) : (panel.innerHTML = emptyChatHtml("Aucun canal", "Crée un canal pour commencer."));
+    if(listOnly){
+      document.querySelectorAll("[data-ch]").forEach(x=> x.classList.remove("active"));
+      panel.innerHTML = allKeys.length
+        ? emptyChatHtml("Salons", "Choisis un salon dans la liste à gauche.")
+        : emptyChatHtml("Aucun salon", "Crée un salon pour commencer.");
+    }else{
+      current ? showChannel(current) : (panel.innerHTML = emptyChatHtml("Aucun canal", "Crée un canal pour commencer."));
+    }
 
     // Create channel
     const createBtn = $("#createChannel");
@@ -1611,6 +1621,9 @@
   async function renderChannelsSupabase(){
     const panel = $("#channelPanel");
     if(!panel) return;
+
+    const channelsMode = String(document.body?.getAttribute("data-channels-mode") || "").trim().toLowerCase();
+    const listOnly = channelsMode === "salon";
 
     const uid = await sbUserId();
     if(!uid){
@@ -1846,11 +1859,18 @@
 
     let current = localStorage.getItem("fwActiveChannelId") || "";
     if(!current || !allIds.includes(String(current))) current = allIds[0] || "";
-    if(current){
-      const ch = channels.find(x=> String(x.id) === String(current)) || channels[0];
-      await showChannel(ch);
+    if(listOnly){
+      document.querySelectorAll("[data-ch-id]").forEach(x=> x.classList.remove("active"));
+      panel.innerHTML = channels.length
+        ? emptyChatHtml("Salons", "Choisis un salon dans la liste à gauche.")
+        : emptyChatHtml("Aucun salon", "Crée un salon pour commencer.");
     }else{
-      panel.innerHTML = emptyChatHtml("Aucun canal", "Crée un canal pour commencer.");
+      if(current){
+        const ch = channels.find(x=> String(x.id) === String(current)) || channels[0];
+        await showChannel(ch);
+      }else{
+        panel.innerHTML = emptyChatHtml("Aucun canal", "Crée un canal pour commencer.");
+      }
     }
 
     const createBtn = $("#createChannel");
