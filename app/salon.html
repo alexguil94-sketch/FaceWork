@@ -19,6 +19,15 @@
       </div>
     </a>
 
+    <nav class="appnav" aria-label="Navigation application">
+      <a data-app-nav href="feed.html">📰 Publications</a>
+      <a data-app-nav href="channels.html"># Canaux</a>
+      <a data-app-nav href="messages.html">💬 Messages</a>
+      <a data-app-nav href="admin.html">🛡️ Admin</a>
+      <a data-app-nav href="settings.html">⚙️ Paramètres</a>
+      <a data-app-nav href="../tutoriel.html">📘 Tutoriel</a>
+    </nav>
+
     <div class="userbox">
       <button class="btn icon" data-theme-toggle title="Basculer thème">🌓</button>
       <div class="row" style="gap:10px">
@@ -39,47 +48,44 @@
     <main class="main">
       <div class="container">
         <h1 class="page-title">Salons</h1>
-        <p class="page-sub">Choisissez un salon (canal) à gauche, comme sur Discord.</p>
+        <p class="page-sub">Choisissez un salon et échangez avec votre équipe.</p>
 
         <div class="spacer"></div>
 
-        <section class="workbench discord card">
-          <nav class="dock" aria-label="Menu">
-            <a class="dock-item" data-app-nav href="salon.html" title="Salons">
-              <span class="dock-ico" aria-hidden="true">#</span>
-              <span class="dock-label">/salon</span>
-            </a>
-            <a class="dock-item" data-app-nav href="channels.html" title="Chan">
-              <span class="dock-ico" aria-hidden="true">#</span>
-              <span class="dock-label">/chan</span>
-            </a>
-            <a class="dock-item" data-app-nav href="messages.html" title="Messages directs">
-              <span class="dock-ico" aria-hidden="true">@</span>
-              <span class="dock-label">/dm</span>
-            </a>
-            <a class="dock-item" data-app-nav href="../tutoriel.html" title="Tutoriel">
-              <span class="dock-ico" aria-hidden="true">📘</span>
-              <span class="dock-label">/tuto</span>
-            </a>
-            <div class="dock-grow" aria-hidden="true"></div>
-            <a class="dock-item" data-app-nav href="feed.html" title="Accueil">
-              <span class="dock-ico" aria-hidden="true">🏠</span>
-              <span class="dock-label">Accueil</span>
-            </a>
-            <a class="dock-item" data-app-nav href="admin.html" title="Admin">
-              <span class="dock-ico" aria-hidden="true">🛡️</span>
-              <span class="dock-label">Admin</span>
-            </a>
-            <a class="dock-item" data-app-nav href="settings.html" title="Paramètres">
-              <span class="dock-ico" aria-hidden="true">⚙️</span>
-              <span class="dock-label">Réglages</span>
-            </a>
-          </nav>
-
+        <section class="workbench card">
           <aside class="workbench-sidebar">
             <div class="row" style="justify-content:space-between">
               <div class="badge">Salons</div>
               <button class="btn small primary" id="createChannel">＋ Créer un salon</button>
+            </div>
+
+            <div class="spacer" style="height:12px"></div>
+
+            <div class="field" aria-label="Rechercher un salon">
+              <span class="field-icon" aria-hidden="true">🔎</span>
+              <input class="input" id="channelSearch" placeholder="Rechercher un salon…" />
+            </div>
+
+            <div id="channelCreateBox" class="callout hidden" style="margin-top:12px">
+              <div class="row" style="justify-content:space-between; gap:10px; flex-wrap:wrap">
+                <strong>Créer un salon</strong>
+                <button class="btn small ghost" type="button" id="channelCreateCancel">Annuler</button>
+              </div>
+              <div class="spacer" style="height:10px"></div>
+
+              <div class="label">Type</div>
+              <select class="input" id="channelType">
+                <option value="public">Public</option>
+                <option value="private">Privé</option>
+                <option value="voice">Vocal</option>
+              </select>
+
+              <div class="spacer" style="height:10px"></div>
+              <div class="label">Nom</div>
+              <input class="input" id="channelName" placeholder="Ex: general" />
+
+              <div class="spacer" style="height:12px"></div>
+              <button class="btn small primary block" type="button" id="channelCreateSubmit">Créer</button>
             </div>
 
             <div class="side-title"><span># Salons publics</span></div>

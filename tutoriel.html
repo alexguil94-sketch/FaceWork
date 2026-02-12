@@ -56,8 +56,7 @@
 
       <h1 class="h1"><span class="grad">Tutoriel</span><br/>FaceWork</h1>
       <p class="lead">
-        Prends l’app en main en quelques minutes : connexion, publications, canaux, messages, paramètres,
-        et (optionnel) configuration Supabase.
+        Des petites pages faciles à compléter au fur et à mesure (connexion, publications, canaux, DM, paramètres…).
       </p>
 
       <div class="hero-actions">
@@ -153,266 +152,128 @@
 
     <div class="spacer"></div>
 
-    <section class="workbench card tut-shell" aria-label="Tutoriel FaceWork">
-      <aside class="workbench-sidebar">
-        <div class="row" style="justify-content:space-between; gap:10px; flex-wrap:wrap">
-          <div class="badge">Sommaire</div>
-          <div class="row" style="gap:8px; flex-wrap:wrap">
-            <button class="btn small" type="button" id="tutExpandAll">Tout ouvrir</button>
-            <button class="btn small ghost" type="button" id="tutCollapseAll">Tout fermer</button>
-          </div>
+    <section class="card panel" id="tut-guides" aria-label="Guides tutoriel">
+      <div class="row" style="justify-content:space-between; flex-wrap:wrap; gap:12px; align-items:flex-end">
+        <div>
+          <div class="badge">Chapitres</div>
+          <h2 style="margin:10px 0 6px; font-size:26px">Guides</h2>
+          <p class="page-sub">Des petites pages dédiées que tu peux remplir au fur et à mesure.</p>
         </div>
+        <div class="badge" id="tutCount" aria-live="polite">—</div>
+      </div>
 
-        <div class="side-title"><span>Chapitres</span></div>
-        <div class="ch-list tut-nav">
-          <a class="ch-item" href="#tut-posts"><span class="truncate">0) Posts tutoriel</span><span class="hash">↗</span></a>
-          <a class="ch-item" href="#tut-connexion"><span class="truncate">1) Connexion & workspace</span><span class="hash">↗</span></a>
-          <a class="ch-item" href="#tut-feed"><span class="truncate">2) Publications (feed)</span><span class="hash">↗</span></a>
-          <a class="ch-item" href="#tut-canaux"><span class="truncate">3) Canaux</span><span class="hash">↗</span></a>
-          <a class="ch-item" href="#tut-dm"><span class="truncate">4) Messages (DM)</span><span class="hash">↗</span></a>
-          <a class="ch-item" href="#tut-settings"><span class="truncate">5) Paramètres (profil)</span><span class="hash">↗</span></a>
-          <a class="ch-item" href="#tut-admin"><span class="truncate">6) Admin (rôles/membres)</span><span class="hash">↗</span></a>
-          <a class="ch-item" href="#tut-supabase"><span class="truncate">7) Supabase (optionnel)</span><span class="hash">↗</span></a>
-          <a class="ch-item" href="#tut-help"><span class="truncate">8) Dépannage</span><span class="hash">↗</span></a>
-        </div>
+      <div class="hr"></div>
 
-        <div class="sidegroup">
-          <div class="badge">Progression</div>
-          <div class="spacer" style="height:10px"></div>
-          <div class="checklist" aria-label="Checklist">
-            <label class="check"><div><div class="t">Connexion</div><div class="d">Accès à l’app + workspace</div></div><input data-tut-check="connexion" type="checkbox"/></label>
-            <label class="check"><div><div class="t">Publier</div><div class="d">Créer un post + fichier</div></div><input data-tut-check="feed" type="checkbox"/></label>
-            <label class="check"><div><div class="t">Canaux</div><div class="d">Créer / rejoindre un canal</div></div><input data-tut-check="canaux" type="checkbox"/></label>
-            <label class="check"><div><div class="t">DM</div><div class="d">Démarrer une conversation</div></div><input data-tut-check="dm" type="checkbox"/></label>
-            <label class="check"><div><div class="t">Profil</div><div class="d">Avatar + infos</div></div><input data-tut-check="settings" type="checkbox"/></label>
-          </div>
-        </div>
-      </aside>
-
-      <section class="workbench-main">
-        <div class="row" style="justify-content:space-between; flex-wrap:wrap; gap:12px; align-items:flex-end">
-          <div>
-            <h2 style="margin: 0; font-size: 30px; letter-spacing:-.4px">Commencer en 5 minutes</h2>
-            <p class="page-sub" style="margin-top: 6px">Utilise la recherche pour filtrer les chapitres (ex: <span class="kbd">avatar</span>).</p>
-          </div>
-          <div class="badge" id="tutCount" aria-live="polite">—</div>
-        </div>
-
-        <div class="hr"></div>
-
-        <details class="tut-details" id="tut-connexion" data-tut-title="connexion login workspace entreprise email mot de passe theme">
-          <summary class="tut-summary">
-            <span class="tut-left">
-              <span class="tut-ico" aria-hidden="true">🔐</span>
-              <span class="tut-txt">
-                <span class="tut-title">Connexion & workspace</span>
-                <span class="tut-meta">Se connecter + choisir l’entreprise (workspace)</span>
-              </span>
-            </span>
-            <span class="tut-right">
-              <span class="badge">1</span>
-            </span>
-          </summary>
-          <div class="tut-body">
-            <p>
-              Va sur <a href="login.html"><code>login.html</code></a> puis remplis : <strong>Email</strong>, <strong>Entreprise / workspace</strong>, et <strong>mot de passe</strong>.
-              Ensuite, tu peux accéder à l’app (<code>/app</code>).
-            </p>
-            <ul>
-              <li><strong>Démo sans Supabase :</strong> l’utilisateur est stocké dans <code>localStorage</code> (mode “maquette”).</li>
-              <li><strong>Avec Supabase :</strong> authentification réelle + données partagées entre utilisateurs d’un même workspace.</li>
-              <li><strong>Thème :</strong> bouton 🌓 en haut (préférence sauvegardée).</li>
-            </ul>
-            <div class="row" style="gap:10px; flex-wrap:wrap; margin-top: 10px">
-              <a class="btn small primary" href="login.html">Ouvrir Connexion</a>
-              <a class="btn small" href="app/feed.html">Ouvrir l’app</a>
+      <div class="tut-grid" id="tutCards">
+        <a class="tut-card" href="guides/connexion.html" data-tut-card data-tut-title="connexion login workspace entreprise email mot de passe theme">
+          <div class="tut-card-ico" aria-hidden="true">🔐</div>
+          <div class="tut-card-main">
+            <div class="tut-card-title">Connexion & workspace</div>
+            <div class="tut-card-desc">Créer un compte, se connecter, choisir l’entreprise et gérer le thème.</div>
+            <div class="tut-card-meta">
+              <span class="badge">Essentiel</span>
+              <span class="badge">5 min</span>
             </div>
           </div>
-        </details>
+          <div class="tut-card-go" aria-hidden="true">↗</div>
+        </a>
 
-        <details class="tut-details" id="tut-feed" data-tut-title="publications feed post fichier upload liker reaction commentaire composer">
-          <summary class="tut-summary">
-            <span class="tut-left">
-              <span class="tut-ico" aria-hidden="true">📰</span>
-              <span class="tut-txt">
-                <span class="tut-title">Publications (feed)</span>
-                <span class="tut-meta">Créer une publication + aimer + fichier</span>
-              </span>
-            </span>
-            <span class="tut-right"><span class="badge">2</span></span>
-          </summary>
-          <div class="tut-body">
-            <p>Dans <a href="app/feed.html"><code>app/feed.html</code></a> :</p>
-            <ul>
-              <li>Descends sur <strong>Composer</strong>.</li>
-              <li>Renseigne <strong>Titre</strong> + <strong>Message</strong>.</li>
-              <li>Optionnel : ajoute un fichier (lien) ou dépose un fichier dans la zone.</li>
-              <li>Clique <strong>Publier</strong> puis teste le bouton ❤️ sur les posts.</li>
-            </ul>
-            <div class="callout">
-              <strong>Note :</strong> en mode démo (sans Supabase), tes posts restent dans ton navigateur (localStorage).
+        <a class="tut-card" href="guides/publications.html" data-tut-card data-tut-title="publications feed post fichier upload reactions liker">
+          <div class="tut-card-ico" aria-hidden="true">📰</div>
+          <div class="tut-card-main">
+            <div class="tut-card-title">Publications</div>
+            <div class="tut-card-desc">Publier un message, joindre un fichier et retrouver les posts de l’équipe.</div>
+            <div class="tut-card-meta">
+              <span class="badge">Flux</span>
+              <span class="badge">7 min</span>
             </div>
           </div>
-        </details>
+          <div class="tut-card-go" aria-hidden="true">↗</div>
+        </a>
 
-        <details class="tut-details" id="tut-canaux" data-tut-title="canaux channels discord public prive vocal message visio">
-          <summary class="tut-summary">
-            <span class="tut-left">
-              <span class="tut-ico" aria-hidden="true">#</span>
-              <span class="tut-txt">
-                <span class="tut-title">Canaux</span>
-                <span class="tut-meta">Organiser les discussions par thèmes</span>
-              </span>
-            </span>
-            <span class="tut-right"><span class="badge">3</span></span>
-          </summary>
-          <div class="tut-body">
-            <p>Sur <a href="app/channels.html"><code>app/channels.html</code></a> :</p>
-            <ul>
-              <li>Clique <strong>＋ Créer un canal</strong> (public / privé / vocal).</li>
-              <li>Sélectionne un canal dans la liste pour ouvrir la conversation.</li>
-              <li>Optionnel : teste la visio (📹) si activée (HTTPS ou Live Server).</li>
-            </ul>
-            <div class="row" style="gap:10px; flex-wrap:wrap; margin-top: 10px">
-              <a class="btn small primary" href="app/channels.html">Ouvrir Canaux</a>
-              <a class="btn small" href="app/salon.html">Ouvrir Salons</a>
+        <a class="tut-card" href="guides/canaux.html" data-tut-card data-tut-title="canaux channels salon public prive vocal message visio">
+          <div class="tut-card-ico" aria-hidden="true">#</div>
+          <div class="tut-card-main">
+            <div class="tut-card-title">Canaux</div>
+            <div class="tut-card-desc">Créer des canaux, organiser les discussions et utiliser les salons vocaux.</div>
+            <div class="tut-card-meta">
+              <span class="badge">Équipe</span>
+              <span class="badge">10 min</span>
             </div>
           </div>
-        </details>
+          <div class="tut-card-go" aria-hidden="true">↗</div>
+        </a>
 
-        <details class="tut-details" id="tut-dm" data-tut-title="messages dm conversation prive contact envoyer fichier">
-          <summary class="tut-summary">
-            <span class="tut-left">
-              <span class="tut-ico" aria-hidden="true">💬</span>
-              <span class="tut-txt">
-                <span class="tut-title">Messages (DM)</span>
-                <span class="tut-meta">Conversations privées, comme sur Discord</span>
-              </span>
-            </span>
-            <span class="tut-right"><span class="badge">4</span></span>
-          </summary>
-          <div class="tut-body">
-            <p>Dans <a href="app/messages.html"><code>app/messages.html</code></a> :</p>
-            <ul>
-              <li>Clique <strong>＋ Nouveau DM</strong> puis choisis un contact.</li>
-              <li>Écris un message et envoie.</li>
-              <li>Optionnel : joins un fichier (si activé) ou lance une visio.</li>
-            </ul>
-            <div class="callout">
-              <strong>Conseil :</strong> utilise des noms différents (Paramètres) pour simuler plusieurs profils en mode démo.
+        <a class="tut-card" href="guides/messages.html" data-tut-card data-tut-title="messages dm conversation prive contact envoyer fichier">
+          <div class="tut-card-ico" aria-hidden="true">💬</div>
+          <div class="tut-card-main">
+            <div class="tut-card-title">Messages (DM)</div>
+            <div class="tut-card-desc">Discussions privées, démarrer un DM et partager un fichier.</div>
+            <div class="tut-card-meta">
+              <span class="badge">Privé</span>
+              <span class="badge">6 min</span>
             </div>
           </div>
-        </details>
+          <div class="tut-card-go" aria-hidden="true">↗</div>
+        </a>
 
-        <details class="tut-details" id="tut-settings" data-tut-title="parametres profil avatar nom entreprise settings reset demo">
-          <summary class="tut-summary">
-            <span class="tut-left">
-              <span class="tut-ico" aria-hidden="true">⚙️</span>
-              <span class="tut-txt">
-                <span class="tut-title">Paramètres (profil)</span>
-                <span class="tut-meta">Avatar + infos personnelles</span>
-              </span>
-            </span>
-            <span class="tut-right"><span class="badge">5</span></span>
-          </summary>
-          <div class="tut-body">
-            <p>Sur <a href="app/settings.html"><code>app/settings.html</code></a> :</p>
-            <ul>
-              <li>Ajoute un <strong>avatar</strong> (upload) ou une <strong>URL</strong>.</li>
-              <li>Modifie ton <strong>nom</strong> et ton <strong>entreprise</strong>.</li>
-              <li>Clique <strong>Enregistrer</strong> puis vérifie le header (avatar + nom).</li>
-              <li>Utilise <strong>Réinitialiser la démo</strong> si tu veux repartir de zéro.</li>
-            </ul>
-            <div class="codeblock">
-              <div class="codebar">
-                Reset rapide (démo)
-                <button class="btn small" type="button" data-copy="#code-reset">Copier</button>
-              </div>
-              <pre id="code-reset">localStorage.removeItem("fwUser");
-location.href = location.pathname.includes("/app/") ? "../login.html" : "login.html";</pre>
+        <a class="tut-card" href="guides/profil.html" data-tut-card data-tut-title="parametres profil avatar nom entreprise settings theme">
+          <div class="tut-card-ico" aria-hidden="true">⚙️</div>
+          <div class="tut-card-main">
+            <div class="tut-card-title">Paramètres (profil)</div>
+            <div class="tut-card-desc">Avatar, nom, entreprise et options de la démo.</div>
+            <div class="tut-card-meta">
+              <span class="badge">Profil</span>
+              <span class="badge">6 min</span>
             </div>
           </div>
-        </details>
+          <div class="tut-card-go" aria-hidden="true">↗</div>
+        </a>
 
-        <details class="tut-details" id="tut-admin" data-tut-title="admin roles membres permissions workspace">
-          <summary class="tut-summary">
-            <span class="tut-left">
-              <span class="tut-ico" aria-hidden="true">🛡️</span>
-              <span class="tut-txt">
-                <span class="tut-title">Admin (rôles / membres)</span>
-                <span class="tut-meta">Gérer les rôles et l’accès (démo)</span>
-              </span>
-            </span>
-            <span class="tut-right"><span class="badge">6</span></span>
-          </summary>
-          <div class="tut-body">
-            <p>Dans <a href="app/admin.html"><code>app/admin.html</code></a> :</p>
-            <ul>
-              <li>Crée des <strong>rôles</strong> (ex: Admin, RH, Dev) + couleur.</li>
-              <li>Ajoute des <strong>membres</strong> et attribue un rôle.</li>
-              <li>Avec Supabase, le <strong>premier membre</strong> d’un workspace devient admin automatiquement (trigger SQL).</li>
-            </ul>
-          </div>
-        </details>
-
-        <details class="tut-details" id="tut-supabase" data-tut-title="supabase schema sql auth storage netlify url key env.js">
-          <summary class="tut-summary">
-            <span class="tut-left">
-              <span class="tut-ico" aria-hidden="true">🧩</span>
-              <span class="tut-txt">
-                <span class="tut-title">Supabase (optionnel)</span>
-                <span class="tut-meta">Activer l’auth + base de données + upload</span>
-              </span>
-            </span>
-            <span class="tut-right"><span class="badge">7</span></span>
-          </summary>
-          <div class="tut-body">
-            <p>Si tu veux passer de la démo locale à une app connectée :</p>
-            <ul>
-              <li>Applique <a href="supabase/schema.sql"><code>supabase/schema.sql</code></a> dans le SQL Editor.</li>
-              <li>Active le provider Email (Supabase Auth).</li>
-              <li>Mets tes clés dans <a href="js/env.js"><code>js/env.js</code></a> (Project URL + Publishable/Anon key).</li>
-              <li>(Upload) Crée un bucket <code>facework</code> et applique <code>supabase/storage.sql</code>.</li>
-            </ul>
-            <div class="codeblock">
-              <div class="codebar">
-                Exemple de config (env.js)
-                <button class="btn small" type="button" data-copy="#code-env">Copier</button>
-              </div>
-              <pre id="code-env">window.FW_ENV = window.FW_ENV || {
-  SUPABASE_URL: "https://xxxx.supabase.co",
-  SUPABASE_KEY: "sb_publishable_...",
-  SUPABASE_BUCKET: "facework",
-  SUPABASE_COMPANY: "Entreprise",
-};</pre>
+        <a class="tut-card" href="guides/admin.html" data-tut-card data-tut-title="admin roles membres permissions">
+          <div class="tut-card-ico" aria-hidden="true">🛡️</div>
+          <div class="tut-card-main">
+            <div class="tut-card-title">Admin</div>
+            <div class="tut-card-desc">Gérer les rôles, membres et droits dans un workspace.</div>
+            <div class="tut-card-meta">
+              <span class="badge">Gestion</span>
+              <span class="badge">12 min</span>
             </div>
           </div>
-        </details>
+          <div class="tut-card-go" aria-hidden="true">↗</div>
+        </a>
 
-        <details class="tut-details" id="tut-help" data-tut-title="depannage debug live server file localstorage redirection app theme">
-          <summary class="tut-summary">
-            <span class="tut-left">
-              <span class="tut-ico" aria-hidden="true">🧯</span>
-              <span class="tut-txt">
-                <span class="tut-title">Dépannage</span>
-                <span class="tut-meta">Les problèmes les plus fréquents</span>
-              </span>
-            </span>
-            <span class="tut-right"><span class="badge">8</span></span>
-          </summary>
-          <div class="tut-body">
-            <ul>
-              <li><strong>Je suis redirigé vers la connexion :</strong> c’est normal si tu n’es pas connecté (guard des pages <code>/app</code>).</li>
-              <li><strong>En <code>file://</code> ça bug :</strong> utilise Live Server (voir <a href="README.md"><code>README.md</code></a>).</li>
-              <li><strong>Copie impossible :</strong> certains navigateurs bloquent le presse‑papiers sans HTTPS / interaction utilisateur.</li>
-              <li><strong>Supabase “désactivé” :</strong> vérifie <code>js/env.js</code> (URL + key) et recharge.</li>
-            </ul>
-            <div class="callout">
-              <strong>Debug :</strong> ouvre la console navigateur et cherche les erreurs JavaScript (F12 → Console).
+        <a class="tut-card" href="guides/supabase.html" data-tut-card data-tut-title="supabase auth rls schema storage key url">
+          <div class="tut-card-ico" aria-hidden="true">🧩</div>
+          <div class="tut-card-main">
+            <div class="tut-card-title">Supabase (optionnel)</div>
+            <div class="tut-card-desc">Activer Auth + base de données + Storage pour passer en mode “vrai multi‑utilisateurs”.</div>
+            <div class="tut-card-meta">
+              <span class="badge">Avancé</span>
+              <span class="badge">20 min</span>
             </div>
           </div>
-        </details>
-      </section>
+          <div class="tut-card-go" aria-hidden="true">↗</div>
+        </a>
+
+        <a class="tut-card" href="guides/depannage.html" data-tut-card data-tut-title="depannage debug live server file localstorage redirection app theme">
+          <div class="tut-card-ico" aria-hidden="true">🧯</div>
+          <div class="tut-card-main">
+            <div class="tut-card-title">Dépannage</div>
+            <div class="tut-card-desc">Les problèmes fréquents (connexion, fichiers, Supabase, Live Server).</div>
+            <div class="tut-card-meta">
+              <span class="badge">Checklist</span>
+              <span class="badge">8 min</span>
+            </div>
+          </div>
+          <div class="tut-card-go" aria-hidden="true">↗</div>
+        </a>
+      </div>
+
+      <div class="spacer" style="height:14px"></div>
+      <div class="callout" style="max-width: 86ch">
+        <strong>Ajouter un nouveau guide :</strong> duplique <code>guides/template.html</code> puis ajoute une nouvelle carte ici.
+      </div>
     </section>
 
     <footer class="footer">

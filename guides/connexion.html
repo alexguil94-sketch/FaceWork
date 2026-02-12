@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Connexion & workspace — FaceWork</title>
+  <link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body>
+  <header class="appbar">
+    <div class="container inner">
+      <a class="brand" href="../app/feed.html" aria-label="FaceWork">
+        <div class="logo" aria-hidden="true"><img src="../assets/fw-logo.png" alt=""/></div>
+        <div style="line-height:1.1">
+          <div style="font-size:18px; font-weight:950">FaceWork</div>
+          <div style="font-size:12px; color:var(--muted); font-weight:800">Espace entreprise</div>
+        </div>
+      </a>
+
+      <nav class="appnav" aria-label="Navigation application">
+        <a data-app-nav href="../index.html">🏠 Accueil</a>
+        <a data-app-nav href="../app/feed.html">📰 Publications</a>
+        <a data-app-nav href="../app/channels.html"># Canaux</a>
+        <a data-app-nav href="../app/messages.html">💬 Messages</a>
+        <a data-app-nav href="../app/admin.html">🛡️ Admin</a>
+        <a data-app-nav href="../app/settings.html">⚙️ Paramètres</a>
+        <a data-app-nav href="../tutoriel.html">📘 Tutoriel</a>
+      </nav>
+
+      <div class="userbox">
+        <button class="btn icon" data-theme-toggle title="Basculer thème">🌓</button>
+        <div class="row" style="gap:10px">
+          <div class="avatar" data-user-avatar>FW</div>
+          <div style="display:flex; flex-direction:column; line-height:1.1">
+            <div style="font-weight:950" data-user-name>Utilisateur</div>
+            <div class="sub" data-user-company>Entreprise</div>
+          </div>
+        </div>
+        <button class="btn small" data-logout title="Se déconnecter" aria-label="Se déconnecter">
+          <span aria-hidden="true">↩</span>
+          <span class="hide-sm">Déconnexion</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="spacer"></div>
+    <a class="btn small" href="../tutoriel.html">← Retour au tutoriel</a>
+
+    <div class="spacer" style="height:12px"></div>
+
+    <section class="card panel">
+      <div class="badge">Guide</div>
+      <h1 class="page-title" style="margin-top:10px">Connexion & workspace</h1>
+      <p class="page-sub">Créer un compte, se connecter et rejoindre une entreprise (workspace).</p>
+
+      <div class="hr"></div>
+
+      <div class="callout" style="max-width: 86ch">
+        <strong>Astuce :</strong> le “workspace” correspond au champ <code>Entreprise</code> (tout le monde doit entrer le même nom).
+      </div>
+
+      <div class="spacer" style="height:14px"></div>
+
+      <ul style="margin:0 0 0 18px; padding:0; color:var(--muted); font-weight:720; line-height:1.6">
+        <li>Va sur <a href="../login.html"><code>login.html</code></a></li>
+        <li>Entre <strong>Email</strong>, <strong>Entreprise</strong>, <strong>Mot de passe</strong></li>
+        <li>Une fois connecté, ouvre <a href="../app/feed.html"><code>/app/feed.html</code></a></li>
+      </ul>
+    </section>
+
+    <footer class="footer">
+      <div class="inner container">
+        <div>
+          <div style="font-weight:950; color:var(--text)">FaceWork</div>
+          <div style="margin-top:6px">Guide — Connexion & workspace.</div>
+        </div>
+        <div class="col" style="gap:8px">
+          <div class="badge">Liens</div>
+          <a href="../tutoriel.html">Tutoriel</a>
+          <a href="../login.html">Connexion</a>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <div class="toast" role="status" aria-live="polite">
+    <div class="t">Info</div>
+    <div class="d">—</div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/env.js"></script>
+  <script src="../js/supabase.js"></script>
+  <script src="../js/site.js"></script>
+  <script src="../js/tutorial.js"></script>
+</body>
+</html>
+

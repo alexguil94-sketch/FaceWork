@@ -1384,6 +1384,83 @@ html[data-theme="light"] .toast{background: rgba(255,255,255,.62)}
 .tut-shell{margin-bottom: 10px}
 .tut-nav .ch-item:hover{text-decoration:none}
 
+.tut-grid{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+@media (max-width: 980px){
+  .tut-grid{grid-template-columns: 1fr}
+}
+.tut-card{
+  display:flex;
+  gap: 12px;
+  align-items:flex-start;
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid var(--stroke);
+  background: rgba(255,255,255,.05);
+  color: inherit;
+  text-decoration:none;
+  transition: transform .08s ease, box-shadow .12s ease, border-color .12s ease, background .12s ease;
+}
+.tut-card:hover{
+  transform: translateY(-1px);
+  background: rgba(255,255,255,.07);
+  border-color: rgba(255,255,255,.22);
+  box-shadow: 0 16px 44px rgba(0,0,0,.18);
+}
+html[data-theme="light"] .tut-card{
+  background: rgba(255,255,255,.62);
+}
+html[data-theme="light"] .tut-card:hover{
+  border-color: rgba(0,245,255,.22);
+  box-shadow:
+    0 18px 60px rgba(32,18,72,.12),
+    0 0 44px rgba(0,245,255,.14),
+    0 0 34px rgba(255,45,120,.10);
+}
+.tut-card:active{transform: translateY(0)}
+.tut-card-ico{
+  width: 44px;
+  height: 44px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.08);
+  display:grid;
+  place-items:center;
+  font-weight: 950;
+  flex: 0 0 auto;
+}
+html[data-theme="light"] .tut-card-ico{
+  border-color: rgba(20,16,45,.14);
+  background: linear-gradient(135deg, rgba(0,245,255,.18), rgba(255,45,120,.10));
+}
+.tut-card-main{min-width:0}
+.tut-card-title{
+  font-weight: 950;
+  letter-spacing:-.2px;
+}
+.tut-card-desc{
+  margin-top: 4px;
+  color: var(--muted);
+  font-weight: 720;
+  line-height: 1.45;
+}
+.tut-card-meta{
+  margin-top: 10px;
+  display:flex;
+  gap: 8px;
+  flex-wrap:wrap;
+}
+.tut-card-go{
+  margin-left:auto;
+  color: var(--muted);
+  font-weight: 950;
+  opacity:.9;
+}
+.tut-card:hover .tut-card-go{color: var(--text)}
+
 .callout{
   padding: 12px 14px;
   border-radius: 16px;

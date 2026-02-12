@@ -1913,11 +1913,47 @@
       current ? showChannel(current) : (panel.innerHTML = emptyChatHtml("Aucun canal", "Crée un canal pour commencer."));
     }
 
-    // Create channel
+    // Sidebar search (optional)
+    const search = $("#channelSearch");
+    function applySearch(){
+      if(!search) return;
+      const q = String(search.value || "").trim().toLowerCase();
+      $$(".ch-item[data-ch]").forEach((b)=>{
+        const text = String(b.textContent || "").toLowerCase();
+        b.style.display = !q || text.includes(q) ? "" : "none";
+      });
+    }
+    if(search && !search.__bound){
+      search.__bound = true;
+      search.addEventListener("input", applySearch);
+    }
+    applySearch();
+
+    // Create channel (UI if present, otherwise fallback to prompt)
     const createBtn = $("#createChannel");
+    const box = $("#channelCreateBox");
+    const typeEl = $("#channelType");
+    const nameEl = $("#channelName");
+    const cancelBtn = $("#channelCreateCancel");
+    const submitBtn = $("#channelCreateSubmit");
+
+    function openCreate(){
+      if(!box) return false;
+      box.classList.remove("hidden");
+      setTimeout(()=> nameEl?.focus?.(), 0);
+      return true;
+    }
+    function closeCreate(){
+      if(!box) return;
+      box.classList.add("hidden");
+      if(nameEl) nameEl.value = "";
+      if(typeEl) typeEl.value = "public";
+    }
+
     if(createBtn && !createBtn.__bound){
       createBtn.__bound = true;
       createBtn.addEventListener("click", ()=>{
+        if(openCreate()) return;
         const type = (prompt("Type de canal ? public / private / voice", "public") || "public").toLowerCase();
         const name = (prompt("Nom du canal (ex: general)", "nouveau-canal") || "").trim().toLowerCase();
         if(!name) return;
@@ -1934,6 +1970,49 @@
         localStorage.setItem("fwActiveChannel", key);
         renderChannels();
         window.fwToast?.("Canal créé", `#${name} ajouté.`);
+      });
+    }
+    if(cancelBtn && !cancelBtn.__bound){
+      cancelBtn.__bound = true;
+      cancelBtn.addEventListener("click", ()=> closeCreate());
+    }
+    if(submitBtn && !submitBtn.__bound){
+      submitBtn.__bound = true;
+      submitBtn.addEventListener("click", ()=>{
+        const type = String(typeEl?.value || "public").trim().toLowerCase();
+        const name = String(nameEl?.value || "").trim().toLowerCase();
+        if(!name){
+          window.fwToast?.("Nom requis","Entre un nom de canal (ex: general).");
+          nameEl?.focus?.();
+          return;
+        }
+        const map = {public:"public", private:"private", voice:"voice"};
+        const k = map[type] || "public";
+        const c = loadChannels();
+        c[k] = c[k] || [];
+        if(!c[k].includes(name)) c[k].push(name);
+        saveChannels(c);
+        const key = `${k}:${name}`;
+        const msgs = loadChannelMsgs();
+        msgs[key] = msgs[key] || [];
+        saveChannelMsgs(msgs);
+        localStorage.setItem("fwActiveChannel", key);
+        closeCreate();
+        renderChannels();
+        window.fwToast?.("Canal créé", `#${name} ajouté.`);
+      });
+    }
+    if(nameEl && !nameEl.__bound){
+      nameEl.__bound = true;
+      nameEl.addEventListener("keydown", (e)=>{
+        if(e.key === "Enter"){
+          e.preventDefault();
+          submitBtn?.click?.();
+        }
+        if(e.key === "Escape"){
+          e.preventDefault();
+          closeCreate();
+        }
       });
     }
   }
@@ -2193,14 +2272,50 @@
       }
     }
 
+    // Sidebar search (optional)
+    const search = $("#channelSearch");
+    function applySearch(){
+      if(!search) return;
+      const q = String(search.value || "").trim().toLowerCase();
+      $$(".ch-item[data-ch-id]").forEach((b)=>{
+        const text = String(b.textContent || "").toLowerCase();
+        b.style.display = !q || text.includes(q) ? "" : "none";
+      });
+    }
+    if(search && !search.__sbBound){
+      search.__sbBound = true;
+      search.addEventListener("input", applySearch);
+    }
+    applySearch();
+
     const createBtn = $("#createChannel");
+    const box = $("#channelCreateBox");
+    const typeEl = $("#channelType");
+    const nameEl = $("#channelName");
+    const cancelBtn = $("#channelCreateCancel");
+    const submitBtn = $("#channelCreateSubmit");
+
+    function openCreate(){
+      if(!box) return false;
+      box.classList.remove("hidden");
+      setTimeout(()=> nameEl?.focus?.(), 0);
+      return true;
+    }
+    function closeCreate(){
+      if(!box) return;
+      box.classList.add("hidden");
+      if(nameEl) nameEl.value = "";
+      if(typeEl) typeEl.value = "public";
+    }
+
     if(createBtn && !createBtn.__sbBound){
       createBtn.__sbBound = true;
       createBtn.addEventListener("click", async ()=>{
         if(meRole !== "admin"){
-          window.fwToast?.("Accès refusé","Seul un admin peut créer des canaux (démo).");
+          window.fwToast?.("Accès refusé","Seul un admin peut créer des canaux.");
           return;
         }
+        if(openCreate()) return;
         const type = (prompt("Type de canal ? public / private / voice", "public") || "public").toLowerCase();
         const name = (prompt("Nom du canal (ex: general)", "nouveau-canal") || "").trim().toLowerCase();
         if(!name) return;
@@ -2214,6 +2329,53 @@
         localStorage.setItem("fwActiveChannelId", String(res.data?.id || ""));
         await renderChannelsSupabase();
         window.fwToast?.("Canal créé", `#${name} ajouté.`);
+      });
+    }
+
+    if(cancelBtn && !cancelBtn.__sbBound){
+      cancelBtn.__sbBound = true;
+      cancelBtn.addEventListener("click", ()=> closeCreate());
+    }
+
+    if(submitBtn && !submitBtn.__sbBound){
+      submitBtn.__sbBound = true;
+      submitBtn.addEventListener("click", async ()=>{
+        if(meRole !== "admin"){
+          window.fwToast?.("Accès refusé","Seul un admin peut créer des canaux.");
+          return;
+        }
+        const type = String(typeEl?.value || "public").trim().toLowerCase();
+        const name = String(nameEl?.value || "").trim().toLowerCase();
+        if(!name){
+          window.fwToast?.("Nom requis","Entre un nom de canal (ex: general).");
+          nameEl?.focus?.();
+          return;
+        }
+        const map = {public:"public", private:"private", voice:"voice"};
+        const k = map[type] || "public";
+        const res = await sb.from("channels").insert({ company, type: k, name }).select("*").single();
+        if(res.error){
+          sbToastError("Canal", res.error);
+          return;
+        }
+        localStorage.setItem("fwActiveChannelId", String(res.data?.id || ""));
+        closeCreate();
+        await renderChannelsSupabase();
+        window.fwToast?.("Canal créé", `#${name} ajouté.`);
+      });
+    }
+
+    if(nameEl && !nameEl.__sbBound){
+      nameEl.__sbBound = true;
+      nameEl.addEventListener("keydown", (e)=>{
+        if(e.key === "Enter"){
+          e.preventDefault();
+          submitBtn?.click?.();
+        }
+        if(e.key === "Escape"){
+          e.preventDefault();
+          closeCreate();
+        }
       });
     }
   }

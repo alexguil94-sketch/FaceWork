@@ -3,22 +3,27 @@
   const $ = (q, root=document) => root.querySelector(q);
   const $$ = (q, root=document) => Array.from(root.querySelectorAll(q));
 
-  // ---------- Filter
+  // ---------- Filter (details OR cards)
   const search = $("#tutSearch");
   const details = $$("details[data-tut-title]");
+  const cards = $$("[data-tut-card][data-tut-title]");
   const counter = $("#tutCount");
 
   function applyFilter(){
     const q = String(search?.value || "").trim().toLowerCase();
+    const items = details.length ? details : cards;
     let shown = 0;
-    details.forEach(d => {
-      const hay = (d.getAttribute("data-tut-title") || "") + " " + (d.textContent || "");
+
+    items.forEach(el => {
+      const hay = (el.getAttribute("data-tut-title") || "") + " " + (el.textContent || "");
       const match = !q || hay.toLowerCase().includes(q);
-      d.style.display = match ? "" : "none";
+      el.style.display = match ? "" : "none";
       if(match) shown++;
     });
+
     if(counter){
-      counter.textContent = q ? `${shown}/${details.length} résultat(s)` : `${details.length} chapitre(s)`;
+      const label = details.length ? "chapitre(s)" : "section(s)";
+      counter.textContent = q ? `${shown}/${items.length} résultat(s)` : `${items.length} ${label}`;
     }
   }
   search?.addEventListener("input", applyFilter);
