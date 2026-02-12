@@ -5,3 +5,5 @@ Thumbs.db
 # Netlify
 .netlify/
 
+# Local npm cache (used by npx during deploy)
+.npm-cache/

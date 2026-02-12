@@ -18,6 +18,7 @@ Si tu vois des comportements bizarres, utilise Live Server.
 ## Pages
 - `index.html` : Landing
 - `login.html` : Connexion (démo localStorage + Supabase si configuré)
+- `tutoriel.html` : Tutoriel (prise en main)
 - `app/feed.html` : Publications
 - `app/salon.html` : Salons (liste)
 - `app/channels.html` : Canaux

@@ -431,6 +431,22 @@ for insert
 to authenticated
 with check (company = public.current_company() and author_id = auth.uid());
 
+drop policy if exists posts_update_own_or_admin on public.posts;
+create policy posts_update_own_or_admin
+on public.posts
+for update
+to authenticated
+using (company = public.current_company() and (author_id = auth.uid() or public.is_admin()))
+with check (
+  company = public.current_company()
+  -- Prevent changing ownership during updates
+  and author_id = (
+    select p.author_id
+    from public.posts p
+    where p.id = id and p.company = public.current_company()
+  )
+);
+
 drop policy if exists posts_delete_own_or_admin on public.posts;
 create policy posts_delete_own_or_admin
 on public.posts

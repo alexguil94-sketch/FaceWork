@@ -62,7 +62,27 @@
       window.fwToast?.("Connexion","Connexion à Supabase...");
       const signIn = await sb.auth.signInWithPassword({ email, password: pwd });
       if(signIn.error){
-        const create = confirm("Compte introuvable ou mauvais mot de passe.\n\nCréer un compte avec cet email ?");
+        const msg = String(signIn.error.message || "Connexion impossible").trim();
+        const msgLower = msg.toLowerCase();
+        window.fwToast?.("Connexion", msg);
+
+        if(msgLower.includes("email not confirmed") || msgLower.includes("not confirmed")){
+          const resendOk = confirm("Email non confirmé.\n\n1) Va dans tes emails (spam) et clique le lien.\n2) Ou veux-tu renvoyer l’email de confirmation ?");
+          if(!resendOk) return;
+          if(typeof sb.auth?.resend === "function"){
+            const resend = await sb.auth.resend({ type: "signup", email });
+            if(resend.error){
+              window.fwToast?.("Renvoyer", resend.error.message || "Impossible de renvoyer l’email.");
+              return;
+            }
+            window.fwToast?.("Envoyé", "Email de confirmation renvoyé. Vérifie ta boîte.");
+            return;
+          }
+          window.fwToast?.("Renvoyer", "Fonction resend indisponible dans cette version.");
+          return;
+        }
+
+        const create = confirm(`${msg}\n\nCréer un compte avec cet email ?`);
         if(!create) return;
 
         const signUp = await sb.auth.signUp({
@@ -75,14 +95,23 @@
           return;
         }
         if(!signUp.data?.session){
-          window.fwToast?.("Vérification email","Compte créé. Vérifie tes emails puis reconnecte-toi.");
+          window.fwToast?.("Vérification email","Compte créé. Vérifie tes emails (spam) puis reconnecte-toi.");
           return;
         }
       }
 
       const profile = await window.fwSupabase.ensureProfile({ name, company });
       if(!profile){
-        window.fwToast?.("Schéma Supabase manquant","Applique le fichier SQL (tables + RLS) puis recharge.");
+        const err = window.fwSupabase?.lastError || null;
+        const msg = String(err?.message || err?.error_description || "").trim();
+        const msgLower = msg.toLowerCase();
+        if(err && (String(err.code) === "42501" || msgLower.includes("row-level security"))){
+          window.fwToast?.("Accès base refusé","RLS: tu n’es pas authentifié (token manquant) ou l’ID n’est pas le tien. Vérifie que tu es bien connecté, puis relance.");
+        } else if(err && msg){
+          window.fwToast?.("Supabase", msg);
+        } else {
+          window.fwToast?.("Schéma Supabase manquant","Applique le fichier SQL (tables + RLS) puis recharge.");
+        }
         return;
       }
       await window.fwSupabase.syncLocalUser();

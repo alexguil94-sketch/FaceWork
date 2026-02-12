@@ -19,6 +19,10 @@
     : null;
 
   const PROFILE_TABLE = "profiles";
+  let lastError = null;
+  function setLastError(err){
+    lastError = err || null;
+  }
 
   function normCompany(company){
     return String(company || "")
@@ -46,6 +50,7 @@
   async function getSession(){
     if(!client) return null;
     const { data, error } = await client.auth.getSession();
+    setLastError(error);
     if(error) return null;
     return data?.session || null;
   }
@@ -59,6 +64,7 @@
       .select("*")
       .eq("id", id)
       .maybeSingle();
+    setLastError(error);
     if(error) return null;
     return data || null;
   }
@@ -89,7 +95,11 @@
       .insert(payload)
       .select("*")
       .single();
-    if(error) return null;
+    setLastError(error);
+    if(error){
+      console.error("[FaceWork] ensureProfile insert failed", error);
+      return null;
+    }
     return data || null;
   }
 
@@ -132,6 +142,7 @@
     client,
     companyDefault: COMPANY_DEFAULT,
     toFwUser,
+    get lastError(){ return lastError; },
     getSession,
     fetchProfile,
     ensureProfile,

@@ -98,13 +98,34 @@
   }
 
   // ---------- Active nav highlight
-  const path = window.location.pathname;
+  function canonPath(p){
+    let s = String(p || "");
+    if(!s.startsWith("/")) s = "/" + s;
+    s = s.replace(/\/+$/, "");
+    if(s === "") s = "/";
+
+    // Treat /index and /index.html as root
+    s = s.replace(/\/index\.html$/, "");
+    s = s.replace(/\/index$/, "");
+
+    // Pretty URLs: /page and /page.html are equivalent on Netlify
+    s = s.replace(/\.html$/, "");
+
+    if(s === "") s = "/";
+    return s;
+  }
+
+  const currentPath = canonPath(window.location.pathname);
   $$("[data-app-nav]").forEach(a=>{
-    const target = a.getAttribute("href");
-    if(!target) return;
-    // support relative links
-    const normalized = target.replace("./","").replace("../","");
-    if(path.endsWith(normalized) || path.includes("/app/"+normalized.replace("app/",""))){
+    const href = a.getAttribute("href");
+    if(!href) return;
+    let targetPath = "";
+    try{
+      targetPath = new URL(href, window.location.href).pathname;
+    }catch(e){
+      return;
+    }
+    if(canonPath(targetPath) === currentPath){
       a.classList.add("active");
     }
   });

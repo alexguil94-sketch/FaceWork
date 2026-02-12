@@ -210,6 +210,7 @@
 
     function setSelectedFile(file){
       form.__selectedFile = file || null;
+      form.__editingRemoveFile = false;
       if(info){
         info.textContent = file ? `${file.name} • ${fmtBytes(file.size)}` : "Aucun fichier sélectionné";
       }
@@ -235,6 +236,17 @@
       ev.stopPropagation();
       if(input) input.value = "";
       setSelectedFile(null);
+      // In edit mode: "Retirer" means remove the existing attachment too.
+      if(form.__editingId){
+        form.__editingRemoveFile = true;
+        form.__editingOldFileUrl = "";
+        form.__editingOldFileName = "";
+        form.__editingOldFileData = null;
+        $("#postFileUrl") && ($("#postFileUrl").value = "");
+        $("#postFileName") && ($("#postFileName").value = "");
+        $("#postFolder") && ($("#postFolder").value = "");
+        info && (info.textContent = "Aucun fichier sélectionné");
+      }
     });
 
     function prevent(e){ e.preventDefault(); e.stopPropagation(); }
@@ -254,9 +266,50 @@
     drop?.addEventListener("drop", (e)=>{
       prevent(e);
       drop.classList.remove("dragover");
+      const isEmptyBeforeDrop = composerIsEmpty();
       const file = e.dataTransfer?.files?.[0] || null;
-      if(file) setSelectedFile(file);
+      const txt = String(e.dataTransfer?.getData?.("text/plain") || "");
+
+      if(file){
+        setSelectedFile(file);
+        if(isAdmin() && !form.__editingId && isEmptyBeforeDrop){
+          const t = $("#postTitle");
+          if(t && !t.value.trim()) t.value = fileTitleFromName(file.name);
+          if(typeof form.requestSubmit === "function") form.requestSubmit();
+          else form.querySelector('button[type="submit"]')?.click();
+        }
+        return;
+      }
+
+      if(txt.trim()){
+        const b = $("#postBody");
+        const fenced = toCodeFence(txt);
+        if(b){
+          b.value = b.value.trim()
+            ? `${b.value.replace(/\s+$/,"")}\n\n${fenced}`
+            : fenced;
+          b.dispatchEvent(new Event("input", { bubbles:true }));
+        }
+        const t = $("#postTitle");
+        if(t && !t.value.trim() && !form.__editingId){
+          t.value = "Snippet";
+        }
+        if(isAdmin() && !form.__editingId && isEmptyBeforeDrop){
+          if(typeof form.requestSubmit === "function") form.requestSubmit();
+          else form.querySelector('button[type="submit"]')?.click();
+        }
+      }
     });
+
+    // Cancel edit mode (if the edit UI exists on this page)
+    const cancel = $("#postEditCancel");
+    if(cancel && !cancel.__bound){
+      cancel.__bound = true;
+      cancel.addEventListener("click", (ev)=>{
+        ev.preventDefault();
+        exitPostEditMode();
+      });
+    }
 
     form.__fileUiBound = true;
   }
@@ -998,6 +1051,119 @@
   if(!sbEnabled) seed();
 
   // ---------- FEED
+  function isAdmin(){
+    return String(getUser()?.role || "").trim().toLowerCase() === "admin";
+  }
+
+  function composerIsEmpty(){
+    const form = $("#newPostForm");
+    if(!form) return true;
+    const title = $("#postTitle")?.value.trim() || "";
+    const body = $("#postBody")?.value.trim() || "";
+    const fileUrl = $("#postFileUrl")?.value.trim() || "";
+    const fileName = $("#postFileName")?.value.trim() || "";
+    const folder = $("#postFolder")?.value.trim() || "";
+    return !title && !body && !fileUrl && !fileName && !folder && !form.__selectedFile;
+  }
+
+  function fileTitleFromName(name){
+    const s = String(name || "").trim();
+    if(!s) return "Fichier";
+    return s.replace(/\.[^.]+$/, "") || s;
+  }
+
+  function toCodeFence(raw){
+    const t = String(raw || "").replace(/\r\n/g, "\n");
+    if(!t.trim()) return "";
+    const trimmed = t.trim();
+    if(trimmed.startsWith("```") && trimmed.endsWith("```")) return trimmed;
+    return `\`\`\`js\n${t.replace(/\s+$/,"")}\n\`\`\``;
+  }
+
+  function parseCodeFence(raw){
+    const s = String(raw || "").replace(/\r\n/g, "\n").trim();
+    const m = s.match(/^```([a-zA-Z0-9_-]+)?[^\n]*\n([\s\S]*?)\n```$/);
+    if(!m) return null;
+    return { lang: String(m[1] || "").trim(), code: m[2] || "" };
+  }
+
+  function renderPostBodyHtml(body){
+    const s = String(body || "");
+    if(!s.trim()) return "";
+    const fenced = parseCodeFence(s);
+    if(fenced){
+      return `<pre class="post-code"><code>${escapeHtml(fenced.code)}</code></pre>`;
+    }
+    return `<p>${escapeHtml(s).replace(/\n/g, "<br/>")}</p>`;
+  }
+
+  function setComposerEditUI(isEditing, label){
+    const bar = $("#postEditBar");
+    bar && bar.classList.toggle("hidden", !isEditing);
+    const l = $("#postEditLabel");
+    l && (l.textContent = label || (isEditing ? "Mode édition" : "Mode création"));
+    const submit = $("#postSubmitBtn");
+    submit && (submit.textContent = isEditing ? "Mettre à jour" : "Publier");
+  }
+
+  function enterPostEditMode({ id, title, body, fileUrl, fileName, fileData } = {}){
+    const form = $("#newPostForm");
+    if(!form) return;
+    bindComposerFileUI();
+    const pid = String(id || "").trim();
+    if(!pid) return;
+
+    form.__editingId = pid;
+    form.__editingRemoveFile = false;
+    form.__editingOldFileUrl = String(fileUrl || "").trim();
+    form.__editingOldFileName = String(fileName || "").trim();
+    form.__editingOldFileData = fileData || null;
+
+    $("#postTitle") && ($("#postTitle").value = String(title || ""));
+    $("#postBody") && ($("#postBody").value = String(body || ""));
+    $("#postFileUrl") && ($("#postFileUrl").value = form.__editingOldFileUrl);
+    $("#postFileName") && ($("#postFileName").value = form.__editingOldFileName);
+    $("#postFolder") && ($("#postFolder").value = "");
+
+    // Clear any new file selection; keep the existing attachment in __editingOldFile*
+    $("#postFile") && ($("#postFile").value = "");
+    form.__selectedFile = null;
+
+    const info = $("#postFileInfo");
+    if(info){
+      if(form.__editingOldFileName || form.__editingOldFileUrl){
+        info.textContent = `Fichier actuel : ${form.__editingOldFileName || "lien"}`;
+      }else if(form.__editingOldFileData){
+        info.textContent = `Fichier actuel : ${form.__editingOldFileName || "fichier (démo)"}`;
+      }else{
+        info.textContent = "Aucun fichier sélectionné";
+      }
+    }
+
+    setComposerEditUI(true, `Édition : ${String(title || "Publication")}`);
+    try{ form.scrollIntoView({ behavior:"smooth", block:"start" }); }catch(e){ /* ignore */ }
+  }
+
+  function exitPostEditMode(){
+    const form = $("#newPostForm");
+    if(!form) return;
+    form.__editingId = "";
+    form.__editingRemoveFile = false;
+    form.__editingOldFileUrl = "";
+    form.__editingOldFileName = "";
+    form.__editingOldFileData = null;
+
+    $("#postTitle") && ($("#postTitle").value = "");
+    $("#postBody") && ($("#postBody").value = "");
+    $("#postFileUrl") && ($("#postFileUrl").value = "");
+    $("#postFileName") && ($("#postFileName").value = "");
+    $("#postFolder") && ($("#postFolder").value = "");
+    $("#postFile") && ($("#postFile").value = "");
+    form.__selectedFile = null;
+    $("#postFileInfo") && ($("#postFileInfo").textContent = "Aucun fichier sélectionné");
+    setComposerEditUI(false);
+  }
+
   function loadPosts(){
     try{ return JSON.parse(localStorage.getItem("fwPosts") || "[]"); }catch(e){ return []; }
   }
@@ -1007,9 +1173,14 @@
     const root = $("#feedList");
     if(!root) return;
     bindComposerFileUI();
+    const me = getUser() || {};
+    const meRole = String(me.role || "").trim().toLowerCase();
+    const meEmail = String(me.email || "").trim().toLowerCase();
     const posts = loadPosts();
     root.innerHTML = "";
     posts.slice().reverse().forEach(p=>{
+      const authorEmail = String(p.authorEmail || "").trim().toLowerCase();
+      const canManage = meRole === "admin" || (meEmail && authorEmail && meEmail === authorEmail);
       const el = document.createElement("div");
       el.className = "post";
       el.innerHTML = `
@@ -1021,7 +1192,10 @@
               <div class="time">${escapeHtml(p.createdAt || "")}${(p.fileName || p.fileUrl) ? " • 📄 Fichier" : ""}</div>
             </div>
           </div>
-          <button class="btn icon ghost" title="Supprimer" data-del="${p.id}">🗑️</button>
+          <div class="row" style="gap:8px; align-items:center">
+            ${canManage ? `<button class="btn icon ghost" title="Éditer" data-edit="${escapeHtml(p.id)}">✏️</button>` : ""}
+            ${canManage ? `<button class="btn icon ghost" title="Supprimer" data-del="${escapeHtml(p.id)}">🗑️</button>` : ""}
+          </div>
         </div>
         <h4>${escapeHtml(p.title || "Publication")}</h4>
         ${(p.fileName || p.fileUrl) ? `
@@ -1036,7 +1210,7 @@
             <span class="badge">Ouvrir</span>
           </button>
         ` : ""}
-        ${p.body ? `<p>${escapeHtml(p.body)}</p>` : ""}
+        ${renderPostBodyHtml(p.body)}
         <div class="actions">
           <button class="iconbtn" data-like="${p.id}">❤️ <span>${p.likes || 0}</span></button>
           <span class="badge">${p.comments || 0} commentaires</span>
@@ -1048,9 +1222,28 @@
     if(!root.__bound){
       root.__bound = true;
       root.addEventListener("click", async (e)=>{
+        const editId = e.target.closest("[data-edit]")?.getAttribute("data-edit");
         const likeId = e.target.closest("[data-like]")?.getAttribute("data-like");
         const delId = e.target.closest("[data-del]")?.getAttribute("data-del");
         const openId = e.target.closest("[data-open]")?.getAttribute("data-open");
+
+        if(editId){
+          const posts = loadPosts();
+          const p = posts.find(x=>x.id===editId);
+          if(!p){
+            window.fwToast?.("Édition", "Publication introuvable.");
+            return;
+          }
+          enterPostEditMode({
+            id: p.id,
+            title: p.title,
+            body: p.body,
+            fileUrl: p.fileUrl,
+            fileName: p.fileName,
+            fileData: p.fileData,
+          });
+          return;
+        }
 
         if(likeId){
           const posts = loadPosts();
@@ -1058,8 +1251,14 @@
           if(idx>=0){ posts[idx].likes = (posts[idx].likes||0)+1; savePosts(posts); renderFeed(); window.fwToast?.("Like ajouté","Réaction enregistrée."); }
         }
         if(delId){
+          const ok = confirm("Supprimer cette publication ?");
+          if(!ok) return;
           const posts = loadPosts().filter(x=>x.id!==delId);
           savePosts(posts);
+          const form = $("#newPostForm");
+          if(form && String(form.__editingId || "") === String(delId)){
+            exitPostEditMode();
+          }
           renderFeed();
           window.fwToast?.("Supprimé","La publication a été retirée.");
         }
@@ -1096,18 +1295,19 @@
       form.__bound = true;
       form.addEventListener("submit", async (ev)=>{
         ev.preventDefault();
-        const u = getUser() || {name:"Utilisateur", company:"Entreprise"};
+        const u = getUser() || {name:"Utilisateur", company:"Entreprise", email:""};
         const company = normalizeCompanyForPath(u.company || "Entreprise");
+        const editingId = String(form.__editingId || "").trim();
         const title = $("#postTitle").value.trim();
         const body  = $("#postBody").value.trim();
-        const fileUrl = $("#postFileUrl")?.value.trim() || "";
+        let fileUrl = $("#postFileUrl")?.value.trim() || "";
         const fileNameInput = $("#postFileName")?.value.trim() || "";
         const selectedFile = form.__selectedFile || null;
         let fileName = fileNameInput;
         if(!fileName && fileUrl){
           try{ fileName = new URL(fileUrl, window.location.href).pathname.split("/").pop() || ""; }catch(e){ /* ignore */ }
         }
-        if(!title && !body && !fileUrl && !selectedFile){
+        if(!title && !body && !fileUrl && !selectedFile && !editingId){
           window.fwToast?.("Oups","Écris au moins un titre ou un message.");
           return;
         }
@@ -1127,6 +1327,7 @@
             });
             fileData = { dataUrl, type: selectedFile.type || "", size: selectedFile.size || 0 };
             fileName = fileName || selectedFile.name || "fichier";
+            fileUrl = "";
           }catch(e){
             window.fwToast?.("Erreur","Impossible de lire le fichier.");
             return;
@@ -1134,9 +1335,36 @@
         }
 
         const posts = loadPosts();
+        if(editingId){
+          const idx = posts.findIndex(x=>x.id===editingId);
+          if(idx < 0){
+            exitPostEditMode();
+            window.fwToast?.("Édition","Publication introuvable.");
+            return;
+          }
+          const prev = posts[idx] || {};
+          const removeFile = !!form.__editingRemoveFile;
+          const keepOldFile = !removeFile && !selectedFile && !fileUrl;
+          posts[idx] = {
+            ...prev,
+            title: title || prev.title || "Sans titre",
+            body: body || "",
+            fileName: removeFile ? "" : (keepOldFile ? (prev.fileName || form.__editingOldFileName || "") : (fileName || "")),
+            fileUrl: removeFile ? "" : (keepOldFile ? (prev.fileUrl || form.__editingOldFileUrl || "") : (fileUrl || "")),
+            fileData: removeFile ? null : (keepOldFile ? (prev.fileData || form.__editingOldFileData || null) : fileData),
+            updatedAt: nowStr(),
+          };
+          savePosts(posts);
+          exitPostEditMode();
+          renderFeed();
+          window.fwToast?.("Mis à jour","La publication a été modifiée.");
+          return;
+        }
+
         posts.push({
           id: cryptoRandom(),
           author: u.name,
+          authorEmail: u.email || "",
           company,
           title: title || "Sans titre",
           body: body || "",
@@ -1148,14 +1376,7 @@
           createdAt: nowStr()
         });
         savePosts(posts);
-        $("#postTitle").value = "";
-        $("#postBody").value = "";
-        $("#postFileUrl") && ($("#postFileUrl").value = "");
-        $("#postFileName") && ($("#postFileName").value = "");
-        $("#postFolder") && ($("#postFolder").value = "");
-        $("#postFile") && ($("#postFile").value = "");
-        form.__selectedFile = null;
-        $("#postFileInfo") && ($("#postFileInfo").textContent = "Aucun fichier sélectionné");
+        exitPostEditMode();
         renderFeed();
         window.fwToast?.("Publié","Ta publication est en ligne.");
       });
@@ -1218,6 +1439,7 @@
       const fileUrl = String(p.file_url || "");
       const fileName = String(p.file_name || "");
       const canDelete = String(p.author_id) === String(uid) || meRole === "admin";
+      const canEdit = canDelete;
       const likeCount = Number(p.likes_count || 0);
       const isLiked = likedSet.has(String(p.id));
 
@@ -1236,7 +1458,12 @@
               <div class="time">${escapeHtml(createdAt)}${(fileName || fileUrl) ? " • 📄 Fichier" : ""}</div>
             </div>
           </div>
-          ${canDelete ? `<button class="btn icon ghost" title="Supprimer" data-del="${escapeHtml(p.id)}">🗑️</button>` : `<span></span>`}
+          ${canDelete ? `
+            <div class="row" style="gap:8px; align-items:center">
+              ${canEdit ? `<button class="btn icon ghost" title="Éditer" data-edit="${escapeHtml(p.id)}">✏️</button>` : ""}
+              <button class="btn icon ghost" title="Supprimer" data-del="${escapeHtml(p.id)}">🗑️</button>
+            </div>
+          ` : `<span></span>`}
         </div>
         <h4>${escapeHtml(p.title || "Publication")}</h4>
         ${(fileName || fileUrl) ? `
@@ -1251,7 +1478,7 @@
             <span class="badge">Ouvrir</span>
           </button>
         ` : ""}
-        ${p.body ? `<p>${escapeHtml(p.body)}</p>` : ""}
+        ${renderPostBodyHtml(p.body)}
         <div class="actions">
           <button class="iconbtn${isLiked ? " active" : ""}" data-like="${escapeHtml(p.id)}" aria-pressed="${isLiked ? "true" : "false"}">❤️ <span>${likeCount}</span></button>
           <span class="badge">0 commentaires</span>
@@ -1263,9 +1490,37 @@
     if(!root.__sbBound){
       root.__sbBound = true;
       root.addEventListener("click", async (e)=>{
+        const editId = e.target.closest("[data-edit]")?.getAttribute("data-edit");
         const likeBtn = e.target.closest("[data-like]");
         const delId = e.target.closest("[data-del]")?.getAttribute("data-del");
         const openId = e.target.closest("[data-open]")?.getAttribute("data-open");
+
+        if(editId){
+          const company = companyFromUser();
+          const res = await sb
+            .from("posts")
+            .select("id,title,body,file_url,file_name")
+            .eq("company", company)
+            .eq("id", editId)
+            .maybeSingle();
+          if(res.error){
+            sbToastError("Édition", res.error);
+            return;
+          }
+          const p = res.data || null;
+          if(!p){
+            window.fwToast?.("Édition", "Publication introuvable.");
+            return;
+          }
+          enterPostEditMode({
+            id: p.id,
+            title: p.title,
+            body: p.body,
+            fileUrl: p.file_url,
+            fileName: p.file_name,
+          });
+          return;
+        }
 
         if(likeBtn){
           const postId = likeBtn.getAttribute("data-like");
@@ -1314,6 +1569,10 @@
               console.warn("Storage remove failed", rm.error);
             }
           }
+          const form = $("#newPostForm");
+          if(form && String(form.__editingId || "") === String(delId)){
+            exitPostEditMode();
+          }
           await renderFeedSupabase();
           return;
         }
@@ -1346,6 +1605,7 @@
         const uid = await sbUserId();
         if(!uid) return;
 
+        const editingId = String(form.__editingId || "").trim();
         const title = $("#postTitle")?.value.trim() || "";
         const body  = $("#postBody")?.value.trim() || "";
         let fileUrl = $("#postFileUrl")?.value.trim() || "";
@@ -1357,7 +1617,7 @@
         if(!fileName && fileUrl){
           try{ fileName = new URL(fileUrl, window.location.href).pathname.split("/").pop() || ""; }catch(e){ /* ignore */ }
         }
-        if(!title && !body && !fileUrl && !selectedFile){
+        if(!title && !body && !fileUrl && !selectedFile && !editingId){
           window.fwToast?.("Oups","Écris au moins un titre ou un message.");
           return;
         }
@@ -1365,6 +1625,74 @@
         const company = companyFromUser();
         if(/[\\\/]/.test(company)){
           window.fwToast?.("Entreprise invalide","Évite / ou \\ dans le nom d’entreprise/workspace.");
+          return;
+        }
+
+        if(editingId){
+          const postId = editingId;
+          const oldFileUrl = String(form.__editingOldFileUrl || "");
+          const removeFile = !!form.__editingRemoveFile || (!selectedFile && !fileUrl && (oldFileUrl || form.__editingOldFileName));
+
+          let uploadedPath = "";
+
+          if(selectedFile){
+            const subFolder = normalizeFolderPath(folderInput);
+            const safeName = safeFileName(selectedFile.name);
+            uploadedPath = `${company}/posts/${subFolder ? subFolder + "/" : ""}${postId}/${safeName}`;
+
+            window.fwToast?.("Upload","Envoi du fichier…");
+            const up = await sb.storage.from(STORAGE_BUCKET).upload(uploadedPath, selectedFile, {
+              upsert: false,
+              contentType: selectedFile.type || undefined,
+              cacheControl: "3600",
+            });
+            if(up.error){
+              const msg = up.error?.message || "Upload impossible. Vérifie le bucket + les policies Storage.";
+              window.fwToast?.("Upload", msg);
+              console.error("Upload", up.error);
+              return;
+            }
+
+            fileUrl = `sb://${STORAGE_BUCKET}/${uploadedPath}`;
+            fileName = fileName || selectedFile.name || safeName;
+          }else if(removeFile){
+            fileUrl = "";
+            fileName = "";
+          }
+
+          window.fwToast?.("Mise à jour","Enregistrement…");
+          const res = await sb
+            .from("posts")
+            .update({
+              title: title || "Sans titre",
+              body: body || "",
+              file_url: fileUrl || "",
+              file_name: fileName || "",
+            })
+            .eq("company", company)
+            .eq("id", postId);
+          if(res.error){
+            // Best-effort cleanup if upload succeeded but update failed.
+            if(uploadedPath){
+              try{ await sb.storage.from(STORAGE_BUCKET).remove([uploadedPath]); }catch(e){ /* ignore */ }
+            }
+            sbToastError("Mise à jour", res.error);
+            return;
+          }
+
+          // Remove the previous Storage file if it has changed / was removed.
+          const prevSbUrl = parseSbStorageUrl(oldFileUrl);
+          const nextSbUrl = parseSbStorageUrl(fileUrl);
+          if(prevSbUrl && (!nextSbUrl || prevSbUrl.bucket !== nextSbUrl.bucket || prevSbUrl.path !== nextSbUrl.path)){
+            const rm = await sb.storage.from(prevSbUrl.bucket).remove([prevSbUrl.path]);
+            if(rm.error){
+              console.warn("Storage remove failed", rm.error);
+            }
+          }
+
+          exitPostEditMode();
+          await renderFeedSupabase();
+          window.fwToast?.("Mis à jour","La publication a été modifiée.");
           return;
         }
 
@@ -1412,15 +1740,7 @@
           return;
         }
 
-        $("#postTitle") && ($("#postTitle").value = "");
-        $("#postBody") && ($("#postBody").value = "");
-        $("#postFileUrl") && ($("#postFileUrl").value = "");
-        $("#postFileName") && ($("#postFileName").value = "");
-        $("#postFolder") && ($("#postFolder").value = "");
-        $("#postFile") && ($("#postFile").value = "");
-        form.__selectedFile = null;
-        $("#postFileInfo") && ($("#postFileInfo").textContent = "Aucun fichier sélectionné");
-
+        exitPostEditMode();
         await renderFeedSupabase();
         window.fwToast?.("Publié","Ta publication est en ligne.");
       });

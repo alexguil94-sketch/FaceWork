@@ -1,0 +1,6 @@
+.netlify/
+.npm-cache/
+.vscode/
+supabase/
+README.md
+.gitignore

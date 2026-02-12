@@ -26,6 +26,7 @@
       <a data-app-nav href="messages.html">💬 Messages</a>
       <a data-app-nav href="admin.html">🛡️ Admin</a>
       <a data-app-nav href="settings.html">⚙️ Paramètres</a>
+      <a data-app-nav href="../tutoriel.html">📘 Tutoriel</a>
     </nav>
 
     <div class="userbox">
@@ -65,6 +66,10 @@
 
           <form id="newPostForm" class="grid2">
             <div class="col">
+              <div id="postEditBar" class="row hidden" style="justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:10px">
+                <div class="badge" id="postEditLabel">Mode édition</div>
+                <button class="btn small" type="button" id="postEditCancel">Annuler</button>
+              </div>
               <div>
                 <div class="label">Titre</div>
                 <input class="input" id="postTitle" placeholder="Ex: Calculatrice du futur"/>
@@ -81,12 +86,12 @@
                 </div>
               </div>
               <div>
-                <div class="label">Déposer un fichier (glisse‑dépose ou clique)</div>
+                <div class="label">Glisser un fichier (ou du code)</div>
                 <div id="postDrop" class="dropzone" tabindex="0" role="button" aria-label="Déposer un fichier ou cliquer pour choisir">
                   <div class="drop-ico" aria-hidden="true">📎</div>
                   <div class="drop-meta">
-                    <div class="drop-title">Dépose un fichier ici</div>
-                    <div class="drop-sub">ou clique pour sélectionner depuis ton PC</div>
+                    <div class="drop-title">Dépose un fichier ou du code ici</div>
+                    <div class="drop-sub">ou clique pour choisir un fichier depuis ton PC</div>
                     <div class="drop-file" id="postFileInfo">Aucun fichier sélectionné</div>
                   </div>
                   <button class="btn small ghost" type="button" id="postFileClear">Retirer</button>
@@ -101,7 +106,7 @@
                 <div class="label">Nom du fichier (optionnel)</div>
                 <input class="input" id="postFileName" placeholder="Ex: calculatrice-du-futur.pdf"/>
               </div>
-              <button class="btn primary block" type="submit">Publier</button>
+              <button class="btn primary block" id="postSubmitBtn" type="submit">Publier</button>
             </div>
 
             <div class="post">
