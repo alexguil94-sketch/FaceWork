@@ -53,6 +53,17 @@ create table if not exists public.posts (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.tutorial_posts (
+  id uuid primary key default gen_random_uuid(),
+  company text not null,
+  author_id uuid not null references public.profiles(id) on delete cascade,
+  title text not null,
+  body text not null default '',
+  file_url text not null default '',
+  file_name text not null default '',
+  created_at timestamptz not null default now()
+);
+
 create table if not exists public.post_likes (
   company text not null,
   post_id uuid not null references public.posts(id) on delete cascade,
@@ -372,6 +383,7 @@ alter table public.profiles enable row level security;
 alter table public.roles enable row level security;
 alter table public.member_roles enable row level security;
 alter table public.posts enable row level security;
+alter table public.tutorial_posts enable row level security;
 alter table public.post_likes enable row level security;
 alter table public.channels enable row level security;
 alter table public.channel_messages enable row level security;
@@ -488,6 +500,45 @@ on public.posts
 for delete
 to authenticated
 using (company = public.current_company() and (author_id = auth.uid() or public.is_admin()));
+
+-- Tutorial posts (admin-only write, company-wide read)
+drop policy if exists tutorial_posts_select_company on public.tutorial_posts;
+create policy tutorial_posts_select_company
+on public.tutorial_posts
+for select
+to authenticated
+using (company = public.current_company());
+
+drop policy if exists tutorial_posts_insert_admin on public.tutorial_posts;
+create policy tutorial_posts_insert_admin
+on public.tutorial_posts
+for insert
+to authenticated
+with check (public.is_admin() and company = public.current_company() and author_id = auth.uid());
+
+drop policy if exists tutorial_posts_update_admin on public.tutorial_posts;
+create policy tutorial_posts_update_admin
+on public.tutorial_posts
+for update
+to authenticated
+using (public.is_admin() and company = public.current_company())
+with check (
+  public.is_admin()
+  and company = public.current_company()
+  -- Prevent changing ownership during updates
+  and author_id = (
+    select p.author_id
+    from public.tutorial_posts p
+    where p.id = id and p.company = public.current_company()
+  )
+);
+
+drop policy if exists tutorial_posts_delete_admin on public.tutorial_posts;
+create policy tutorial_posts_delete_admin
+on public.tutorial_posts
+for delete
+to authenticated
+using (public.is_admin() and company = public.current_company());
 
 -- Post likes
 drop policy if exists post_likes_select_own on public.post_likes;
@@ -624,6 +675,7 @@ grant select, insert, update, delete on
   public.roles,
   public.member_roles,
   public.posts,
+  public.tutorial_posts,
   public.post_likes,
   public.channels,
   public.channel_messages,

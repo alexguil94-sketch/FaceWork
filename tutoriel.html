@@ -71,6 +71,88 @@
       </div>
     </section>
 
+    <section class="card panel" id="tut-posts" aria-label="Posts tutoriel">
+      <div class="row" style="justify-content:space-between; flex-wrap:wrap; gap:12px">
+        <div>
+          <div class="badge">Ressources</div>
+          <h2 style="margin:10px 0 6px; font-size:26px">Posts tutoriel</h2>
+          <p class="page-sub">Partage des fichiers et des snippets pour aider ton équipe (visible dans le tutoriel).</p>
+        </div>
+        <div class="row" style="gap:10px; flex-wrap:wrap">
+          <span class="pill" id="tutPostsStatus">—</span>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div id="tutAdminBox" class="hidden">
+        <div class="badge">Admin</div>
+        <h3 style="margin:10px 0 6px; font-size:22px">Ajouter / éditer un post</h3>
+        <p class="page-sub">Glisse un fichier ou du code pour publier vite.</p>
+        <div class="hr"></div>
+
+        <form id="tutPostForm" class="grid2" autocomplete="off">
+          <div class="col">
+            <div id="tutEditBar" class="row hidden" style="justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:10px">
+              <div class="badge" id="tutEditLabel">Mode édition</div>
+              <button class="btn small" type="button" id="tutEditCancel">Annuler</button>
+            </div>
+
+            <div>
+              <div class="label">Titre</div>
+              <input class="input" id="tutTitle" placeholder="Ex: Installer FaceWork" />
+            </div>
+            <div>
+              <div class="label">Texte</div>
+              <textarea class="input" id="tutBody" rows="5" placeholder="Astuce, lien, explication… (tu peux aussi coller du code)"></textarea>
+            </div>
+
+            <div>
+              <div class="label">Lien du fichier (optionnel)</div>
+              <div class="field">
+                <span class="field-icon" aria-hidden="true">🔗</span>
+                <input class="input" id="tutFileUrl" type="url" placeholder="https://... (ou sb://...)" />
+              </div>
+            </div>
+
+            <div>
+              <div class="label">Glisser un fichier (ou du code)</div>
+              <div id="tutDrop" class="dropzone" tabindex="0" role="button" aria-label="Déposer un fichier ou cliquer pour choisir">
+                <div class="drop-ico" aria-hidden="true">📎</div>
+                <div class="drop-meta">
+                  <div class="drop-title">Dépose un fichier ou du code ici</div>
+                  <div class="drop-sub">ou clique pour choisir un fichier depuis ton PC</div>
+                  <div class="drop-file" id="tutFileInfo">Aucun fichier sélectionné</div>
+                </div>
+                <button class="btn small ghost" type="button" id="tutFileClear">Retirer</button>
+              </div>
+              <input id="tutFile" type="file" class="sr-only" />
+            </div>
+
+            <div>
+              <div class="label">Nom du fichier (optionnel)</div>
+              <input class="input" id="tutFileName" placeholder="Ex: guide.pdf" />
+            </div>
+
+            <button class="btn primary block" id="tutSubmitBtn" type="submit">Publier</button>
+          </div>
+
+          <div class="callout" style="margin:0">
+            <strong>Conseil :</strong> si tu glisses juste du code (texte), il sera ajouté en bloc code dans le post.
+          </div>
+        </form>
+        <div class="spacer"></div>
+      </div>
+
+      <div id="tutPostsEmpty" class="callout hidden">
+        <strong>Aucun post pour le moment.</strong> (Admin : utilise le formulaire ci-dessus pour en ajouter.)
+      </div>
+
+      <div id="tutPostsList" class="col" style="gap:14px"></div>
+    </section>
+
+    <div class="spacer"></div>
+
     <section class="workbench card tut-shell" aria-label="Tutoriel FaceWork">
       <aside class="workbench-sidebar">
         <div class="row" style="justify-content:space-between; gap:10px; flex-wrap:wrap">
@@ -83,6 +165,7 @@
 
         <div class="side-title"><span>Chapitres</span></div>
         <div class="ch-list tut-nav">
+          <a class="ch-item" href="#tut-posts"><span class="truncate">0) Posts tutoriel</span><span class="hash">↗</span></a>
           <a class="ch-item" href="#tut-connexion"><span class="truncate">1) Connexion & workspace</span><span class="hash">↗</span></a>
           <a class="ch-item" href="#tut-feed"><span class="truncate">2) Publications (feed)</span><span class="hash">↗</span></a>
           <a class="ch-item" href="#tut-canaux"><span class="truncate">3) Canaux</span><span class="hash">↗</span></a>
