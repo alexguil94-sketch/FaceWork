@@ -595,3 +595,7 @@ grant select, insert, update, delete on
   public.dm_threads,
   public.dm_messages
 to authenticated;
+
+-- Policies rely on these helper functions; grant EXECUTE explicitly (some projects revoke PUBLIC execute).
+grant execute on function public.current_company() to authenticated;
+grant execute on function public.is_admin() to authenticated;

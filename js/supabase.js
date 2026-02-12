@@ -65,7 +65,10 @@
       .eq("id", id)
       .maybeSingle();
     setLastError(error);
-    if(error) return null;
+    if(error){
+      console.error("[FaceWork] fetchProfile failed", error);
+      return null;
+    }
     return data || null;
   }
 
@@ -127,8 +130,15 @@
     if(!client) return false;
     const session = await getSession();
     if(session?.user){
-      await syncLocalUser();
-      return true;
+      const ok = await syncLocalUser();
+      if(ok) return true;
+      // Session exists but the app can't read/write required tables (RLS / missing grants / schema not applied).
+      // Force a clean state so the user sees the login flow again.
+      try{ await signOut(); }catch(e){ /* ignore */ }
+      if(redirectTo){
+        window.location.href = redirectTo;
+      }
+      return false;
     }
     if(redirectTo){
       window.location.href = redirectTo;
