@@ -220,6 +220,41 @@ after insert on public.profiles
 for each row execute function public.profiles_after_insert();
 
 -- -------------------------------------------------------------------
+-- Auth -> Profiles bootstrap (recommended)
+-- Automatically creates a `public.profiles` row on signup.
+--
+-- Why:
+-- - Avoids client-side INSERT blocked by RLS during first login
+-- - Ensures `current_company()` works immediately
+-- -------------------------------------------------------------------
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  insert into public.profiles (id, email, company, name, avatar_url, avatar_bg)
+  values (
+    new.id,
+    new.email,
+    coalesce(nullif(btrim(new.raw_user_meta_data->>'company'), ''), 'Entreprise'),
+    coalesce(nullif(btrim(new.raw_user_meta_data->>'name'), ''), 'Utilisateur'),
+    '',
+    ''
+  )
+  on conflict (id) do nothing;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+after insert on auth.users
+for each row execute function public.handle_new_user();
+
+-- -------------------------------------------------------------------
 -- Counters via triggers
 -- -------------------------------------------------------------------
 create or replace function public.post_likes_after_insert()

@@ -59,6 +59,8 @@ Astuce : l’URL `/app` redirige vers `/app/feed.html` (config dans `netlify.tom
 Ça crée : `profiles`, `posts`, `channels`, `dm_threads`, `roles`, etc + RLS + triggers (compteurs likes/messages).
 Si tu avais déjà appliqué une ancienne version, relance le fichier : il ajoute aussi les colonnes fichiers (`file_url`, `file_name`) pour les messages.
 
+Note : le schéma ajoute aussi un trigger **Auth → Profiles** qui crée automatiquement la ligne `public.profiles` à l’inscription (recommandé).
+
 ### 2) Configurer l’auth
 1. Supabase → **Authentication → Providers** : active **Email**
 2. (Recommandé pour une démo) Supabase → **Authentication → Settings** : désactive la confirmation email, sinon l’inscription demandera de confirmer par email.
