@@ -259,7 +259,10 @@
     }
 
     // Global shortcuts (some pages don't show these in the top nav)
-    addSideLink("Exercices", `${relPrefix()}exercices.html`);
+    // Keep landing page clean: only show extra links inside the app header.
+    if(isAppHeader){
+      addSideLink("Exercices", `${relPrefix()}exercices.html`);
+    }
 
     let prevOverflow = "";
     function open(){

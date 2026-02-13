@@ -48,7 +48,7 @@
     <main class="main">
       <div class="container">
         <h1 class="page-title">Administration</h1>
-        <p class="page-sub">Gérez les rôles et les membres, comme sur Discord (démo locale via localStorage).</p>
+        <p class="page-sub">Tableau de bord + gestion des rôles, membres et contenu (démo locale / Supabase).</p>
 
         <div class="spacer"></div>
 
@@ -60,6 +60,14 @@
                 <button class="btn small primary" type="button" id="createRole">＋ Rôle</button>
                 <button class="btn small" type="button" id="createMember">＋ Membre</button>
               </div>
+            </div>
+
+            <div class="side-title"><span>Tableau de bord</span></div>
+            <div class="ch-list">
+              <button class="ch-item" type="button" id="adminDashboardBtn">
+                <span class="item-left truncate"><span class="hash">📊</span> <span class="truncate">Vue d’ensemble</span></span>
+                <span class="badge" id="adminDashboardBadge">—</span>
+              </button>
             </div>
 
             <div class="side-title"><span>Rôles</span></div>

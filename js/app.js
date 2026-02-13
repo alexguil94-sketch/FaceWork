@@ -3496,6 +3496,236 @@
       </div>
     `;
   }
+
+  // ---- Admin dashboard helpers
+  const TUTORIAL_POSTS_LS_KEY = "fwTutorialPosts_v1";
+  function loadTutorialPosts(){
+    try{
+      const v = JSON.parse(localStorage.getItem(TUTORIAL_POSTS_LS_KEY) || "[]");
+      return Array.isArray(v) ? v : [];
+    }catch(e){ return []; }
+  }
+  function saveTutorialPosts(arr){
+    try{ localStorage.setItem(TUTORIAL_POSTS_LS_KEY, JSON.stringify(arr || [])); }catch(e){ /* ignore */ }
+  }
+
+  function countChannelsLocal(map){
+    const m = map || {};
+    const keys = ["public", "private", "voice"];
+    return keys.reduce((acc, k)=> acc + (Array.isArray(m[k]) ? m[k].length : 0), 0);
+  }
+
+  async function deleteTutorialPostById(postId){
+    const id = String(postId || "").trim();
+    if(!id) return false;
+
+    if(sbEnabled){
+      const uid = await sbUserId();
+      if(!uid){
+        window.fwSupabase?.requireAuth?.({ redirectTo: loginHref() });
+        return false;
+      }
+      const company = companyFromUser();
+
+      let fileUrl = "";
+      const pre = await sb
+        .from("tutorial_posts")
+        .select("file_url")
+        .eq("company", company)
+        .eq("id", id)
+        .maybeSingle();
+      if(!pre.error) fileUrl = String(pre.data?.file_url || "");
+
+      const res = await sb
+        .from("tutorial_posts")
+        .delete()
+        .eq("company", company)
+        .eq("id", id);
+      if(res.error){
+        sbToastError("Suppression", res.error);
+        return false;
+      }
+
+      const sbUrl = parseSbStorageUrl(fileUrl);
+      if(sbUrl){
+        try{ await sb.storage.from(sbUrl.bucket).remove([sbUrl.path]); }catch(e){ /* ignore */ }
+      }
+
+      window.fwToast?.("Supprimé","Le post tutoriel a été retiré.");
+      return true;
+    }
+
+    const next = loadTutorialPosts().filter(x=> String(x.id) !== String(id));
+    saveTutorialPosts(next);
+    window.fwToast?.("Supprimé","Le post tutoriel a été retiré.");
+    return true;
+  }
+
+  function dashCardHtml({ href, icon, title, desc, meta }){
+    return `
+      <a class="tut-card" href="${escapeHtml(href || "#")}">
+        <div class="tut-card-ico" aria-hidden="true">${escapeHtml(icon || "")}</div>
+        <div class="tut-card-main">
+          <div class="tut-card-title">${escapeHtml(title || "")}</div>
+          <div class="tut-card-desc">${escapeHtml(desc || "")}</div>
+          ${meta ? `<div class="tut-card-meta"><span class="badge">${escapeHtml(meta)}</span></div>` : ""}
+        </div>
+        <div class="tut-card-go" aria-hidden="true">↗</div>
+      </a>
+    `;
+  }
+
+  function dashItemHtml({ icon, title, sub, delAttr, delId }){
+    return `
+      <div class="file-box" style="margin-top:0; cursor:default">
+        <div class="file-left" style="min-width:0">
+          <div class="file-ico" aria-hidden="true">${escapeHtml(icon || "")}</div>
+          <div class="file-meta" style="min-width:0">
+            <div class="file-title truncate">${escapeHtml(title || "Sans titre")}</div>
+            <div class="file-sub truncate">${escapeHtml(sub || "")}</div>
+          </div>
+        </div>
+        <div class="row" style="gap:8px; align-items:center">
+          ${delAttr && delId ? `<button class="btn small ghost" type="button" ${delAttr}="${escapeHtml(delId)}" title="Supprimer">🗑️</button>` : ""}
+        </div>
+      </div>
+    `;
+  }
+
+  function adminDashboardHtml({ modeLabel, rolesCount, membersCount, channelsCount, postsCount, tutPostsCount, recentPosts, recentTutPosts }){
+    const mode = modeLabel ? ` • ${modeLabel}` : "";
+    const posts = Array.isArray(recentPosts) ? recentPosts : [];
+    const tuts = Array.isArray(recentTutPosts) ? recentTutPosts : [];
+
+    return `
+      <div class="badge">Admin</div>
+      <div class="row" style="justify-content:space-between; gap:12px; flex-wrap:wrap; align-items:flex-end; margin-top:10px">
+        <div>
+          <h2 style="margin:0; font-size:26px">Tableau de bord</h2>
+          <p class="page-sub">Gère FaceWork depuis ici${escapeHtml(mode)}.</p>
+        </div>
+        <div class="row" style="gap:8px; flex-wrap:wrap">
+          <button class="btn small primary" type="button" data-admin-action="createRole">＋ Rôle</button>
+          <button class="btn small" type="button" data-admin-action="createMember">＋ Membre</button>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="row" style="gap:10px; flex-wrap:wrap">
+        <span class="pill">Rôles: <strong>${escapeHtml(String(rolesCount ?? 0))}</strong></span>
+        <span class="pill">Membres: <strong>${escapeHtml(String(membersCount ?? 0))}</strong></span>
+        <span class="pill">Canaux: <strong>${escapeHtml(String(channelsCount ?? 0))}</strong></span>
+        <span class="pill">Publications: <strong>${escapeHtml(String(postsCount ?? 0))}</strong></span>
+        <span class="pill">Posts tutoriel: <strong>${escapeHtml(String(tutPostsCount ?? 0))}</strong></span>
+      </div>
+
+      <div class="spacer" style="height:14px"></div>
+
+      <div class="side-title" style="margin-top:8px"><span>Accès rapide</span></div>
+      <div class="tut-grid" style="grid-template-columns: repeat(2, 1fr)">
+        ${dashCardHtml({ href:"feed.html", icon:"📰", title:"Publications", desc:"Créer, supprimer et suivre les posts.", meta:`${postsCount ?? 0} post(s)` })}
+        ${dashCardHtml({ href:"channels.html", icon:"#", title:"Canaux", desc:"Créer/organiser les salons.", meta:`${channelsCount ?? 0} canal(aux)` })}
+        ${dashCardHtml({ href:"messages.html", icon:"💬", title:"Messages", desc:"Discussions privées et notifications." })}
+        ${dashCardHtml({ href:"../tutoriel.html", icon:"📘", title:"Tutoriel", desc:"Guides + posts ressources.", meta:`${tutPostsCount ?? 0} post(s)` })}
+        ${dashCardHtml({ href:"../exercices.html", icon:"🧠", title:"Exercices", desc:"Hub d’exos et mini‑projets." })}
+        ${dashCardHtml({ href:"../tutos.html", icon:"🧩", title:"Tutos", desc:"Articles et pages pas‑à‑pas." })}
+        ${dashCardHtml({ href:"../langages.html", icon:"📚", title:"Langages", desc:"Hubs par langage et ressources." })}
+        ${dashCardHtml({ href:"settings.html", icon:"⚙️", title:"Paramètres", desc:"Profil, thème et options." })}
+      </div>
+
+      <div class="spacer" style="height:18px"></div>
+
+      <div class="grid2">
+        <section class="card panel" style="margin:0">
+          <div class="row" style="justify-content:space-between; gap:12px; flex-wrap:wrap; align-items:flex-end">
+            <div>
+              <div class="badge">Contenu</div>
+              <h3 style="margin:10px 0 6px; font-size:22px">Dernières publications</h3>
+              <p class="page-sub">Suppression rapide depuis le tableau de bord.</p>
+            </div>
+            <a class="btn small" href="feed.html">Ouvrir</a>
+          </div>
+          <div class="hr"></div>
+          <div class="col" style="gap:10px">
+            ${posts.length ? posts.map(p=> dashItemHtml({
+              icon: "📰",
+              title: p.title || "Publication",
+              sub: p.sub || "",
+              delAttr: "data-admin-del-post",
+              delId: p.id,
+            })).join("") : `<div class="callout" style="margin:0"><strong>Aucune publication.</strong></div>`}
+          </div>
+        </section>
+
+        <section class="card panel" style="margin:0">
+          <div class="row" style="justify-content:space-between; gap:12px; flex-wrap:wrap; align-items:flex-end">
+            <div>
+              <div class="badge">Tutoriel</div>
+              <h3 style="margin:10px 0 6px; font-size:22px">Posts ressources</h3>
+              <p class="page-sub">Les fichiers/snippets visibles dans le tutoriel.</p>
+            </div>
+            <a class="btn small" href="../tutoriel.html">Ouvrir</a>
+          </div>
+          <div class="hr"></div>
+          <div class="col" style="gap:10px">
+            ${tuts.length ? tuts.map(p=> dashItemHtml({
+              icon: "📎",
+              title: p.title || "Ressource",
+              sub: p.sub || "",
+              delAttr: "data-admin-del-tut",
+              delId: p.id,
+            })).join("") : `<div class="callout" style="margin:0"><strong>Aucun post tutoriel.</strong></div>`}
+          </div>
+        </section>
+      </div>
+    `;
+  }
+
+  function bindAdminDashboardHandlers(){
+    const main = $("#adminMain");
+    if(!main || main.__dashBound) return;
+    main.__dashBound = true;
+
+    main.addEventListener("click", async (e)=>{
+      const action = e.target.closest("[data-admin-action]")?.getAttribute("data-admin-action");
+      if(action === "createRole"){
+        const btn = $("#createRole");
+        if(btn?.disabled){
+          window.fwToast?.("Accès refusé","Tu n'as pas la permission de créer un rôle.");
+          return;
+        }
+        btn?.click?.();
+        return;
+      }
+      if(action === "createMember"){
+        const btn = $("#createMember");
+        if(btn?.disabled){
+          window.fwToast?.("Accès refusé","Tu n'as pas la permission d'ajouter un membre.");
+          return;
+        }
+        btn?.click?.();
+        return;
+      }
+
+      const delPostId = e.target.closest("[data-admin-del-post]")?.getAttribute("data-admin-del-post");
+      if(delPostId){
+        const ok = confirm("Supprimer cette publication ?");
+        if(!ok) return;
+        await deletePostById(delPostId);
+        sbEnabled ? renderAdminSupabase() : renderAdmin();
+        return;
+      }
+
+      const delTutId = e.target.closest("[data-admin-del-tut]")?.getAttribute("data-admin-del-tut");
+      if(delTutId){
+        const ok = confirm("Supprimer ce post tutoriel ?");
+        if(!ok) return;
+        await deleteTutorialPostById(delTutId);
+        sbEnabled ? renderAdminSupabase() : renderAdmin();
+      }
+    });
+  }
   function roleEditorHtml(role, roles, members){
     const r = role || {};
     const count = roleMemberCount(r.id, members);
@@ -3668,13 +3898,7 @@
     const sortedMembers = members.slice().sort((a,b)=> String(a?.name || "").localeCompare(String(b?.name || ""), "fr"));
 
     let active = String(localStorage.getItem(ADMIN_ACTIVE_KEY) || "");
-    const setDefaultActive = ()=>{
-      const adminRole = sortedRoles.find(r=> String(r?.name || "").trim().toLowerCase() === "admin");
-      if(adminRole?.id) return `role:${adminRole.id}`;
-      if(sortedRoles[0]?.id) return `role:${sortedRoles[0].id}`;
-      if(sortedMembers[0]?.id) return `member:${sortedMembers[0].id}`;
-      return "";
-    };
+    const setDefaultActive = ()=> "dash";
     if(!active) active = setDefaultActive();
     if(!active){
       main.innerHTML = emptyAdminHtml("🛡️","Aucune donnée","Réinitialise la démo pour recréer des rôles/membres.");
@@ -3682,13 +3906,26 @@
     }
 
     const [activeType, activeId] = active.split(":");
+    const hasActiveDash = activeType === "dash";
     const hasActiveRole = activeType === "role" && sortedRoles.some(r=> String(r.id) === String(activeId));
     const hasActiveMember = activeType === "member" && sortedMembers.some(m=> String(m.id) === String(activeId));
-    if(!hasActiveRole && !hasActiveMember){
+    if(!hasActiveDash && !hasActiveRole && !hasActiveMember){
       active = setDefaultActive();
-      localStorage.setItem(ADMIN_ACTIVE_KEY, active);
-    }else{
-      localStorage.setItem(ADMIN_ACTIVE_KEY, active);
+    }
+    localStorage.setItem(ADMIN_ACTIVE_KEY, active);
+
+    const dashBtn = $("#adminDashboardBtn");
+    const dashBadge = $("#adminDashboardBadge");
+    if(dashBtn) dashBtn.classList.toggle("active", String(active).split(":")[0] === "dash");
+    if(dashBadge){
+      dashBadge.textContent = canManage ? String(loadPosts().length + loadTutorialPosts().length) : "🔒";
+    }
+    if(dashBtn && !dashBtn.__bound){
+      dashBtn.__bound = true;
+      dashBtn.addEventListener("click", ()=>{
+        localStorage.setItem(ADMIN_ACTIVE_KEY, "dash");
+        renderAdmin();
+      });
     }
 
     // Sidebar lists
@@ -3817,6 +4054,44 @@
     // Main panel
     const current = String(localStorage.getItem(ADMIN_ACTIVE_KEY) || "");
     const [type, id] = current.split(":");
+
+    if(type === "dash"){
+      const postsAll = loadPosts();
+      const tutsAll = loadTutorialPosts();
+      const recentPosts = postsAll
+        .slice()
+        .reverse()
+        .slice(0, 5)
+        .map(p=>({
+          id: String(p?.id || ""),
+          title: String(p?.title || "Publication"),
+          sub: `${String(p?.author || "Utilisateur")} • ${String(p?.createdAt || "")}`.trim(),
+        }))
+        .filter(x=>x.id);
+      const recentTuts = tutsAll
+        .slice()
+        .reverse()
+        .slice(0, 5)
+        .map(p=>({
+          id: String(p?.id || ""),
+          title: String(p?.title || "Ressource"),
+          sub: fmtTs(p?.created_at || ""),
+        }))
+        .filter(x=>x.id);
+
+      main.innerHTML = adminDashboardHtml({
+        modeLabel: "Démo locale",
+        rolesCount: roles.length,
+        membersCount: members.length,
+        channelsCount: countChannelsLocal(loadChannels()),
+        postsCount: postsAll.length,
+        tutPostsCount: tutsAll.length,
+        recentPosts,
+        recentTutPosts: recentTuts,
+      });
+      bindAdminDashboardHandlers();
+      return;
+    }
 
     if(type === "role"){
       const role = roles.find(r=> String(r.id) === String(id));
@@ -4048,22 +4323,29 @@
     const sortedMembers = members.slice().sort((a,b)=> String(a?.name || "").localeCompare(String(b?.name || ""), "fr"));
 
     let active = String(localStorage.getItem(ADMIN_ACTIVE_KEY) || "");
-    const setDefaultActive = ()=>{
-      const adminRole = sortedRoles.find(r=> String(r?.name || "").trim().toLowerCase() === "admin");
-      if(adminRole?.id) return `role:${adminRole.id}`;
-      if(sortedRoles[0]?.id) return `role:${sortedRoles[0].id}`;
-      if(sortedMembers[0]?.id) return `member:${sortedMembers[0].id}`;
-      return "";
-    };
+    const setDefaultActive = ()=> "dash";
     if(!active) active = setDefaultActive();
 
     const [activeType, activeId] = active.split(":");
+    const validDash = activeType === "dash";
     const validRole = activeType === "role" && sortedRoles.some(r=> String(r.id) === String(activeId));
     const validMember = activeType === "member" && sortedMembers.some(m=> String(m.id) === String(activeId));
-    if(!validRole && !validMember){
+    if(!validDash && !validRole && !validMember){
       active = setDefaultActive();
     }
     localStorage.setItem(ADMIN_ACTIVE_KEY, active);
+
+    const dashBtn = $("#adminDashboardBtn");
+    const dashBadge = $("#adminDashboardBadge");
+    if(dashBtn) dashBtn.classList.toggle("active", String(active).split(":")[0] === "dash");
+    if(dashBadge) dashBadge.textContent = canManage ? "OK" : "🔒";
+    if(dashBtn && !dashBtn.__sbBound){
+      dashBtn.__sbBound = true;
+      dashBtn.addEventListener("click", ()=>{
+        localStorage.setItem(ADMIN_ACTIVE_KEY, "dash");
+        renderAdminSupabase();
+      });
+    }
 
     // Sidebar lists
     rolesRoot.innerHTML = "";
@@ -4159,6 +4441,104 @@
     // Main panel
     const current = String(localStorage.getItem(ADMIN_ACTIVE_KEY) || "");
     const [type, id] = current.split(":");
+
+    if(type === "dash"){
+      let postsCount = 0;
+      let tutPostsCount = 0;
+      let channelsCount = 0;
+
+      let posts = [];
+      let tuts = [];
+
+      const [postsRes, tutsRes, chansRes] = await Promise.all([
+        sb
+          .from("posts")
+          .select("id,title,created_at,author_id", { count: "exact" })
+          .eq("company", company)
+          .order("created_at", { ascending: false })
+          .limit(5),
+        sb
+          .from("tutorial_posts")
+          .select("id,title,created_at,author_id", { count: "exact" })
+          .eq("company", company)
+          .order("created_at", { ascending: false })
+          .limit(5),
+        sb
+          .from("channels")
+          .select("id", { count: "exact", head: true })
+          .eq("company", company),
+      ]);
+
+      if(postsRes?.error){
+        sbToastError("Publications", postsRes.error);
+      }else{
+        posts = postsRes.data || [];
+        postsCount = Number.isFinite(postsRes.count) ? postsRes.count : posts.length;
+      }
+
+      if(tutsRes?.error){
+        // Table may not exist yet if schema.sql wasn't applied.
+        const code = String(tutsRes.error?.code || "");
+        const msg = String(tutsRes.error?.message || "");
+        if(code !== "42P01" && !msg.toLowerCase().includes("does not exist")){
+          sbToastError("Tutoriel", tutsRes.error);
+        }
+      }else{
+        tuts = tutsRes.data || [];
+        tutPostsCount = Number.isFinite(tutsRes.count) ? tutsRes.count : tuts.length;
+      }
+
+      if(chansRes?.error){
+        sbToastError("Canaux", chansRes.error);
+      }else{
+        channelsCount = Number.isFinite(chansRes.count) ? chansRes.count : 0;
+      }
+
+      const authorIds = Array.from(new Set(
+        [...(posts || []), ...(tuts || [])]
+          .map(p=> p?.author_id)
+          .filter(Boolean)
+          .map(String)
+      ));
+      let authorById = new Map();
+      if(authorIds.length){
+        const prof = await sb
+          .from("profiles")
+          .select("id,name")
+          .in("id", authorIds);
+        if(!prof.error){
+          authorById = new Map((prof.data || []).map(a=> [String(a.id), a]));
+        }
+      }
+
+      const recentPosts = (posts || [])
+        .map(p=>({
+          id: String(p?.id || ""),
+          title: String(p?.title || "Publication"),
+          sub: `${String(authorById.get(String(p?.author_id || ""))?.name || "Utilisateur")} • ${fmtTs(p?.created_at || "")}`,
+        }))
+        .filter(x=>x.id);
+      const recentTuts = (tuts || [])
+        .map(p=>({
+          id: String(p?.id || ""),
+          title: String(p?.title || "Ressource"),
+          sub: `${String(authorById.get(String(p?.author_id || ""))?.name || "Utilisateur")} • ${fmtTs(p?.created_at || "")}`,
+        }))
+        .filter(x=>x.id);
+
+      main.innerHTML = adminDashboardHtml({
+        modeLabel: "Supabase",
+        rolesCount: roles.length,
+        membersCount: members.length,
+        channelsCount,
+        postsCount,
+        tutPostsCount,
+        recentPosts,
+        recentTutPosts: recentTuts,
+      });
+      bindAdminDashboardHandlers();
+      return;
+    }
 
     if(type === "role"){
       const role = roles.find(r=> String(r.id) === String(id));
