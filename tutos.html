@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Tutos — FaceWork</title>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+  <header class="navbar">
+    <div class="container inner">
+      <a class="brand" href="index.html" aria-label="FaceWork accueil">
+        <div class="logo" aria-hidden="true"><img src="assets/fw-logo.png" alt=""/></div>
+        <div>
+          <div style="line-height:1; font-size:18px">FaceWork</div>
+          <div style="color:var(--muted); font-size:12px; font-weight:800">Tutos & guides dev</div>
+        </div>
+      </a>
+
+      <nav class="navlinks" aria-label="Navigation">
+        <a href="index.html#features">Fonctionnalités</a>
+        <a href="index.html#about">À propos</a>
+        <a href="tutoriel.html">Tutoriel</a>
+        <a href="exercices.html">Exercices</a>
+        <a href="tutos.html">Tutos</a>
+      </nav>
+
+      <div class="nav-actions">
+        <button class="btn icon" data-theme-toggle title="Basculer thème">🌓</button>
+        <a class="btn primary" href="login.html">Accéder à l’app</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div class="hero-top">
+        <span class="pill">Guides</span>
+        <label class="searchbar" aria-label="Rechercher un tuto">
+          <span class="icon" aria-hidden="true">🔎</span>
+          <input id="hubSearch" type="search" placeholder="Rechercher : Supabase, Netlify, RLS, page…" />
+        </label>
+      </div>
+
+      <h1 class="h1"><span class="grad">Tutos</span><br/>pour faire évoluer le projet</h1>
+      <p class="lead">
+        Des pages courtes et pratiques pour ajouter des fonctionnalités (pages, Supabase, déploiement, sécurité…).
+      </p>
+
+      <div class="hero-actions">
+        <a class="btn primary" href="tutos/template.html">Voir le template</a>
+        <a class="btn" href="exercices.html">Voir les exercices</a>
+        <a class="btn" href="tutoriel.html">Tutoriel FaceWork</a>
+      </div>
+
+      <div class="callout" style="max-width: 86ch">
+        <strong>Astuce :</strong> quand tu ajoutes une page, pense à lier la page dans le menu (ex: <code>index.html</code>) pour qu’on la retrouve.
+      </div>
+    </section>
+
+    <section class="card panel" aria-label="Liste des tutos">
+      <div class="row" style="justify-content:space-between; flex-wrap:wrap; gap:12px; align-items:flex-end">
+        <div>
+          <div class="badge">Tutos</div>
+          <h2 style="margin:10px 0 6px; font-size:26px">Par sujets</h2>
+          <p class="page-sub">Chaque carte ouvre une page tuto à compléter.</p>
+        </div>
+        <div class="badge" id="hubCount" data-hub-label="tuto(s)" aria-live="polite">—</div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="tut-grid">
+        <a class="tut-card" href="tutos/ajouter-une-page.html" data-hub-item data-hub-title="ajouter page html liens menu navigation">
+          <div class="tut-card-ico" aria-hidden="true">📄</div>
+          <div class="tut-card-main">
+            <div class="tut-card-title">Ajouter une page</div>
+            <div class="tut-card-desc">Créer un fichier, le lier dans le menu, et garder le style cohérent.</div>
+            <div class="tut-card-meta">
+              <span class="badge">Essentiel</span>
+              <span class="badge">5 min</span>
+            </div>
+          </div>
+          <div class="tut-card-go" aria-hidden="true">↗</div>
+        </a>
+
+        <a class="tut-card" href="tutos/deploiement-netlify.html" data-hub-item data-hub-title="netlify deploy github push production url redirects">
+          <div class="tut-card-ico" aria-hidden="true">🚀</div>
+          <div class="tut-card-main">
+            <div class="tut-card-title">Déployer sur Netlify</div>
+            <div class="tut-card-desc">Push Git → build automatique, URLs, et redirects utiles.</div>
+            <div class="tut-card-meta">
+              <span class="badge">Déploiement</span>
+              <span class="badge">8 min</span>
+            </div>
+          </div>
+          <div class="tut-card-go" aria-hidden="true">↗</div>
+        </a>
+
+        <a class="tut-card" href="tutos/configurer-supabase.html" data-hub-item data-hub-title="supabase auth schema sql tables env anon key">
+          <div class="tut-card-ico" aria-hidden="true">🧩</div>
+          <div class="tut-card-main">
+            <div class="tut-card-title">Configurer Supabase</div>
+            <div class="tut-card-desc">Appliquer le schéma SQL, ajouter les clés, tester la connexion.</div>
+            <div class="tut-card-meta">
+              <span class="badge">Backend</span>
+              <span class="badge">12 min</span>
+            </div>
+          </div>
+          <div class="tut-card-go" aria-hidden="true">↗</div>
+        </a>
+
+        <a class="tut-card" href="tutos/rls.html" data-hub-item data-hub-title="rls policies row level security is_admin current_company jwt">
+          <div class="tut-card-ico" aria-hidden="true">🛡️</div>
+          <div class="tut-card-main">
+            <div class="tut-card-title">RLS & sécurité</div>
+            <div class="tut-card-desc">Comprendre les policies et éviter les accès 403/42501.</div>
+            <div class="tut-card-meta">
+              <span class="badge">Sécurité</span>
+              <span class="badge">10 min</span>
+            </div>
+          </div>
+          <div class="tut-card-go" aria-hidden="true">↗</div>
+        </a>
+
+        <a class="tut-card" href="tutos/storage.html" data-hub-item data-hub-title="storage bucket upload download policies facework fichiers">
+          <div class="tut-card-ico" aria-hidden="true">📎</div>
+          <div class="tut-card-main">
+            <div class="tut-card-title">Storage (upload)</div>
+            <div class="tut-card-desc">Bucket, chemins par entreprise, upload/download et policies.</div>
+            <div class="tut-card-meta">
+              <span class="badge">Fichiers</span>
+              <span class="badge">12 min</span>
+            </div>
+          </div>
+          <div class="tut-card-go" aria-hidden="true">↗</div>
+        </a>
+      </div>
+
+      <div class="spacer" style="height:14px"></div>
+      <div class="callout hidden" id="hubEmpty">
+        <strong>Aucun résultat.</strong> Essaie un autre mot‑clé.
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="inner container">
+        <div>
+          <div style="font-weight:950; color:var(--text)">FaceWork</div>
+          <div style="margin-top:6px">Tutos — pages à compléter au fur et à mesure.</div>
+        </div>
+        <div class="col" style="gap:8px">
+          <div class="badge">Liens</div>
+          <a href="tutoriel.html">Tutoriel</a>
+          <a href="exercices.html">Exercices</a>
+          <a href="app/feed.html">Accéder à l’app</a>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <div class="toast" role="status" aria-live="polite">
+    <div class="t">Info</div>
+    <div class="d">—</div>
+  </div>
+
+  <script src="js/site.js"></script>
+  <script src="js/hub.js"></script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Exercices — FaceWork</title>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+  <header class="navbar">
+    <div class="container inner">
+      <a class="brand" href="index.html" aria-label="FaceWork accueil">
+        <div class="logo" aria-hidden="true"><img src="assets/fw-logo.png" alt=""/></div>
+        <div>
+          <div style="line-height:1; font-size:18px">FaceWork</div>
+          <div style="color:var(--muted); font-size:12px; font-weight:800">Exercices & pratique</div>
+        </div>
+      </a>
+
+      <nav class="navlinks" aria-label="Navigation">
+        <a href="index.html#features">Fonctionnalités</a>
+        <a href="index.html#about">À propos</a>
+        <a href="tutoriel.html">Tutoriel</a>
+        <a href="exercices.html">Exercices</a>
+        <a href="tutos.html">Tutos</a>
+      </nav>
+
+      <div class="nav-actions">
+        <button class="btn icon" data-theme-toggle title="Basculer thème">🌓</button>
+        <a class="btn primary" href="login.html">Accéder à l’app</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div class="hero-top">
+        <span class="pill">Pratique</span>
+        <label class="searchbar" aria-label="Rechercher un exercice">
+          <span class="icon" aria-hidden="true">🔎</span>
+          <input id="hubSearch" type="search" placeholder="Rechercher : variables, fonctions, DOM, projet…" />
+        </label>
+      </div>
+
+      <h1 class="h1"><span class="grad">Exercices</span><br/>et mini‑projets</h1>
+      <p class="lead">
+        Une page = un thème. Tu peux avancer petit à petit : duplique le template, complète la page, puis ajoute une carte ici.
+      </p>
+
+      <div class="hero-actions">
+        <a class="btn primary" href="exercices/template.html">Voir le template</a>
+        <a class="btn" href="tutos.html">Voir les tutos</a>
+        <a class="btn" href="tutoriel.html">Tutoriel FaceWork</a>
+      </div>
+
+      <div class="callout" style="max-width: 86ch">
+        <strong>Astuce :</strong> garde un nom simple pour tes pages (ex: <code>bases-js.html</code>) et réutilise les cartes + recherche.
+      </div>
+    </section>
+
+    <section class="card panel" aria-label="Liste des exercices">
+      <div class="row" style="justify-content:space-between; flex-wrap:wrap; gap:12px; align-items:flex-end">
+        <div>
+          <div class="badge">Chapitres</div>
+          <h2 style="margin:10px 0 6px; font-size:26px">Par thèmes</h2>
+          <p class="page-sub">Clique sur une carte pour ouvrir la page correspondante.</p>
+        </div>
+        <div class="badge" id="hubCount" data-hub-label="section(s)" aria-live="polite">—</div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="tut-grid">
+        <a class="tut-card" href="exercices/bases-js.html" data-hub-item data-hub-title="bases javascript variables types conditions boucles console">
+          <div class="tut-card-ico" aria-hidden="true">🧠</div>
+          <div class="tut-card-main">
+            <div class="tut-card-title">Bases JavaScript</div>
+            <div class="tut-card-desc">Variables, calculs, conditions, boucles, affichage console.</div>
+            <div class="tut-card-meta">
+              <span class="badge">Niveau 1</span>
+              <span class="badge">10 exos</span>
+            </div>
+          </div>
+          <div class="tut-card-go" aria-hidden="true">↗</div>
+        </a>
+
+        <a class="tut-card" href="exercices/fonctions.html" data-hub-item data-hub-title="fonctions return parametres callbacks arrow function">
+          <div class="tut-card-ico" aria-hidden="true">ƒ</div>
+          <div class="tut-card-main">
+            <div class="tut-card-title">Fonctions</div>
+            <div class="tut-card-desc">Paramètres, retours, fonctions fléchées, réutilisation.</div>
+            <div class="tut-card-meta">
+              <span class="badge">Niveau 2</span>
+              <span class="badge">5 exos</span>
+            </div>
+          </div>
+          <div class="tut-card-go" aria-hidden="true">↗</div>
+        </a>
+
+        <a class="tut-card" href="exercices/tableaux-objets.html" data-hub-item data-hub-title="tableaux objets array map filter reduce panier">
+          <div class="tut-card-ico" aria-hidden="true">🧺</div>
+          <div class="tut-card-main">
+            <div class="tut-card-title">Tableaux & objets</div>
+            <div class="tut-card-desc">Listes, filtres, recherche, et données structurées (panier).</div>
+            <div class="tut-card-meta">
+              <span class="badge">Niveau 3</span>
+              <span class="badge">6 exos</span>
+            </div>
+          </div>
+          <div class="tut-card-go" aria-hidden="true">↗</div>
+        </a>
+
+        <a class="tut-card" href="exercices/dom.html" data-hub-item data-hub-title="dom web events click input queryselector localstorage">
+          <div class="tut-card-ico" aria-hidden="true">🌐</div>
+          <div class="tut-card-main">
+            <div class="tut-card-title">DOM / Web</div>
+            <div class="tut-card-desc">Boutons, formulaires, affichage dynamique, mini‑UI.</div>
+            <div class="tut-card-meta">
+              <span class="badge">Web</span>
+              <span class="badge">6 exos</span>
+            </div>
+          </div>
+          <div class="tut-card-go" aria-hidden="true">↗</div>
+        </a>
+
+        <a class="tut-card" href="exercices/projets.html" data-hub-item data-hub-title="projets mini projet todo ecommerce quiz jeu">
+          <div class="tut-card-ico" aria-hidden="true">🚀</div>
+          <div class="tut-card-main">
+            <div class="tut-card-title">Mini‑projets</div>
+            <div class="tut-card-desc">ToDo, e‑commerce, quiz, deviner le nombre… (comme une mini‑app).</div>
+            <div class="tut-card-meta">
+              <span class="badge">Projets</span>
+              <span class="badge">5 idées</span>
+            </div>
+          </div>
+          <div class="tut-card-go" aria-hidden="true">↗</div>
+        </a>
+      </div>
+
+      <div class="spacer" style="height:14px"></div>
+      <div class="callout hidden" id="hubEmpty">
+        <strong>Aucun résultat.</strong> Essaie un autre mot‑clé.
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="inner container">
+        <div>
+          <div style="font-weight:950; color:var(--text)">FaceWork</div>
+          <div style="margin-top:6px">Exercices — hub de pages à compléter au fur et à mesure.</div>
+        </div>
+        <div class="col" style="gap:8px">
+          <div class="badge">Liens</div>
+          <a href="tutoriel.html">Tutoriel</a>
+          <a href="tutos.html">Tutos</a>
+          <a href="app/feed.html">Accéder à l’app</a>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <div class="toast" role="status" aria-live="polite">
+    <div class="t">Info</div>
+    <div class="d">—</div>
+  </div>
+
+  <script src="js/site.js"></script>
+  <script src="js/hub.js"></script>
+</body>
+</html>

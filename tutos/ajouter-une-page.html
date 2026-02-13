@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Ajouter une page — Tuto</title>
+  <link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body>
+  <header class="navbar">
+    <div class="container inner">
+      <a class="brand" href="../index.html" aria-label="FaceWork accueil">
+        <div class="logo" aria-hidden="true"><img src="../assets/fw-logo.png" alt=""/></div>
+        <div>
+          <div style="line-height:1; font-size:18px">FaceWork</div>
+          <div style="color:var(--muted); font-size:12px; font-weight:800">Tutos</div>
+        </div>
+      </a>
+
+      <nav class="navlinks" aria-label="Navigation">
+        <a href="../tutoriel.html">Tutoriel</a>
+        <a href="../exercices.html">Exercices</a>
+        <a href="../tutos.html">Tutos</a>
+      </nav>
+
+      <div class="nav-actions">
+        <button class="btn icon" data-theme-toggle title="Basculer thème">🌓</button>
+        <a class="btn primary" href="../login.html">Accéder à l’app</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="spacer"></div>
+    <a class="btn small" href="../tutos.html">← Retour aux tutos</a>
+
+    <div class="spacer" style="height:12px"></div>
+
+    <section class="card panel">
+      <div class="badge">Essentiel</div>
+      <h1 class="page-title" style="margin-top:10px">Ajouter une page (HTML)</h1>
+      <p class="page-sub">Créer une nouvelle page propre + la relier dans le menu.</p>
+
+      <div class="hr"></div>
+
+      <ol style="margin:0; padding-left:18px; line-height:1.7; color:var(--muted); font-weight:750">
+        <li>Duplique un template : <code>exercices/template.html</code> ou <code>tutos/template.html</code>.</li>
+        <li>Renomme le fichier (ex: <code>ma-page.html</code>) et modifie le <code>&lt;title&gt;</code>.</li>
+        <li>Ajoute le lien dans le menu (ex: <code>index.html</code> ou dans le hub <code>exercices.html</code>/<code>tutos.html</code>).</li>
+        <li>Fais un <code>git add</code>, <code>git commit</code>, puis <code>git push</code> (Netlify redéploie).</li>
+      </ol>
+
+      <div class="codeblock">
+        <div class="codebar">
+          Exemple (commande)
+          <button class="btn small" type="button" data-copy="#code-cmd">Copier</button>
+        </div>
+        <pre id="code-cmd">git status
+git add .
+git commit -m "Add new page"
+git push</pre>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="inner container">
+        <div>
+          <div style="font-weight:950; color:var(--text)">FaceWork</div>
+          <div style="margin-top:6px">Tutos — Ajouter une page.</div>
+        </div>
+        <div class="col" style="gap:8px">
+          <div class="badge">Liens</div>
+          <a href="../tutos.html">Tutos</a>
+          <a href="../exercices.html">Exercices</a>
+          <a href="../app/feed.html">Accéder à l’app</a>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <div class="toast" role="status" aria-live="polite">
+    <div class="t">Info</div>
+    <div class="d">—</div>
+  </div>
+
+  <script src="../js/site.js"></script>
+  <script src="../js/tutorial.js"></script>
+</body>
+</html>

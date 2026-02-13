@@ -19,6 +19,8 @@ Si tu vois des comportements bizarres, utilise Live Server.
 - `index.html` : Landing
 - `login.html` : Connexion (démo localStorage + Supabase si configuré)
 - `tutoriel.html` : Tutoriel (prise en main)
+- `exercices.html` : Exercices (hub) + pages dans `exercices/`
+- `tutos.html` : Tutos (hub) + pages dans `tutos/`
 - `app/feed.html` : Publications
 - `app/salon.html` : Salons (liste)
 - `app/channels.html` : Canaux
