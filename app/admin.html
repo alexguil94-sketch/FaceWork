@@ -88,6 +88,105 @@
     <div class="d">—</div>
   </div>
 
+  <!-- Modal — placé en fin de body pour éviter les bugs de stacking context (backdrop-filter) -->
+  <div class="composer-overlay hidden" id="learnAdminOverlay" role="dialog" aria-modal="true" aria-label="Gérer exercices et tutoriels">
+    <div class="card composer-modal" role="document" style="width: min(1200px, 96vw)">
+      <div class="row" style="justify-content:space-between; flex-wrap:wrap; gap:12px; align-items:flex-start">
+        <div>
+          <div class="badge">Admin</div>
+          <h3 style="margin:10px 0 6px; font-size:22px">Exercices & tutoriels</h3>
+          <p class="page-sub" id="learnAdminMode">—</p>
+        </div>
+        <div class="row" style="gap:8px; align-items:center; flex-wrap:wrap">
+          <button class="btn small" type="button" id="learnAdminSeed" title="Ajouter des exemples">✨ Exemples</button>
+          <button class="btn small primary" type="button" id="learnAdminNew">＋ Nouveau</button>
+          <button class="btn icon ghost" type="button" title="Fermer" aria-label="Fermer" data-learn-admin-close>✕</button>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="grid2">
+        <section class="col">
+          <div>
+            <div class="label">Recherche</div>
+            <input class="input" id="learnAdminSearch" placeholder="Rechercher : flexbox, DOM, SELECT…" />
+          </div>
+
+          <div class="row" style="gap:8px; flex-wrap:wrap" id="learnAdminKindFilters" aria-label="Type">
+            <button class="btn small primary" type="button" data-la-kind="">Tous</button>
+            <button class="btn small" type="button" data-la-kind="exercise">Exercices</button>
+            <button class="btn small" type="button" data-la-kind="tutorial">Tutoriels</button>
+          </div>
+
+          <div class="row" style="gap:8px; flex-wrap:wrap" id="learnAdminLangFilters" aria-label="Langages">
+            <button class="btn small primary" type="button" data-la-lang="">Tous</button>
+            <button class="btn small" type="button" data-la-lang="html">HTML</button>
+            <button class="btn small" type="button" data-la-lang="css">CSS</button>
+            <button class="btn small" type="button" data-la-lang="js">JS</button>
+            <button class="btn small" type="button" data-la-lang="sql">SQL</button>
+            <button class="btn small" type="button" data-la-lang="php">PHP</button>
+          </div>
+
+          <div class="callout hidden" id="learnAdminEmpty" style="margin:0">
+            <strong>Aucun contenu.</strong>
+            <span class="muted">Ajoute un item ou importe des exemples.</span>
+          </div>
+
+          <div class="col" id="learnAdminList" style="gap:10px"></div>
+        </section>
+
+        <section class="col">
+          <form id="learnAdminForm" class="col" style="gap:14px" autocomplete="off">
+            <div class="grid2">
+              <div>
+                <div class="label">Type</div>
+                <select class="input" id="learnAdminKind">
+                  <option value="exercise">Exercice</option>
+                  <option value="tutorial">Tutoriel</option>
+                </select>
+              </div>
+              <div>
+                <div class="label">Langage</div>
+                <select class="input" id="learnAdminLang">
+                  <option value="html">HTML</option>
+                  <option value="css">CSS</option>
+                  <option value="js">JavaScript</option>
+                  <option value="sql">SQL</option>
+                  <option value="php">PHP</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <div class="label">Titre</div>
+              <input class="input" id="learnAdminTitle" placeholder="Titre de l’exercice / tutoriel" />
+            </div>
+
+            <div>
+              <div class="label">Consigne / Texte</div>
+              <textarea class="input" id="learnAdminPrompt" rows="6" placeholder="Consigne de l’exercice ou texte du tutoriel…"></textarea>
+            </div>
+
+            <div>
+              <div class="label">Réponse / Code</div>
+              <textarea class="input" id="learnAdminAnswer" rows="10" placeholder="Réponse (code ou texte)…"></textarea>
+            </div>
+
+            <div class="row" style="justify-content:space-between; flex-wrap:wrap; gap:10px">
+              <button class="btn primary" type="submit">💾 Enregistrer</button>
+              <button class="btn" type="button" id="learnAdminDelete" style="border-color: rgba(255,120,150,.35); color: rgba(255,120,150,.95)">🗑️ Supprimer</button>
+            </div>
+
+            <div class="callout" style="margin:0" id="learnAdminHint">
+              <strong>Astuce :</strong> la réponse peut contenir du code. En HTML, un bouton “Prévisualiser” apparaîtra automatiquement sur la page Exercices.
+            </div>
+          </form>
+        </section>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/env.js"></script>
   <script src="../js/supabase.js"></script>

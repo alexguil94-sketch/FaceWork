@@ -64,6 +64,20 @@ create table if not exists public.tutorial_posts (
   created_at timestamptz not null default now()
 );
 
+-- Learning items (exercices + tutoriels, gérés par l'admin)
+create table if not exists public.learning_items (
+  id uuid primary key default gen_random_uuid(),
+  company text not null,
+  author_id uuid not null references public.profiles(id) on delete cascade,
+  kind text not null default 'exercise' check (kind in ('exercise','tutorial')),
+  lang text not null default 'html' check (lang in ('html','css','js','sql','php')),
+  title text not null,
+  prompt text not null default '',
+  answer text not null default '',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 create table if not exists public.post_likes (
   company text not null,
   post_id uuid not null references public.posts(id) on delete cascade,
@@ -384,6 +398,7 @@ alter table public.roles enable row level security;
 alter table public.member_roles enable row level security;
 alter table public.posts enable row level security;
 alter table public.tutorial_posts enable row level security;
+alter table public.learning_items enable row level security;
 alter table public.post_likes enable row level security;
 alter table public.channels enable row level security;
 alter table public.channel_messages enable row level security;
@@ -540,6 +555,45 @@ for delete
 to authenticated
 using (public.is_admin() and company = public.current_company());
 
+-- Learning items (admin-only write, company-wide read)
+drop policy if exists learning_items_select_company on public.learning_items;
+create policy learning_items_select_company
+on public.learning_items
+for select
+to authenticated
+using (company = public.current_company());
+
+drop policy if exists learning_items_insert_admin on public.learning_items;
+create policy learning_items_insert_admin
+on public.learning_items
+for insert
+to authenticated
+with check (public.is_admin() and company = public.current_company() and author_id = auth.uid());
+
+drop policy if exists learning_items_update_admin on public.learning_items;
+create policy learning_items_update_admin
+on public.learning_items
+for update
+to authenticated
+using (public.is_admin() and company = public.current_company())
+with check (
+  public.is_admin()
+  and company = public.current_company()
+  -- Prevent changing ownership during updates
+  and author_id = (
+    select p.author_id
+    from public.learning_items p
+    where p.id = id and p.company = public.current_company()
+  )
+);
+
+drop policy if exists learning_items_delete_admin on public.learning_items;
+create policy learning_items_delete_admin
+on public.learning_items
+for delete
+to authenticated
+using (public.is_admin() and company = public.current_company());
+
 -- Post likes
 drop policy if exists post_likes_select_own on public.post_likes;
 create policy post_likes_select_own
@@ -676,6 +730,7 @@ grant select, insert, update, delete on
   public.member_roles,
   public.posts,
   public.tutorial_posts,
+  public.learning_items,
   public.post_likes,
   public.channels,
   public.channel_messages,

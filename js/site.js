@@ -31,6 +31,9 @@
     try{ return JSON.parse(localStorage.getItem(USER_KEY) || "null"); }catch(e){ return null; }
   }
   function setUser(u){ localStorage.setItem(USER_KEY, JSON.stringify(u)); }
+  function isAdminUser(user){
+    return String(user?.role || "").trim().toLowerCase() === "admin";
+  }
   async function logout(){
     const inApp = (window.location.pathname.includes("/app/") || window.location.href.includes("/app/"));
     const base = inApp ? "../login.html" : "login.html";
@@ -75,6 +78,8 @@
     document.querySelectorAll("[data-user-role]").forEach(el=> el.textContent = u?.role || "—");
     document.querySelectorAll("[data-user-joined]").forEach(el=> el.textContent = u?.joinedAt || "—");
     document.querySelectorAll("[data-user-avatar]").forEach(el=> setAvatar(el, u));
+
+    applyVisibility();
   }
   hydrateUserUI();
 
@@ -82,15 +87,74 @@
   $$("[data-logout]").forEach(b=>b.addEventListener("click", ()=> logout()));
 
   // ---------- Guard (protected pages)
+  function isProtectedPath(path){
+    const p = String(path || "");
+    if(p === "/login") return false;
+    if(p.startsWith("/app")) return true;
+    if(p === "/tutoriel") return true;
+    if(p.startsWith("/guides/")) return true;
+    if(p === "/tutos") return true;
+    if(p.startsWith("/tutos/")) return true;
+    if(p === "/exercices") return true;
+    if(p.startsWith("/exercices/")) return true;
+    return false;
+  }
+
+  function isAdminOnlyPath(path){
+    const p = String(path || "");
+    if(p === "/app/admin") return true;
+    if(p === "/guides/admin") return true;
+    return false;
+  }
+
+  function pathFromHref(href){
+    const h = String(href || "").trim();
+    if(!h || h.startsWith("#")) return "";
+    try{
+      return canonPath(new URL(h, window.location.href).pathname);
+    }catch(e){
+      return "";
+    }
+  }
+
+  function applyAuthVisibility(){
+    const authed = !!getUser();
+    document.querySelectorAll("[data-auth-only]").forEach(el=> el.classList.toggle("hidden", !authed));
+    if(authed) return;
+
+    // Landing/login: hide shortcuts to pages that require auth (avoid redirect loops / confusion).
+    document.querySelectorAll("a[href]").forEach(a=>{
+      const p = pathFromHref(a.getAttribute("href") || "");
+      if(p === "/tutoriel" || p === "/exercices"){
+        a.classList.add("hidden");
+      }
+    });
+  }
+
+  function applyRoleVisibility(){
+    const admin = isAdminUser(getUser());
+    document.querySelectorAll("[data-admin-only]").forEach(el=> el.classList.toggle("hidden", !admin));
+    document.querySelectorAll("[data-member-only]").forEach(el=> el.classList.toggle("hidden", admin));
+
+    // Hide admin-only pages/links for members.
+    if(!admin){
+      document.querySelectorAll("a[href]").forEach(a=>{
+        const p = pathFromHref(a.getAttribute("href") || "");
+        if(p && isAdminOnlyPath(p)){
+          a.classList.add("hidden");
+        }
+      });
+    }
+  }
+
+  function applyVisibility(){
+    applyAuthVisibility();
+    applyRoleVisibility();
+  }
+
   function isProtectedPage(){
     const path = canonPath(window.location.pathname);
-    if(path === "/login") return false;
-    if(path.startsWith("/app")) return true;
-    if(path === "/tutoriel") return true;
-    if(path.startsWith("/guides/")) return true;
-    if(path === "/tutos") return true;
-    if(path.startsWith("/tutos/")) return true;
-    return false;
+    return isProtectedPath(path);
   }
 
   function loginRedirectHref(){
@@ -115,6 +179,30 @@
       if(!u) window.location.href = redirectTo;
     }
   }
+
+  async function enforceAdminOnlyIfNeeded(){
+    const path = canonPath(window.location.pathname);
+    if(!isAdminOnlyPath(path)) return;
+
+    if(window.fwSupabase?.enabled && !getUser()){
+      try{ await window.fwSupabase.syncLocalUser?.(); }catch(e){ /* ignore */ }
+    }
+
+    const u = getUser();
+    if(!u) return; // not authenticated (protected guard will redirect)
+    if(isAdminUser(u)) return;
+
+    const p = window.location.pathname || "";
+    const inSubdir =
+      p.includes("/app/") ||
+      p.includes("/guides/") ||
+      p.includes("/tutos/") ||
+      p.includes("/exercices/") ||
+      p.includes("/langages/");
+    const href = inSubdir ? "../app/feed.html" : "app/feed.html";
+    window.location.href = href;
+  }
+  enforceAdminOnlyIfNeeded();
 
   // ---------- Active nav highlight
   function canonPath(p){

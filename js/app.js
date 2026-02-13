@@ -3411,6 +3411,600 @@
 
   sbEnabled ? renderSettingsSupabase() : renderSettings();
 
+  // ---------- LEARNING (exercices / tutoriels)
+  const LEARNING_LS_KEY = "fwLearningItems_v1";
+  const LEARNING_TABLE = "learning_items";
+
+  function loadLearningItemsLocal(){
+    try{
+      const v = JSON.parse(localStorage.getItem(LEARNING_LS_KEY) || "[]");
+      return Array.isArray(v) ? v : [];
+    }catch(e){
+      return [];
+    }
+  }
+
+  function saveLearningItemsLocal(items){
+    try{
+      localStorage.setItem(LEARNING_LS_KEY, JSON.stringify(items || []));
+    }catch(e){ /* ignore */ }
+  }
+
+  function normalizeLearnKind(raw){
+    const s = String(raw || "").trim().toLowerCase();
+    return s === "tutorial" ? "tutorial" : "exercise";
+  }
+  function normalizeLearnLang(raw){
+    const s = String(raw || "").trim().toLowerCase();
+    return ["html","css","js","sql","php"].includes(s) ? s : "html";
+  }
+
+  function learnLangLabel(lang){
+    const l = normalizeLearnLang(lang);
+    if(l === "js") return "JavaScript";
+    return l.toUpperCase();
+  }
+  function learnLangIcon(lang){
+    const l = normalizeLearnLang(lang);
+    if(l === "html") return "</>";
+    if(l === "css") return "🎨";
+    if(l === "js") return "⚡";
+    if(l === "sql") return "🗄️";
+    if(l === "php") return "🐘";
+    return "</>";
+  }
+  function learnKindLabel(kind){
+    return normalizeLearnKind(kind) === "tutorial" ? "Tutoriel" : "Exercice";
+  }
+
+  function seedLearningItemsIfEmpty(){
+    const existing = loadLearningItemsLocal();
+    const company = companyFromUser();
+    const hasCompany = existing.some(x=> String(x?.company || "") === company);
+    if(existing.length && hasCompany) return existing;
+
+    const nowIso = new Date().toISOString();
+    const mk = (kind, lang, title, prompt, answer)=>({
+      id: uuid(),
+      company,
+      author_id: "local",
+      kind,
+      lang,
+      title,
+      prompt,
+      answer,
+      created_at: nowIso,
+      updated_at: nowIso,
+    });
+
+    const items = [
+      mk(
+        "exercise",
+        "html",
+        "HTML — Carte de profil",
+        "Consigne : crée une page avec un titre, une image (placeholder) et une section 'Bio'. Ajoute un lien vers tes réseaux.\n\nObjectif : travailler la structure (header/main/section) + les liens.",
+        `<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Profil</title>
+</head>
+<body>
+  <header>
+    <h1>Mon profil</h1>
+  </header>
+  <main>
+    <img src="https://via.placeholder.com/140" alt="Photo de profil"/>
+    <section>
+      <h2>Bio</h2>
+      <p>Je suis développeur web.</p>
+      <a href="https://example.com" target="_blank" rel="noopener">Mon site</a>
+    </section>
+  </main>
+</body>
+</html>`
+      ),
+      mk(
+        "exercise",
+        "css",
+        "CSS — Bouton glass + hover",
+        "Consigne : style un bouton en mode 'glassmorphism' avec un petit effet au survol (hover) et au clic (active).",
+        `button{
+  padding: 12px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.10);
+  color: white;
+  backdrop-filter: blur(14px) saturate(1.2);
+  cursor: pointer;
+  transition: transform .08s ease, background .12s ease;
+}
+button:hover{ background: rgba(255,255,255,.14); }
+button:active{ transform: translateY(1px); }`
+      ),
+      mk(
+        "exercise",
+        "js",
+        "JS — Compteur",
+        "Consigne : ajoute un bouton 'Incrémenter' et un nombre. Au clic : +1.\n\nBonus : sauvegarde dans localStorage.",
+        `const countEl = document.getElementById("count");
+const btn = document.getElementById("inc");
+
+let count = Number(localStorage.getItem("count") || 0);
+countEl.textContent = String(count);
+
+btn.addEventListener("click", ()=>{
+  count += 1;
+  countEl.textContent = String(count);
+  localStorage.setItem("count", String(count));
+});`
+      ),
+      mk(
+        "exercise",
+        "sql",
+        "SQL — Requête SELECT",
+        "Consigne : avec une table `users(id, name, email, created_at)`, récupère les 10 derniers utilisateurs créés.",
+        `select id, name, email, created_at
+from users
+order by created_at desc
+limit 10;`
+      ),
+      mk(
+        "exercise",
+        "php",
+        "PHP — Validation email",
+        "Consigne : crée un petit script PHP qui valide un email envoyé en POST et affiche un message (OK/Erreur).",
+        `<?php
+$email = $_POST["email"] ?? "";
+if(filter_var($email, FILTER_VALIDATE_EMAIL)){
+  echo "OK : " . htmlspecialchars($email);
+} else {
+  echo "Erreur : email invalide";
+}
+?>`
+      ),
+
+      mk(
+        "tutorial",
+        "html",
+        "HTML — Structure minimale",
+        "Rappel : une page HTML propre avec meta viewport + charset + un <main>.",
+        `<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Ma page</title>
+</head>
+<body>
+  <main>
+    <h1>Hello</h1>
+  </main>
+</body>
+</html>`
+      ),
+      mk(
+        "tutorial",
+        "css",
+        "CSS — Centering (flex)",
+        "Rappel : centrer un bloc horizontalement + verticalement avec flex.",
+        `.container{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height: 100vh;
+}`
+      ),
+      mk(
+        "tutorial",
+        "js",
+        "JS — Fetch JSON",
+        "Rappel : faire un fetch et afficher le résultat (async/await).",
+        `async function load(){
+  const res = await fetch("https://jsonplaceholder.typicode.com/todos/1");
+  const data = await res.json();
+  console.log(data);
+}
+load();`
+      ),
+      mk(
+        "tutorial",
+        "sql",
+        "SQL — INSERT + RETURNING",
+        "Rappel : insérer une ligne et récupérer l'id (Postgres).",
+        `insert into users(name, email)
+values ('Alex', 'alex@exemple.com')
+returning id;`
+      ),
+      mk(
+        "tutorial",
+        "php",
+        "PHP — PDO (requête préparée)",
+        "Rappel : requête préparée pour éviter l'injection SQL.",
+        `<?php
+$pdo = new PDO($dsn, $user, $pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+$stmt = $pdo->prepare("select * from users where email = :email");
+$stmt->execute([":email" => $email]);
+$row = $stmt->fetch(PDO::FETCH_ASSOC);
+?>`
+      ),
+    ];
+
+    const merged = [...existing, ...items];
+    saveLearningItemsLocal(merged);
+    return merged;
+  }
+
+  async function fetchLearningItemsAnyMode(){
+    const company = companyFromUser();
+
+    if(!sbEnabled){
+      const all = seedLearningItemsIfEmpty();
+      return { modeLabel: "Démo locale", items: (all || []).filter(x=> String(x?.company || "") === company), needsAuth:false };
+    }
+
+    const uid = await sbUserId();
+    if(!uid){
+      return { modeLabel: "Supabase • Non connecté", items: [], needsAuth:true };
+    }
+
+    const res = await sb
+      .from(LEARNING_TABLE)
+      .select("id,company,author_id,kind,lang,title,prompt,answer,created_at,updated_at")
+      .eq("company", company)
+      .order("created_at", { ascending: false });
+
+    if(res.error){
+      const code = String(res.error?.code || "");
+      const msg = String(res.error?.message || "");
+      if(code === "42P01" || msg.toLowerCase().includes("does not exist")){
+        const all = seedLearningItemsIfEmpty();
+        return { modeLabel: "Supabase • Table manquante (fallback local)", items: (all || []).filter(x=> String(x?.company || "") === company), needsAuth:false, missingTable:true };
+      }
+      sbToastError("Exercices", res.error);
+      return { modeLabel: "Supabase • Erreur", items: [], needsAuth:false };
+    }
+
+    return { modeLabel: "Supabase", items: res.data || [], needsAuth:false };
+  }
+
+  function nl2brEscaped(raw){
+    return escapeHtml(String(raw || "")).replace(/\n/g, "<br/>");
+  }
+
+  function looksLikeHtml(code){
+    const t = String(code || "").trim();
+    if(!t) return false;
+    const lower = t.toLowerCase();
+    if(lower.startsWith("<!doctype html")) return true;
+    if(lower.startsWith("<html")) return true;
+    if(lower.includes("<head") || lower.includes("<body")) return true;
+    if(lower.startsWith("<") && /<\/[a-z][^>]*>/i.test(t)) return true;
+    return false;
+  }
+
+  function guessPreviewBaseHref(html){
+    let root = "";
+    try{ root = new URL(".", window.location.href).href; }catch(e){ root = ""; }
+    if(!root) return "";
+
+    const s = String(html || "");
+    if(/\b(?:href|src)\s*=\s*['"]\.\.\//i.test(s)){
+      try{ return new URL("guides/", root).href; }catch(e){ return root; }
+    }
+    return root;
+  }
+
+  function injectBaseIntoHtmlDoc(html, baseHref){
+    const s = String(html || "").trim();
+    if(!s) return "";
+    if(/<base\b/i.test(s)) return s;
+
+    const base = String(baseHref || "").trim();
+    const baseTag = base ? `<base href="${escapeHtml(base)}">` : "";
+    if(!baseTag) return s;
+
+    if(/<head\b[^>]*>/i.test(s)){
+      return s.replace(/<head\b[^>]*>/i, (m)=> `${m}\n  ${baseTag}`);
+    }
+
+    if(/<html\b[^>]*>/i.test(s)){
+      return s.replace(/<html\b[^>]*>/i, (m)=> `${m}\n<head>\n  <meta charset="utf-8"/>\n  <meta name="viewport" content="width=device-width,initial-scale=1"/>\n  ${baseTag}\n</head>`);
+    }
+
+    return `<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  ${baseTag}
+</head>
+<body>
+${s}
+</body>
+</html>`;
+  }
+
+  function buildPreviewSrcdoc(html){
+    const baseHref = guessPreviewBaseHref(html);
+    return injectBaseIntoHtmlDoc(html, baseHref);
+  }
+
+  let __fwLearnPreview = null;
+  function ensureLearnPreviewModal(){
+    if(__fwLearnPreview) return __fwLearnPreview;
+
+    const overlay = document.createElement("div");
+    overlay.className = "preview-overlay hidden";
+    overlay.innerHTML = `
+      <div class="card preview-modal" role="dialog" aria-modal="true" aria-label="Prévisualisation">
+        <div class="preview-header">
+          <div class="preview-head-left">
+            <div class="preview-title">Prévisualisation</div>
+            <div class="preview-sub" data-preview-sub>HTML</div>
+          </div>
+          <div class="row" style="gap:8px; align-items:center">
+            <button class="btn small" type="button" data-preview-close>Fermer</button>
+          </div>
+        </div>
+        <div class="preview-body">
+          <iframe class="preview-frame" title="Prévisualisation" sandbox="" referrerpolicy="no-referrer"></iframe>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    const frame = overlay.querySelector("iframe");
+    const sub = overlay.querySelector("[data-preview-sub]");
+    const closeBtn = overlay.querySelector("[data-preview-close]");
+
+    const state = { overlay, frame, sub, closeBtn, prevOverflow:"" };
+    function close(){
+      overlay.classList.add("hidden");
+      frame && frame.removeAttribute("srcdoc");
+      try{ document.body.style.overflow = state.prevOverflow; }catch(e){ /* ignore */ }
+    }
+    closeBtn?.addEventListener("click", close);
+    overlay.addEventListener("click", (e)=>{ if(e.target === overlay) close(); });
+    document.addEventListener("keydown", (e)=>{
+      if(e.key !== "Escape") return;
+      if(overlay.classList.contains("hidden")) return;
+      close();
+    });
+
+    state.close = close;
+    __fwLearnPreview = state;
+    return state;
+  }
+
+  function openLearnHtmlPreview(raw){
+    const code = String(raw || "").trim();
+    if(!code){
+      window.fwToast?.("Prévisualiser", "Aucun code à afficher.");
+      return;
+    }
+    if(!looksLikeHtml(code)){
+      window.fwToast?.("Prévisualiser", "Ajoute une page HTML pour utiliser l’aperçu.");
+      return;
+    }
+
+    const modal = ensureLearnPreviewModal();
+    if(!modal?.overlay || !modal?.frame) return;
+
+    try{
+      const opening = modal.overlay.classList.contains("hidden");
+      if(opening){
+        modal.prevOverflow = document.body.style.overflow ?? "";
+        document.body.style.overflow = "hidden";
+      }
+    }catch(e){ /* ignore */ }
+
+    modal.sub && (modal.sub.textContent = "HTML • aperçu (sandbox)");
+    modal.frame.setAttribute("srcdoc", buildPreviewSrcdoc(code));
+    modal.overlay.classList.remove("hidden");
+  }
+
+  function renderLearningItemHtml(item){
+    const it = item || {};
+    const kind = normalizeLearnKind(it.kind);
+    const lang = normalizeLearnLang(it.lang);
+    const title = String(it.title || "").trim() || "Sans titre";
+    const prompt = String(it.prompt || "").trim();
+    const answer = String(it.answer || "").trim();
+    const created = it.created_at || it.createdAt || "";
+
+    const preId = `learn-ans-${String(it.id || uuid())}`;
+    const canPreview = (lang === "html") && looksLikeHtml(answer);
+
+    const meta = [
+      learnKindLabel(kind),
+      learnLangLabel(lang),
+      created ? fmtTs(created) : "",
+    ].filter(Boolean).join(" • ");
+
+    return `
+      <details class="tut-details" data-learn-item="${escapeHtml(String(it.id || ""))}">
+        <summary class="tut-summary">
+          <span class="tut-left">
+            <span class="tut-ico" aria-hidden="true">${escapeHtml(learnLangIcon(lang))}</span>
+            <span class="tut-txt">
+              <span class="tut-title truncate">${escapeHtml(title)}</span>
+              <span class="tut-meta truncate">${escapeHtml(meta)}</span>
+            </span>
+          </span>
+          <span class="badge">${kind === "tutorial" ? "Voir" : "Réponse"}</span>
+        </summary>
+        <div class="tut-body">
+          ${prompt ? `
+            <div class="callout" style="margin:0">
+              <strong>Consigne :</strong><br/>
+              ${nl2brEscaped(prompt)}
+            </div>
+            <div class="spacer" style="height:12px"></div>
+          ` : ""}
+
+          ${answer ? `
+            <div class="codeblock">
+              <div class="codebar">
+                <span>Réponse</span>
+                <div class="row" style="gap:8px; align-items:center">
+                  ${canPreview ? `<button class="btn small" type="button" data-preview="#${escapeHtml(preId)}">Prévisualiser</button>` : ""}
+                  <button class="btn small" type="button" data-copy="#${escapeHtml(preId)}">Copier</button>
+                </div>
+              </div>
+              <pre id="${escapeHtml(preId)}">${escapeHtml(answer)}</pre>
+            </div>
+          ` : `
+            <div class="callout" style="margin:0">
+              <strong>Réponse :</strong> à compléter (admin).
+            </div>
+          `}
+        </div>
+      </details>
+    `;
+  }
+
+  async function initLearningPage(){
+    const list = $("#learnList");
+    if(!list) return;
+
+    const mode = $("#learnMode");
+    const heading = $("#learnHeading");
+    const sub = $("#learnSub");
+    const empty = $("#learnEmpty");
+    const count = $("#learnCount");
+    const search = $("#learnSearch");
+
+    const kindRoot = $("#learnKindFilters");
+    const langRoot = $("#learnLangFilters");
+
+    const state = {
+      kind: "exercise",
+      lang: "",
+      q: "",
+      items: [],
+    };
+
+    const setActiveButtons = ()=>{
+      (kindRoot ? Array.from(kindRoot.querySelectorAll("[data-learn-kind]")) : []).forEach(b=>{
+        const k = b.getAttribute("data-learn-kind") || "";
+        const active = normalizeLearnKind(k) === normalizeLearnKind(state.kind);
+        b.classList.toggle("primary", active);
+      });
+      (langRoot ? Array.from(langRoot.querySelectorAll("[data-learn-lang]")) : []).forEach(b=>{
+        const btnRaw = String(b.getAttribute("data-learn-lang") || "").trim().toLowerCase();
+        const wantRaw = String(state.lang || "").trim().toLowerCase();
+        const active = !wantRaw ? !btnRaw : normalizeLearnLang(btnRaw) === normalizeLearnLang(wantRaw);
+        b.classList.toggle("primary", active);
+      });
+    };
+
+    const applyFilters = (items)=>{
+      const wantKind = normalizeLearnKind(state.kind);
+      const wantLang = String(state.lang || "").trim().toLowerCase();
+      const q = String(state.q || "").trim().toLowerCase();
+
+      return (items || [])
+        .filter(it=> normalizeLearnKind(it.kind) === wantKind)
+        .filter(it=> !wantLang || normalizeLearnLang(it.lang) === normalizeLearnLang(wantLang))
+        .filter(it=>{
+          if(!q) return true;
+          const hay = `${it.title || ""}\n${it.prompt || ""}\n${it.answer || ""}`.toLowerCase();
+          return hay.includes(q);
+        });
+    };
+
+    const rerender = ()=>{
+      setActiveButtons();
+      const filtered = applyFilters(state.items);
+      const total = state.items.length;
+      const shown = filtered.length;
+
+      if(heading) heading.textContent = (normalizeLearnKind(state.kind) === "tutorial") ? "Tutoriels" : "Exercices";
+      if(sub){
+        sub.textContent = (normalizeLearnKind(state.kind) === "tutorial")
+          ? "Mini-guides et rappels rapides par langage."
+          : "Une consigne, une réponse (affichée uniquement si tu ouvres l’exercice).";
+      }
+
+      if(count){
+        count.textContent = state.q ? `${shown}/${total} résultat(s)` : `${shown} item(s)`;
+      }
+
+      list.innerHTML = filtered.map(renderLearningItemHtml).join("");
+      empty && empty.classList.toggle("hidden", shown > 0);
+    };
+
+    kindRoot?.addEventListener("click", (e)=>{
+      const btn = e.target.closest("[data-learn-kind]");
+      if(!btn) return;
+      state.kind = normalizeLearnKind(btn.getAttribute("data-learn-kind"));
+      rerender();
+    });
+
+    langRoot?.addEventListener("click", (e)=>{
+      const btn = e.target.closest("[data-learn-lang]");
+      if(!btn) return;
+      const raw = btn.getAttribute("data-learn-lang") || "";
+      state.lang = raw ? normalizeLearnLang(raw) : "";
+      rerender();
+    });
+
+    search?.addEventListener("input", ()=>{
+      state.q = String(search.value || "");
+      rerender();
+    });
+
+    list.addEventListener("click", async (e)=>{
+      const prevBtn = e.target.closest("[data-preview]");
+      if(prevBtn){
+        const sel = prevBtn.getAttribute("data-preview");
+        const target = sel ? document.querySelector(sel) : null;
+        const text = (target?.innerText || target?.textContent || "").replace(/\s+$/,"");
+        openLearnHtmlPreview(text);
+        return;
+      }
+
+      const btn = e.target.closest("[data-copy]");
+      if(!btn) return;
+      const sel = btn.getAttribute("data-copy");
+      const target = sel ? document.querySelector(sel) : null;
+      if(!target) return;
+      const text = (target.innerText || target.textContent || "").replace(/\s+$/,"");
+      const old = btn.textContent;
+      try{
+        await navigator.clipboard.writeText(text);
+        btn.textContent = "Copié ✓";
+        window.fwToast?.("Copié", "Texte copié dans le presse-papiers.");
+      }catch(err){
+        btn.textContent = "Erreur";
+        window.fwToast?.("Erreur", "Copie impossible (permissions navigateur).");
+      }finally{
+        setTimeout(()=>{ btn.textContent = old; }, 900);
+      }
+    });
+
+    mode && (mode.textContent = "Chargement…");
+    const res = await fetchLearningItemsAnyMode();
+    mode && (mode.textContent = res.modeLabel || "—");
+
+    if(res.needsAuth){
+      empty && empty.classList.remove("hidden");
+      if(empty){
+        empty.innerHTML = `<strong>Connexion requise.</strong> Va sur <a href="${escapeHtml(loginHref())}">login</a> puis reviens.`;
+      }
+      list.innerHTML = "";
+      if(count) count.textContent = "0 item";
+      return;
+    }
+
+    state.items = Array.isArray(res.items) ? res.items : [];
+    rerender();
+  }
+
+  initLearningPage();
+
   // ---------- ADMIN (roles/members)
   const ADMIN_ACTIVE_KEY = "fwActiveAdmin";
 
@@ -3509,6 +4103,650 @@
     try{ localStorage.setItem(TUTORIAL_POSTS_LS_KEY, JSON.stringify(arr || [])); }catch(e){ /* ignore */ }
   }
 
+  // ---- Learning items (admin modal CRUD)
+  const learnAdminModalState = {
+    prevOverflow: "",
+    bound: false,
+    company: "",
+    items: [],
+    q: "",
+    kind: "",
+    lang: "",
+    editingId: "",
+  };
+
+  function getLearnAdminOverlay(){
+    return $("#learnAdminOverlay");
+  }
+
+  function setLearnAdminFormValues(item){
+    const overlay = getLearnAdminOverlay();
+    if(!overlay) return;
+
+    const it = item || null;
+    const kindSel = $("#learnAdminKind", overlay);
+    const langSel = $("#learnAdminLang", overlay);
+    const titleEl = $("#learnAdminTitle", overlay);
+    const promptEl = $("#learnAdminPrompt", overlay);
+    const answerEl = $("#learnAdminAnswer", overlay);
+    const delBtn = $("#learnAdminDelete", overlay);
+
+    if(kindSel) kindSel.value = normalizeLearnKind(it?.kind || "exercise");
+    if(langSel) langSel.value = normalizeLearnLang(it?.lang || "html");
+    if(titleEl) titleEl.value = String(it?.title || "");
+    if(promptEl) promptEl.value = String(it?.prompt || "");
+    if(answerEl) answerEl.value = String(it?.answer || "");
+
+    if(delBtn) delBtn.disabled = !it?.id;
+  }
+
+  function learnAdminRowHtml(item, { active } = {}){
+    const it = item || {};
+    const id = String(it.id || "");
+    const title = String(it.title || "").trim() || "Sans titre";
+    const kind = normalizeLearnKind(it.kind);
+    const lang = normalizeLearnLang(it.lang);
+    const meta = `${learnKindLabel(kind)} • ${learnLangLabel(lang)}`;
+    const style = active
+      ? ` style="border-color: rgba(255,45,120,.32); background: rgba(255,255,255,.08)"`
+      : "";
+
+    return `
+      <button class="file-box" type="button" data-la-edit="${escapeHtml(id)}"${style}>
+        <div class="file-left" style="min-width:0">
+          <div class="file-ico" aria-hidden="true">${escapeHtml(learnLangIcon(lang))}</div>
+          <div class="file-meta" style="min-width:0">
+            <div class="file-title truncate">${escapeHtml(title)}</div>
+            <div class="file-sub truncate">${escapeHtml(meta)}</div>
+          </div>
+        </div>
+        <span class="badge">Éditer</span>
+      </button>
+    `;
+  }
+
+  function setLearnAdminActiveButtons(){
+    const overlay = getLearnAdminOverlay();
+    if(!overlay) return;
+    const kindRoot = $("#learnAdminKindFilters", overlay);
+    const langRoot = $("#learnAdminLangFilters", overlay);
+    const wantKind = String(learnAdminModalState.kind || "").trim().toLowerCase();
+    const wantLang = String(learnAdminModalState.lang || "").trim().toLowerCase();
+
+    (kindRoot ? Array.from(kindRoot.querySelectorAll("[data-la-kind]")) : []).forEach(b=>{
+      const raw = String(b.getAttribute("data-la-kind") || "").trim().toLowerCase();
+      const active = !wantKind ? !raw : normalizeLearnKind(raw) === normalizeLearnKind(wantKind);
+      b.classList.toggle("primary", active);
+    });
+    (langRoot ? Array.from(langRoot.querySelectorAll("[data-la-lang]")) : []).forEach(b=>{
+      const raw = String(b.getAttribute("data-la-lang") || "").trim().toLowerCase();
+      const active = !wantLang ? !raw : normalizeLearnLang(raw) === normalizeLearnLang(wantLang);
+      b.classList.toggle("primary", active);
+    });
+  }
+
+  function filterLearnAdminItems(items){
+    const wantKind = String(learnAdminModalState.kind || "").trim().toLowerCase();
+    const wantLang = String(learnAdminModalState.lang || "").trim().toLowerCase();
+    const q = String(learnAdminModalState.q || "").trim().toLowerCase();
+
+    return (items || [])
+      .filter(it=> !wantKind || normalizeLearnKind(it.kind) === normalizeLearnKind(wantKind))
+      .filter(it=> !wantLang || normalizeLearnLang(it.lang) === normalizeLearnLang(wantLang))
+      .filter(it=>{
+        if(!q) return true;
+        const hay = `${it.title || ""}\n${it.prompt || ""}\n${it.answer || ""}`.toLowerCase();
+        return hay.includes(q);
+      });
+  }
+
+  function renderLearnAdminList(){
+    const overlay = getLearnAdminOverlay();
+    if(!overlay) return;
+    const list = $("#learnAdminList", overlay);
+    const empty = $("#learnAdminEmpty", overlay);
+    if(!list) return;
+
+    setLearnAdminActiveButtons();
+
+    const filtered = filterLearnAdminItems(learnAdminModalState.items);
+    list.innerHTML = filtered.map(it=> learnAdminRowHtml(it, { active: String(it.id) === String(learnAdminModalState.editingId) })).join("");
+    empty && empty.classList.toggle("hidden", filtered.length > 0);
+  }
+
+  async function loadLearnAdminItems(){
+    const overlay = getLearnAdminOverlay();
+    if(!overlay) return;
+
+    const modeEl = $("#learnAdminMode", overlay);
+    const company = companyFromUser();
+    learnAdminModalState.company = company;
+
+    if(!isAdmin()){
+      modeEl && (modeEl.textContent = sbEnabled ? "Supabase • Accès admin requis" : "Démo locale • Accès admin requis");
+      learnAdminModalState.items = [];
+      renderLearnAdminList();
+      setLearnAdminFormValues(null);
+      return;
+    }
+
+    if(!sbEnabled){
+      modeEl && (modeEl.textContent = "Démo locale • Gestion via localStorage");
+      const all = loadLearningItemsLocal();
+      learnAdminModalState.items = (all || []).filter(x=> String(x?.company || "") === company);
+      renderLearnAdminList();
+      if(learnAdminModalState.items.length && !learnAdminModalState.editingId){
+        learnAdminModalState.editingId = String(learnAdminModalState.items[0]?.id || "");
+        const first = learnAdminModalState.items[0] || null;
+        setLearnAdminFormValues(first);
+      }else{
+        const selected = learnAdminModalState.items.find(x=> String(x?.id || "") === String(learnAdminModalState.editingId)) || null;
+        setLearnAdminFormValues(selected);
+      }
+      return;
+    }
+
+    const uid = await sbUserId();
+    if(!uid){
+      modeEl && (modeEl.textContent = "Supabase • Non connecté");
+      learnAdminModalState.items = [];
+      renderLearnAdminList();
+      setLearnAdminFormValues(null);
+      return;
+    }
+
+    modeEl && (modeEl.textContent = "Supabase • Chargement…");
+    const res = await sb
+      .from(LEARNING_TABLE)
+      .select("id,company,author_id,kind,lang,title,prompt,answer,created_at,updated_at")
+      .eq("company", company)
+      .order("updated_at", { ascending: false })
+      .limit(250);
+
+    if(res.error){
+      const code = String(res.error?.code || "");
+      const msg = String(res.error?.message || "");
+      if(code === "42P01" || msg.toLowerCase().includes("does not exist")){
+        modeEl && (modeEl.textContent = "Supabase • Table learning_items manquante (schema.sql)");
+      }else{
+        modeEl && (modeEl.textContent = "Supabase • Erreur");
+        sbToastError("Exercices", res.error);
+      }
+      learnAdminModalState.items = [];
+      renderLearnAdminList();
+      setLearnAdminFormValues(null);
+      return;
+    }
+
+    learnAdminModalState.items = res.data || [];
+    modeEl && (modeEl.textContent = `Supabase • ${learnAdminModalState.items.length} item(s)`);
+    renderLearnAdminList();
+
+    if(learnAdminModalState.items.length && !learnAdminModalState.editingId){
+      learnAdminModalState.editingId = String(learnAdminModalState.items[0]?.id || "");
+      setLearnAdminFormValues(learnAdminModalState.items[0]);
+    }else{
+      const selected = learnAdminModalState.items.find(x=> String(x?.id || "") === String(learnAdminModalState.editingId)) || null;
+      setLearnAdminFormValues(selected);
+    }
+  }
+
+  function closeLearningAdminModal(){
+    const overlay = getLearnAdminOverlay();
+    if(!overlay) return false;
+    overlay.classList.add("hidden");
+    try{ document.body.style.overflow = learnAdminModalState.prevOverflow; }catch(e){ /* ignore */ }
+    return true;
+  }
+
+  function openLearningAdminModal(){
+    const overlay = getLearnAdminOverlay();
+    if(!overlay){
+      window.fwToast?.("Admin", "Modal exercices introuvable (learnAdminOverlay).");
+      return false;
+    }
+    bindLearningAdminModalUI();
+
+    const opening = overlay.classList.contains("hidden");
+    overlay.classList.remove("hidden");
+    if(opening){
+      try{
+        learnAdminModalState.prevOverflow = document.body.style.overflow ?? "";
+        document.body.style.overflow = "hidden";
+      }catch(e){ /* ignore */ }
+    }
+
+    loadLearnAdminItems();
+    return true;
+  }
+
+  function getLearningExampleTemplates(){
+    return [
+      {
+        kind: "exercise",
+        lang: "html",
+        title: "HTML — Carte de profil",
+        prompt: "Consigne : crée une page avec un titre, une image (placeholder) et une section 'Bio'. Ajoute un lien vers tes réseaux.\n\nObjectif : travailler la structure (header/main/section) + les liens.",
+        answer: `<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Profil</title>
+</head>
+<body>
+  <header>
+    <h1>Mon profil</h1>
+  </header>
+  <main>
+    <img src="https://via.placeholder.com/140" alt="Photo de profil"/>
+    <section>
+      <h2>Bio</h2>
+      <p>Je suis développeur web.</p>
+      <a href="https://example.com" target="_blank" rel="noopener">Mon site</a>
+    </section>
+  </main>
+</body>
+</html>`,
+      },
+      {
+        kind: "exercise",
+        lang: "css",
+        title: "CSS — Bouton glass + hover",
+        prompt: "Consigne : style un bouton en mode 'glassmorphism' avec un petit effet au survol (hover) et au clic (active).",
+        answer: `button{
+  padding: 12px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.10);
+  color: white;
+  backdrop-filter: blur(14px) saturate(1.2);
+  cursor: pointer;
+  transition: transform .08s ease, background .12s ease;
+}
+button:hover{ background: rgba(255,255,255,.14); }
+button:active{ transform: translateY(1px); }`,
+      },
+      {
+        kind: "exercise",
+        lang: "js",
+        title: "JS — Compteur",
+        prompt: "Consigne : ajoute un bouton 'Incrémenter' et un nombre. Au clic : +1.\n\nBonus : sauvegarde dans localStorage.",
+        answer: `const countEl = document.getElementById("count");
+const btn = document.getElementById("inc");
+
+let count = Number(localStorage.getItem("count") || 0);
+countEl.textContent = String(count);
+
+btn.addEventListener("click", ()=>{
+  count += 1;
+  countEl.textContent = String(count);
+  localStorage.setItem("count", String(count));
+});`,
+      },
+      {
+        kind: "exercise",
+        lang: "sql",
+        title: "SQL — Requête SELECT",
+        prompt: "Consigne : avec une table `users(id, name, email, created_at)`, récupère les 10 derniers utilisateurs créés.",
+        answer: `select id, name, email, created_at
+from users
+order by created_at desc
+limit 10;`,
+      },
+      {
+        kind: "exercise",
+        lang: "php",
+        title: "PHP — Validation email",
+        prompt: "Consigne : crée un petit script PHP qui valide un email envoyé en POST et affiche un message (OK/Erreur).",
+        answer: `<?php
+$email = $_POST["email"] ?? "";
+if(filter_var($email, FILTER_VALIDATE_EMAIL)){
+  echo "OK : " . htmlspecialchars($email);
+} else {
+  echo "Erreur : email invalide";
+}
+?>`,
+      },
+      {
+        kind: "tutorial",
+        lang: "html",
+        title: "HTML — Structure minimale",
+        prompt: "Rappel : une page HTML propre avec meta viewport + charset + un <main>.",
+        answer: `<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Ma page</title>
+</head>
+<body>
+  <main>
+    <h1>Hello</h1>
+  </main>
+</body>
+</html>`,
+      },
+      {
+        kind: "tutorial",
+        lang: "css",
+        title: "CSS — Centering (flex)",
+        prompt: "Rappel : centrer un bloc horizontalement + verticalement avec flex.",
+        answer: `.container{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height: 100vh;
+}`,
+      },
+      {
+        kind: "tutorial",
+        lang: "js",
+        title: "JS — Fetch JSON",
+        prompt: "Rappel : faire un fetch et afficher le résultat (async/await).",
+        answer: `async function load(){
+  const res = await fetch("https://jsonplaceholder.typicode.com/todos/1");
+  const data = await res.json();
+  console.log(data);
+}
+load();`,
+      },
+      {
+        kind: "tutorial",
+        lang: "sql",
+        title: "SQL — INSERT + RETURNING",
+        prompt: "Rappel : insérer une ligne et récupérer l'id (Postgres).",
+        answer: `insert into users(name, email)
+values ('Alex', 'alex@exemple.com')
+returning id;`,
+      },
+      {
+        kind: "tutorial",
+        lang: "php",
+        title: "PHP — PDO (requête préparée)",
+        prompt: "Rappel : requête préparée pour éviter l'injection SQL.",
+        answer: `<?php
+$pdo = new PDO($dsn, $user, $pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+$stmt = $pdo->prepare("select * from users where email = :email");
+$stmt->execute([":email" => $email]);
+$row = $stmt->fetch(PDO::FETCH_ASSOC);
+?>`,
+      },
+    ];
+  }
+
+  async function addLearningExamples(){
+    if(!isAdmin()){
+      window.fwToast?.("Admin", "Accès réservé.");
+      return;
+    }
+
+    const company = companyFromUser();
+    const existingKeys = new Set(
+      (learnAdminModalState.items || [])
+        .filter(x=> String(x?.company || "") === company)
+        .map(x=> `${normalizeLearnKind(x?.kind)}|${normalizeLearnLang(x?.lang)}|${String(x?.title || "").trim().toLowerCase()}`)
+    );
+
+    const templates = getLearningExampleTemplates();
+    const nowIso = new Date().toISOString();
+
+    if(!sbEnabled){
+      const all = loadLearningItemsLocal();
+      const toAdd = templates
+        .filter(t=> !existingKeys.has(`${normalizeLearnKind(t.kind)}|${normalizeLearnLang(t.lang)}|${String(t.title || "").trim().toLowerCase()}`))
+        .map(t=>({
+          id: uuid(),
+          company,
+          author_id: "local",
+          kind: normalizeLearnKind(t.kind),
+          lang: normalizeLearnLang(t.lang),
+          title: String(t.title || "").trim() || "Sans titre",
+          prompt: String(t.prompt || ""),
+          answer: String(t.answer || ""),
+          created_at: nowIso,
+          updated_at: nowIso,
+        }));
+
+      if(!toAdd.length){
+        window.fwToast?.("Exemples", "Déjà présents.");
+        return;
+      }
+
+      saveLearningItemsLocal([...all, ...toAdd]);
+      window.fwToast?.("Exemples", `${toAdd.length} item(s) ajoutés.`);
+      await loadLearnAdminItems();
+      return;
+    }
+
+    const uid = await sbUserId();
+    if(!uid){
+      window.fwToast?.("Connexion", "Reconnecte-toi puis réessaie.");
+      return;
+    }
+
+    const toInsert = templates
+      .filter(t=> !existingKeys.has(`${normalizeLearnKind(t.kind)}|${normalizeLearnLang(t.lang)}|${String(t.title || "").trim().toLowerCase()}`))
+      .map(t=>({
+        id: uuid(),
+        company,
+        author_id: uid,
+        kind: normalizeLearnKind(t.kind),
+        lang: normalizeLearnLang(t.lang),
+        title: String(t.title || "").trim() || "Sans titre",
+        prompt: String(t.prompt || ""),
+        answer: String(t.answer || ""),
+        created_at: nowIso,
+        updated_at: nowIso,
+      }));
+
+    if(!toInsert.length){
+      window.fwToast?.("Exemples", "Déjà présents.");
+      return;
+    }
+
+    window.fwToast?.("Exemples", "Insertion…");
+    const ins = await sb.from(LEARNING_TABLE).insert(toInsert);
+    if(ins.error){
+      sbToastError("Exemples", ins.error);
+      return;
+    }
+    window.fwToast?.("Exemples", `${toInsert.length} item(s) ajoutés.`);
+    await loadLearnAdminItems();
+  }
+
+  async function saveLearnAdminForm(ev){
+    ev?.preventDefault?.();
+    const overlay = getLearnAdminOverlay();
+    if(!overlay) return;
+    if(!isAdmin()){
+      window.fwToast?.("Admin", "Accès réservé.");
+      return;
+    }
+
+    const kind = normalizeLearnKind($("#learnAdminKind", overlay)?.value || "exercise");
+    const lang = normalizeLearnLang($("#learnAdminLang", overlay)?.value || "html");
+    const title = String($("#learnAdminTitle", overlay)?.value || "").trim();
+    const prompt = String($("#learnAdminPrompt", overlay)?.value || "").trim();
+    const answer = String($("#learnAdminAnswer", overlay)?.value || "").trim();
+    const company = companyFromUser();
+
+    if(!title){
+      window.fwToast?.("Titre manquant", "Ajoute un titre.");
+      return;
+    }
+
+    const nowIso = new Date().toISOString();
+    const editingId = String(learnAdminModalState.editingId || "");
+
+    if(!sbEnabled){
+      const all = loadLearningItemsLocal();
+      if(editingId){
+        const idx = all.findIndex(x=> String(x?.id || "") === editingId && String(x?.company || "") === company);
+        if(idx >= 0){
+          all[idx] = { ...all[idx], kind, lang, title, prompt, answer, updated_at: nowIso };
+          saveLearningItemsLocal(all);
+          window.fwToast?.("Enregistré", "Item mis à jour (local).");
+        }else{
+          window.fwToast?.("Introuvable", "Item non trouvé.");
+          return;
+        }
+      }else{
+        const id = uuid();
+        all.push({
+          id,
+          company,
+          author_id: "local",
+          kind,
+          lang,
+          title,
+          prompt,
+          answer,
+          created_at: nowIso,
+          updated_at: nowIso,
+        });
+        saveLearningItemsLocal(all);
+        learnAdminModalState.editingId = id;
+        window.fwToast?.("Ajouté", "Item créé (local).");
+      }
+      await loadLearnAdminItems();
+      return;
+    }
+
+    const uid = await sbUserId();
+    if(!uid){
+      window.fwToast?.("Connexion", "Reconnecte-toi puis réessaie.");
+      return;
+    }
+
+    if(editingId){
+      const up = await sb
+        .from(LEARNING_TABLE)
+        .update({ kind, lang, title, prompt, answer, updated_at: nowIso })
+        .eq("company", company)
+        .eq("id", editingId);
+      if(up.error){
+        sbToastError("Enregistrer", up.error);
+        return;
+      }
+      window.fwToast?.("Enregistré", "Item mis à jour.");
+    }else{
+      const id = uuid();
+      const ins = await sb
+        .from(LEARNING_TABLE)
+        .insert({ id, company, author_id: uid, kind, lang, title, prompt, answer, created_at: nowIso, updated_at: nowIso });
+      if(ins.error){
+        sbToastError("Créer", ins.error);
+        return;
+      }
+      learnAdminModalState.editingId = id;
+      window.fwToast?.("Ajouté", "Item créé.");
+    }
+
+    await loadLearnAdminItems();
+  }
+
+  async function deleteLearnAdminItem(){
+    const overlay = getLearnAdminOverlay();
+    if(!overlay) return;
+    if(!isAdmin()){
+      window.fwToast?.("Admin", "Accès réservé.");
+      return;
+    }
+
+    const id = String(learnAdminModalState.editingId || "");
+    if(!id){
+      window.fwToast?.("Sélection", "Choisis un item.");
+      return;
+    }
+
+    const ok = confirm("Supprimer cet item ?");
+    if(!ok) return;
+
+    const company = companyFromUser();
+
+    if(!sbEnabled){
+      const all = loadLearningItemsLocal().filter(x=> !(String(x?.id || "") === id && String(x?.company || "") === company));
+      saveLearningItemsLocal(all);
+      learnAdminModalState.editingId = "";
+      setLearnAdminFormValues(null);
+      window.fwToast?.("Supprimé", "Item supprimé (local).");
+      await loadLearnAdminItems();
+      return;
+    }
+
+    const del = await sb
+      .from(LEARNING_TABLE)
+      .delete()
+      .eq("company", company)
+      .eq("id", id);
+    if(del.error){
+      sbToastError("Supprimer", del.error);
+      return;
+    }
+    learnAdminModalState.editingId = "";
+    setLearnAdminFormValues(null);
+    window.fwToast?.("Supprimé", "Item supprimé.");
+    await loadLearnAdminItems();
+  }
+
+  function bindLearningAdminModalUI(){
+    const overlay = getLearnAdminOverlay();
+    if(!overlay || learnAdminModalState.bound) return;
+    learnAdminModalState.bound = true;
+
+    overlay.addEventListener("click", (e)=>{
+      if(e.target === overlay) closeLearningAdminModal();
+    });
+    $("[data-learn-admin-close]", overlay)?.addEventListener("click", ()=> closeLearningAdminModal());
+
+    window.addEventListener("keydown", (e)=>{
+      if(e.key !== "Escape") return;
+      if(overlay.classList.contains("hidden")) return;
+      closeLearningAdminModal();
+    });
+
+    $("#learnAdminNew", overlay)?.addEventListener("click", ()=>{
+      learnAdminModalState.editingId = "";
+      setLearnAdminFormValues(null);
+      renderLearnAdminList();
+      $("#learnAdminTitle", overlay)?.focus?.();
+    });
+
+    $("#learnAdminSeed", overlay)?.addEventListener("click", ()=> addLearningExamples());
+
+    $("#learnAdminSearch", overlay)?.addEventListener("input", ()=>{
+      learnAdminModalState.q = String($("#learnAdminSearch", overlay)?.value || "");
+      renderLearnAdminList();
+    });
+
+    $("#learnAdminKindFilters", overlay)?.addEventListener("click", (e)=>{
+      const btn = e.target.closest("[data-la-kind]");
+      if(!btn) return;
+      learnAdminModalState.kind = String(btn.getAttribute("data-la-kind") || "");
+      renderLearnAdminList();
+    });
+
+    $("#learnAdminLangFilters", overlay)?.addEventListener("click", (e)=>{
+      const btn = e.target.closest("[data-la-lang]");
+      if(!btn) return;
+      learnAdminModalState.lang = String(btn.getAttribute("data-la-lang") || "");
+      renderLearnAdminList();
+    });
+
+    $("#learnAdminList", overlay)?.addEventListener("click", (e)=>{
+      const id = e.target.closest("[data-la-edit]")?.getAttribute("data-la-edit") || "";
+      if(!id) return;
+      learnAdminModalState.editingId = id;
+      const it = (learnAdminModalState.items || []).find(x=> String(x?.id || "") === id) || null;
+      setLearnAdminFormValues(it);
+      renderLearnAdminList();
+    });
+
+    $("#learnAdminForm", overlay)?.addEventListener("submit", saveLearnAdminForm);
+    $("#learnAdminDelete", overlay)?.addEventListener("click", deleteLearnAdminItem);
+  }
+
   function countChannelsLocal(map){
     const m = map || {};
     const keys = ["public", "private", "voice"];
@@ -3592,10 +4830,11 @@
     `;
   }
 
-  function adminDashboardHtml({ modeLabel, rolesCount, membersCount, channelsCount, postsCount, tutPostsCount, recentPosts, recentTutPosts }){
+  function adminDashboardHtml({ modeLabel, rolesCount, membersCount, channelsCount, postsCount, tutPostsCount, learnCount, recentPosts, recentTutPosts }){
     const mode = modeLabel ? ` • ${modeLabel}` : "";
     const posts = Array.isArray(recentPosts) ? recentPosts : [];
     const tuts = Array.isArray(recentTutPosts) ? recentTutPosts : [];
+    const learnTotal = Number.isFinite(Number(learnCount)) ? Number(learnCount) : 0;
 
     return `
       <div class="badge">Admin</div>
@@ -3605,6 +4844,7 @@
           <p class="page-sub">Gère FaceWork depuis ici${escapeHtml(mode)}.</p>
         </div>
         <div class="row" style="gap:8px; flex-wrap:wrap">
+          <button class="btn small" type="button" data-admin-action="manageLearning">🧠 Gérer exercices</button>
           <button class="btn small primary" type="button" data-admin-action="createRole">＋ Rôle</button>
           <button class="btn small" type="button" data-admin-action="createMember">＋ Membre</button>
         </div>
@@ -3618,6 +4858,7 @@
         <span class="pill">Canaux: <strong>${escapeHtml(String(channelsCount ?? 0))}</strong></span>
         <span class="pill">Publications: <strong>${escapeHtml(String(postsCount ?? 0))}</strong></span>
         <span class="pill">Posts tutoriel: <strong>${escapeHtml(String(tutPostsCount ?? 0))}</strong></span>
+        <span class="pill">Exercices/tutos: <strong>${escapeHtml(String(learnTotal))}</strong></span>
       </div>
 
       <div class="spacer" style="height:14px"></div>
@@ -3705,6 +4946,10 @@
           return;
         }
         btn?.click?.();
+        return;
+      }
+      if(action === "manageLearning"){
+        openLearningAdminModal();
         return;
       }
 
@@ -4058,6 +5303,8 @@
     if(type === "dash"){
       const postsAll = loadPosts();
       const tutsAll = loadTutorialPosts();
+      const company = companyFromUser();
+      const learnAll = loadLearningItemsLocal().filter(x=> String(x?.company || "") === company);
       const recentPosts = postsAll
         .slice()
         .reverse()
@@ -4086,6 +5333,7 @@
         channelsCount: countChannelsLocal(loadChannels()),
         postsCount: postsAll.length,
         tutPostsCount: tutsAll.length,
+        learnCount: learnAll.length,
         recentPosts,
         recentTutPosts: recentTuts,
       });
@@ -4446,11 +5694,12 @@
       let postsCount = 0;
       let tutPostsCount = 0;
       let channelsCount = 0;
+      let learnCount = 0;
 
       let posts = [];
       let tuts = [];
 
-      const [postsRes, tutsRes, chansRes] = await Promise.all([
+      const [postsRes, tutsRes, chansRes, learnRes] = await Promise.all([
         sb
           .from("posts")
           .select("id,title,created_at,author_id", { count: "exact" })
@@ -4465,6 +5714,10 @@
           .limit(5),
         sb
           .from("channels")
+          .select("id", { count: "exact", head: true })
+          .eq("company", company),
+        sb
+          .from(LEARNING_TABLE)
           .select("id", { count: "exact", head: true })
           .eq("company", company),
       ]);
@@ -4492,6 +5745,16 @@
         sbToastError("Canaux", chansRes.error);
       }else{
         channelsCount = Number.isFinite(chansRes.count) ? chansRes.count : 0;
+      }
+
+      if(learnRes?.error){
+        const code = String(learnRes.error?.code || "");
+        const msg = String(learnRes.error?.message || "");
+        if(code !== "42P01" && !msg.toLowerCase().includes("does not exist")){
+          sbToastError("Exercices", learnRes.error);
+        }
+      }else{
+        learnCount = Number.isFinite(learnRes.count) ? learnRes.count : 0;
       }
 
       const authorIds = Array.from(new Set(
@@ -4533,6 +5796,7 @@
         channelsCount,
         postsCount,
         tutPostsCount,
+        learnCount,
         recentPosts,
         recentTutPosts: recentTuts,
       });
