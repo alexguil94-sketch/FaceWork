@@ -229,6 +229,38 @@
       list.appendChild(clone);
     });
 
+    function addSideLink(label, href){
+      if(!list || !href) return;
+
+      let targetPath = "";
+      try{
+        targetPath = canonPath(new URL(href, window.location.href).pathname);
+      }catch(e){
+        return;
+      }
+
+      const exists = Array.from(list.querySelectorAll("a.side-link")).some(el=>{
+        const h = el.getAttribute("href");
+        if(!h) return false;
+        try{
+          return canonPath(new URL(h, window.location.href).pathname) === targetPath;
+        }catch(e){
+          return false;
+        }
+      });
+      if(exists) return;
+
+      const a = document.createElement("a");
+      a.className = "side-link";
+      a.href = href;
+      a.textContent = label;
+      if(targetPath === currentPath) a.classList.add("active");
+      list.appendChild(a);
+    }
+
+    // Global shortcuts (some pages don't show these in the top nav)
+    addSideLink("Exercices", `${relPrefix()}exercices.html`);
+
     let prevOverflow = "";
     function open(){
       if(!overlay.classList.contains("hidden")) return;
