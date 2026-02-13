@@ -3460,178 +3460,33 @@
   function seedLearningItemsIfEmpty(){
     const existing = loadLearningItemsLocal();
     const company = companyFromUser();
-    const hasCompany = existing.some(x=> String(x?.company || "") === company);
-    if(existing.length && hasCompany) return existing;
+    const key = (kind, lang, title)=> `${normalizeLearnKind(kind)}|${normalizeLearnLang(lang)}|${String(title || "").trim().toLowerCase()}`;
+    const existingKeys = new Set(
+      (existing || [])
+        .filter(x=> String(x?.company || "") === company)
+        .map(x=> key(x?.kind, x?.lang, x?.title))
+    );
 
+    const templates = getLearningExampleTemplates();
     const nowIso = new Date().toISOString();
-    const mk = (kind, lang, title, prompt, answer)=>({
-      id: uuid(),
-      company,
-      author_id: "local",
-      kind,
-      lang,
-      title,
-      prompt,
-      answer,
-      created_at: nowIso,
-      updated_at: nowIso,
-    });
+    const toAdd = (templates || [])
+      .filter(t=> !existingKeys.has(key(t?.kind, t?.lang, t?.title)))
+      .map(t=>({
+        id: uuid(),
+        company,
+        author_id: "local",
+        kind: normalizeLearnKind(t?.kind),
+        lang: normalizeLearnLang(t?.lang),
+        title: String(t?.title || "").trim() || "Sans titre",
+        prompt: String(t?.prompt || ""),
+        answer: String(t?.answer || ""),
+        created_at: nowIso,
+        updated_at: nowIso,
+      }));
 
-    const items = [
-      mk(
-        "exercise",
-        "html",
-        "HTML — Carte de profil",
-        "Consigne : crée une page avec un titre, une image (placeholder) et une section 'Bio'. Ajoute un lien vers tes réseaux.\n\nObjectif : travailler la structure (header/main/section) + les liens.",
-        `<!doctype html>
-<html lang="fr">
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Profil</title>
-</head>
-<body>
-  <header>
-    <h1>Mon profil</h1>
-  </header>
-  <main>
-    <img src="https://via.placeholder.com/140" alt="Photo de profil"/>
-    <section>
-      <h2>Bio</h2>
-      <p>Je suis développeur web.</p>
-      <a href="https://example.com" target="_blank" rel="noopener">Mon site</a>
-    </section>
-  </main>
-</body>
-</html>`
-      ),
-      mk(
-        "exercise",
-        "css",
-        "CSS — Bouton glass + hover",
-        "Consigne : style un bouton en mode 'glassmorphism' avec un petit effet au survol (hover) et au clic (active).",
-        `button{
-  padding: 12px 16px;
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,.18);
-  background: rgba(255,255,255,.10);
-  color: white;
-  backdrop-filter: blur(14px) saturate(1.2);
-  cursor: pointer;
-  transition: transform .08s ease, background .12s ease;
-}
-button:hover{ background: rgba(255,255,255,.14); }
-button:active{ transform: translateY(1px); }`
-      ),
-      mk(
-        "exercise",
-        "js",
-        "JS — Compteur",
-        "Consigne : ajoute un bouton 'Incrémenter' et un nombre. Au clic : +1.\n\nBonus : sauvegarde dans localStorage.",
-        `const countEl = document.getElementById("count");
-const btn = document.getElementById("inc");
+    if(!toAdd.length) return existing;
 
-let count = Number(localStorage.getItem("count") || 0);
-countEl.textContent = String(count);
-
-btn.addEventListener("click", ()=>{
-  count += 1;
-  countEl.textContent = String(count);
-  localStorage.setItem("count", String(count));
-});`
-      ),
-      mk(
-        "exercise",
-        "sql",
-        "SQL — Requête SELECT",
-        "Consigne : avec une table `users(id, name, email, created_at)`, récupère les 10 derniers utilisateurs créés.",
-        `select id, name, email, created_at
-from users
-order by created_at desc
-limit 10;`
-      ),
-      mk(
-        "exercise",
-        "php",
-        "PHP — Validation email",
-        "Consigne : crée un petit script PHP qui valide un email envoyé en POST et affiche un message (OK/Erreur).",
-        `<?php
-$email = $_POST["email"] ?? "";
-if(filter_var($email, FILTER_VALIDATE_EMAIL)){
-  echo "OK : " . htmlspecialchars($email);
-} else {
-  echo "Erreur : email invalide";
-}
-?>`
-      ),
-
-      mk(
-        "tutorial",
-        "html",
-        "HTML — Structure minimale",
-        "Rappel : une page HTML propre avec meta viewport + charset + un <main>.",
-        `<!doctype html>
-<html lang="fr">
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Ma page</title>
-</head>
-<body>
-  <main>
-    <h1>Hello</h1>
-  </main>
-</body>
-</html>`
-      ),
-      mk(
-        "tutorial",
-        "css",
-        "CSS — Centering (flex)",
-        "Rappel : centrer un bloc horizontalement + verticalement avec flex.",
-        `.container{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  min-height: 100vh;
-}`
-      ),
-      mk(
-        "tutorial",
-        "js",
-        "JS — Fetch JSON",
-        "Rappel : faire un fetch et afficher le résultat (async/await).",
-        `async function load(){
-  const res = await fetch("https://jsonplaceholder.typicode.com/todos/1");
-  const data = await res.json();
-  console.log(data);
-}
-load();`
-      ),
-      mk(
-        "tutorial",
-        "sql",
-        "SQL — INSERT + RETURNING",
-        "Rappel : insérer une ligne et récupérer l'id (Postgres).",
-        `insert into users(name, email)
-values ('Alex', 'alex@exemple.com')
-returning id;`
-      ),
-      mk(
-        "tutorial",
-        "php",
-        "PHP — PDO (requête préparée)",
-        "Rappel : requête préparée pour éviter l'injection SQL.",
-        `<?php
-$pdo = new PDO($dsn, $user, $pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
-$stmt = $pdo->prepare("select * from users where email = :email");
-$stmt->execute([":email" => $email]);
-$row = $stmt->fetch(PDO::FETCH_ASSOC);
-?>`
-      ),
-    ];
-
-    const merged = [...existing, ...items];
+    const merged = [...existing, ...toAdd];
     saveLearningItemsLocal(merged);
     return merged;
   }
@@ -4351,6 +4206,89 @@ ${s}
       },
       {
         kind: "exercise",
+        lang: "html",
+        title: "HTML — Formulaire de contact",
+        prompt: "Consigne : crée un formulaire (nom, email, message) avec des labels accessibles et un bouton Envoyer.\n\nBonus : ajoute `required` et un petit texte d'aide.",
+        answer: `<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Contact</title>
+</head>
+<body>
+  <main>
+    <h1>Contact</h1>
+    <p id="help">Tous les champs sont obligatoires.</p>
+
+    <form method="post" aria-describedby="help">
+      <p>
+        <label for="name">Nom</label><br/>
+        <input id="name" name="name" type="text" autocomplete="name" required/>
+      </p>
+
+      <p>
+        <label for="email">Email</label><br/>
+        <input id="email" name="email" type="email" autocomplete="email" required/>
+      </p>
+
+      <p>
+        <label for="msg">Message</label><br/>
+        <textarea id="msg" name="message" rows="6" required></textarea>
+      </p>
+
+      <button type="submit">Envoyer</button>
+    </form>
+  </main>
+</body>
+</html>`,
+      },
+      {
+        kind: "exercise",
+        lang: "html",
+        title: "HTML — Page article (sémantique)",
+        prompt: "Consigne : crée une page avec `header`, `nav`, `main`, `article`, `aside` et `footer`.\n\nObjectif : utiliser la sémantique HTML.",
+        answer: `<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Article</title>
+</head>
+<body>
+  <header>
+    <h1>Mon blog</h1>
+    <nav aria-label="Navigation principale">
+      <a href="#">Accueil</a> · <a href="#">Articles</a> · <a href="#">Contact</a>
+    </nav>
+  </header>
+
+  <main>
+    <article>
+      <h2>Pourquoi apprendre le web</h2>
+      <p>Un article court pour s'entraîner à structurer une page.</p>
+      <h3>Points clés</h3>
+      <ul>
+        <li>HTML pour la structure</li>
+        <li>CSS pour le style</li>
+        <li>JS pour l'interaction</li>
+      </ul>
+    </article>
+
+    <aside>
+      <h2>À propos</h2>
+      <p>Quelques infos sur l'auteur.</p>
+    </aside>
+  </main>
+
+  <footer>
+    <small>© 2026</small>
+  </footer>
+</body>
+</html>`,
+      },
+      {
+        kind: "exercise",
         lang: "css",
         title: "CSS — Bouton glass + hover",
         prompt: "Consigne : style un bouton en mode 'glassmorphism' avec un petit effet au survol (hover) et au clic (active).",
@@ -4366,6 +4304,41 @@ ${s}
 }
 button:hover{ background: rgba(255,255,255,.14); }
 button:active{ transform: translateY(1px); }`,
+      },
+      {
+        kind: "exercise",
+        lang: "css",
+        title: "CSS — Carte responsive",
+        prompt: "Consigne : crée une carte (card) avec une ombre douce, un titre, un texte, et une image. La carte doit être responsive (max-width).",
+        answer: `.card{
+  max-width: 520px;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 18px;
+  overflow:hidden;
+  background: rgba(255,255,255,.06);
+  box-shadow: 0 14px 40px rgba(0,0,0,.35);
+}
+.card img{ width:100%; display:block; }
+.card .body{ padding: 16px; }
+.card h2{ margin: 0 0 6px; }
+.card p{ margin: 0; opacity: .85; }`,
+      },
+      {
+        kind: "exercise",
+        lang: "css",
+        title: "CSS — Galerie en grid",
+        prompt: "Consigne : crée une grille responsive de cartes ou d'images (grid). Objectif : utiliser `display:grid` + `auto-fit`.",
+        answer: `.grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+.tile{
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.06);
+  min-height: 110px;
+}`,
       },
       {
         kind: "exercise",
@@ -4386,6 +4359,99 @@ btn.addEventListener("click", ()=>{
       },
       {
         kind: "exercise",
+        lang: "js",
+        title: "JS — Todo list (DOM + localStorage)",
+        prompt: "Consigne : crée une todo list. Ajout + suppression d'une tâche.\n\nHTML attendu : un input `#todoInput`, un bouton `#todoAdd`, une liste `#todoList`.",
+        answer: `const KEY = "todos_v1";
+const input = document.getElementById("todoInput");
+const addBtn = document.getElementById("todoAdd");
+const list = document.getElementById("todoList");
+
+let items = [];
+try{ items = JSON.parse(localStorage.getItem(KEY) || "[]"); }catch(e){ items = []; }
+
+function save(){
+  localStorage.setItem(KEY, JSON.stringify(items));
+}
+function render(){
+  list.innerHTML = "";
+  items.forEach((text, idx)=>{
+    const li = document.createElement("li");
+    li.style.display = "flex";
+    li.style.gap = "8px";
+    li.style.alignItems = "center";
+
+    const span = document.createElement("span");
+    span.textContent = text;
+
+    const del = document.createElement("button");
+    del.type = "button";
+    del.textContent = "Supprimer";
+    del.addEventListener("click", ()=>{
+      items.splice(idx, 1);
+      save();
+      render();
+    });
+
+    li.appendChild(span);
+    li.appendChild(del);
+    list.appendChild(li);
+  });
+}
+
+addBtn.addEventListener("click", ()=>{
+  const v = input.value.trim();
+  if(!v) return;
+  items.push(v);
+  input.value = "";
+  save();
+  render();
+});
+
+render();`,
+      },
+      {
+        kind: "exercise",
+        lang: "js",
+        title: "JS — Chronomètre",
+        prompt: "Consigne : crée un chronomètre start/stop/reset.\n\nHTML attendu : un affichage `#time` + boutons `#start`, `#stop`, `#reset`.",
+        answer: `const out = document.getElementById("time");
+const startBtn = document.getElementById("start");
+const stopBtn = document.getElementById("stop");
+const resetBtn = document.getElementById("reset");
+
+let seconds = 0;
+let timer = null;
+
+function fmt(sec){
+  const m = String(Math.floor(sec / 60)).padStart(2, "0");
+  const s = String(sec % 60).padStart(2, "0");
+  return m + ":" + s;
+}
+function draw(){
+  out.textContent = fmt(seconds);
+}
+
+startBtn.addEventListener("click", ()=>{
+  if(timer) return;
+  timer = setInterval(()=>{
+    seconds += 1;
+    draw();
+  }, 1000);
+});
+stopBtn.addEventListener("click", ()=>{
+  clearInterval(timer);
+  timer = null;
+});
+resetBtn.addEventListener("click", ()=>{
+  seconds = 0;
+  draw();
+});
+
+draw();`,
+      },
+      {
+        kind: "exercise",
         lang: "sql",
         title: "SQL — Requête SELECT",
         prompt: "Consigne : avec une table `users(id, name, email, created_at)`, récupère les 10 derniers utilisateurs créés.",
@@ -4393,6 +4459,28 @@ btn.addEventListener("click", ()=>{
 from users
 order by created_at desc
 limit 10;`,
+      },
+      {
+        kind: "exercise",
+        lang: "sql",
+        title: "SQL — JOIN users / orders",
+        prompt: "Consigne : avec `users(id, name)` et `orders(id, user_id, total, created_at)`, affiche les 20 dernières commandes avec le nom de l'utilisateur.",
+        answer: `select o.id, o.total, o.created_at, u.name as user_name
+from orders o
+join users u on u.id = o.user_id
+order by o.created_at desc
+limit 20;`,
+      },
+      {
+        kind: "exercise",
+        lang: "sql",
+        title: "SQL — GROUP BY (ventes par jour)",
+        prompt: "Consigne : avec `orders(total, created_at)`, calcule le total des ventes par jour. Garde seulement les jours > 1000.",
+        answer: `select date(created_at) as day, sum(total) as total_sales
+from orders
+group by date(created_at)
+having sum(total) > 1000
+order by day desc;`,
       },
       {
         kind: "exercise",
@@ -4406,6 +4494,59 @@ if(filter_var($email, FILTER_VALIDATE_EMAIL)){
 } else {
   echo "Erreur : email invalide";
 }
+?>`,
+      },
+      {
+        kind: "exercise",
+        lang: "php",
+        title: "PHP — PDO INSERT (CRUD)",
+        prompt: "Consigne : insère un post en base via PDO (requête préparée) avec des champs `title` et `body` envoyés en POST.\n\nPrérequis : une variable `$pdo` connectée + une table `posts(id, title, body)`.",
+        answer: `<?php
+$title = trim($_POST["title"] ?? "");
+$body = trim($_POST["body"] ?? "");
+if($title === ""){
+  die("Titre obligatoire");
+}
+
+$stmt = $pdo->prepare("insert into posts(title, body) values(:title, :body) returning id");
+$stmt->execute([
+  ":title" => $title,
+  ":body" => $body,
+]);
+
+$id = $stmt->fetchColumn();
+echo "OK, id=" . htmlspecialchars((string)$id);
+?>`,
+      },
+      {
+        kind: "exercise",
+        lang: "php",
+        title: "PHP — Upload fichier (validation)",
+        prompt: "Consigne : accepte un fichier via `input type=file name=file`. Autorise jpg/png/pdf et 2MB max. Sauvegarde dans `/uploads` avec un nom aléatoire.",
+        answer: `<?php
+if(!isset($_FILES["file"]) || $_FILES["file"]["error"] !== UPLOAD_ERR_OK){
+  die("Aucun fichier");
+}
+
+$f = $_FILES["file"];
+if($f["size"] > 2 * 1024 * 1024){
+  die("Trop gros (max 2MB)");
+}
+
+$ext = strtolower(pathinfo($f["name"] ?? "", PATHINFO_EXTENSION));
+$allowed = ["jpg","jpeg","png","pdf"];
+if(!in_array($ext, $allowed, true)){
+  die("Type interdit");
+}
+
+$dir = __DIR__ . "/uploads";
+if(!is_dir($dir)) mkdir($dir, 0777, true);
+
+$name = bin2hex(random_bytes(8)) . "." . $ext;
+$dest = $dir . "/" . $name;
+move_uploaded_file($f["tmp_name"], $dest);
+
+echo "OK";
 ?>`,
       },
       {

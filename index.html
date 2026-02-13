@@ -6,7 +6,7 @@
   <title>FaceWork — Réseau social inter‑entreprise</title>
   <link rel="stylesheet" href="css/style.css"/>
 </head>
-<body>
+<body id="top">
   <header class="navbar">
     <div class="container inner">
       <a class="brand" href="index.html" aria-label="FaceWork accueil">
@@ -16,13 +16,6 @@
           <div style="color:var(--muted); font-size:12px; font-weight:800">Le réseau social inter‑entreprise</div>
         </div>
       </a>
-
-      <nav class="navlinks" aria-label="Navigation">
-        <a href="#features">Fonctionnalités</a>
-        <a href="#about">À propos</a>
-        <a href="langages.html">Langages</a>
-        <a href="#contact">Contact</a>
-      </nav>
 
       <div class="nav-actions">
         <button class="btn icon" data-theme-toggle title="Basculer thème">🌓</button>
@@ -48,8 +41,7 @@
       </p>
 
       <div class="hero-actions">
-        <a class="btn primary" href="login.html">Démarrer gratuitement</a>
-        <a class="btn" href="#features">En savoir plus</a>
+        <a class="btn primary" href="login.html">Commencer</a>
       </div>
 
       <div class="stats" aria-label="Statistiques">
@@ -107,7 +99,7 @@
     <section class="cta">
       <h3>Prêt à commencer ?</h3>
       <p>Rejoignez des milliers de professionnels qui utilisent déjà FaceWork.</p>
-      <a class="btn primary" href="login.html">Commencer maintenant</a>
+      <a class="btn primary" href="login.html">Commencer</a>
     </section>
 
     <footer class="footer">
@@ -116,11 +108,13 @@
           <div style="font-weight:950; color:var(--text)">FaceWork</div>
           <div style="margin-top:6px">Plateforme de communication inter‑entreprise — démo statique HTML/CSS/JS.</div>
         </div>
-        <div class="col" style="gap:8px">
-          <div class="badge">Liens</div>
-          <a href="login.html">Connexion</a>
-          <a href="langages.html">Langages</a>
-          <a href="app/feed.html">Accéder à l’app</a>
+        <div class="col" style="gap:10px; max-width: 520px">
+          <div class="badge">Contact</div>
+          <div class="muted">Email : contact@votre-entreprise.fr</div>
+          <div class="muted">Téléphone : +33 6 00 00 00 00</div>
+          <div class="muted">Support : Lun–Ven • 9h–18h</div>
+          <div class="spacer" style="height:6px"></div>
+          <a class="btn small" href="#top">↑ Remonter la page</a>
         </div>
       </div>
     </footer>
