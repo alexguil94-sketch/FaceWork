@@ -313,6 +313,91 @@ html[data-theme="light"] .logo{
 .navlinks a:hover{opacity:1; text-decoration:none}
 .nav-actions{display:flex; align-items:center; gap:10px}
 
+/* Side drawer menu (replaces top nav buttons) */
+body.has-sidemenu .navlinks,
+body.has-sidemenu .appnav{
+  display:none !important;
+}
+
+.side-overlay{
+  position: fixed;
+  inset: 0;
+  z-index: 96;
+  background: rgba(0,0,0,.62);
+  display:flex;
+  justify-content:flex-start;
+}
+.side-drawer{
+  width: min(360px, 86vw);
+  height: 100%;
+  display:flex;
+  flex-direction:column;
+  border-right: 1px solid var(--stroke);
+  background: rgba(10,10,25,.78);
+  backdrop-filter: blur(16px) saturate(1.15);
+  -webkit-backdrop-filter: blur(16px) saturate(1.15);
+  box-shadow: 18px 0 44px rgba(0,0,0,.35);
+  transform: translateX(-102%);
+  transition: transform .18s ease;
+}
+html[data-theme="light"] .side-drawer{
+  background: rgba(255,255,255,.82);
+  box-shadow: 18px 0 44px rgba(32,18,72,.18);
+}
+.side-overlay.open .side-drawer{transform: translateX(0)}
+.side-head{
+  padding: 14px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 10px;
+  border-bottom: 1px solid var(--stroke);
+}
+.side-brand{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  min-width: 0;
+}
+.side-brand .t{font-weight: 950; letter-spacing:-.2px; white-space:nowrap}
+.side-brand .s{font-size: 12px; color: var(--muted); font-weight: 850; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.side-links{
+  padding: 12px 12px 16px;
+  display:flex;
+  flex-direction:column;
+  gap: 8px;
+  overflow:auto;
+  flex: 1;
+}
+.side-link{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  padding: 12px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--stroke);
+  background: rgba(255,255,255,.06);
+  color: var(--text);
+  font-weight: 820;
+  text-decoration:none;
+}
+html[data-theme="light"] .side-link{background: rgba(255,255,255,.72)}
+.side-link:hover{
+  text-decoration:none;
+  background: rgba(255,255,255,.10);
+}
+html[data-theme="light"] .side-link:hover{background: rgba(20,16,45,.05)}
+.side-link.active{
+  border-color: rgba(255,45,120,.35);
+  box-shadow: 0 0 0 3px rgba(255,45,120,.14);
+}
+html[data-theme="light"] .side-link.active{
+  border-color: rgba(0,245,255,.35);
+  box-shadow:
+    0 0 0 3px rgba(0,245,255,.16),
+    0 0 28px rgba(162,89,255,.10);
+}
+
 /* Hero */
 .hero{
   padding: 62px 0 26px;

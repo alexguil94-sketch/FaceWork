@@ -149,6 +149,132 @@
     }
   });
 
+  // ---------- Side menu (drawer)
+  function relPrefix(){
+    const p = window.location.pathname || "";
+    const inSubdir =
+      p.includes("/app/") ||
+      p.includes("/guides/") ||
+      p.includes("/tutos/") ||
+      p.includes("/exercices/") ||
+      p.includes("/langages/");
+    return inSubdir ? "../" : "";
+  }
+
+  function initSideMenu(){
+    const header = document.querySelector(".appbar, .navbar");
+    if(!header) return;
+
+    const isAppHeader = header.classList.contains("appbar");
+    const linksRoot = isAppHeader ? header.querySelector(".appnav") : header.querySelector(".navlinks");
+    const target = isAppHeader ? header.querySelector(".userbox") : header.querySelector(".nav-actions");
+    if(!target || !linksRoot) return;
+    if(document.querySelector("[data-side-overlay]")) return;
+
+    document.body.classList.add("has-sidemenu");
+
+    const btn = document.createElement("button");
+    btn.className = "btn icon";
+    btn.type = "button";
+    btn.textContent = "☰";
+    btn.title = "Menu";
+    btn.setAttribute("aria-label", "Ouvrir le menu");
+    btn.setAttribute("data-side-open", "1");
+    target.insertBefore(btn, target.firstChild);
+
+    const overlay = document.createElement("div");
+    overlay.className = "side-overlay hidden";
+    overlay.setAttribute("data-side-overlay", "1");
+    overlay.innerHTML = `
+      <div class="side-drawer" role="dialog" aria-modal="true" aria-label="Menu">
+        <div class="side-head">
+          <div class="side-brand">
+            <div class="logo" aria-hidden="true" style="width:34px;height:34px;border-radius:12px">
+              <img src="${relPrefix()}assets/fw-logo.png" alt=""/>
+            </div>
+            <div style="display:flex; flex-direction:column; min-width:0">
+              <div class="t">FaceWork</div>
+              <div class="s">${escapeHtml(isAppHeader ? (getUser()?.company || "Entreprise") : "Menu")}</div>
+            </div>
+          </div>
+          <button class="btn icon ghost" type="button" title="Fermer" aria-label="Fermer" data-side-close>✕</button>
+        </div>
+        <div class="side-links" data-side-links></div>
+        ${isAppHeader ? `<div class="side-links" style="padding-top:0">
+          <button class="btn danger block" type="button" data-side-logout>Déconnexion</button>
+        </div>` : ""}
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    const list = overlay.querySelector("[data-side-links]");
+    const closeBtn = overlay.querySelector("[data-side-close]");
+    const logoutBtn = overlay.querySelector("[data-side-logout]");
+
+    const links = Array.from(linksRoot.querySelectorAll("a[href]"));
+    links.forEach(a=>{
+      const clone = a.cloneNode(true);
+      clone.classList.remove("active");
+      clone.classList.add("side-link");
+      clone.removeAttribute("data-app-nav");
+
+      const href = clone.getAttribute("href") || "";
+      try{
+        const u = new URL(href, window.location.href);
+        if(!u.hash && canonPath(u.pathname) === currentPath){
+          clone.classList.add("active");
+        }
+      }catch(e){ /* ignore */ }
+
+      list.appendChild(clone);
+    });
+
+    let prevOverflow = "";
+    function open(){
+      if(!overlay.classList.contains("hidden")) return;
+      prevOverflow = document.body.style.overflow ?? "";
+      document.body.style.overflow = "hidden";
+      overlay.classList.remove("hidden");
+      requestAnimationFrame(()=> overlay.classList.add("open"));
+      btn.setAttribute("aria-expanded", "true");
+    }
+    function close(){
+      if(overlay.classList.contains("hidden")) return;
+      overlay.classList.remove("open");
+      btn.setAttribute("aria-expanded", "false");
+      const done = ()=>{
+        overlay.classList.add("hidden");
+        document.body.style.overflow = prevOverflow;
+      };
+      window.setTimeout(done, 210);
+    }
+
+    btn.addEventListener("click", open);
+    closeBtn && closeBtn.addEventListener("click", close);
+    logoutBtn && logoutBtn.addEventListener("click", ()=>{ close(); logout(); });
+    overlay.addEventListener("click", (e)=>{
+      if(e.target === overlay) close();
+      const link = e.target.closest("a.side-link");
+      if(link) close();
+    });
+    window.addEventListener("keydown", (e)=>{
+      if(e.key === "Escape" && !overlay.classList.contains("hidden")) close();
+    });
+
+    btn.setAttribute("aria-expanded", "false");
+  }
+
+  function escapeHtml(s){
+    return String(s ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll("\"", "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  initSideMenu();
+
   // ---------- Toast
   const toast = document.querySelector(".toast");
   window.fwToast = function(title, desc){
