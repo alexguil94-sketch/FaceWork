@@ -81,19 +81,38 @@
   // Logout buttons
   $$("[data-logout]").forEach(b=>b.addEventListener("click", ()=> logout()));
 
-  // ---------- Guard app pages
-  function isAppPage(){
-    return window.location.pathname.includes("/app/") || window.location.pathname.endsWith("/app");
+  // ---------- Guard (protected pages)
+  function isProtectedPage(){
+    const path = canonPath(window.location.pathname);
+    if(path === "/login") return false;
+    if(path.startsWith("/app")) return true;
+    if(path === "/tutoriel") return true;
+    if(path.startsWith("/guides/")) return true;
+    if(path === "/tutos") return true;
+    if(path.startsWith("/tutos/")) return true;
+    return false;
   }
-  if(isAppPage()){
-    const base = window.location.pathname.includes("/app/") ? "../login.html" : "login.html";
+
+  function loginRedirectHref(){
+    const p = window.location.pathname || "";
+    const inSubdir =
+      p.includes("/app/") ||
+      p.includes("/guides/") ||
+      p.includes("/tutos/") ||
+      p.includes("/exercices/") ||
+      p.includes("/langages/");
+    return inSubdir ? "../login.html" : "login.html";
+  }
+
+  if(isProtectedPage()){
+    const redirectTo = loginRedirectHref();
     if(window.fwSupabase?.enabled){
       // async guard via Supabase session
-      window.fwSupabase.requireAuth({ redirectTo: base });
+      window.fwSupabase.requireAuth({ redirectTo });
     }else{
       // demo guard via localStorage
       const u = getUser();
-      if(!u) window.location.href = base;
+      if(!u) window.location.href = redirectTo;
     }
   }
 

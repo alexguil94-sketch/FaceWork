@@ -428,6 +428,7 @@
     screenTrack: null,
     ui: null,
     tiles: new Map(), // id -> { tile, video, label }
+    maximized: false,
   };
 
   function ensureCallUI(){
@@ -440,7 +441,10 @@
               <div class="call-title" id="callTitle">Visio</div>
               <div class="call-sub" id="callSub">—</div>
             </div>
-            <button class="btn icon ghost" type="button" title="Fermer" data-call-close>✕</button>
+            <div class="row" style="gap:8px; align-items:center">
+              <button class="btn icon ghost" type="button" title="Agrandir" data-call-max aria-pressed="false">⛶</button>
+              <button class="btn icon ghost" type="button" title="Fermer" data-call-close>✕</button>
+            </div>
           </div>
           <div class="call-grid" id="callGrid"></div>
           <div class="call-controls">
@@ -461,6 +465,7 @@
     const subEl = document.getElementById("callSub");
     const grid = document.getElementById("callGrid");
     const closeBtn = overlay.querySelector("[data-call-close]");
+    const maxBtn = overlay.querySelector("[data-call-max]");
     const hangupBtn = overlay.querySelector("[data-call-hangup]");
     const micBtn = overlay.querySelector("[data-call-mic]");
     const camBtn = overlay.querySelector("[data-call-cam]");
@@ -472,6 +477,7 @@
       }
     });
     closeBtn.addEventListener("click", ()=> leaveCall());
+    maxBtn && maxBtn.addEventListener("click", ()=> setCallMaximized(!callState.maximized));
     hangupBtn.addEventListener("click", ()=> leaveCall());
     micBtn.addEventListener("click", ()=> toggleMic());
     camBtn.addEventListener("click", ()=> toggleCam());
@@ -482,8 +488,27 @@
       }
     });
 
-    callState.ui = { overlay, titleEl, subEl, grid, micBtn, camBtn, shareBtn };
+    callState.ui = { overlay, titleEl, subEl, grid, micBtn, camBtn, shareBtn, maxBtn };
     return callState.ui;
+  }
+
+  function syncCallLayout(){
+    const ui = ensureCallUI();
+    const count = callState.tiles.size;
+    ui.grid.classList.toggle("call-grid--single", count === 1);
+    ui.grid.classList.toggle("call-grid--multi", count > 1);
+  }
+
+  function setCallMaximized(max){
+    const ui = ensureCallUI();
+    const modal = ui.overlay?.querySelector?.(".call-modal");
+    const next = !!max;
+    callState.maximized = next;
+    modal && modal.classList.toggle("is-max", next);
+    if(ui.maxBtn){
+      ui.maxBtn.setAttribute("aria-pressed", String(next));
+      ui.maxBtn.setAttribute("title", next ? "Réduire" : "Agrandir");
+    }
   }
 
   function setCallHeader({ title, sub } = {}){
@@ -527,6 +552,7 @@
       t.video.muted = (key === "local");
       t.video.play?.().catch(()=>{});
     }
+    syncCallLayout();
   }
 
   function removeTile(id){
@@ -535,12 +561,14 @@
     if(!t) return;
     t.tile.remove();
     callState.tiles.delete(key);
+    syncCallLayout();
   }
 
   function resetTiles(){
     const ui = ensureCallUI();
     ui.grid.innerHTML = "";
     callState.tiles.clear();
+    syncCallLayout();
   }
 
   function sendSignal(to, data){
@@ -821,6 +849,7 @@
     callState.myId = "";
 
     showCallOverlay(false);
+    setCallMaximized(false);
     resetTiles();
   }
 

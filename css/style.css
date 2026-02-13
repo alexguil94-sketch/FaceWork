@@ -1138,10 +1138,14 @@ html[data-theme="light"] .chat-attach{background: rgba(255,255,255,.65)}
 }
 .call-modal{
   width: min(1100px, 96vw);
-  max-height: 86vh;
+  max-height: 90vh;
   overflow: hidden;
   display:flex;
   flex-direction:column;
+}
+.call-modal.is-max{
+  width: 98vw;
+  max-height: 94vh;
 }
 .call-header{
   padding: 14px 16px;
@@ -1164,6 +1168,9 @@ html[data-theme="light"] .call-header{background: rgba(255,255,255,.55)}
   overflow:auto;
   flex: 1;
 }
+.call-grid.call-grid--single{
+  grid-template-columns: 1fr;
+}
 .call-tile{
   position: relative;
   border-radius: 18px;
@@ -1178,6 +1185,12 @@ html[data-theme="light"] .call-tile{background: rgba(0,0,0,.08)}
   object-fit: cover;
   background: rgba(0,0,0,.55);
   display:block;
+}
+.call-grid.call-grid--single .call-video{
+  height: min(60vh, 640px);
+}
+.call-modal.is-max .call-grid.call-grid--single .call-video{
+  height: min(72vh, 820px);
 }
 .call-label{
   position: absolute;
