@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hub JavaScript — Exercices & Projets</title>
+  <script>
+    // Thème initial (avant le CSS) pour éviter le “flash” au chargement
+    (() => {
+      const KEY = "fwTheme";
+      try{
+        const saved = localStorage.getItem(KEY);
+        const prefersLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
+        const theme = (saved === "light" || saved === "dark") ? saved : (prefersLight ? "light" : "dark");
+        document.documentElement.setAttribute("data-theme", theme);
+      } catch(e){}
+    })();
+  </script>
+  <style>
+    :root{
+      --bg:#05060a;
+      --panel: rgba(255,255,255,0.06);
+      --panel2: rgba(0,0,0,0.35);
+      --stroke: rgba(255,255,255,0.14);
+      --text: rgba(255,255,255,0.92);
+      --muted: rgba(255,255,255,0.68);
+
+      --neon1:#22c55e; /* vert */
+      --neon2:#38bdf8; /* bleu */
+      --neon3:#f472b6; /* rose */
+      --neon4:#f59e0b; /* orange */
+      --neon5:#a78bfa; /* violet */
+    }
+
+    :root[data-theme="light"]{
+      --bg:#f7f8ff;
+      --panel: rgba(255,255,255,0.78);
+      --panel2: rgba(255,255,255,0.86);
+      --stroke: rgba(10,13,25,0.12);
+      --text: rgba(10,13,25,0.92);
+      --muted: rgba(10,13,25,0.66);
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: Arial, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(900px 500px at 15% 10%, rgba(56,189,248,0.22), transparent 60%),
+        radial-gradient(700px 450px at 85% 15%, rgba(244,114,182,0.18), transparent 55%),
+        radial-gradient(900px 600px at 60% 90%, rgba(34,197,94,0.12), transparent 60%),
+        linear-gradient(180deg, #05060a 0%, #07081a 50%, #05060a 100%);
+      min-height:100vh;
+    }
+
+    :root[data-theme="light"] body{
+      background:
+        radial-gradient(900px 500px at 15% 10%, rgba(56,189,248,0.18), transparent 60%),
+        radial-gradient(700px 450px at 85% 15%, rgba(244,114,182,0.14), transparent 55%),
+        radial-gradient(900px 600px at 60% 90%, rgba(34,197,94,0.12), transparent 60%),
+        linear-gradient(180deg, #f7f8ff 0%, #ffffff 50%, #f7f8ff 100%);
+    }
+
+    /* petites transitions (thème) */
+    body, .topbar, .sidebar, .content, .hero, details, .search input, .pill, .tag, .btn, .modal, .modalHeader, .modalLead{
+      transition: background 180ms ease, color 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+    }
+
+    /* TOP BAR */
+    .topbar{
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(10px);
+      background: rgba(5,6,10,0.65);
+      border-bottom: 1px solid var(--stroke);
+    }
+    :root[data-theme="light"] .topbar{
+      background: rgba(247,248,255,0.72);
+    }
+    .topbar-inner{
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 12px 16px;
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap: wrap;
+    }
+    .brand{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      min-width: 260px;
+    }
+    .logo{
+      /* LOGO (personnalisable)
+        - Par défaut : fond “néon” (fallback si aucun fichier logo).
+        - Pour mettre TON logo : remplace le fichier `logo.svg` (ou change le src dans le HTML).
+      */
+      width:34px;height:34px;border-radius:12px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,0.18);
+      background:
+        radial-gradient(circle at 30% 30%, rgba(34,197,94,0.9), transparent 55%),
+        radial-gradient(circle at 70% 30%, rgba(56,189,248,0.9), transparent 55%),
+        radial-gradient(circle at 50% 80%, rgba(244,114,182,0.85), transparent 55%),
+        rgba(255,255,255,0.06);
+      box-shadow:
+        0 0 20px rgba(56,189,248,0.25),
+        0 0 24px rgba(244,114,182,0.18);
+    }
+    :root[data-theme="light"] .logo{
+      border-color: rgba(10,13,25,0.12);
+      box-shadow:
+        0 0 18px rgba(56,189,248,0.18),
+        0 0 20px rgba(244,114,182,0.12);
+    }
+    .logo img{
+      width:100%;
+      height:100%;
+      display:block;
+      object-fit:cover;
+    }
+    .brand h1{
+      margin:0;
+      font-size:16px;
+      letter-spacing:0.3px;
+    }
+    .brand .sub{
+      margin:2px 0 0;
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .search{
+      flex: 1;
+      min-width: 260px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:flex-end;
+    }
+    .search input{
+      width: min(520px, 100%);
+      padding: 10px 12px;
+      border-radius: 12px;
+      border:1px solid rgba(255,255,255,0.14);
+      background: rgba(0,0,0,0.35);
+      color: var(--text);
+      outline: none;
+    }
+    :root[data-theme="light"] .search input{
+      border-color: rgba(10,13,25,0.14);
+      background: rgba(255,255,255,0.86);
+      color: var(--text);
+    }
+    .pill{
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.06);
+      font-size:12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .pillBtn{
+      cursor:pointer;
+      user-select:none;
+      outline: none;
+    }
+    .pillBtn:hover{
+      border-color: rgba(56,189,248,0.55);
+      box-shadow: 0 0 18px rgba(56,189,248,0.10);
+    }
+    .btn:focus-visible,
+    .pillBtn:focus-visible{
+      outline: 2px solid rgba(56,189,248,0.55);
+      outline-offset: 2px;
+    }
+    .pillBtn[aria-pressed="true"]{
+      border-color: rgba(34,197,94,0.55);
+      background: rgba(34,197,94,0.12);
+      color: rgba(255,255,255,0.90);
+    }
+    :root[data-theme="light"] .pillBtn[aria-pressed="true"]{
+      border-color: rgba(34,197,94,0.45);
+      background: rgba(34,197,94,0.12);
+      color: rgba(10,13,25,0.90);
+    }
+    :root[data-theme="light"] .pill{
+      border-color: rgba(10,13,25,0.12);
+      background: rgba(0,0,0,0.04);
+      color: var(--muted);
+    }
+    .dot{
+      width:10px;height:10px;border-radius:999px;
+      background: var(--neon2);
+      box-shadow: 0 0 14px rgba(56,189,248,0.6);
+    }
+    :root[data-theme="light"] .dot{
+      box-shadow: 0 0 14px rgba(56,189,248,0.35);
+    }
+
+    /* LAYOUT */
+    .wrap{
+      max-width:1200px;
+      margin: 0 auto;
+      padding: 18px 16px 40px;
+      display:grid;
+      grid-template-columns: 320px 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 980px){
+      .wrap{ grid-template-columns: 1fr; }
+      .sidebar{ position: relative !important; top:auto !important; }
+    }
+
+    .sidebar{
+      position: sticky;
+      top: 74px;
+      align-self: start;
+      background: var(--panel);
+      border: 1px solid var(--stroke);
+      border-radius: 18px;
+      padding: 14px;
+      box-shadow: 0 14px 40px rgba(0,0,0,0.35);
+    }
+    :root[data-theme="light"] .sidebar{
+      box-shadow: 0 14px 40px rgba(10,13,25,0.12);
+    }
+    .sidebar h2{
+      margin: 6px 0 10px;
+      font-size: 14px;
+      color: rgba(255,255,255,0.88);
+    }
+    :root[data-theme="light"] .sidebar h2{
+      color: rgba(10,13,25,0.88);
+    }
+    .nav{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .nav a{
+      text-decoration:none;
+      color: rgba(255,255,255,0.88);
+      font-weight: 800;
+      font-size: 13px;
+      padding: 10px 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.25);
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+    }
+    :root[data-theme="light"] .nav a{
+      color: rgba(10,13,25,0.90);
+      border-color: rgba(10,13,25,0.12);
+      background: rgba(255,255,255,0.72);
+    }
+    .nav a:hover{
+      border-color: rgba(56,189,248,0.5);
+      box-shadow: 0 0 22px rgba(56,189,248,0.14);
+    }
+    :root[data-theme="light"] .nav a:hover{
+      border-color: rgba(56,189,248,0.55);
+      box-shadow: 0 0 22px rgba(56,189,248,0.12);
+    }
+    .tag{
+      font-size: 11px;
+      font-weight: 900;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.78);
+      white-space: nowrap;
+    }
+    :root[data-theme="light"] .tag{
+      border-color: rgba(10,13,25,0.12);
+      background: rgba(0,0,0,0.04);
+      color: rgba(10,13,25,0.74);
+    }
+
+    .content{
+      background: var(--panel);
+      border: 1px solid var(--stroke);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 14px 40px rgba(0,0,0,0.35);
+    }
+    :root[data-theme="light"] .content{
+      box-shadow: 0 14px 40px rgba(10,13,25,0.12);
+    }
+
+    /* HERO */
+    .hero{
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background:
+        radial-gradient(800px 320px at 15% 30%, rgba(34,197,94,0.18), transparent 55%),
+        radial-gradient(800px 320px at 85% 30%, rgba(244,114,182,0.16), transparent 55%),
+        rgba(0,0,0,0.25);
+      padding: 18px;
+      margin-bottom: 12px;
+    }
+    :root[data-theme="light"] .hero{
+      border-color: rgba(10,13,25,0.12);
+      background:
+        radial-gradient(800px 320px at 15% 30%, rgba(34,197,94,0.14), transparent 55%),
+        radial-gradient(800px 320px at 85% 30%, rgba(244,114,182,0.12), transparent 55%),
+        rgba(255,255,255,0.72);
+    }
+    .hero h2{
+      margin:0 0 6px;
+      font-size: 20px;
+      letter-spacing: 0.2px;
+    }
+    .hero p{
+      margin:0;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top: 12px;
+    }
+    .chip{
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(0,0,0,0.28);
+      font-size: 12px;
+      color: rgba(255,255,255,0.86);
+      font-weight: 800;
+    }
+    :root[data-theme="light"] .chip{
+      border-color: rgba(10,13,25,0.12);
+      background: rgba(255,255,255,0.72);
+      color: rgba(10,13,25,0.88);
+    }
+    .chip.neon1{ box-shadow: 0 0 18px rgba(34,197,94,0.18); border-color: rgba(34,197,94,0.35); }
+    .chip.neon2{ box-shadow: 0 0 18px rgba(56,189,248,0.18); border-color: rgba(56,189,248,0.35); }
+    .chip.neon3{ box-shadow: 0 0 18px rgba(244,114,182,0.18); border-color: rgba(244,114,182,0.35); }
+    .chip.neon4{ box-shadow: 0 0 18px rgba(245,158,11,0.18); border-color: rgba(245,158,11,0.35); }
+
+    /* SECTIONS */
+    .section{
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255,255,255,0.10);
+    }
+    :root[data-theme="light"] .section{
+      border-top-color: rgba(10,13,25,0.10);
+    }
+    .section h3{
+      margin: 0 0 8px;
+      font-size: 16px;
+      letter-spacing: 0.2px;
+    }
+    .section p{
+      margin: 0 0 10px;
+      color: var(--muted);
+      line-height:1.45;
+      font-size: 13px;
+    }
+
+    /* ACCORDION */
+    details{
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(0,0,0,0.25);
+      border-radius: 16px;
+      padding: 10px 12px;
+      margin: 10px 0;
+    }
+    :root[data-theme="light"] details{
+      border-color: rgba(10,13,25,0.12);
+      background: rgba(255,255,255,0.72);
+    }
+    summary{
+      cursor:pointer;
+      list-style:none;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      font-weight: 900;
+      font-size: 13px;
+    }
+    summary::-webkit-details-marker{ display:none; }
+    .sum-left{
+      display:flex; align-items:center; gap:10px; min-width:0;
+    }
+    .badge{
+      width:10px;height:10px;border-radius:999px;
+      background: var(--neon2);
+      box-shadow: 0 0 14px rgba(56,189,248,0.55);
+      flex:0 0 auto;
+    }
+    .badge.g{ background: var(--neon1); box-shadow:0 0 14px rgba(34,197,94,0.55); }
+    .badge.p{ background: var(--neon3); box-shadow:0 0 14px rgba(244,114,182,0.55); }
+    .badge.o{ background: var(--neon4); box-shadow:0 0 14px rgba(245,158,11,0.55); }
+    .badge.v{ background: var(--neon5); box-shadow:0 0 14px rgba(167,139,250,0.55); }
+
+    .desc{
+      margin-top: 10px;
+      color: rgba(255,255,255,0.84);
+      font-size: 13px;
+    }
+    :root[data-theme="light"] .desc{
+      color: rgba(10,13,25,0.86);
+    }
+    .mini{
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 8px;
+    }
+
+    /* CODE */
+    .code-wrap{
+      margin-top: 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(0,0,0,0.35);
+      overflow:hidden;
+    }
+    /* En mode clair on garde un fond “code” sombre (lisible) */
+    :root[data-theme="light"] .code-wrap{
+      border-color: rgba(10,13,25,0.14);
+      background: rgba(2,6,23,0.92);
+    }
+    pre{
+      margin:0;
+      padding: 12px;
+      overflow:auto;
+      font-size: 12px;
+      line-height:1.45;
+      color: rgba(255,255,255,0.92);
+      white-space: pre;
+    }
+    .codebar{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      padding: 8px 10px;
+      background: rgba(255,255,255,0.06);
+      border-bottom: 1px solid rgba(255,255,255,0.10);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    :root[data-theme="light"] .codebar{
+      color: rgba(255,255,255,0.78);
+    }
+    .btn{
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.88);
+      font-weight: 900;
+      cursor:pointer;
+      user-select:none;
+      font-size:12px;
+    }
+    .btn:hover{
+      border-color: rgba(244,114,182,0.5);
+      box-shadow: 0 0 22px rgba(244,114,182,0.12);
+    }
+    :root[data-theme="light"] .btn{
+      border-color: rgba(10,13,25,0.16);
+      background: rgba(0,0,0,0.05);
+      color: rgba(10,13,25,0.88);
+    }
+    :root[data-theme="light"] .btn:hover{
+      border-color: rgba(56,189,248,0.55);
+      box-shadow: 0 0 22px rgba(56,189,248,0.10);
+    }
+    :root[data-theme="light"] .codebar .btn{
+      border-color: rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.90);
+    }
+
+    /* SUMMARY RIGHT (tag + bouton modal) */
+    .sum-right{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex:0 0 auto;
+    }
+    .btnExplainOpen{
+      padding: 7px 10px;
+      border-color: rgba(56,189,248,0.35);
+      background: rgba(56,189,248,0.10);
+    }
+    .btnExplainOpen:hover{
+      border-color: rgba(56,189,248,0.6);
+      background: rgba(56,189,248,0.14);
+      box-shadow: 0 0 22px rgba(56,189,248,0.14);
+    }
+
+    /* MODAL (explications approfondies) */
+    body.modal-open{ overflow:hidden; }
+    .modalOverlay{
+      position:fixed;
+      inset:0;
+      z-index: 50;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 12px;
+      background: rgba(0,0,0,0.65);
+    }
+    :root[data-theme="light"] .modalOverlay{
+      background: rgba(10,13,25,0.45);
+    }
+    /* Important : respecter l’attribut HTML `hidden` */
+    .modalOverlay[hidden]{ display:none; }
+    .modal{
+      width: min(1200px, 100%);
+      height: min(92vh, 980px);
+      max-height: 92vh;
+      overflow:auto;
+      border-radius: 18px;
+      border: 1px solid var(--stroke);
+      background: rgba(5,6,10,0.96);
+      box-shadow: 0 24px 80px rgba(0,0,0,0.7);
+    }
+    :root[data-theme="light"] .modal{
+      background: rgba(255,255,255,0.96);
+      box-shadow: 0 24px 80px rgba(10,13,25,0.22);
+    }
+    .modalHeader{
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      padding: 12px 12px;
+      background: rgba(5,6,10,0.78);
+      border-bottom: 1px solid rgba(255,255,255,0.10);
+      backdrop-filter: blur(10px);
+    }
+    :root[data-theme="light"] .modalHeader{
+      background: rgba(247,248,255,0.86);
+      border-bottom-color: rgba(10,13,25,0.10);
+    }
+    .modalTitle{
+      font-weight: 900;
+      font-size: 14px;
+      letter-spacing: 0.2px;
+      color: rgba(255,255,255,0.92);
+    }
+    :root[data-theme="light"] .modalTitle{
+      color: rgba(10,13,25,0.92);
+    }
+    .modalBody{
+      padding: 12px;
+      font-size: 13px;
+      line-height: 1.55;
+      color: rgba(255,255,255,0.86);
+    }
+    :root[data-theme="light"] .modalBody{
+      color: rgba(10,13,25,0.90);
+    }
+    .modalLead{
+      padding: 10px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.06);
+      margin-bottom: 10px;
+      color: rgba(255,255,255,0.86);
+      font-weight: 800;
+    }
+    :root[data-theme="light"] .modalLead{
+      border-color: rgba(10,13,25,0.12);
+      background: rgba(0,0,0,0.04);
+      color: rgba(10,13,25,0.88);
+    }
+    .modalBody h4{
+      margin: 12px 0 6px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.92);
+    }
+    :root[data-theme="light"] .modalBody h4{
+      color: rgba(10,13,25,0.92);
+    }
+    .modalBody p{
+      margin: 0 0 10px;
+      color: var(--muted);
+    }
+    .modalBody ul{
+      margin: 0 0 10px 18px;
+      padding:0;
+    }
+    .modalBody li{
+      margin: 6px 0;
+      color: rgba(255,255,255,0.84);
+    }
+    :root[data-theme="light"] .modalBody li{
+      color: rgba(10,13,25,0.84);
+    }
+    .modalBody code{
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(56,189,248,0.25);
+      background: rgba(56,189,248,0.12);
+      color: rgba(255,255,255,0.92);
+      font-weight: 900;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    :root[data-theme="light"] .modalBody code{
+      border-color: rgba(56,189,248,0.30);
+      background: rgba(56,189,248,0.14);
+      color: rgba(10,13,25,0.92);
+    }
+    a.btn{ text-decoration:none; display:inline-flex; align-items:center; }
+
+    /* PRACTICE IFRAME */
+    .practice{
+      margin-top: 10px;
+      border-radius: 16px;
+      overflow:hidden;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(0,0,0,0.25);
+    }
+    :root[data-theme="light"] .practice{
+      border-color: rgba(10,13,25,0.12);
+      background: rgba(255,255,255,0.72);
+    }
+    .practicebar{
+      padding: 10px 12px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      border-bottom: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.06);
+      color: var(--muted);
+      font-size: 12px;
+    }
+    :root[data-theme="light"] .practicebar{
+      border-bottom-color: rgba(10,13,25,0.10);
+      background: rgba(0,0,0,0.04);
+      color: var(--muted);
+    }
+    iframe{
+      width:100%;
+      height: 340px;
+      border:0;
+      background:white;
+    }
+
+    /* FOOT */
+    .foot{
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align:center;
+    }
+  </style>
+</head>
+<body>
+  <!--
+    ===========================
+    PRÉSENTATION (à l’oral / à montrer dans le code)
+    ===========================
+    Objectif de cette page :
+    - Faire un “hub” qui regroupe mes exercices et projets JavaScript.
+    - Donner pour chaque exercice : objectif + explication + code copiable.
+
+    Fonctions principales :
+    - Barre de recherche (en haut) : filtre les blocs (<details>) par mots-clés.
+    - Bouton “Copier” : copie le code dans le presse-papier (Clipboard API).
+    - Bouton “📘 Fiche” : ouvre une grande fenêtre (modal) avec une fiche détaillée + le code.
+    - Mode clair / sombre : bouton en haut + sauvegarde (localStorage).
+
+    Personnalisation :
+    - Logo : fichier `logo.svg` (remplaçable par ton image : png/jpg/svg…).
+      Exemple : mets `mon-logo.png` dans le dossier et change src="mon-logo.png".
+  -->
+
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="logo">
+          <!-- Mets ton fichier logo dans le même dossier et change le src ci-dessous -->
+          <img src="logo.svg" alt="Logo" onerror="this.remove()" />
+        </div>
+        <div>
+          <h1>Hub JavaScript — Exercices & Projets</h1>
+          <div class="sub">Tout ce que tu as fait, rangé propre + pratique + explications.</div>
+        </div>
+      </div>
+
+      <div class="search">
+        <span class="pill"><span class="dot"></span> Style : Néon</span>
+        <button class="pill pillBtn" id="themeToggle" type="button" aria-pressed="false" title="Basculer clair/sombre">Mode : Sombre</button>
+        <input id="search" type="text" placeholder="Rechercher: IMC, panier, todo, citation, feu..." />
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <h2>Navigation</h2>
+      <div class="nav" id="nav">
+        <a href="../langages.html">← Langages <span class="tag">Retour</span></a>
+        <a href="../index.html">🏠 Accueil <span class="tag">FaceWork</span></a>
+        <a href="#niveau1">Niveau 1 — Bases <span class="tag">1–10</span></a>
+        <a href="#niveau3">Niveau 3 — Fonctions <span class="tag">11–15</span></a>
+        <a href="#niveauArrays">Tableaux & Objets <span class="tag">16–21</span></a>
+        <a href="#web">Web DOM <span class="tag">22–27</span></a>
+        <a href="#projets">Projets <span class="tag">1–5</span></a>
+        <a href="#tips">Tips <span class="tag">Debug</span></a>
+      </div>
+
+      <div class="foot">Astuce : tape un mot dans la recherche (en haut). Ça filtre les exercices.</div>
+    </aside>
+
+    <!-- CONTENT -->
+    <main class="content" id="content">
+
+      <div class="hero">
+        <h2>Ton “centre de contrôle” de pratique</h2>
+        <p>
+          Chaque bloc a : <b>objectif</b>, <b>explication</b>, et un <b>mini exercice</b> avec code.
+          Tu peux aussi <b>copier</b> le code direct.
+        </p>
+        <div class="chips">
+          <span class="chip neon1">Variables</span>
+          <span class="chip neon2">Conditions</span>
+          <span class="chip neon3">Fonctions</span>
+          <span class="chip neon4">Tableaux / Objets</span>
+          <span class="chip neon2">DOM</span>
+          <span class="chip neon1">Mini-projets</span>
+        </div>
+      </div>
+
+      <!-- NIVEAU 1 -->
+      <section class="section" id="niveau1">
+        <h3>Niveau 1 — Logique & Variables (Exos 1 → 10)</h3>
+        <p>Objectif : comprendre <b>variables</b>, <b>calculs</b>, <b>conditions</b>, et afficher des résultats.</p>
+
+        <!--
+          NOTE : l’attribut `data-title` sert à la barre de recherche (JS).
+          Si tu ajoutes un nouvel exercice, pense à remplir `data-title`.
+        -->
+        <details data-title="Exercice 1 — Carte d’identité console" open>
+          <summary><span class="sum-left"><span class="badge"></span>Exercice 1 — Carte d’identité console</span><span class="tag">Variables</span></summary>
+          <div class="desc">Tu crées des variables (prénom, âge, ville) puis tu affiches une phrase.</div>
+          <div class="code-wrap">
+            <div class="codebar">Code (JS Console) <button class="btn" data-copy="#c1">Copier</button></div>
+            <pre id="c1">let prenom = "Alexis";
+let age = 30;
+let ville = "Hyrule";
+let metierReve = "Créateur digital";
+
+console.log("Bonjour, je m'appelle " + prenom + ", j'ai " + age + " ans et j'habite à " + ville + ". Métier rêvé: " + metierReve);</pre>
+          </div>
+          <div class="mini">À tester : change les valeurs et observe le message.</div>
+        </details>
+
+        <details data-title="Exercice 2 — Calculateur de courses (+ TVA)">
+          <summary><span class="sum-left"><span class="badge g"></span>Exercice 2 — Calculateur de courses</span><span class="tag">Calcul</span></summary>
+          <div class="desc">Total = prix × quantité. Bonus : TVA 20% (× 0.20).</div>
+          <div class="code-wrap">
+            <div class="codebar">Code <button class="btn" data-copy="#c2">Copier</button></div>
+            <pre id="c2">let prixArticle = 10;
+let quantite = 3;
+
+let totalHT = prixArticle * quantite;
+let tva = totalHT * 0.20;
+let totalTTC = totalHT + tva;
+
+console.log("Total HT:", totalHT, "€");
+console.log("TVA:", tva, "€");
+console.log("Total TTC:", totalTTC, "€");</pre>
+          </div>
+        </details>
+
+        <details data-title="Exercice 3 — Convertisseur de temps">
+          <summary><span class="sum-left"><span class="badge"></span>Exercice 3 — Convertisseur de temps</span><span class="tag">Conversions</span></summary>
+          <div class="desc">Minutes → secondes (×60) et minutes → heures (/60).</div>
+          <div class="code-wrap">
+            <div class="codebar">Code <button class="btn" data-copy="#c3">Copier</button></div>
+            <pre id="c3">let nombreMinutes = 120;
+let secondes = nombreMinutes * 60;
+let heures = nombreMinutes / 60;
+
+console.log("Secondes:", secondes);
+console.log("Heures:", heures);</pre>
+          </div>
+        </details>
+
+        <details data-title="Exercice 4 — Salaire net approximatif">
+          <summary><span class="sum-left"><span class="badge g"></span>Exercice 4 — Salaire net approximatif</span><span class="tag">Formule</span></summary>
+          <div class="desc">Net ≈ brut × 0.78 (approx). Tu vois l’idée : appliquer un coefficient.</div>
+          <div class="code-wrap">
+            <div class="codebar">Code <button class="btn" data-copy="#c4">Copier</button></div>
+            <pre id="c4">let salaireBrut = 2000;
+let salaireNet = salaireBrut * 0.78;
+
+console.log("Net approx:", salaireNet, "€");</pre>
+          </div>
+        </details>
+
+        <details data-title="Exercice 5 — IMC simple">
+          <summary><span class="sum-left"><span class="badge p"></span>Exercice 5 — IMC simple</span><span class="tag">Formule</span></summary>
+          <div class="desc">IMC = poids / (taille × taille). Taille en mètres.</div>
+          <div class="code-wrap">
+            <div class="codebar">Code <button class="btn" data-copy="#c5">Copier</button></div>
+            <pre id="c5">let taille = 1.75;
+let poids = 70;
+
+let imc = poids / (taille * taille);
+console.log("IMC:", imc.toFixed(2));</pre>
+          </div>
+        </details>
+
+        <details data-title="Exercice 6 — Accès soirée (if/else)">
+          <summary><span class="sum-left"><span class="badge"></span>Exercice 6 — Accès soirée</span><span class="tag">if/else</span></summary>
+          <div class="desc">Condition : si âge ≥ 18 alors autorisé, sinon refusé.</div>
+          <div class="code-wrap">
+            <div class="codebar">Code <button class="btn" data-copy="#c6">Copier</button></div>
+            <pre id="c6">let age = 18;
+
+if (age >= 18) console.log("Accès autorisé ✅");
+else console.log("Accès refusé ❌");</pre>
+          </div>
+        </details>
+
+        <details data-title="Exercice 7 — Livraison gratuite">
+          <summary><span class="sum-left"><span class="badge g"></span>Exercice 7 — Livraison gratuite</span><span class="tag">Condition</span></summary>
+          <div class="desc">Si totalPanier ≥ 50 → livraison offerte, sinon 4.99€.</div>
+          <div class="code-wrap">
+            <div class="codebar">Code <button class="btn" data-copy="#c7">Copier</button></div>
+            <pre id="c7">let totalPanier = 60;
+let livraison = (totalPanier >= 50) ? 0 : 4.99;
+
+console.log("Livraison:", livraison === 0 ? "offerte" : livraison + "€");</pre>
+          </div>
+        </details>
+
+        <details data-title="Exercice 8 — Vérificateur mot de passe">
+          <summary><span class="sum-left"><span class="badge p"></span>Exercice 8 — Vérificateur mot de passe</span><span class="tag">===</span></summary>
+          <div class="desc">`===` compare exactement. Bonus : messages selon l’erreur.</div>
+          <div class="code-wrap">
+            <div class="codebar">Code <button class="btn" data-copy="#c8">Copier</button></div>
+            <pre id="c8">let password = "test";
+
+if (password === "javascript") console.log("✅ Accès autorisé");
+else if (password === "") console.log("⚠️ Mot de passe vide");
+else if (password.length < 5) console.log("🔒 Trop court");
+else console.log("❌ Incorrect");</pre>
+          </div>
+        </details>
+
+        <details data-title="Exercice 9 — Bulletin scolaire">
+          <summary><span class="sum-left"><span class="badge"></span>Exercice 9 — Bulletin scolaire</span><span class="tag">else if</span></summary>
+          <div class="desc">On teste du plus grand au plus petit pour que ça marche bien.</div>
+          <div class="code-wrap">
+            <div class="codebar">Code <button class="btn" data-copy="#c9">Copier</button></div>
+            <pre id="c9">let note = 15;
+
+if (note >= 16) console.log("Excellent");
+else if (note >= 14) console.log("Bien");
+else if (note >= 10) console.log("Moyen");
+else console.log("Insuffisant");</pre>
+          </div>
+        </details>
+
+        <details data-title="Exercice 10 — Feu tricolore">
+          <summary><span class="sum-left"><span class="badge o"></span>Exercice 10 — Feu tricolore</span><span class="tag">Switch</span></summary>
+          <div class="desc">Parfait pour comparer plusieurs valeurs fixes : rouge/orange/vert.</div>
+          <div class="code-wrap">
+            <div class="codebar">Code <button class="btn" data-copy="#c10">Copier</button></div>
+            <pre id="c10">let couleur = "rouge";
+
+switch (couleur) {
+  case "rouge": console.log("Stop"); break;
+  case "orange": console.log("Ralentir"); break;
+  case "vert": console.log("Avancer"); break;
+  default: console.log("Couleur inconnue");
+}</pre>
+          </div>
+        </details>
+      </section>
+
+      <!-- NIVEAU 3 -->
+      <section class="section" id="niveau3">
+        <h3>Niveau 3 — Fonctions (Exos 11 → 15)</h3>
+        <p>Objectif : créer des fonctions réutilisables (entrées → résultat).</p>
+
+        <details data-title="Exercice 11 — Calcul TVA">
+          <summary><span class="sum-left"><span class="badge g"></span>Exercice 11 — Calcul TVA</span><span class="tag">return</span></summary>
+          <div class="desc">Fonction `calculTVA(prix)` → retourne le TTC.</div>
+          <div class="code-wrap">
+            <div class="codebar">Code <button class="btn" data-copy="#c11">Copier</button></div>
+            <pre id="c11">function calculTVA(prix) {
+  return prix * 1.20;
+}
+
+console.log(calculTVA(100));</pre>
+          </div>
+        </details>
+
+        <details data-title="Exercice 12 — Générateur email pro">
+          <summary><span class="sum-left"><span class="badge"></span>Exercice 12 — Générateur email pro</span><span class="tag">string</span></summary>
+          <div class="desc">Entrées prénom + nom → sortie `prenom.nom@entreprise.com`.</div>
+          <div class="code-wrap">
+            <div class="codebar">Code <button class="btn" data-copy="#c12">Copier</button></div>
+            <pre id="c12">function genererEmail(prenom, nom) {
+  return prenom.toLowerCase().trim() + "." + nom.toLowerCase().trim() + "@entreprise.com";
+}
+
+console.log(genererEmail("Alexis", "Guillotin"));</pre>
+          </div>
+        </details>
+
+        <details data-title="Exercice 13 — Calculatrice simple">
+          <summary><span class="sum-left"><span class="badge p"></span>Exercice 13 — Calculatrice</span><span class="tag">4 fonctions</span></summary>
+          <div class="desc">Une fonction = une opération, lisible et propre.</div>
+          <div class="code-wrap">
+            <div class="codebar">Code <button class="btn" data-copy="#c13">Copier</button></div>
+            <pre id="c13">function addition(a,b){ return a + b; }
+function soustraction(a,b){ return a - b; }
+function multiplication(a,b){ return a * b; }
+function division(a,b){ return b === 0 ? "Erreur division par 0" : a / b; }
+
+console.log(division(10, 5));</pre>
+          </div>
+        </details>
+
+        <details data-title="Exercice 14 — Message client personnalisé">
+          <summary><span class="sum-left"><span class="badge"></span>Exercice 14 — Message client</span><span class="tag">template</span></summary>
+          <div class="desc">Génère un message clair : “Bonjour X, votre Y est prêt”.</div>
+          <div class="code-wrap">
+            <div class="codebar">Code <button class="btn" data-copy="#c14">Copier</button></div>
+            <pre id="c14">function messageClient(nom, produit){
+  return `Bonjour ${nom}, votre ${produit} est prêt`;
+}
+
+console.log(messageClient("Alexis", "commande"));</pre>
+          </div>
+        </details>
+
+        <details data-title="Exercice 15 — Convertisseur température">
+          <summary><span class="sum-left"><span class="badge o"></span>Exercice 15 — Convertisseur température</span><span class="tag">formules</span></summary>
+          <div class="desc">Deux fonctions : C→F et F→C.</div>
+          <div class="code-wrap">
+            <div class="codebar">Code <button class="btn" data-copy="#c15">Copier</button></div>
+            <pre id="c15">const celsiusToFahrenheit = c => (c * 9/5) + 32;
+const fahrenheitToCelsius = f => (f - 32) * 5/9;
+
+console.log(celsiusToFahrenheit(0));  // 32
+console.log(fahrenheitToCelsius(68)); // 20</pre>
+          </div>
+        </details>
+      </section>
+
+      <!-- ARRAYS / OBJECTS -->
+      <section class="section" id="niveauArrays">
+        <h3>Tableaux & Objets (Exos 16 → 21)</h3>
+        <p>Objectif : manipuler des listes, faire des moyennes, filtrer, compter, trouver un max, et créer un panier (objets).</p>
+
+        <details data-title="Exercice 16 — Liste de courses">
+          <summary><span class="sum-left"><span class="badge"></span>Exercice 16 — Liste de courses</span><span class="tag">Array</span></summary>
+          <div class="desc">Un tableau = une liste. Index commence à 0.</div>
+          <div class="code-wrap">
+            <div class="codebar">Code <button class="btn" data-copy="#c16">Copier</button></div>
+            <pre id="c16">let courses = ["pain","lait","fromage"];
+courses.push("beurre");
+console.log(courses);</pre>
+          </div>
+        </details>
+
+        <details data-title="Exercice 17 — Moyenne de notes">
+          <summary><span class="sum-left"><span class="badge g"></span>Exercice 17 — Moyenne</span><span class="tag">Boucle</span></summary>
+          <div class="desc">Somme de toutes les notes / nombre de notes.</div>
+          <div class="code-wrap">
+            <div class="codebar">Code <button class="btn" data-copy="#c17">Copier</button></div>
+            <pre id="c17">let notes = [12, 15, 10, 18, 14];
+let somme = 0;
+
+for (let i=0; i<notes.length; i++){
+  somme += notes[i];
+}
+
+let moyenne = somme / notes.length;
+console.log(moyenne);</pre>
+          </div>
+        </details>
+
+        <details data-title="Exercice 18 — Filtrer produits chers">
+          <summary><span class="sum-left"><span class="badge p"></span>Exercice 18 — Filtrer &gt; 100</span><span class="tag">filter</span></summary>
+          <div class="desc">`filter()` garde uniquement ce qui respecte la condition.</div>
+          <div class="code-wrap">
+            <div class="codebar">Code <button class="btn" data-copy="#c18">Copier</button></div>
+            <pre id="c18">let prix = [10,45,120,5,200];
+let chers = prix.filter(p => p > 100);
+console.log(chers);</pre>
+          </div>
+        </details>
+
+        <details data-title="Exercice 19 — Compter utilisateurs actifs">
+          <summary><span class="sum-left"><span class="badge"></span>Exercice 19 — Compter true</span><span class="tag">count</span></summary>
+          <div class="desc">Compter le nombre de `true` dans un tableau.</div>
+          <div class="code-wrap">
+            <div class="codebar">Code <button class="btn" data-copy="#c19">Copier</button></div>
+            <pre id="c19">let utilisateurs = [true,false,true,true];
+let actifs = utilisateurs.filter(u => u).length;
+console.log(actifs);</pre>
+          </div>
+        </details>
+
+        <details data-title="Exercice 20 — Trouver plus grand nombre">
+          <summary><span class="sum-left"><span class="badge g"></span>Exercice 20 — Max</span><span class="tag">max</span></summary>
+          <div class="desc">On parcourt et on garde le maximum.</div>
+          <div class="code-wrap">
+            <div class="codebar">Code <button class="btn" data-copy="#c20">Copier</button></div>
+            <pre id="c20">let nombres = [10,45,3,99,27];
+let max = nombres[0];
+
+for (let i=1; i<nombres.length; i++){
+  if (nombres[i] > max) max = nombres[i];
+}
+
+console.log(max);</pre>
+          </div>
+        </details>
+
+        <details data-title="Exercice 21 — Simulation panier (objets)">
+          <summary><span class="sum-left"><span class="badge o"></span>Exercice 21 — Panier objets</span><span class="tag">objects</span></summary>
+          <div class="desc">Tableau d’objets `{nom, prix}` + total.</div>
+          <div class="code-wrap">
+            <div class="codebar">Code <button class="btn" data-copy="#c21">Copier</button></div>
+            <pre id="c21">let panier = [
+  { nom:"clavier", prix:50 },
+  { nom:"souris", prix:25 },
+  { nom:"ecran", prix:200 }
+];
+
+let total = 0;
+for (let i=0; i<panier.length; i++){
+  total += panier[i].prix;
+}
+console.log("Total:", total, "€");</pre>
+          </div>
+        </details>
+      </section>
+
+      <!-- WEB DOM -->
+      <section class="section" id="web">
+        <h3>Web DOM (Exos 22 → 27)</h3>
+        <p>Objectif : manipuler la page avec JS : clics, inputs, affichage dynamique.</p>
+
+        <details data-title="Exercice 22 — Bouton compteur">
+          <summary><span class="sum-left"><span class="badge"></span>Exercice 22 — Bouton compteur</span><span class="tag">click</span></summary>
+          <div class="desc">Un bouton + un compteur qui augmente à chaque clic.</div>
+          <div class="code-wrap">
+            <div class="codebar">Mini page <button class="btn" data-copy="#c22">Copier</button></div>
+            <pre id="c22">&lt;button id="btn"&gt;+1&lt;/button&gt;
+&lt;span id="compteur"&gt;0&lt;/span&gt;
+
+&lt;script&gt;
+let count = 0;
+document.getElementById("btn").addEventListener("click", () =&gt; {
+  count++;
+  document.getElementById("compteur").textContent = count;
+});
+&lt;/script&gt;</pre>
+          </div>
+        </details>
+
+        <details data-title="Exercice 24 — Message dynamique (Bienvenue)">
+          <summary><span class="sum-left"><span class="badge g"></span>Exercice 24 — Message dynamique</span><span class="tag">input</span></summary>
+          <div class="desc">Input prénom + bouton → affiche “Bienvenue X”.</div>
+          <div class="code-wrap">
+            <div class="codebar">Snippet <button class="btn" data-copy="#c24">Copier</button></div>
+            <pre id="c24">&lt;input id="prenom" placeholder="Ton prénom"&gt;
+&lt;button id="go"&gt;Valider&lt;/button&gt;
+&lt;div id="msg"&gt;&lt;/div&gt;
+
+&lt;script&gt;
+const input = document.getElementById("prenom");
+const msg = document.getElementById("msg");
+document.getElementById("go").addEventListener("click", () =&gt; {
+  const nom = input.value.trim();
+  msg.textContent = nom ? "Bienvenue " + nom : "Entre un prénom";
+});
+&lt;/script&gt;</pre>
+          </div>
+        </details>
+
+        <details data-title="Exercice 25 — Calculateur IMC visuel">
+          <summary><span class="sum-left"><span class="badge p"></span>Exercice 25 — IMC visuel</span><span class="tag">calc</span></summary>
+          <div class="desc">Deux inputs (taille, poids) → affiche l’IMC dans la page.</div>
+          <div class="code-wrap">
+            <div class="codebar">Snippet <button class="btn" data-copy="#c25">Copier</button></div>
+            <pre id="c25">&lt;input id="taille" type="number" step="0.01" placeholder="1.75"&gt;
+&lt;input id="poids" type="number" step="0.1" placeholder="70"&gt;
+&lt;button id="calc"&gt;Calculer&lt;/button&gt;
+&lt;div id="res"&gt;&lt;/div&gt;
+
+&lt;script&gt;
+document.getElementById("calc").addEventListener("click", () =&gt; {
+  const t = parseFloat(document.getElementById("taille").value);
+  const p = parseFloat(document.getElementById("poids").value);
+  if (!t || !p || t &lt;= 0 || p &lt;= 0) return document.getElementById("res").textContent = "Valeurs invalides";
+  const imc = p / (t*t);
+  document.getElementById("res").textContent = "IMC : " + imc.toFixed(2);
+});
+&lt;/script&gt;</pre>
+          </div>
+        </details>
+
+        <details data-title="Exercice 26 — Liste tâches dynamique">
+          <summary><span class="sum-left"><span class="badge o"></span>Exercice 26 — ToDo simple</span><span class="tag">UL</span></summary>
+          <div class="desc">Input + bouton Ajouter → ajoute dans une liste. Bonus : bouton supprimer.</div>
+          <div class="code-wrap">
+            <div class="codebar">Snippet <button class="btn" data-copy="#c26">Copier</button></div>
+            <pre id="c26">let ul = document.getElementById("list");
+function addTask(txt){
+  const li = document.createElement("li");
+  li.textContent = txt;
+
+  const del = document.createElement("button");
+  del.textContent = "Supprimer";
+  del.onclick = () =&gt; li.remove();
+
+  li.appendChild(del);
+  ul.appendChild(li);
+}</pre>
+          </div>
+        </details>
+
+        <details data-title="Exercice 27 — Quiz interactif">
+          <summary><span class="sum-left"><span class="badge v"></span>Exercice 27 — Quiz</span><span class="tag">score</span></summary>
+          <div class="desc">Question 2+2, boutons, feedback, score.</div>
+          <div class="code-wrap">
+            <div class="codebar">Snippet <button class="btn" data-copy="#c27">Copier</button></div>
+            <pre id="c27">let score = 0;
+const bonne = 4;
+
+function reponse(val){
+  if (val === bonne) score++;
+  document.getElementById("score").textContent = "Score: " + score;
+}</pre>
+          </div>
+        </details>
+      </section>
+
+      <!-- PROJETS -->
+      <section class="section" id="projets">
+        <h3>Projets (1 → 5)</h3>
+        <p>Objectif : tout mélanger (DOM + logique + données) comme une vraie mini-app.</p>
+
+        <details data-title="Projet 1 — ToDo List (add/supprimer/terminé + localStorage)">
+          <summary><span class="sum-left"><span class="badge g"></span>Projet 1 — ToDo List (Pro)</span><span class="tag">localStorage</span></summary>
+          <div class="desc">Tu as une ToDo complète : ajouter, supprimer, terminer + filtres + sauvegarde.</div>
+          <div class="mini">💡 Tu peux coller le code de la ToDo Pro (qu’on a fait) dans un fichier à part, puis lier depuis ce hub.</div>
+        </details>
+
+        <details data-title="Projet 2 — Simulateur e-commerce (panier + promo + livraison)">
+          <summary><span class="sum-left"><span class="badge o"></span>Projet 2 — E-commerce (Pro)</span><span class="tag">panier</span></summary>
+          <div class="desc">Sélection produit, ajout, quantités, total HT/TTC, promo, livraison, sauvegarde.</div>
+          <div class="mini">💡 Next step : stock limité + paiement fake + récap commande.</div>
+        </details>
+
+        <details data-title="Projet 3 — Deviner le nombre (difficulté + score + historique)">
+          <summary><span class="sum-left"><span class="badge p"></span>Projet 3 — Devine le nombre (Boss)</span><span class="tag">jeu</span></summary>
+          <div class="desc">Difficulté, limite d’essais, score, historique, indice plus grand/petit.</div>
+        </details>
+
+        <details data-title="Projet 4 — Budget mensuel (revenus / dépenses / reste à vivre)">
+          <summary><span class="sum-left"><span class="badge v"></span>Projet 4 — Budget mensuel</span><span class="tag">finance</span></summary>
+          <div class="desc">Revenus + liste de dépenses + total + reste à vivre, avec sauvegarde.</div>
+        </details>
+
+        <details data-title="Projet 5 — Générateur de citations (catégories + favoris + mode Zelda)">
+          <summary><span class="sum-left"><span class="badge o"></span>Projet 5 — Citations (Mode Zelda)</span><span class="tag">fun</span></summary>
+          <div class="desc">Filtre, recherche, favoris, copier, mode Zelda ON/OFF + petit son.</div>
+        </details>
+
+        <p class="mini">
+          👉 Si tu veux, je peux te faire une version “hub” encore plus propre avec des <b>pages séparées</b> (un fichier par projet)
+          + un vrai menu + animation.
+        </p>
+      </section>
+
+      <!-- TIPS -->
+      <section class="section" id="tips">
+        <h3>Tips rapides (pour progresser vite)</h3>
+        <p>
+          • Toujours vérifier : valeurs vides, division par zéro, nombres invalides (`isNaN`).<br>
+          • Debug : `console.log()` partout, c’est ton radar.<br>
+          • Découper : une fonction = une tâche.
+        </p>
+        <details data-title="Mini checklist debug">
+          <summary><span class="sum-left"><span class="badge"></span>Checklist debug</span><span class="tag">debug</span></summary>
+          <div class="desc">
+            1) Mon JS est bien chargé ? (script en bas ou `defer`)<br>
+            2) Mes `id` HTML correspondent ?<br>
+            3) Je récupère bien les valeurs (`value`, `textContent`)<br>
+            4) Je gère les cas vides / invalides<br>
+            5) Je log l’état (variables) avant/après
+          </div>
+        </details>
+      </section>
+
+      <div class="foot">Tu veux que je te génère la version “multi-pages” (Home + 5 projets + 1 page exercices) ?</div>
+    </main>
+  </div>
+
+  <script>
+    /*
+      FONCTIONNALITÉ #1 — Copier le code
+      - Chaque bouton a un attribut `data-copy="#idDuPre"`
+      - Au clic : on récupère le texte dans le <pre> et on l’envoie au presse-papier
+      - API utilisée : navigator.clipboard.writeText (asynchrone)
+    */
+    document.addEventListener("click", async (e) => {
+      const btn = e.target.closest("[data-copy]");
+      if (!btn) return;
+
+      const sel = btn.getAttribute("data-copy");
+      const el = sel ? document.querySelector(sel) : null;
+      if (!el) return;
+
+      const text = el.textContent;
+      const old = btn.textContent;
+      try{
+        await navigator.clipboard.writeText(text);
+        btn.textContent = "Copié ✅";
+        setTimeout(()=> btn.textContent = old, 800);
+      } catch(err){
+        btn.textContent = "Copie impossible";
+        setTimeout(()=> btn.textContent = old, 900);
+      }
+    });
+
+    /*
+      FONCTIONNALITÉ #2 — Recherche / filtre
+      Principe :
+      - Tous les exercices/projets sont dans des <details>
+      - On stocke un titre “recherchable” dans `data-title`
+      - À chaque frappe : si le texte ne match pas -> on cache le bloc (display:none)
+    */
+    const search = document.getElementById("search");
+    const allDetails = Array.from(document.querySelectorAll("details[data-title]"));
+
+    function applyFilter(){
+      const q = search.value.trim().toLowerCase();
+      allDetails.forEach(d => {
+        const title = (d.getAttribute("data-title") || "").toLowerCase();
+        const body = (d.textContent || "").toLowerCase();
+        const match = q === "" || title.includes(q) || body.includes(q);
+        d.style.display = match ? "" : "none";
+      });
+    }
+    search.addEventListener("input", applyFilter);
+
+    /*
+      FONCTIONNALITÉ #3 — Mode clair / sombre
+      - On bascule `data-theme="light|dark"` sur <html>
+      - Le choix est sauvegardé dans localStorage
+    */
+    const THEME_KEY = "fwTheme";
+    const themeToggle = document.getElementById("themeToggle");
+
+    function refreshThemeToggle(){
+      if (!themeToggle) return;
+      const theme = document.documentElement.getAttribute("data-theme") || "dark";
+      const isLight = theme === "light";
+      themeToggle.setAttribute("aria-pressed", String(isLight));
+      themeToggle.textContent = "Mode : " + (isLight ? "Clair" : "Sombre");
+    }
+
+    if (themeToggle){
+      refreshThemeToggle();
+      themeToggle.addEventListener("click", () => {
+        const current = document.documentElement.getAttribute("data-theme") || "dark";
+        const next = current === "light" ? "dark" : "light";
+        document.documentElement.setAttribute("data-theme", next);
+        try{ localStorage.setItem(THEME_KEY, next); } catch(e){}
+        refreshThemeToggle();
+      });
+    }
+  </script>
+
+  <script src="../js/site.js"></script>
+  <script src="../js/tutorial.js"></script>
+</body>
+</html>

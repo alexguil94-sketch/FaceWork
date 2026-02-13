@@ -195,6 +195,7 @@
   function bindComposerFileUI(){
     const form = $("#newPostForm");
     if(!form || form.__fileUiBound) return;
+    bindComposerModalUI();
 
     const sub = $("#composerSub");
     if(sub){
@@ -308,6 +309,35 @@
       cancel.addEventListener("click", (ev)=>{
         ev.preventDefault();
         exitPostEditMode();
+        closeComposerModal({ reset:true });
+      });
+    }
+
+    // Delete confirm UI (optional in modal)
+    const delBtn = $("#postDeleteBtn");
+    if(delBtn && !delBtn.__bound){
+      delBtn.__bound = true;
+      delBtn.addEventListener("click", (ev)=>{
+        ev.preventDefault();
+        showPostDeleteConfirm();
+      });
+    }
+    const delCancel = $("#postDeleteCancel");
+    if(delCancel && !delCancel.__bound){
+      delCancel.__bound = true;
+      delCancel.addEventListener("click", (ev)=>{
+        ev.preventDefault();
+        hidePostDeleteConfirm();
+      });
+    }
+    const delConfirm = $("#postDeleteConfirm");
+    if(delConfirm && !delConfirm.__bound){
+      delConfirm.__bound = true;
+      delConfirm.addEventListener("click", async (ev)=>{
+        ev.preventDefault();
+        const id = String(form.__editingId || "").trim();
+        if(!id) return;
+        await deletePostById(id);
       });
     }
 
@@ -1055,6 +1085,299 @@
     return String(getUser()?.role || "").trim().toLowerCase() === "admin";
   }
 
+  const FEED_IMG_PLACEHOLDER = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
+  const sbImageCache = new Map(); // key: bucket/path -> objectURL
+
+  const composerModalState = {
+    bound: false,
+    prevOverflow: "",
+  };
+
+  function getComposerOverlay(){
+    return $("#postComposerOverlay");
+  }
+
+  function openComposerModal(){
+    const overlay = getComposerOverlay();
+    if(!overlay) return false;
+    bindComposerModalUI();
+
+    const opening = overlay.classList.contains("hidden");
+    overlay.classList.remove("hidden");
+
+    if(opening){
+      try{
+        composerModalState.prevOverflow = document.body.style.overflow ?? "";
+        document.body.style.overflow = "hidden";
+      }catch(e){ /* ignore */ }
+    }
+
+    hidePostDeleteConfirm();
+    try{ $("#postTitle")?.focus?.(); }catch(e){ /* ignore */ }
+    return true;
+  }
+
+  function closeComposerModal({ reset } = {}){
+    const overlay = getComposerOverlay();
+    if(!overlay) return false;
+
+    const wasOpen = !overlay.classList.contains("hidden");
+    overlay.classList.add("hidden");
+    hidePostDeleteConfirm();
+
+    if(wasOpen){
+      try{ document.body.style.overflow = composerModalState.prevOverflow; }catch(e){ /* ignore */ }
+    }
+
+    if(reset) exitPostEditMode();
+    return true;
+  }
+
+  function bindComposerModalUI(){
+    const overlay = getComposerOverlay();
+    if(!overlay || composerModalState.bound) return;
+    composerModalState.bound = true;
+
+    const openBtn = $("[data-post-modal-open]");
+    if(openBtn && !openBtn.__bound){
+      openBtn.__bound = true;
+      openBtn.addEventListener("click", (e)=>{
+        e.preventDefault();
+        exitPostEditMode();
+        openComposerModal();
+      });
+    }
+
+    $$("[data-post-modal-close]", overlay).forEach(btn => {
+      if(btn.__bound) return;
+      btn.__bound = true;
+      btn.addEventListener("click", (e)=>{
+        e.preventDefault();
+        closeComposerModal({ reset:true });
+      });
+    });
+
+    overlay.addEventListener("click", (e)=>{
+      if(e.target !== overlay) return;
+      closeComposerModal({ reset:true });
+    });
+
+    document.addEventListener("keydown", (e)=>{
+      if(e.key !== "Escape") return;
+      const o = getComposerOverlay();
+      if(!o || o.classList.contains("hidden")) return;
+      closeComposerModal({ reset:true });
+    });
+  }
+
+  function showPostDeleteConfirm(){
+    const box = $("#postDeleteBox");
+    box && box.classList.remove("hidden");
+  }
+
+  function hidePostDeleteConfirm(){
+    const box = $("#postDeleteBox");
+    box && box.classList.add("hidden");
+  }
+
+  function fileExt(raw){
+    const s = String(raw || "").trim().toLowerCase();
+    if(!s) return "";
+    const clean = s.split("#")[0].split("?")[0];
+    const m = clean.match(/\.([a-z0-9]{1,6})$/i);
+    return m ? String(m[1] || "").toLowerCase() : "";
+  }
+
+  function isProbablyImageAttachment({ fileName, fileUrl, fileDataUrl } = {}){
+    const dataUrl = String(fileDataUrl || "").trim();
+    if(dataUrl.startsWith("data:image/")) return true;
+    const ext = fileExt(fileName || fileUrl || "");
+    return ["png","jpg","jpeg","gif","webp","svg","bmp","avif"].includes(ext);
+  }
+
+  function attachmentHint({ fileName, fileUrl, fileDataUrl } = {}){
+    const has = !!(String(fileName || "").trim() || String(fileUrl || "").trim() || String(fileDataUrl || "").trim());
+    if(!has) return "";
+    return isProbablyImageAttachment({ fileName, fileUrl, fileDataUrl }) ? " • 🖼️ Image" : " • 📄 Fichier";
+  }
+
+  function attachmentImgSrc({ fileUrl, fileDataUrl } = {}){
+    const dataUrl = String(fileDataUrl || "").trim();
+    if(dataUrl.startsWith("data:image/")) return dataUrl;
+    const url = String(fileUrl || "").trim();
+    if(!url || url.startsWith("sb://")) return "";
+    return safeUrl(url) || "";
+  }
+
+  function renderPostAttachmentHtml({ id, fileUrl, fileName, fileDataUrl } = {}){
+    const fid = String(id || "").trim();
+    const url = String(fileUrl || "").trim();
+    const name = String(fileName || "").trim();
+    const dataUrl = String(fileDataUrl || "").trim();
+    const has = !!(name || url || dataUrl);
+    if(!has) return "";
+
+    const isImg = isProbablyImageAttachment({ fileName: name, fileUrl: url, fileDataUrl: dataUrl });
+    if(!isImg){
+      return `
+        <button class="file-box" type="button" data-open="${escapeHtml(fid)}" data-file-url="${escapeHtml(url)}" data-file-name="${escapeHtml(name)}">
+          <div class="file-left">
+            <div class="file-ico" aria-hidden="true">📄</div>
+            <div class="file-meta">
+              <div class="file-title">Télécharger le fichier</div>
+              <div class="file-sub">${escapeHtml(name || "Cliquez pour ouvrir")}</div>
+            </div>
+          </div>
+          <span class="badge">Ouvrir</span>
+        </button>
+      `;
+    }
+
+    const src = attachmentImgSrc({ fileUrl: url, fileDataUrl: dataUrl });
+    const sbUrl = !src ? parseSbStorageUrl(url) : null;
+    if(!src && !sbUrl){
+      // Invalid URL: fallback to file-box
+      return `
+        <button class="file-box" type="button" data-open="${escapeHtml(fid)}" data-file-url="${escapeHtml(url)}" data-file-name="${escapeHtml(name)}">
+          <div class="file-left">
+            <div class="file-ico" aria-hidden="true">📄</div>
+            <div class="file-meta">
+              <div class="file-title">Télécharger le fichier</div>
+              <div class="file-sub">${escapeHtml(name || "Cliquez pour ouvrir")}</div>
+            </div>
+          </div>
+          <span class="badge">Ouvrir</span>
+        </button>
+      `;
+    }
+
+    return `
+      <button class="media-box" type="button" data-open="${escapeHtml(fid)}" data-file-url="${escapeHtml(url)}" data-file-name="${escapeHtml(name)}">
+        <img
+          class="media-img"
+          alt=""
+          loading="lazy"
+          src="${escapeHtml(src || FEED_IMG_PLACEHOLDER)}"
+          ${sbUrl ? `data-sb-bucket="${escapeHtml(sbUrl.bucket)}" data-sb-path="${escapeHtml(sbUrl.path)}"` : ""}
+        />
+        <div class="media-bar">
+          <div class="media-name">${escapeHtml(name || "Image")}</div>
+          <span class="badge">Ouvrir</span>
+        </div>
+      </button>
+    `;
+  }
+
+  async function hydrateSbImagePreviews(root){
+    if(!sbEnabled || !sb || !root) return;
+    const imgs = $$("img[data-sb-bucket][data-sb-path]", root);
+    for(const img of imgs){
+      const bucket = String(img.getAttribute("data-sb-bucket") || "").trim();
+      const path = String(img.getAttribute("data-sb-path") || "").trim();
+      if(!bucket || !path) continue;
+      if(img.__sbLoading || img.__sbLoaded) continue;
+
+      const key = `${bucket}/${path}`;
+      const cached = sbImageCache.get(key);
+      if(cached){
+        img.src = cached;
+        img.__sbLoaded = true;
+        continue;
+      }
+
+      img.__sbLoading = true;
+      try{
+        const res = await sb.storage.from(bucket).download(path);
+        if(res.error){
+          console.warn("Image preview download failed", res.error);
+          continue;
+        }
+        const url = URL.createObjectURL(res.data);
+        sbImageCache.set(key, url);
+        img.src = url;
+        img.__sbLoaded = true;
+      }catch(e){
+        console.warn("Image preview download failed", e);
+      }finally{
+        img.__sbLoading = false;
+      }
+    }
+  }
+
+  async function deletePostById(postId){
+    const id = String(postId || "").trim();
+    if(!id) return false;
+
+    const form = $("#newPostForm");
+    if(form && form.__deleting) return false;
+    if(form) form.__deleting = true;
+
+    const confirmBtn = $("#postDeleteConfirm");
+    if(confirmBtn) confirmBtn.disabled = true;
+
+    try{
+      if(sbEnabled){
+        const uid = await sbUserId();
+        if(!uid){
+          window.fwSupabase?.requireAuth?.({ redirectTo: loginHref() });
+          return false;
+        }
+
+        const company = companyFromUser();
+
+        let fileUrl = "";
+        const pre = await sb
+          .from("posts")
+          .select("file_url")
+          .eq("company", company)
+          .eq("id", id)
+          .maybeSingle();
+        if(!pre.error) fileUrl = String(pre.data?.file_url || "");
+
+        const res = await sb
+          .from("posts")
+          .delete()
+          .eq("company", company)
+          .eq("id", id);
+        if(res.error){
+          sbToastError("Suppression", res.error);
+          return false;
+        }
+
+        const sbUrl = parseSbStorageUrl(fileUrl);
+        if(sbUrl){
+          const rm = await sb.storage.from(sbUrl.bucket).remove([sbUrl.path]);
+          if(rm.error){
+            console.warn("Storage remove failed", rm.error);
+          }
+        }
+
+        if(form && String(form.__editingId || "") === String(id)){
+          exitPostEditMode();
+        }
+
+        closeComposerModal({ reset:true });
+        await renderFeedSupabase();
+        window.fwToast?.("Supprimé","La publication a été retirée.");
+        return true;
+      }
+
+      const posts = loadPosts().filter(x=>String(x.id)!==String(id));
+      savePosts(posts);
+      if(form && String(form.__editingId || "") === String(id)){
+        exitPostEditMode();
+      }
+      closeComposerModal({ reset:true });
+      renderFeed();
+      window.fwToast?.("Supprimé","La publication a été retirée.");
+      return true;
+    } finally {
+      hidePostDeleteConfirm();
+      if(confirmBtn) confirmBtn.disabled = false;
+      if(form) form.__deleting = false;
+    }
+  }
+
   function composerIsEmpty(){
     const form = $("#newPostForm");
     if(!form) return true;
@@ -1104,6 +1427,9 @@
     l && (l.textContent = label || (isEditing ? "Mode édition" : "Mode création"));
     const submit = $("#postSubmitBtn");
     submit && (submit.textContent = isEditing ? "Mettre à jour" : "Publier");
+    const del = $("#postDeleteBtn");
+    del && del.classList.toggle("hidden", !isEditing);
+    if(!isEditing) hidePostDeleteConfirm();
   }
 
   function enterPostEditMode({ id, title, body, fileUrl, fileName, fileData } = {}){
@@ -1141,7 +1467,9 @@
     }
 
     setComposerEditUI(true, `Édition : ${String(title || "Publication")}`);
-    try{ form.scrollIntoView({ behavior:"smooth", block:"start" }); }catch(e){ /* ignore */ }
+    if(!openComposerModal()){
+      try{ form.scrollIntoView({ behavior:"smooth", block:"start" }); }catch(e){ /* ignore */ }
+    }
   }
 
   function exitPostEditMode(){
@@ -1186,35 +1514,24 @@
       el.innerHTML = `
         <div class="top">
           <div class="who">
-            <div class="avatar" aria-hidden="true">${(p.author||"U").split(/\s+/).slice(0,2).map(x=>x[0]?.toUpperCase()||"U").join("")}</div>
-            <div class="meta">
-              <div class="name">${escapeHtml(p.author || "Utilisateur")} <span class="badge" style="margin-left:8px">${escapeHtml(p.company || "Entreprise")}</span></div>
-              <div class="time">${escapeHtml(p.createdAt || "")}${(p.fileName || p.fileUrl) ? " • 📄 Fichier" : ""}</div>
-            </div>
-          </div>
-          <div class="row" style="gap:8px; align-items:center">
-            ${canManage ? `<button class="btn icon ghost" title="Éditer" data-edit="${escapeHtml(p.id)}">✏️</button>` : ""}
-            ${canManage ? `<button class="btn icon ghost" title="Supprimer" data-del="${escapeHtml(p.id)}">🗑️</button>` : ""}
-          </div>
-        </div>
-        <h4>${escapeHtml(p.title || "Publication")}</h4>
-        ${(p.fileName || p.fileUrl) ? `
-          <button class="file-box" type="button" data-open="${p.id}" data-file-url="${escapeHtml(p.fileUrl || "")}" data-file-name="${escapeHtml(p.fileName || "")}">
-            <div class="file-left">
-              <div class="file-ico" aria-hidden="true">📄</div>
-              <div class="file-meta">
-                <div class="file-title">Télécharger le fichier</div>
-                <div class="file-sub">${escapeHtml(p.fileName || "Cliquez pour ouvrir")}</div>
+              <div class="avatar" aria-hidden="true">${(p.author||"U").split(/\s+/).slice(0,2).map(x=>x[0]?.toUpperCase()||"U").join("")}</div>
+              <div class="meta">
+                <div class="name">${escapeHtml(p.author || "Utilisateur")} <span class="badge" style="margin-left:8px">${escapeHtml(p.company || "Entreprise")}</span></div>
+                <div class="time">${escapeHtml(p.createdAt || "")}${attachmentHint({ fileName: p.fileName, fileUrl: p.fileUrl, fileDataUrl: p.fileData?.dataUrl })}</div>
               </div>
             </div>
-            <span class="badge">Ouvrir</span>
-          </button>
-        ` : ""}
-        ${renderPostBodyHtml(p.body)}
-        <div class="actions">
-          <button class="iconbtn" data-like="${p.id}">❤️ <span>${p.likes || 0}</span></button>
-          <span class="badge">${p.comments || 0} commentaires</span>
-        </div>
+            <div class="row" style="gap:8px; align-items:center">
+              ${canManage ? `<button class="btn icon ghost" title="Éditer" data-edit="${escapeHtml(p.id)}">✏️</button>` : ""}
+              ${canManage ? `<button class="btn icon ghost" title="Supprimer" data-del="${escapeHtml(p.id)}">🗑️</button>` : ""}
+            </div>
+          </div>
+          <h4>${escapeHtml(p.title || "Publication")}</h4>
+          ${renderPostAttachmentHtml({ id: p.id, fileUrl: p.fileUrl, fileName: p.fileName, fileDataUrl: p.fileData?.dataUrl })}
+          ${renderPostBodyHtml(p.body)}
+          <div class="actions">
+            <button class="iconbtn" data-like="${p.id}">❤️ <span>${p.likes || 0}</span></button>
+            <span class="badge">${p.comments || 0} commentaires</span>
+          </div>
       `;
       root.appendChild(el);
     });
@@ -1251,16 +1568,22 @@
           if(idx>=0){ posts[idx].likes = (posts[idx].likes||0)+1; savePosts(posts); renderFeed(); window.fwToast?.("Like ajouté","Réaction enregistrée."); }
         }
         if(delId){
-          const ok = confirm("Supprimer cette publication ?");
-          if(!ok) return;
-          const posts = loadPosts().filter(x=>x.id!==delId);
-          savePosts(posts);
-          const form = $("#newPostForm");
-          if(form && String(form.__editingId || "") === String(delId)){
-            exitPostEditMode();
+          const posts = loadPosts();
+          const p = posts.find(x=>x.id===delId);
+          if(!p){
+            window.fwToast?.("Suppression", "Publication introuvable.");
+            return;
           }
-          renderFeed();
-          window.fwToast?.("Supprimé","La publication a été retirée.");
+          enterPostEditMode({
+            id: p.id,
+            title: p.title,
+            body: p.body,
+            fileUrl: p.fileUrl,
+            fileName: p.fileName,
+            fileData: p.fileData,
+          });
+          showPostDeleteConfirm();
+          return;
         }
         if(openId){
           const posts = loadPosts();
@@ -1356,6 +1679,7 @@
           };
           savePosts(posts);
           exitPostEditMode();
+          closeComposerModal({ reset:false });
           renderFeed();
           window.fwToast?.("Mis à jour","La publication a été modifiée.");
           return;
@@ -1377,6 +1701,7 @@
         });
         savePosts(posts);
         exitPostEditMode();
+        closeComposerModal({ reset:false });
         renderFeed();
         window.fwToast?.("Publié","Ta publication est en ligne.");
       });
@@ -1455,7 +1780,7 @@
             ${avatar}
             <div class="meta">
               <div class="name">${escapeHtml(name)} <span class="badge" style="margin-left:8px">${escapeHtml(comp)}</span></div>
-              <div class="time">${escapeHtml(createdAt)}${(fileName || fileUrl) ? " • 📄 Fichier" : ""}</div>
+              <div class="time">${escapeHtml(createdAt)}${attachmentHint({ fileName, fileUrl })}</div>
             </div>
           </div>
           ${canDelete ? `
@@ -1466,18 +1791,7 @@
           ` : `<span></span>`}
         </div>
         <h4>${escapeHtml(p.title || "Publication")}</h4>
-        ${(fileName || fileUrl) ? `
-          <button class="file-box" type="button" data-open="${escapeHtml(p.id)}" data-file-url="${escapeHtml(fileUrl)}" data-file-name="${escapeHtml(fileName)}">
-            <div class="file-left">
-              <div class="file-ico" aria-hidden="true">📄</div>
-              <div class="file-meta">
-                <div class="file-title">Télécharger le fichier</div>
-                <div class="file-sub">${escapeHtml(fileName || "Cliquez pour ouvrir")}</div>
-              </div>
-            </div>
-            <span class="badge">Ouvrir</span>
-          </button>
-        ` : ""}
+        ${renderPostAttachmentHtml({ id: p.id, fileUrl, fileName })}
         ${renderPostBodyHtml(p.body)}
         <div class="actions">
           <button class="iconbtn${isLiked ? " active" : ""}" data-like="${escapeHtml(p.id)}" aria-pressed="${isLiked ? "true" : "false"}">❤️ <span>${likeCount}</span></button>
@@ -1486,6 +1800,8 @@
       `;
       root.appendChild(el);
     });
+
+    void hydrateSbImagePreviews(root);
 
     if(!root.__sbBound){
       root.__sbBound = true;
@@ -1548,32 +1864,30 @@
         }
 
         if(delId){
-          const ok = confirm("Supprimer cette publication ?");
-          if(!ok) return;
           const company = companyFromUser();
-          let fileUrl = "";
-          const pre = await sb
+          const res = await sb
             .from("posts")
-            .select("file_url")
+            .select("id,title,body,file_url,file_name")
             .eq("company", company)
             .eq("id", delId)
             .maybeSingle();
-          if(!pre.error) fileUrl = String(pre.data?.file_url || "");
-
-          const res = await sb.from("posts").delete().eq("company", company).eq("id", delId);
-          if(res.error) sbToastError("Suppression", res.error);
-          const sbUrl = parseSbStorageUrl(fileUrl);
-          if(!res.error && sbUrl){
-            const rm = await sb.storage.from(sbUrl.bucket).remove([sbUrl.path]);
-            if(rm.error){
-              console.warn("Storage remove failed", rm.error);
-            }
+          if(res.error){
+            sbToastError("Suppression", res.error);
+            return;
           }
-          const form = $("#newPostForm");
-          if(form && String(form.__editingId || "") === String(delId)){
-            exitPostEditMode();
+          const p = res.data || null;
+          if(!p){
+            window.fwToast?.("Suppression", "Publication introuvable.");
+            return;
           }
-          await renderFeedSupabase();
+          enterPostEditMode({
+            id: p.id,
+            title: p.title,
+            body: p.body,
+            fileUrl: p.file_url,
+            fileName: p.file_name,
+          });
+          showPostDeleteConfirm();
           return;
         }
 
@@ -1691,6 +2005,7 @@
           }
 
           exitPostEditMode();
+          closeComposerModal({ reset:false });
           await renderFeedSupabase();
           window.fwToast?.("Mis à jour","La publication a été modifiée.");
           return;
@@ -1741,6 +2056,7 @@
         }
 
         exitPostEditMode();
+        closeComposerModal({ reset:false });
         await renderFeedSupabase();
         window.fwToast?.("Publié","Ta publication est en ligne.");
       });

@@ -21,6 +21,7 @@ Si tu vois des comportements bizarres, utilise Live Server.
 - `tutoriel.html` : Tutoriel (prise en main)
 - `exercices.html` : Exercices (hub) + pages dans `exercices/`
 - `tutos.html` : Tutos (hub) + pages dans `tutos/`
+- `langages.html` : Langages (hub) + pages dans `langages/`
 - `app/feed.html` : Publications
 - `app/salon.html` : Salons (liste)
 - `app/channels.html` : Canaux

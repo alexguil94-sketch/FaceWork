@@ -52,73 +52,8 @@
             <h1 class="page-title">Publications Internes</h1>
             <p class="page-sub">Partagez des documents, photos et présentations avec votre équipe.</p>
           </div>
-          <a class="btn primary" href="#composer">＋ Nouvelle publication</a>
+          <button class="btn primary" type="button" data-post-modal-open>＋ Nouvelle publication</button>
         </div>
-
-        <div class="spacer"></div>
-
-        <section id="composer" class="card panel">
-          <div class="badge">Composer</div>
-          <h2 style="margin:10px 0 6px; font-size:26px">Créer une publication</h2>
-          <p class="page-sub" id="composerSub">Démo locale : tes posts sont enregistrés dans le navigateur (localStorage).</p>
-          <div class="hr"></div>
-
-          <form id="newPostForm" class="grid2">
-            <div class="col">
-              <div id="postEditBar" class="row hidden" style="justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:10px">
-                <div class="badge" id="postEditLabel">Mode édition</div>
-                <button class="btn small" type="button" id="postEditCancel">Annuler</button>
-              </div>
-              <div>
-                <div class="label">Titre</div>
-                <input class="input" id="postTitle" placeholder="Ex: Calculatrice du futur"/>
-              </div>
-              <div>
-                <div class="label">Message</div>
-                <textarea class="input" id="postBody" rows="4" placeholder="Explique ce que tu partages…"></textarea>
-              </div>
-              <div>
-                <div class="label">Lien du fichier (optionnel)</div>
-                <div class="field">
-                  <span class="field-icon" aria-hidden="true">🔗</span>
-                  <input class="input" id="postFileUrl" type="url" placeholder="https://... ou ../assets/mon-fichier.pdf"/>
-                </div>
-              </div>
-              <div>
-                <div class="label">Glisser un fichier (ou du code)</div>
-                <div id="postDrop" class="dropzone" tabindex="0" role="button" aria-label="Déposer un fichier ou cliquer pour choisir">
-                  <div class="drop-ico" aria-hidden="true">📎</div>
-                  <div class="drop-meta">
-                    <div class="drop-title">Dépose un fichier ou du code ici</div>
-                    <div class="drop-sub">ou clique pour choisir un fichier depuis ton PC</div>
-                    <div class="drop-file" id="postFileInfo">Aucun fichier sélectionné</div>
-                  </div>
-                  <button class="btn small ghost" type="button" id="postFileClear">Retirer</button>
-                </div>
-                <input id="postFile" type="file" class="sr-only" />
-              </div>
-              <div>
-                <div class="label">Dossier (optionnel)</div>
-                <input class="input" id="postFolder" placeholder="Ex: RH, Marketing, Projets/2026"/>
-              </div>
-              <div>
-                <div class="label">Nom du fichier (optionnel)</div>
-                <input class="input" id="postFileName" placeholder="Ex: calculatrice-du-futur.pdf"/>
-              </div>
-              <button class="btn primary block" id="postSubmitBtn" type="submit">Publier</button>
-            </div>
-
-            <div class="post">
-              <h4>Conseil</h4>
-              <p>Ajoute un lien de fichier pour afficher un bloc “Télécharger le fichier” comme sur la maquette.</p>
-              <div class="actions" style="margin-top:14px">
-                <span class="badge">partage docs</span>
-                <span class="badge">réactions</span>
-                <span class="badge">commentaires (à venir)</span>
-              </div>
-            </div>
-          </form>
-        </section>
 
         <div class="spacer"></div>
 
@@ -136,6 +71,89 @@
         </section>
       </div>
     </main>
+  </div>
+
+  <div class="composer-overlay hidden" id="postComposerOverlay" role="dialog" aria-modal="true" aria-label="Composer une publication">
+    <section id="composer" class="card panel composer-modal" role="document">
+      <div class="row" style="justify-content:space-between; flex-wrap:wrap; gap:12px; align-items:flex-end">
+        <div>
+          <div class="badge">Composer</div>
+          <h2 style="margin:10px 0 6px; font-size:26px">Créer une publication</h2>
+          <p class="page-sub" id="composerSub">Démo locale : tes posts sont enregistrés dans le navigateur (localStorage).</p>
+        </div>
+        <button class="btn small ghost" type="button" data-post-modal-close>Fermer</button>
+      </div>
+
+      <div class="hr"></div>
+
+      <form id="newPostForm" class="grid2">
+        <div class="col">
+          <div id="postEditBar" class="row hidden" style="justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:10px">
+            <div class="badge" id="postEditLabel">Mode édition</div>
+            <div class="row" style="gap:8px; flex-wrap:wrap">
+              <button class="btn small" type="button" id="postEditCancel">Annuler</button>
+              <button class="btn small danger hidden" type="button" id="postDeleteBtn">Supprimer</button>
+            </div>
+          </div>
+
+          <div id="postDeleteBox" class="callout hidden" style="margin:0 0 10px">
+            <strong>Supprimer cette publication ?</strong>
+            <div class="row" style="gap:8px; margin-top:10px; flex-wrap:wrap">
+              <button class="btn small" type="button" id="postDeleteCancel">Annuler</button>
+              <button class="btn small danger" type="button" id="postDeleteConfirm">Supprimer</button>
+            </div>
+          </div>
+
+          <div>
+            <div class="label">Titre</div>
+            <input class="input" id="postTitle" placeholder="Ex: Calculatrice du futur"/>
+          </div>
+          <div>
+            <div class="label">Message</div>
+            <textarea class="input" id="postBody" rows="4" placeholder="Explique ce que tu partages…"></textarea>
+          </div>
+          <div>
+            <div class="label">Lien du fichier (optionnel)</div>
+            <div class="field">
+              <span class="field-icon" aria-hidden="true">🔗</span>
+              <input class="input" id="postFileUrl" type="url" placeholder="https://... ou ../assets/mon-fichier.pdf"/>
+            </div>
+          </div>
+          <div>
+            <div class="label">Glisser un fichier (ou du code)</div>
+            <div id="postDrop" class="dropzone" tabindex="0" role="button" aria-label="Déposer un fichier ou cliquer pour choisir">
+              <div class="drop-ico" aria-hidden="true">📎</div>
+              <div class="drop-meta">
+                <div class="drop-title">Dépose un fichier ou du code ici</div>
+                <div class="drop-sub">ou clique pour choisir un fichier depuis ton PC</div>
+                <div class="drop-file" id="postFileInfo">Aucun fichier sélectionné</div>
+              </div>
+              <button class="btn small ghost" type="button" id="postFileClear">Retirer</button>
+            </div>
+            <input id="postFile" type="file" class="sr-only" />
+          </div>
+          <div>
+            <div class="label">Dossier (optionnel)</div>
+            <input class="input" id="postFolder" placeholder="Ex: RH, Marketing, Projets/2026"/>
+          </div>
+          <div>
+            <div class="label">Nom du fichier (optionnel)</div>
+            <input class="input" id="postFileName" placeholder="Ex: calculatrice-du-futur.pdf"/>
+          </div>
+          <button class="btn primary block" id="postSubmitBtn" type="submit">Publier</button>
+        </div>
+
+        <div class="post">
+          <h4>Conseil</h4>
+          <p>Ajoute un lien de fichier pour afficher un bloc “Télécharger le fichier” comme sur la maquette.</p>
+          <div class="actions" style="margin-top:14px">
+            <span class="badge">partage docs</span>
+            <span class="badge">réactions</span>
+            <span class="badge">commentaires (à venir)</span>
+          </div>
+        </div>
+      </form>
+    </section>
   </div>
 
   <div class="toast" role="status" aria-live="polite">

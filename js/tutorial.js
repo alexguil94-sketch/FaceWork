@@ -37,8 +37,109 @@
     details.forEach(d => d.open = false);
   });
 
-  // ---------- Copy code blocks
+  // ---------- Copy code blocks + preview (HTML)
+  let __fwPreview = null;
+
+  function ensurePreviewModal(){
+    if(__fwPreview) return __fwPreview;
+
+    const overlay = document.createElement("div");
+    overlay.className = "preview-overlay hidden";
+    overlay.innerHTML = `
+      <div class="card preview-modal" role="dialog" aria-modal="true" aria-label="Prévisualisation">
+        <div class="preview-header">
+          <div class="preview-head-left">
+            <div class="preview-title">Prévisualisation</div>
+            <div class="preview-sub" data-preview-sub>HTML</div>
+          </div>
+          <div class="row" style="gap:8px; align-items:center">
+            <button class="btn small" type="button" data-preview-close>Fermer</button>
+          </div>
+        </div>
+        <div class="preview-body">
+          <iframe class="preview-frame" title="Prévisualisation" sandbox="" referrerpolicy="no-referrer"></iframe>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+    const frame = overlay.querySelector("iframe");
+    const sub = overlay.querySelector("[data-preview-sub]");
+    const closeBtn = overlay.querySelector("[data-preview-close]");
+
+    const state = {
+      overlay,
+      frame,
+      sub,
+      closeBtn,
+      prevOverflow: "",
+    };
+
+    function close(){
+      overlay.classList.add("hidden");
+      if(frame) frame.removeAttribute("srcdoc");
+      if(state.prevOverflow !== null){
+        document.body.style.overflow = state.prevOverflow;
+      }
+    }
+
+    closeBtn?.addEventListener("click", close);
+    overlay.addEventListener("click", (e)=>{
+      if(e.target === overlay) close();
+    });
+
+    if(!overlay.__escBound){
+      overlay.__escBound = true;
+      document.addEventListener("keydown", (e)=>{
+        if(e.key !== "Escape") return;
+        if(!__fwPreview?.overlay) return;
+        if(__fwPreview.overlay.classList.contains("hidden")) return;
+        close();
+      });
+    }
+
+    state.close = close;
+    __fwPreview = state;
+    return state;
+  }
+
+  function openHtmlPreview(raw){
+    const code = String(raw || "").trim();
+    if(!code){
+      window.fwToast?.("Prévisualiser", "Aucun code à afficher.");
+      return;
+    }
+    if(!looksLikeHtml(code)){
+      window.fwToast?.("Prévisualiser", "Colle du HTML (une page) pour utiliser l’aperçu.");
+      return;
+    }
+
+    const modal = ensurePreviewModal();
+    if(!modal?.overlay || !modal?.frame) return;
+
+    try{
+      const opening = modal.overlay.classList.contains("hidden");
+      if(opening){
+        modal.prevOverflow = document.body.style.overflow ?? "";
+        document.body.style.overflow = "hidden";
+      }
+    }catch(e){ /* ignore */ }
+
+    modal.sub && (modal.sub.textContent = "HTML • aperçu (sandbox)");
+    modal.frame.setAttribute("srcdoc", buildPreviewSrcdoc(code));
+    modal.overlay.classList.remove("hidden");
+  }
+
   document.addEventListener("click", async (e) => {
+    const prevBtn = e.target.closest("[data-preview]");
+    if(prevBtn){
+      const sel = prevBtn.getAttribute("data-preview");
+      const target = sel ? document.querySelector(sel) : null;
+      const text = (target?.innerText || target?.textContent || "").replace(/\s+$/,"");
+      openHtmlPreview(text);
+      return;
+    }
+
     const btn = e.target.closest("[data-copy]");
     if(!btn) return;
 
@@ -227,11 +328,72 @@
     window.open(href, "_blank", "noopener");
   }
 
+  function looksLikeHtml(code){
+    const t = String(code || "").trim();
+    if(!t) return false;
+    const lower = t.toLowerCase();
+    if(lower.startsWith("<!doctype html")) return true;
+    if(lower.startsWith("<html")) return true;
+    if(lower.includes("<head") || lower.includes("<body")) return true;
+    if(lower.startsWith("<") && /<\/[a-z][^>]*>/i.test(t)) return true;
+    return false;
+  }
+
+  function guessPreviewBaseHref(html){
+    let root = "";
+    try{ root = new URL(".", window.location.href).href; }catch(e){ root = ""; }
+    if(!root) return "";
+
+    const s = String(html || "");
+    // If the snippet uses ../ paths, assume the file lives in a subfolder (guides/, tutos/, exercices/…)
+    if(/\b(?:href|src)\s*=\s*['"]\.\.\//i.test(s)){
+      try{ return new URL("guides/", root).href; }catch(e){ return root; }
+    }
+    return root;
+  }
+
+  function injectBaseIntoHtmlDoc(html, baseHref){
+    const s = String(html || "").trim();
+    if(!s) return "";
+    if(/<base\b/i.test(s)) return s;
+
+    const base = String(baseHref || "").trim();
+    const baseTag = base ? `<base href="${escapeHtml(base)}">` : "";
+    if(!baseTag) return s;
+
+    if(/<head\b[^>]*>/i.test(s)){
+      return s.replace(/<head\b[^>]*>/i, (m)=> `${m}\n  ${baseTag}`);
+    }
+
+    if(/<html\b[^>]*>/i.test(s)){
+      return s.replace(/<html\b[^>]*>/i, (m)=> `${m}\n<head>\n  <meta charset="utf-8"/>\n  <meta name="viewport" content="width=device-width,initial-scale=1"/>\n  ${baseTag}\n</head>`);
+    }
+
+    // Fragment -> wrap into a minimal document
+    return `<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  ${baseTag}
+</head>
+<body>
+${s}
+</body>
+</html>`;
+  }
+
+  function buildPreviewSrcdoc(html){
+    const baseHref = guessPreviewBaseHref(html);
+    return injectBaseIntoHtmlDoc(html, baseHref);
+  }
+
   function toCodeFence(txt){
     const t = String(txt || "").replace(/\r\n/g,"\n").replace(/\s+$/,"");
     if(!t) return "";
     if(t.includes("```")) return `\n\`\`\`\n${t}\n\`\`\`\n`;
-    return `\n\`\`\`js\n${t}\n\`\`\`\n`;
+    const lang = looksLikeHtml(t) ? "html" : "js";
+    return `\n\`\`\`${lang}\n${t}\n\`\`\`\n`;
   }
 
   function renderBodyHtml(body, idPrefix){
@@ -273,11 +435,15 @@
     out.forEach(part => {
       if(part.type === "code"){
         const preId = `${idPrefix}-code-${fenceNo++}`;
+        const canPreview = /^(html?|xhtml)$/i.test(String(part.lang || "").trim()) || looksLikeHtml(part.value);
         html.push(`
           <div class="codeblock">
             <div class="codebar">
-              ${part.lang ? `Code (${escapeHtml(part.lang)})` : "Code"}
-              <button class="btn small" type="button" data-copy="#${escapeHtml(preId)}">Copier</button>
+              <span>${part.lang ? `Code (${escapeHtml(part.lang)})` : "Code"}</span>
+              <div class="row" style="gap:8px; align-items:center">
+                ${canPreview ? `<button class="btn small" type="button" data-preview="#${escapeHtml(preId)}">Prévisualiser</button>` : ""}
+                <button class="btn small" type="button" data-copy="#${escapeHtml(preId)}">Copier</button>
+              </div>
             </div>
             <pre id="${escapeHtml(preId)}">${escapeHtml(part.value || "")}</pre>
           </div>

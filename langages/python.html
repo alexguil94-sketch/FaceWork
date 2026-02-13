@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Python — FaceWork</title>
+  <link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body>
+  <header class="navbar">
+    <div class="container inner">
+      <a class="brand" href="../index.html" aria-label="FaceWork accueil">
+        <div class="logo" aria-hidden="true"><img src="../assets/fw-logo.png" alt=""/></div>
+        <div>
+          <div style="line-height:1; font-size:18px">FaceWork</div>
+          <div style="color:var(--muted); font-size:12px; font-weight:800">Langages</div>
+        </div>
+      </a>
+
+      <nav class="navlinks" aria-label="Navigation">
+        <a href="../tutoriel.html">Tutoriel</a>
+        <a href="../exercices.html">Exercices</a>
+        <a href="../tutos.html">Tutos</a>
+        <a href="../langages.html">Langages</a>
+      </nav>
+
+      <div class="nav-actions">
+        <button class="btn icon" data-theme-toggle title="Basculer thème">🌓</button>
+        <a class="btn primary" href="../login.html">Accéder à l’app</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="spacer"></div>
+    <a class="btn small" href="../langages.html">← Retour aux langages</a>
+
+    <div class="spacer" style="height:12px"></div>
+
+    <section class="card panel">
+      <div class="badge">Langage</div>
+      <h1 class="page-title" style="margin-top:10px">Python</h1>
+      <p class="page-sub">Scripts, automatisation, logique et bases data.</p>
+
+      <div class="row" style="justify-content:space-between; flex-wrap:wrap; gap:12px; align-items:flex-end; margin-top:12px">
+        <label class="searchbar" aria-label="Rechercher dans Python" style="max-width: 520px">
+          <span class="icon" aria-hidden="true">🔎</span>
+          <input id="tutSearch" type="search" placeholder="Rechercher : variables, input, listes…" />
+        </label>
+        <div class="badge" id="tutCount" aria-live="polite">—</div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="callout" style="max-width: 86ch">
+        <strong>À faire :</strong> ajoute ici tes exercices + explications, puis relie d’autres pages si besoin.
+      </div>
+
+      <div class="spacer" style="height:14px"></div>
+
+      <details class="tut-details" data-tut-title="python hello world print" open>
+        <summary class="tut-summary">
+          <div class="tut-left">
+            <div class="tut-ico" aria-hidden="true">🐍</div>
+            <div class="tut-txt">
+              <div class="tut-title">Hello world</div>
+              <div class="tut-meta">Afficher du texte</div>
+            </div>
+          </div>
+          <span class="badge">Bases</span>
+        </summary>
+        <div class="tut-body">
+          <div class="codeblock">
+            <div class="codebar">
+              Code
+              <button class="btn small" type="button" data-copy="#py-hello">Copier</button>
+            </div>
+            <pre id="py-hello">print("Hello, world!")</pre>
+          </div>
+        </div>
+      </details>
+
+      <details class="tut-details" data-tut-title="python variables input" open>
+        <summary class="tut-summary">
+          <div class="tut-left">
+            <div class="tut-ico" aria-hidden="true">⌨</div>
+            <div class="tut-txt">
+              <div class="tut-title">Variables + input</div>
+              <div class="tut-meta">Récupérer une valeur et l’utiliser</div>
+            </div>
+          </div>
+          <span class="badge">Débutant</span>
+        </summary>
+        <div class="tut-body">
+          <div class="codeblock">
+            <div class="codebar">
+              Code
+              <button class="btn small" type="button" data-copy="#py-input">Copier</button>
+            </div>
+            <pre id="py-input">name = input("Ton prénom : ")
+print("Salut", name)</pre>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <footer class="footer">
+      <div class="inner container">
+        <div>
+          <div style="font-weight:950; color:var(--text)">FaceWork</div>
+          <div style="margin-top:6px">Langages — Python.</div>
+        </div>
+        <div class="col" style="gap:8px">
+          <div class="badge">Liens</div>
+          <a href="../langages.html">Langages</a>
+          <a href="../exercices.html">Exercices</a>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <div class="toast" role="status" aria-live="polite">
+    <div class="t">Info</div>
+    <div class="d">—</div>
+  </div>
+
+  <script src="../js/site.js"></script>
+  <script src="../js/tutorial.js"></script>
+</body>
+</html>
