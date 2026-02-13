@@ -1759,7 +1759,7 @@ html[data-theme="light"] .preview-frame{background:#fff}
 .composer-overlay{
   position: fixed;
   inset: 0;
-  z-index: 88;
+  z-index: 120;
   background: rgba(0,0,0,.62);
   display:flex;
   align-items:center;
