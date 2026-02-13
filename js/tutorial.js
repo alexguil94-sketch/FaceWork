@@ -200,6 +200,9 @@
   const postsList = $("#tutPostsList");
   const postsEmpty = $("#tutPostsEmpty");
   const adminBox = $("#tutAdminBox");
+  const adminOpenBtn = $("#tutAdminOpen");
+  const composerOverlay = $("#tutComposerOverlay");
+  const composerCloseBtn = composerOverlay ? $("[data-tut-composer-close]", composerOverlay) : null;
   const form = $("#tutPostForm");
 
   function escapeHtml(s){
@@ -473,9 +476,35 @@ ${s}
     try{ localStorage.setItem(LS_KEY, JSON.stringify(items || [])); }catch(e){ /* ignore */ }
   }
 
+  const composerState = {
+    prevOverflow: "",
+    open: false,
+  };
+
   function setAdminVisibility(){
     if(!adminBox) return;
     adminBox.classList.toggle("hidden", !isAdmin());
+  }
+
+  function showComposerOverlay(show){
+    if(!composerOverlay) return;
+    const next = !!show;
+    composerState.open = next;
+    composerOverlay.classList.toggle("hidden", !next);
+    try{
+      if(next){
+        composerState.prevOverflow = document.body.style.overflow ?? "";
+        document.body.style.overflow = "hidden";
+      }else{
+        document.body.style.overflow = composerState.prevOverflow;
+      }
+    }catch(e){ /* ignore */ }
+  }
+
+  function focusComposerTitle(){
+    const t = $("#tutTitle");
+    if(!t) return;
+    try{ t.focus(); }catch(e){ /* ignore */ }
   }
 
   function composerIsEmpty(){
@@ -485,6 +514,27 @@ ${s}
     const fileName = $("#tutFileName")?.value?.trim() || "";
     const file = form?.__selectedFile || null;
     return !(title || body || fileUrl || fileName || file);
+  }
+
+  function openComposerModal({ reset } = {}){
+    if(!composerOverlay) return;
+    if(!isAdmin()){
+      window.fwToast?.("Admin", "Seuls les admins peuvent publier/modifier.");
+      return;
+    }
+    reset && resetComposer();
+    bindFileUI();
+    showComposerOverlay(true);
+    setTimeout(focusComposerTitle, 40);
+  }
+
+  function closeComposerModal({ force } = {}){
+    if(!composerOverlay || !composerState.open) return;
+    if(!force && !composerIsEmpty()){
+      const ok = confirm("Fermer sans publier ? Les changements seront perdus.");
+      if(!ok) return;
+    }
+    showComposerOverlay(false);
   }
 
   function resetComposer(){
@@ -523,7 +573,7 @@ ${s}
 
     $("#tutEditBar")?.classList.remove("hidden");
     window.fwToast?.("Mode édition","Modifie le post puis clique Publier.");
-    window.location.hash = "#tut-posts";
+    openComposerModal();
   }
 
   function bindFileUI(){
@@ -835,6 +885,7 @@ ${s}
 
         resetComposer();
         await renderPosts();
+        closeComposerModal({ force: true });
         window.fwToast?.("OK","Post mis à jour.");
         return;
       }
@@ -861,6 +912,7 @@ ${s}
 
       resetComposer();
       await renderPosts();
+      closeComposerModal({ force: true });
       window.fwToast?.("Publié","Post ajouté.");
       return;
     }
@@ -882,6 +934,7 @@ ${s}
       }
       resetComposer();
       await renderPosts();
+      closeComposerModal({ force: true });
       window.fwToast?.("OK","Post mis à jour (local).");
       return;
     }
@@ -899,6 +952,7 @@ ${s}
     saveLocalPosts(items);
     resetComposer();
     await renderPosts();
+    closeComposerModal({ force: true });
     window.fwToast?.("Publié","Post ajouté (local).");
   }
 
@@ -1009,6 +1063,22 @@ ${s}
     setAdminVisibility();
     bindFileUI();
     renderPosts();
+  }
+
+  if(adminOpenBtn && !adminOpenBtn.__bound){
+    adminOpenBtn.__bound = true;
+    adminOpenBtn.addEventListener("click", ()=> openComposerModal({ reset: true }));
+  }
+
+  if(composerOverlay && !composerOverlay.__bound){
+    composerOverlay.__bound = true;
+    composerOverlay.addEventListener("click", (e)=>{
+      if(e.target === composerOverlay) closeComposerModal();
+    });
+    composerCloseBtn && composerCloseBtn.addEventListener("click", ()=> closeComposerModal());
+    window.addEventListener("keydown", (e)=>{
+      if(e.key === "Escape" && composerState.open) closeComposerModal();
+    });
   }
 })();
 
