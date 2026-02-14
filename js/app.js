@@ -3518,20 +3518,21 @@
       return { modeLabel: "Supabase • Non connecté", items: [], needsAuth:true };
     }
 
-    const baseQuery = ()=> sb
+    const baseQuery = (selectStr)=> sb
       .from(LEARNING_TABLE)
+      .select(selectStr)
       .eq("company", company)
       .order("created_at", { ascending: false });
 
     const selectNoDiff = "id,company,author_id,kind,lang,title,prompt,answer,created_at,updated_at";
-    let res = await baseQuery().select(`${selectNoDiff},difficulty`);
+    let res = await baseQuery(`${selectNoDiff},difficulty`);
 
     if(res.error){
       const code = String(res.error?.code || "");
       const msg = String(res.error?.message || "").toLowerCase();
       const missingDifficulty = (code === "42703") || (msg.includes("difficulty") && msg.includes("does not exist"));
       if(missingDifficulty){
-        res = await baseQuery().select(selectNoDiff);
+        res = await baseQuery(selectNoDiff);
       }
     }
 
@@ -4165,21 +4166,22 @@ ${s}
     }
 
     modeEl && (modeEl.textContent = "Supabase • Chargement…");
-    const baseQuery = ()=> sb
+    const baseQuery = (selectStr)=> sb
       .from(LEARNING_TABLE)
+      .select(selectStr)
       .eq("company", company)
       .order("updated_at", { ascending: false })
       .limit(250);
 
     const selectNoDiff = "id,company,author_id,kind,lang,title,prompt,answer,created_at,updated_at";
-    let res = await baseQuery().select(`${selectNoDiff},difficulty`);
+    let res = await baseQuery(`${selectNoDiff},difficulty`);
 
     if(res.error){
       const code = String(res.error?.code || "");
       const msg = String(res.error?.message || "").toLowerCase();
       const missingDifficulty = (code === "42703") || (msg.includes("difficulty") && msg.includes("does not exist"));
       if(missingDifficulty){
-        res = await baseQuery().select(selectNoDiff);
+        res = await baseQuery(selectNoDiff);
       }
     }
 
