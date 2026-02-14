@@ -71,6 +71,7 @@ create table if not exists public.learning_items (
   author_id uuid not null references public.profiles(id) on delete cascade,
   kind text not null default 'exercise' check (kind in ('exercise','tutorial')),
   lang text not null default 'html' check (lang in ('html','css','js','sql','php')),
+  difficulty text not null default 'beginner' check (difficulty in ('beginner','intermediate','advanced')),
   title text not null,
   prompt text not null default '',
   answer text not null default '',
@@ -135,6 +136,7 @@ alter table public.channel_messages add column if not exists file_url text not n
 alter table public.channel_messages add column if not exists file_name text not null default '';
 alter table public.dm_messages add column if not exists file_url text not null default '';
 alter table public.dm_messages add column if not exists file_name text not null default '';
+alter table public.learning_items add column if not exists difficulty text not null default 'beginner';
 
 -- -------------------------------------------------------------------
 -- Seed per company (roles + default channels) + first admin assignment

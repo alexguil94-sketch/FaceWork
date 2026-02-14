@@ -3438,6 +3438,13 @@
     const s = String(raw || "").trim().toLowerCase();
     return ["html","css","js","sql","php"].includes(s) ? s : "html";
   }
+  function normalizeLearnDifficulty(raw){
+    const s = String(raw || "").trim().toLowerCase();
+    if(["beginner","debutant","débutant","easy","facile","1"].includes(s)) return "beginner";
+    if(["intermediate","intermediaire","intermédiaire","medium","moyen","2"].includes(s)) return "intermediate";
+    if(["advanced","avance","avancé","hard","difficile","expert","3"].includes(s)) return "advanced";
+    return "beginner";
+  }
 
   function learnLangLabel(lang){
     const l = normalizeLearnLang(lang);
@@ -3447,14 +3454,20 @@
   function learnLangIcon(lang){
     const l = normalizeLearnLang(lang);
     if(l === "html") return "</>";
-    if(l === "css") return "🎨";
-    if(l === "js") return "⚡";
-    if(l === "sql") return "🗄️";
-    if(l === "php") return "🐘";
+    if(l === "css") return "CSS";
+    if(l === "js") return "JS";
+    if(l === "sql") return "SQL";
+    if(l === "php") return "PHP";
     return "</>";
   }
   function learnKindLabel(kind){
     return normalizeLearnKind(kind) === "tutorial" ? "Tutoriel" : "Exercice";
+  }
+  function learnDifficultyLabel(diff){
+    const d = normalizeLearnDifficulty(diff);
+    if(d === "intermediate") return "Intermédiaire";
+    if(d === "advanced") return "Avancé";
+    return "Débutant";
   }
 
   function seedLearningItemsIfEmpty(){
@@ -3477,6 +3490,7 @@
         author_id: "local",
         kind: normalizeLearnKind(t?.kind),
         lang: normalizeLearnLang(t?.lang),
+        difficulty: normalizeLearnDifficulty(t?.difficulty),
         title: String(t?.title || "").trim() || "Sans titre",
         prompt: String(t?.prompt || ""),
         answer: String(t?.answer || ""),
@@ -3504,11 +3518,22 @@
       return { modeLabel: "Supabase • Non connecté", items: [], needsAuth:true };
     }
 
-    const res = await sb
+    const baseQuery = ()=> sb
       .from(LEARNING_TABLE)
-      .select("id,company,author_id,kind,lang,title,prompt,answer,created_at,updated_at")
       .eq("company", company)
       .order("created_at", { ascending: false });
+
+    const selectNoDiff = "id,company,author_id,kind,lang,title,prompt,answer,created_at,updated_at";
+    let res = await baseQuery().select(`${selectNoDiff},difficulty`);
+
+    if(res.error){
+      const code = String(res.error?.code || "");
+      const msg = String(res.error?.message || "").toLowerCase();
+      const missingDifficulty = (code === "42703") || (msg.includes("difficulty") && msg.includes("does not exist"));
+      if(missingDifficulty){
+        res = await baseQuery().select(selectNoDiff);
+      }
+    }
 
     if(res.error){
       const code = String(res.error?.code || "");
@@ -3521,7 +3546,8 @@
       return { modeLabel: "Supabase • Erreur", items: [], needsAuth:false };
     }
 
-    return { modeLabel: "Supabase", items: res.data || [], needsAuth:false };
+    const items = (res.data || []).map(x=> ({ ...x, difficulty: normalizeLearnDifficulty(x?.difficulty) }));
+    return { modeLabel: "Supabase", items, needsAuth:false };
   }
 
   function nl2brEscaped(raw){
@@ -3664,6 +3690,7 @@ ${s}
     const it = item || {};
     const kind = normalizeLearnKind(it.kind);
     const lang = normalizeLearnLang(it.lang);
+    const diff = normalizeLearnDifficulty(it.difficulty);
     const title = String(it.title || "").trim() || "Sans titre";
     const prompt = String(it.prompt || "").trim();
     const answer = String(it.answer || "").trim();
@@ -3675,6 +3702,7 @@ ${s}
     const meta = [
       learnKindLabel(kind),
       learnLangLabel(lang),
+      kind === "exercise" ? learnDifficultyLabel(diff) : "",
       created ? fmtTs(created) : "",
     ].filter(Boolean).join(" • ");
 
@@ -3733,10 +3761,12 @@ ${s}
 
     const kindRoot = $("#learnKindFilters");
     const langRoot = $("#learnLangFilters");
+    const diffRoot = $("#learnDiffFilters");
 
     const state = {
       kind: "exercise",
       lang: "",
+      difficulty: "",
       q: "",
       items: [],
     };
@@ -3753,16 +3783,24 @@ ${s}
         const active = !wantRaw ? !btnRaw : normalizeLearnLang(btnRaw) === normalizeLearnLang(wantRaw);
         b.classList.toggle("primary", active);
       });
+      (diffRoot ? Array.from(diffRoot.querySelectorAll("[data-learn-difficulty]")) : []).forEach(b=>{
+        const btnRaw = String(b.getAttribute("data-learn-difficulty") || "").trim().toLowerCase();
+        const wantRaw = String(state.difficulty || "").trim().toLowerCase();
+        const active = !wantRaw ? !btnRaw : normalizeLearnDifficulty(btnRaw) === normalizeLearnDifficulty(wantRaw);
+        b.classList.toggle("primary", active);
+      });
     };
 
     const applyFilters = (items)=>{
       const wantKind = normalizeLearnKind(state.kind);
       const wantLang = String(state.lang || "").trim().toLowerCase();
+      const wantDiff = String(state.difficulty || "").trim().toLowerCase();
       const q = String(state.q || "").trim().toLowerCase();
 
       return (items || [])
         .filter(it=> normalizeLearnKind(it.kind) === wantKind)
         .filter(it=> !wantLang || normalizeLearnLang(it.lang) === normalizeLearnLang(wantLang))
+        .filter(it=> wantKind !== "exercise" || !wantDiff || normalizeLearnDifficulty(it.difficulty) === normalizeLearnDifficulty(wantDiff))
         .filter(it=>{
           if(!q) return true;
           const hay = `${it.title || ""}\n${it.prompt || ""}\n${it.answer || ""}`.toLowerCase();
@@ -3772,6 +3810,7 @@ ${s}
 
     const rerender = ()=>{
       setActiveButtons();
+      diffRoot && diffRoot.classList.toggle("hidden", normalizeLearnKind(state.kind) !== "exercise");
       const filtered = applyFilters(state.items);
       const total = state.items.length;
       const shown = filtered.length;
@@ -3803,6 +3842,14 @@ ${s}
       if(!btn) return;
       const raw = btn.getAttribute("data-learn-lang") || "";
       state.lang = raw ? normalizeLearnLang(raw) : "";
+      rerender();
+    });
+
+    diffRoot?.addEventListener("click", (e)=>{
+      const btn = e.target.closest("[data-learn-difficulty]");
+      if(!btn) return;
+      const raw = btn.getAttribute("data-learn-difficulty") || "";
+      state.difficulty = raw ? normalizeLearnDifficulty(raw) : "";
       rerender();
     });
 
@@ -3981,6 +4028,7 @@ ${s}
     const it = item || null;
     const kindSel = $("#learnAdminKind", overlay);
     const langSel = $("#learnAdminLang", overlay);
+    const diffSel = $("#learnAdminDifficulty", overlay);
     const titleEl = $("#learnAdminTitle", overlay);
     const promptEl = $("#learnAdminPrompt", overlay);
     const answerEl = $("#learnAdminAnswer", overlay);
@@ -3988,6 +4036,7 @@ ${s}
 
     if(kindSel) kindSel.value = normalizeLearnKind(it?.kind || "exercise");
     if(langSel) langSel.value = normalizeLearnLang(it?.lang || "html");
+    if(diffSel) diffSel.value = normalizeLearnDifficulty(it?.difficulty || "beginner");
     if(titleEl) titleEl.value = String(it?.title || "");
     if(promptEl) promptEl.value = String(it?.prompt || "");
     if(answerEl) answerEl.value = String(it?.answer || "");
@@ -4001,7 +4050,12 @@ ${s}
     const title = String(it.title || "").trim() || "Sans titre";
     const kind = normalizeLearnKind(it.kind);
     const lang = normalizeLearnLang(it.lang);
-    const meta = `${learnKindLabel(kind)} • ${learnLangLabel(lang)}`;
+    const diff = normalizeLearnDifficulty(it.difficulty);
+    const meta = [
+      learnKindLabel(kind),
+      learnLangLabel(lang),
+      kind === "exercise" ? learnDifficultyLabel(diff) : "",
+    ].filter(Boolean).join(" • ");
     const style = active
       ? ` style="border-color: rgba(255,45,120,.32); background: rgba(255,255,255,.08)"`
       : "";
@@ -4111,12 +4165,23 @@ ${s}
     }
 
     modeEl && (modeEl.textContent = "Supabase • Chargement…");
-    const res = await sb
+    const baseQuery = ()=> sb
       .from(LEARNING_TABLE)
-      .select("id,company,author_id,kind,lang,title,prompt,answer,created_at,updated_at")
       .eq("company", company)
       .order("updated_at", { ascending: false })
       .limit(250);
+
+    const selectNoDiff = "id,company,author_id,kind,lang,title,prompt,answer,created_at,updated_at";
+    let res = await baseQuery().select(`${selectNoDiff},difficulty`);
+
+    if(res.error){
+      const code = String(res.error?.code || "");
+      const msg = String(res.error?.message || "").toLowerCase();
+      const missingDifficulty = (code === "42703") || (msg.includes("difficulty") && msg.includes("does not exist"));
+      if(missingDifficulty){
+        res = await baseQuery().select(selectNoDiff);
+      }
+    }
 
     if(res.error){
       const code = String(res.error?.code || "");
@@ -4133,7 +4198,7 @@ ${s}
       return;
     }
 
-    learnAdminModalState.items = res.data || [];
+    learnAdminModalState.items = (res.data || []).map(x=> ({ ...x, difficulty: normalizeLearnDifficulty(x?.difficulty) }));
     modeEl && (modeEl.textContent = `Supabase • ${learnAdminModalState.items.length} item(s)`);
     renderLearnAdminList();
 
@@ -4180,6 +4245,7 @@ ${s}
       {
         kind: "exercise",
         lang: "html",
+        difficulty: "beginner",
         title: "HTML — Carte de profil",
         prompt: "Consigne : crée une page avec un titre, une image (placeholder) et une section 'Bio'. Ajoute un lien vers tes réseaux.\n\nObjectif : travailler la structure (header/main/section) + les liens.",
         answer: `<!doctype html>
@@ -4207,6 +4273,7 @@ ${s}
       {
         kind: "exercise",
         lang: "html",
+        difficulty: "beginner",
         title: "HTML — Formulaire de contact",
         prompt: "Consigne : crée un formulaire (nom, email, message) avec des labels accessibles et un bouton Envoyer.\n\nBonus : ajoute `required` et un petit texte d'aide.",
         answer: `<!doctype html>
@@ -4246,6 +4313,7 @@ ${s}
       {
         kind: "exercise",
         lang: "html",
+        difficulty: "intermediate",
         title: "HTML — Page article (sémantique)",
         prompt: "Consigne : crée une page avec `header`, `nav`, `main`, `article`, `aside` et `footer`.\n\nObjectif : utiliser la sémantique HTML.",
         answer: `<!doctype html>
@@ -4289,7 +4357,93 @@ ${s}
       },
       {
         kind: "exercise",
+        lang: "html",
+        difficulty: "beginner",
+        title: "HTML — Liste de produits",
+        prompt: "Consigne : crée une liste de 6 produits avec un titre, un prix et un bouton. Utilise une liste `<ul>` et des `<li>`.\n\nObjectif : structure + répétition.",
+        answer: `<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Produits</title>
+  <style>
+    body{font-family:Arial,sans-serif;padding:24px}
+    ul{list-style:none;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+    li{border:1px solid #ddd;border-radius:14px;padding:12px}
+    .price{font-weight:900}
+    button{padding:8px 10px;border-radius:12px;border:1px solid #111;background:#111;color:#fff;cursor:pointer}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Catalogue</h1>
+    <ul>
+      <li><h2>Produit A</h2><div class="price">9,90€</div><button>Ajouter</button></li>
+      <li><h2>Produit B</h2><div class="price">12,90€</div><button>Ajouter</button></li>
+      <li><h2>Produit C</h2><div class="price">19,90€</div><button>Ajouter</button></li>
+      <li><h2>Produit D</h2><div class="price">29,90€</div><button>Ajouter</button></li>
+      <li><h2>Produit E</h2><div class="price">39,90€</div><button>Ajouter</button></li>
+      <li><h2>Produit F</h2><div class="price">49,90€</div><button>Ajouter</button></li>
+    </ul>
+  </main>
+</body>
+</html>`,
+      },
+      {
+        kind: "exercise",
+        lang: "html",
+        difficulty: "advanced",
+        title: "HTML — Modal (dialog) accessible",
+        prompt: "Consigne : crée une fenêtre modale accessible avec `<dialog>`. Bouton Ouvrir + bouton Fermer.\n\nBonus : fermer au clic sur l’arrière-plan.",
+        answer: `<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Dialog</title>
+  <style>
+    body{font-family:Arial,sans-serif;padding:24px}
+    button{padding:10px 12px;border-radius:12px;border:1px solid #111;background:#111;color:#fff;cursor:pointer}
+    dialog{border:0;border-radius:16px;max-width:520px;width:92vw;padding:0;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+    dialog::backdrop{background:rgba(0,0,0,.5)}
+    .head{padding:14px 14px 0}
+    .body{padding:10px 14px 14px;color:#333}
+    .actions{display:flex;justify-content:flex-end;gap:10px;padding:0 14px 14px}
+    .ghost{background:transparent;color:#111}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Modal</h1>
+    <button id="open">Ouvrir</button>
+
+    <dialog id="dlg" aria-label="Informations">
+      <div class="head"><h2 style="margin:0">Informations</h2></div>
+      <div class="body">Ceci est une modale native.</div>
+      <div class="actions">
+        <button class="ghost" id="close" type="button">Fermer</button>
+      </div>
+    </dialog>
+  </main>
+
+  <script>
+    const dlg = document.getElementById("dlg");
+    document.getElementById("open").addEventListener("click", ()=> dlg.showModal());
+    document.getElementById("close").addEventListener("click", ()=> dlg.close());
+    dlg.addEventListener("click", (e)=>{
+      const r = dlg.getBoundingClientRect();
+      const inside = r.top <= e.clientY && e.clientY <= r.bottom && r.left <= e.clientX && e.clientX <= r.right;
+      if(!inside) dlg.close();
+    });
+  </script>
+</body>
+</html>`,
+      },
+      {
+        kind: "exercise",
         lang: "css",
+        difficulty: "beginner",
         title: "CSS — Bouton glass + hover",
         prompt: "Consigne : style un bouton en mode 'glassmorphism' avec un petit effet au survol (hover) et au clic (active).",
         answer: `button{
@@ -4308,6 +4462,7 @@ button:active{ transform: translateY(1px); }`,
       {
         kind: "exercise",
         lang: "css",
+        difficulty: "intermediate",
         title: "CSS — Carte responsive",
         prompt: "Consigne : crée une carte (card) avec une ombre douce, un titre, un texte, et une image. La carte doit être responsive (max-width).",
         answer: `.card{
@@ -4326,6 +4481,7 @@ button:active{ transform: translateY(1px); }`,
       {
         kind: "exercise",
         lang: "css",
+        difficulty: "intermediate",
         title: "CSS — Galerie en grid",
         prompt: "Consigne : crée une grille responsive de cartes ou d'images (grid). Objectif : utiliser `display:grid` + `auto-fit`.",
         answer: `.grid{
@@ -4342,7 +4498,42 @@ button:active{ transform: translateY(1px); }`,
       },
       {
         kind: "exercise",
+        lang: "css",
+        difficulty: "advanced",
+        title: "CSS — Layout dashboard (sidebar + grid)",
+        prompt: "Consigne : crée un layout type dashboard : une sidebar fixe + un contenu en grid.\n\nObjectif : combiner `grid` et `sticky` (ou `min-height`).",
+        answer: `.layout{
+  display:grid;
+  grid-template-columns: 260px 1fr;
+  gap: 14px;
+  min-height: 100vh;
+}
+.sidebar{
+  position: sticky;
+  top: 0;
+  align-self:start;
+  height: 100vh;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 16px;
+  background: rgba(255,255,255,.06);
+  padding: 14px;
+}
+.content{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+.card{
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 16px;
+  background: rgba(255,255,255,.06);
+  padding: 14px;
+}`,
+      },
+      {
+        kind: "exercise",
         lang: "js",
+        difficulty: "beginner",
         title: "JS — Compteur",
         prompt: "Consigne : ajoute un bouton 'Incrémenter' et un nombre. Au clic : +1.\n\nBonus : sauvegarde dans localStorage.",
         answer: `const countEl = document.getElementById("count");
@@ -4360,6 +4551,7 @@ btn.addEventListener("click", ()=>{
       {
         kind: "exercise",
         lang: "js",
+        difficulty: "intermediate",
         title: "JS — Todo list (DOM + localStorage)",
         prompt: "Consigne : crée une todo list. Ajout + suppression d'une tâche.\n\nHTML attendu : un input `#todoInput`, un bouton `#todoAdd`, une liste `#todoList`.",
         answer: `const KEY = "todos_v1";
@@ -4413,6 +4605,7 @@ render();`,
       {
         kind: "exercise",
         lang: "js",
+        difficulty: "intermediate",
         title: "JS — Chronomètre",
         prompt: "Consigne : crée un chronomètre start/stop/reset.\n\nHTML attendu : un affichage `#time` + boutons `#start`, `#stop`, `#reset`.",
         answer: `const out = document.getElementById("time");
@@ -4452,7 +4645,28 @@ draw();`,
       },
       {
         kind: "exercise",
+        lang: "js",
+        difficulty: "advanced",
+        title: "JS — Recherche avec debounce",
+        prompt: "Consigne : implémente une recherche avec debounce (attendre 300ms après la saisie avant d'exécuter).\n\nHTML attendu : input `#search` + div `#result`.",
+        answer: `const input = document.getElementById("search");
+const out = document.getElementById("result");
+
+let timer = null;
+function run(query){
+  out.textContent = "Recherche : " + query;
+}
+
+input.addEventListener("input", ()=>{
+  const q = input.value.trim();
+  clearTimeout(timer);
+  timer = setTimeout(()=> run(q), 300);
+});`,
+      },
+      {
+        kind: "exercise",
         lang: "sql",
+        difficulty: "beginner",
         title: "SQL — Requête SELECT",
         prompt: "Consigne : avec une table `users(id, name, email, created_at)`, récupère les 10 derniers utilisateurs créés.",
         answer: `select id, name, email, created_at
@@ -4463,6 +4677,7 @@ limit 10;`,
       {
         kind: "exercise",
         lang: "sql",
+        difficulty: "intermediate",
         title: "SQL — JOIN users / orders",
         prompt: "Consigne : avec `users(id, name)` et `orders(id, user_id, total, created_at)`, affiche les 20 dernières commandes avec le nom de l'utilisateur.",
         answer: `select o.id, o.total, o.created_at, u.name as user_name
@@ -4474,6 +4689,7 @@ limit 20;`,
       {
         kind: "exercise",
         lang: "sql",
+        difficulty: "advanced",
         title: "SQL — GROUP BY (ventes par jour)",
         prompt: "Consigne : avec `orders(total, created_at)`, calcule le total des ventes par jour. Garde seulement les jours > 1000.",
         answer: `select date(created_at) as day, sum(total) as total_sales
@@ -4484,7 +4700,27 @@ order by day desc;`,
       },
       {
         kind: "exercise",
+        lang: "sql",
+        difficulty: "advanced",
+        title: "SQL — Ranking (window function)",
+        prompt: "Consigne : avec `orders(user_id, total)`, affiche les 3 meilleurs clients (total cumulé) avec un rang.\n\nObjectif : `sum` + `dense_rank()`.",
+        answer: `with totals as (
+  select user_id, sum(total) as total_spent
+  from orders
+  group by user_id
+)
+select
+  user_id,
+  total_spent,
+  dense_rank() over (order by total_spent desc) as r
+from totals
+order by r
+limit 3;`,
+      },
+      {
+        kind: "exercise",
         lang: "php",
+        difficulty: "beginner",
         title: "PHP — Validation email",
         prompt: "Consigne : crée un petit script PHP qui valide un email envoyé en POST et affiche un message (OK/Erreur).",
         answer: `<?php
@@ -4499,6 +4735,7 @@ if(filter_var($email, FILTER_VALIDATE_EMAIL)){
       {
         kind: "exercise",
         lang: "php",
+        difficulty: "intermediate",
         title: "PHP — PDO INSERT (CRUD)",
         prompt: "Consigne : insère un post en base via PDO (requête préparée) avec des champs `title` et `body` envoyés en POST.\n\nPrérequis : une variable `$pdo` connectée + une table `posts(id, title, body)`.",
         answer: `<?php
@@ -4521,6 +4758,7 @@ echo "OK, id=" . htmlspecialchars((string)$id);
       {
         kind: "exercise",
         lang: "php",
+        difficulty: "advanced",
         title: "PHP — Upload fichier (validation)",
         prompt: "Consigne : accepte un fichier via `input type=file name=file`. Autorise jpg/png/pdf et 2MB max. Sauvegarde dans `/uploads` avec un nom aléatoire.",
         answer: `<?php
@@ -4547,6 +4785,30 @@ $dest = $dir . "/" . $name;
 move_uploaded_file($f["tmp_name"], $dest);
 
 echo "OK";
+?>`,
+      },
+      {
+        kind: "exercise",
+        lang: "php",
+        difficulty: "intermediate",
+        title: "PHP — Login session (simple)",
+        prompt: "Consigne : crée un mini login avec session.\n\nPrérequis : un formulaire POST avec `email` et `password`. Si OK → `$_SESSION['user']` est défini.",
+        answer: `<?php
+session_start();
+
+$email = trim($_POST["email"] ?? "");
+$password = $_POST["password"] ?? "";
+
+// Exemple : identifiants en dur (à remplacer par une BDD)
+$ok = ($email === "demo@exemple.com" && $password === "demo");
+
+if($ok){
+  $_SESSION["user"] = ["email" => $email];
+  echo "Connecté";
+} else {
+  http_response_code(401);
+  echo "Identifiants invalides";
+}
 ?>`,
       },
       {
@@ -4642,6 +4904,7 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
           author_id: "local",
           kind: normalizeLearnKind(t.kind),
           lang: normalizeLearnLang(t.lang),
+          difficulty: normalizeLearnDifficulty(t.difficulty),
           title: String(t.title || "").trim() || "Sans titre",
           prompt: String(t.prompt || ""),
           answer: String(t.answer || ""),
@@ -4674,6 +4937,7 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
         author_id: uid,
         kind: normalizeLearnKind(t.kind),
         lang: normalizeLearnLang(t.lang),
+        difficulty: normalizeLearnDifficulty(t.difficulty),
         title: String(t.title || "").trim() || "Sans titre",
         prompt: String(t.prompt || ""),
         answer: String(t.answer || ""),
@@ -4687,7 +4951,17 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     window.fwToast?.("Exemples", "Insertion…");
-    const ins = await sb.from(LEARNING_TABLE).insert(toInsert);
+    let ins = await sb.from(LEARNING_TABLE).insert(toInsert);
+    if(ins.error){
+      const code = String(ins.error?.code || "");
+      const msg = String(ins.error?.message || "").toLowerCase();
+      const missingDifficulty = (code === "42703") || (msg.includes("difficulty") && msg.includes("does not exist"));
+      if(missingDifficulty){
+        window.fwToast?.("Supabase", "Schéma à mettre à jour (colonne difficulty).");
+        const noDiff = toInsert.map(({ difficulty, ...rest })=> rest);
+        ins = await sb.from(LEARNING_TABLE).insert(noDiff);
+      }
+    }
     if(ins.error){
       sbToastError("Exemples", ins.error);
       return;
@@ -4707,6 +4981,7 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
     const kind = normalizeLearnKind($("#learnAdminKind", overlay)?.value || "exercise");
     const lang = normalizeLearnLang($("#learnAdminLang", overlay)?.value || "html");
+    const difficulty = normalizeLearnDifficulty($("#learnAdminDifficulty", overlay)?.value || "beginner");
     const title = String($("#learnAdminTitle", overlay)?.value || "").trim();
     const prompt = String($("#learnAdminPrompt", overlay)?.value || "").trim();
     const answer = String($("#learnAdminAnswer", overlay)?.value || "").trim();
@@ -4725,7 +5000,7 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
       if(editingId){
         const idx = all.findIndex(x=> String(x?.id || "") === editingId && String(x?.company || "") === company);
         if(idx >= 0){
-          all[idx] = { ...all[idx], kind, lang, title, prompt, answer, updated_at: nowIso };
+          all[idx] = { ...all[idx], kind, lang, difficulty, title, prompt, answer, updated_at: nowIso };
           saveLearningItemsLocal(all);
           window.fwToast?.("Enregistré", "Item mis à jour (local).");
         }else{
@@ -4740,6 +5015,7 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
           author_id: "local",
           kind,
           lang,
+          difficulty,
           title,
           prompt,
           answer,
@@ -4761,11 +5037,28 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     if(editingId){
-      const up = await sb
+      const payloadWithDiff = { kind, lang, difficulty, title, prompt, answer, updated_at: nowIso };
+      const payloadNoDiff = { kind, lang, title, prompt, answer, updated_at: nowIso };
+      let up = await sb
         .from(LEARNING_TABLE)
-        .update({ kind, lang, title, prompt, answer, updated_at: nowIso })
+        .update(payloadWithDiff)
         .eq("company", company)
         .eq("id", editingId);
+
+      if(up.error){
+        const code = String(up.error?.code || "");
+        const msg = String(up.error?.message || "").toLowerCase();
+        const missingDifficulty = (code === "42703") || (msg.includes("difficulty") && msg.includes("does not exist"));
+        if(missingDifficulty){
+          window.fwToast?.("Supabase", "Schéma à mettre à jour (colonne difficulty).");
+          up = await sb
+            .from(LEARNING_TABLE)
+            .update(payloadNoDiff)
+            .eq("company", company)
+            .eq("id", editingId);
+        }
+      }
+
       if(up.error){
         sbToastError("Enregistrer", up.error);
         return;
@@ -4773,9 +5066,24 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
       window.fwToast?.("Enregistré", "Item mis à jour.");
     }else{
       const id = uuid();
-      const ins = await sb
+      const payloadWithDiff = { id, company, author_id: uid, kind, lang, difficulty, title, prompt, answer, created_at: nowIso, updated_at: nowIso };
+      const payloadNoDiff = { id, company, author_id: uid, kind, lang, title, prompt, answer, created_at: nowIso, updated_at: nowIso };
+      let ins = await sb
         .from(LEARNING_TABLE)
-        .insert({ id, company, author_id: uid, kind, lang, title, prompt, answer, created_at: nowIso, updated_at: nowIso });
+        .insert(payloadWithDiff);
+
+      if(ins.error){
+        const code = String(ins.error?.code || "");
+        const msg = String(ins.error?.message || "").toLowerCase();
+        const missingDifficulty = (code === "42703") || (msg.includes("difficulty") && msg.includes("does not exist"));
+        if(missingDifficulty){
+          window.fwToast?.("Supabase", "Schéma à mettre à jour (colonne difficulty).");
+          ins = await sb
+            .from(LEARNING_TABLE)
+            .insert(payloadNoDiff);
+        }
+      }
+
       if(ins.error){
         sbToastError("Créer", ins.error);
         return;
