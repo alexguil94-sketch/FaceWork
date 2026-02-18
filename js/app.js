@@ -5591,6 +5591,11 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
       }
     }
     if(ins.error){
+      const code = String(ins.error?.code || "");
+      if(code === "23505"){
+        window.fwToast?.("Exemples", "Des doublons existent déjà (même type + langage + titre).");
+        return;
+      }
       sbToastError("Exemples", ins.error);
       return;
     }
@@ -5622,6 +5627,19 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
     const nowIso = new Date().toISOString();
     const editingId = String(learnAdminModalState.editingId || "");
+
+    const wantedKey = `${kind}|${lang}|${title.trim().toLowerCase()}`;
+    const hasDup = (learnAdminModalState.items || []).some(it=>{
+      if(String(it?.company || "") !== company) return false;
+      const id = String(it?.id || "");
+      if(editingId && id === editingId) return false;
+      const k = `${normalizeLearnKind(it?.kind)}|${normalizeLearnLang(it?.lang)}|${String(it?.title || "").trim().toLowerCase()}`;
+      return k === wantedKey;
+    });
+    if(hasDup){
+      window.fwToast?.("Doublon", "Un item avec ce titre existe déjà (même type + langage).");
+      return;
+    }
 
     if(!sbEnabled){
       const all = loadLearningItemsLocal();
@@ -5688,6 +5706,11 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
       }
 
       if(up.error){
+        const code = String(up.error?.code || "");
+        if(code === "23505"){
+          window.fwToast?.("Doublon", "Un item avec ce titre existe déjà (même type + langage).");
+          return;
+        }
         sbToastError("Enregistrer", up.error);
         return;
       }
@@ -5713,6 +5736,11 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
       }
 
       if(ins.error){
+        const code = String(ins.error?.code || "");
+        if(code === "23505"){
+          window.fwToast?.("Doublon", "Un item avec ce titre existe déjà (même type + langage).");
+          return;
+        }
         sbToastError("Créer", ins.error);
         return;
       }

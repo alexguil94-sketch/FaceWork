@@ -79,6 +79,10 @@ create table if not exists public.learning_items (
   updated_at timestamptz not null default now()
 );
 
+-- Prevent duplicates (same company + kind + lang + title, case-insensitive)
+create unique index if not exists learning_items_unique_kind_lang_title
+on public.learning_items(company, kind, lang, lower(btrim(title)));
+
 create table if not exists public.post_likes (
   company text not null,
   post_id uuid not null references public.posts(id) on delete cascade,
