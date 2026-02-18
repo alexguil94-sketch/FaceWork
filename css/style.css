@@ -1268,6 +1268,51 @@ html[data-theme="light"] .emoji-btn{border-color: rgba(0,0,0,.10); background: r
 html[data-theme="light"] .emoji-btn:hover{background: rgba(0,0,0,.06)}
 .emoji-btn:active{transform: translateY(1px)}
 .gif-ico{font-size:12px; font-weight:950; letter-spacing:.5px}
+.chat-gif-grid{
+  margin-top: 10px;
+  display:grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  max-height: 260px;
+  overflow:auto;
+  padding: 2px;
+}
+@media (max-width: 520px){
+  .chat-gif-grid{grid-template-columns: repeat(3, 1fr)}
+}
+.gif-btn{
+  aspect-ratio: 1 / 1;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.06);
+  overflow:hidden;
+  cursor:pointer;
+  padding: 0;
+  display:block;
+  color: inherit;
+  font: inherit;
+  outline:none;
+  appearance: none;
+  transition: background .12s ease, transform .08s ease;
+}
+html[data-theme="light"] .gif-btn{border-color: rgba(0,0,0,.10); background: rgba(0,0,0,.04)}
+.gif-btn:hover{background: rgba(255,255,255,.10)}
+html[data-theme="light"] .gif-btn:hover{background: rgba(0,0,0,.06)}
+.gif-btn:active{transform: translateY(1px)}
+.gif-thumb{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display:block;
+  background: rgba(0,0,0,.35);
+}
+.chat-gif-powered{
+  font-size: 11px;
+  font-weight: 850;
+  text-decoration: none;
+}
+.chat-gif-powered:hover{text-decoration: underline}
 
 /* Visio (call modal) */
 .call-overlay{

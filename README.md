@@ -118,4 +118,16 @@ Un admin peut supprimer des messages dans les canaux. Si tu utilises Supabase, p
 ### Note dev locale
 Avec **Live Server**, les Functions ne tournent pas : teste plutôt après déploiement Netlify (ou avec Netlify Dev si tu l’utilises).
 
+## GIF (bibliothèque)
+Dans les **canaux** et les **DM**, le bouton **GIF** ouvre une bibliothèque (tendances + recherche).
+
+Techniquement :
+- La recherche passe par une **Netlify Function** : `/.netlify/functions/gifs` (Tenor).
+
+### (Recommandé) Configurer ta clé Tenor sur Netlify
+Netlify → **Site configuration → Environment variables** :
+- `TENOR_API_KEY`
+
+Sans `TENOR_API_KEY`, le projet utilise une clé de démo (OK pour une présentation, mais limitée).
+
 Amuse-toi bien.

@@ -364,7 +364,17 @@
     const gifPop = $("#chatGifPop", root);
     const gifUrlInput = $("[data-chat-gif-url]", root);
     const gifAddBtn = $("[data-chat-gif-add]", root);
+    const gifSearchInput = $("[data-chat-gif-search]", root);
+    const gifGrid = $("[data-chat-gif-grid]", root);
+    const gifStatus = $("[data-chat-gif-status]", root);
+    const gifMoreBtn = $("[data-chat-gif-more]", root);
     const popCloseBtns = $$("[data-chat-pop-close]", root);
+
+    const GIF_ENDPOINT = "/.netlify/functions/gifs";
+    let gifReqId = 0;
+    let gifNextPos = "";
+    let gifLastQuery = "";
+    let gifDebounce = null;
 
     function closePops(){
       emojiPop && emojiPop.classList.add("hidden");
@@ -383,7 +393,12 @@
         const opening = gifPop.classList.contains("hidden");
         closePops();
         gifPop.classList.toggle("hidden", !opening);
-        if(opening) setTimeout(()=> gifUrlInput?.focus?.(), 0);
+        if(opening){
+          setTimeout(()=> (gifSearchInput || gifUrlInput)?.focus?.(), 0);
+          if(gifGrid && gifGrid.children.length === 0){
+            loadGifLibrary({ query: String(gifSearchInput?.value || "").trim() });
+          }
+        }
       }
     }
 
@@ -478,6 +493,108 @@
       insertAtCursor(input, emoji);
       closePops();
     });
+
+    function setGifStatusText(text){
+      if(!gifStatus) return;
+      const t = String(text || "").trim();
+      gifStatus.textContent = t || "—";
+      gifStatus.classList.toggle("hidden", !t);
+    }
+
+    function setGifMoreVisible(show){
+      gifMoreBtn && gifMoreBtn.classList.toggle("hidden", !show);
+    }
+
+    function gifItemHtml(g){
+      const url = escapeHtml(String(g?.url || ""));
+      const preview = escapeHtml(String(g?.preview || g?.url || ""));
+      const title = escapeHtml(String(g?.title || "GIF"));
+      if(!url) return "";
+      return `<button class="gif-btn" type="button" data-gif-url="${url}" title="${title}" aria-label="${title}">
+        <img class="gif-thumb" alt="" loading="lazy" src="${preview || url}"/>
+      </button>`;
+    }
+
+    async function loadGifLibrary({ query, append } = {}){
+      if(!gifGrid) return;
+      const q = String(query ?? gifLastQuery ?? "").trim();
+      const isAppend = !!append;
+      if(isAppend && !gifNextPos) return;
+
+      if(!isAppend){
+        gifLastQuery = q;
+        gifNextPos = "";
+        gifGrid.innerHTML = "";
+        setGifMoreVisible(false);
+      }
+
+      const reqId = ++gifReqId;
+      setGifStatusText("Chargement…");
+
+      const params = new URLSearchParams();
+      if(q) params.set("q", q);
+      params.set("limit", "24");
+      if(isAppend && gifNextPos) params.set("pos", gifNextPos);
+
+      let res, data;
+      try{
+        res = await fetch(`${GIF_ENDPOINT}?${params.toString()}`, { method: "GET" });
+        data = await res.json();
+      }catch(e){
+        if(reqId !== gifReqId) return;
+        setGifStatusText("Bibliothèque GIF indisponible. (Colle un lien direct.)");
+        setGifMoreVisible(false);
+        return;
+      }
+
+      if(reqId !== gifReqId) return;
+
+      if(!res.ok){
+        const msg = String(data?.error || "").trim();
+        setGifStatusText(msg ? `GIF: ${msg}` : "Erreur GIF.");
+        setGifMoreVisible(false);
+        return;
+      }
+
+      const arr = Array.isArray(data?.gifs) ? data.gifs : [];
+      const html = arr.map(gifItemHtml).filter(Boolean).join("");
+      if(isAppend){
+        if(html) gifGrid.insertAdjacentHTML("beforeend", html);
+      }else{
+        gifGrid.innerHTML = html;
+      }
+
+      gifNextPos = String(data?.next || "").trim();
+      setGifMoreVisible(!!gifNextPos);
+
+      if(!arr.length && !isAppend){
+        setGifStatusText(q ? "Aucun résultat." : "Aucun GIF trouvé.");
+      }else{
+        setGifStatusText("");
+      }
+    }
+
+    gifGrid && gifGrid.addEventListener("click", (e)=>{
+      const b = e.target.closest("[data-gif-url]");
+      if(!b) return;
+      const u = b.getAttribute("data-gif-url") || "";
+      if(!u) return;
+      setUrl(u);
+      closePops();
+      input?.focus?.();
+    });
+
+    gifSearchInput && gifSearchInput.addEventListener("input", ()=>{
+      if(gifDebounce) clearTimeout(gifDebounce);
+      gifDebounce = setTimeout(()=> loadGifLibrary({ query: gifSearchInput.value || "", append:false }), 250);
+    });
+    gifSearchInput && gifSearchInput.addEventListener("keydown", (e)=>{
+      if(e.key !== "Enter") return;
+      e.preventDefault();
+      if(gifDebounce) clearTimeout(gifDebounce);
+      loadGifLibrary({ query: gifSearchInput.value || "", append:false });
+    });
+    gifMoreBtn && gifMoreBtn.addEventListener("click", ()=> loadGifLibrary({ query: gifLastQuery, append:true }));
 
     function addGifUrl(){
       const raw = String(gifUrlInput?.value || "").trim();
@@ -7494,6 +7611,18 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
             <button class="btn icon ghost" type="button" aria-label="Fermer" data-chat-pop-close>✕</button>
           </div>
           <div class="chat-pop-body">
+            <div class="row" style="gap:8px; align-items:center">
+              <input class="input" type="search" placeholder="Rechercher un GIF" data-chat-gif-search />
+              <button class="btn small hidden" type="button" data-chat-gif-more>Plus</button>
+            </div>
+            <div class="chat-gif-grid" data-chat-gif-grid role="list"></div>
+            <div class="row" style="justify-content:space-between; align-items:center; gap:10px; margin-top:8px">
+              <div class="muted chat-gif-status hidden" data-chat-gif-status style="font-size:12px; font-weight:800">—</div>
+              <a class="muted chat-gif-powered" href="https://tenor.com/" target="_blank" rel="noopener">Powered by Tenor</a>
+            </div>
+
+            <div class="hr" style="margin:12px 0"></div>
+
             <div class="row" style="gap:8px; align-items:center">
               <input class="input" type="url" inputmode="url" placeholder="Lien direct vers un GIF (.gif)" data-chat-gif-url />
               <button class="btn small primary" type="button" data-chat-gif-add>Ajouter</button>
