@@ -349,30 +349,178 @@
     const form = $("#chatForm", root);
     if(!form || form.__fileUiBound) return;
 
+    const input = $("#chatInput", root);
     const fileInput = $("#chatFile", root);
     const addBtn = $("[data-chat-add]", root);
+    const emojiBtn = $("[data-chat-emoji]", root);
+    const gifBtn = $("[data-chat-gif]", root);
     const attach = $("#chatAttach", root);
+    const attachBadge = $("#chatAttachBadge", root);
     const label = $("#chatAttachLabel", root);
     const clearBtn = $("[data-chat-attach-clear]", root);
     const msgs = $("#chatMsgs", root);
 
-    function setFile(file){
-      form.__selectedFile = file || null;
-      if(!file && fileInput) fileInput.value = "";
-      attach && attach.classList.toggle("hidden", !file);
-      if(label){
-        label.textContent = file ? `${file.name} • ${fmtBytes(file.size)}` : "Aucun fichier";
+    const emojiPop = $("#chatEmojiPop", root);
+    const gifPop = $("#chatGifPop", root);
+    const gifUrlInput = $("[data-chat-gif-url]", root);
+    const gifAddBtn = $("[data-chat-gif-add]", root);
+    const popCloseBtns = $$("[data-chat-pop-close]", root);
+
+    function closePops(){
+      emojiPop && emojiPop.classList.add("hidden");
+      gifPop && gifPop.classList.add("hidden");
+    }
+    function togglePop(which){
+      const wantEmoji = which === "emoji";
+      const wantGif = which === "gif";
+      if(wantEmoji && emojiPop){
+        const opening = emojiPop.classList.contains("hidden");
+        closePops();
+        emojiPop.classList.toggle("hidden", !opening);
+        return;
+      }
+      if(wantGif && gifPop){
+        const opening = gifPop.classList.contains("hidden");
+        closePops();
+        gifPop.classList.toggle("hidden", !opening);
+        if(opening) setTimeout(()=> gifUrlInput?.focus?.(), 0);
       }
     }
-    setFile(null);
+
+    function insertAtCursor(el, text){
+      if(!el) return;
+      const t = String(text || "");
+      if(!t) return;
+      const start = Number(el.selectionStart || 0);
+      const end = Number(el.selectionEnd || 0);
+      const before = String(el.value || "").slice(0, start);
+      const after = String(el.value || "").slice(end);
+      el.value = before + t + after;
+      const pos = start + t.length;
+      try{ el.setSelectionRange(pos, pos); }catch(e){ /* ignore */ }
+      el.dispatchEvent(new Event("input", { bubbles:true }));
+      el.focus();
+    }
+
+    function setAttachBar({ kind, text } = {}){
+      const k = String(kind || "file");
+      const t = String(text || "");
+      attach && attach.classList.toggle("hidden", !t);
+      if(attachBadge){
+        attachBadge.textContent = k === "gif" ? "🎞️ GIF" : (k === "image" ? "🖼️ Image" : "📎 Fichier");
+      }
+      label && (label.textContent = t || "Aucun fichier");
+    }
+
+    function clearAttachment(){
+      try{ if(fileInput) fileInput.value = ""; }catch(e){ /* ignore */ }
+      form.__selectedFile = null;
+      form.__selectedUrl = null;
+      setAttachBar({ kind: "file", text: "" });
+      closePops();
+    }
+
+    function setFile(file){
+      const f = file || null;
+      form.__selectedFile = f;
+      form.__selectedUrl = null;
+      if(!f && fileInput) fileInput.value = "";
+      if(!f){
+        setAttachBar({ kind: "file", text: "" });
+        return;
+      }
+      setAttachBar({ kind: "file", text: `${f.name} • ${fmtBytes(f.size)}` });
+    }
+
+    function setUrl(url){
+      const u = safeUrl(url);
+      if(!u){
+        clearAttachment();
+        return;
+      }
+      try{ if(fileInput) fileInput.value = ""; }catch(e){ /* ignore */ }
+      form.__selectedFile = null;
+
+      const ext = fileExt(u);
+      const isImg = ["png","jpg","jpeg","gif","webp","svg","bmp","avif"].includes(ext);
+      const kind = (ext === "gif") ? "gif" : (isImg ? "image" : "file");
+
+      if(!isImg){
+        window.fwToast?.("GIF", "Lien invalide. Colle un lien direct vers une image (ex: .gif).");
+        return;
+      }
+
+      form.__selectedUrl = {
+        url: u,
+        name: (ext ? `gif.${ext}` : "gif.gif"),
+      };
+      setAttachBar({ kind, text: `${form.__selectedUrl.name}` });
+    }
+
+    clearAttachment();
 
     addBtn && addBtn.addEventListener("click", ()=> fileInput?.click());
     fileInput && fileInput.addEventListener("change", ()=> setFile(fileInput.files?.[0] || null));
     clearBtn && clearBtn.addEventListener("click", (e)=>{
       e.preventDefault();
       e.stopPropagation();
-      setFile(null);
+      clearAttachment();
     });
+
+    emojiBtn && emojiBtn.addEventListener("click", ()=> togglePop("emoji"));
+    gifBtn && gifBtn.addEventListener("click", ()=> togglePop("gif"));
+    popCloseBtns.forEach(btn=> btn.addEventListener("click", closePops));
+
+    emojiPop && emojiPop.addEventListener("click", (e)=>{
+      const b = e.target.closest("[data-emoji]");
+      if(!b) return;
+      const emoji = b.getAttribute("data-emoji") || "";
+      insertAtCursor(input, emoji);
+      closePops();
+    });
+
+    function addGifUrl(){
+      const raw = String(gifUrlInput?.value || "").trim();
+      if(!raw){
+        window.fwToast?.("GIF", "Colle un lien vers un GIF (.gif).");
+        return;
+      }
+      const u = safeUrl(raw);
+      if(!u){
+        window.fwToast?.("GIF", "Lien invalide (http/https uniquement).");
+        return;
+      }
+      const ext = fileExt(u);
+      if(!["gif","png","jpg","jpeg","webp","svg","bmp","avif"].includes(ext)){
+        window.fwToast?.("GIF", "Lien non direct. Utilise un lien qui finit par .gif (ou une image).");
+        return;
+      }
+      setUrl(u);
+      if(gifUrlInput) gifUrlInput.value = "";
+      closePops();
+      input?.focus?.();
+    }
+    gifAddBtn && gifAddBtn.addEventListener("click", addGifUrl);
+    gifUrlInput && gifUrlInput.addEventListener("keydown", (e)=>{
+      if(e.key !== "Enter") return;
+      e.preventDefault();
+      addGifUrl();
+    });
+
+    // Global close (once)
+    if(!document.__fwChatPopCloseBound){
+      document.__fwChatPopCloseBound = true;
+      document.addEventListener("keydown", (e)=>{
+        if(e.key === "Escape") document.querySelectorAll(".chat-pop").forEach(p=> p.classList.add("hidden"));
+      });
+      document.addEventListener("click", (e)=>{
+        const t = e.target;
+        if(t.closest(".chat-pop")) return;
+        if(t.closest("[data-chat-emoji]")) return;
+        if(t.closest("[data-chat-gif]")) return;
+        document.querySelectorAll(".chat-pop").forEach(p=> p.classList.add("hidden"));
+      });
+    }
 
     function prevent(e){ e.preventDefault(); e.stopPropagation(); }
     function setDrag(on){ form.classList.toggle("dragover", !!on); }
@@ -396,10 +544,15 @@
     const form = $("#chatForm", root);
     const fileInput = $("#chatFile", root);
     const attach = $("#chatAttach", root);
+    const attachBadge = $("#chatAttachBadge", root);
     const label = $("#chatAttachLabel", root);
     try{ if(fileInput) fileInput.value = ""; }catch(e){ /* ignore */ }
-    if(form) form.__selectedFile = null;
+    if(form){
+      form.__selectedFile = null;
+      form.__selectedUrl = null;
+    }
     attach && attach.classList.add("hidden");
+    attachBadge && (attachBadge.textContent = "📎 Fichier");
     label && (label.textContent = "Aucun fichier");
     form && form.classList.remove("dragover");
   }
@@ -2278,10 +2431,17 @@
         ev.preventDefault();
         const text = (input?.value || "").trim();
         const selectedFile = form.__selectedFile || null;
-        if(!text && !selectedFile) return;
+        const selectedUrl = form.__selectedUrl || null;
+        if(!text && !selectedFile && !selectedUrl) return;
 
         let fileName = "";
+        let fileUrl = "";
         let fileData = null;
+
+        if(selectedUrl?.url){
+          fileUrl = String(selectedUrl.url || "");
+          fileName = String(selectedUrl.name || "");
+        }
         if(selectedFile){
           if(selectedFile.size > 1_000_000){
             window.fwToast?.("Fichier trop gros","En démo locale, limite ~1 Mo. Active Supabase pour l’upload.");
@@ -2308,7 +2468,7 @@
           from: u.name || "Moi",
           text,
           fileName,
-          fileUrl: "",
+          fileUrl,
           fileData,
           at: nowStr(),
         });
@@ -2510,6 +2670,10 @@
       const fileName = String(r.file_name || "");
       const hasFile = !!(fileUrl || fileName);
       const fileLabel = fileName || (fileUrl ? (fileUrl.split("/").pop() || "Fichier") : "Fichier");
+      const isImg = hasFile && isProbablyImageAttachment({ fileName, fileUrl });
+      const imgSrc = isImg ? attachmentImgSrc({ fileUrl }) : "";
+      const sbUrl = (isImg && !imgSrc) ? parseSbStorageUrl(fileUrl) : null;
+      const canPreview = isImg && (!!imgSrc || !!sbUrl);
       return `
         <div class="msg">
           ${msgAvatarHtml(p, "avatar msg-avatar")}
@@ -2521,8 +2685,22 @@
               ${canDelete ? `<button class="btn small ghost" type="button" title="Supprimer" aria-label="Supprimer" data-msg-del="${escapeHtml(String(r.id || ""))}">🗑️</button>` : ""}
             </div>
             ${text ? `<div class="msg-text">${escapeHtml(text)}</div>` : ""}
-            ${hasFile ? `
-              <button class="file-box msg-file" type="button" data-open-file="1" data-file-url="${escapeHtml(fileUrl)}" data-file-name="${escapeHtml(fileName)}">
+            ${hasFile ? (canPreview ? `
+              <button class="media-box msg-file" type="button" data-file-url="${escapeHtml(fileUrl)}" data-file-name="${escapeHtml(fileName)}">
+                <img
+                  class="media-img"
+                  alt=""
+                  loading="lazy"
+                  src="${escapeHtml(imgSrc || FEED_IMG_PLACEHOLDER)}"
+                  ${sbUrl ? `data-sb-bucket="${escapeHtml(sbUrl.bucket)}" data-sb-path="${escapeHtml(sbUrl.path)}"` : ""}
+                />
+                <div class="media-bar">
+                  <div class="media-name">${escapeHtml(fileLabel || "Image")}</div>
+                  <span class="badge">Ouvrir</span>
+                </div>
+              </button>
+            ` : `
+              <button class="file-box msg-file" type="button" data-file-url="${escapeHtml(fileUrl)}" data-file-name="${escapeHtml(fileName)}">
                 <div class="file-left">
                   <div class="file-ico" aria-hidden="true">📄</div>
                   <div class="file-meta">
@@ -2532,7 +2710,7 @@
                 </div>
                 <span class="badge">Ouvrir</span>
               </button>
-            ` : ""}
+            `) : ""}
           </div>
         </div>
       `;
@@ -2595,6 +2773,7 @@
         ? msgs.map(m=> renderSbChatMessageHtml(m, profilesById.get(String(m.user_id)))).join("")
         : emptyChatHtml("Aucun message", "Écris le premier message pour lancer la discussion.");
       msgsRoot.scrollTop = msgsRoot.scrollHeight;
+      void hydrateSbImagePreviews(msgsRoot);
 
       msgsRoot && (msgsRoot.onclick = async (e)=>{
         const reportId = e.target.closest("[data-msg-report]")?.getAttribute("data-msg-report") || "";
@@ -2685,11 +2864,17 @@
         ev.preventDefault();
         const text = (input?.value || "").trim();
         const selectedFile = form.__selectedFile || null;
-        if(!text && !selectedFile) return;
+        const selectedUrl = form.__selectedUrl || null;
+        if(!text && !selectedFile && !selectedUrl) return;
 
         let fileUrl = "";
         let fileName = "";
         let uploadedPath = "";
+
+        if(selectedUrl?.url && !selectedFile){
+          fileUrl = String(selectedUrl.url || "");
+          fileName = String(selectedUrl.name || "");
+        }
 
         if(selectedFile){
           if(/[\\\/]/.test(company)){
@@ -3029,10 +3214,17 @@
         ev.preventDefault();
         const text = (input?.value || "").trim();
         const selectedFile = form.__selectedFile || null;
-        if(!text && !selectedFile) return;
+        const selectedUrl = form.__selectedUrl || null;
+        if(!text && !selectedFile && !selectedUrl) return;
 
         let fileName = "";
+        let fileUrl = "";
         let fileData = null;
+
+        if(selectedUrl?.url){
+          fileUrl = String(selectedUrl.url || "");
+          fileName = String(selectedUrl.name || "");
+        }
         if(selectedFile){
           if(selectedFile.size > 1_000_000){
             window.fwToast?.("Fichier trop gros","En démo locale, limite ~1 Mo. Active Supabase pour l’upload.");
@@ -3059,7 +3251,7 @@
           from: u.name || "Moi",
           text,
           fileName,
-          fileUrl: "",
+          fileUrl,
           fileData,
           at: nowStr(),
         });
@@ -3173,6 +3365,10 @@
       const fileName = String(r.file_name || "");
       const hasFile = !!(fileUrl || fileName);
       const fileLabel = fileName || (fileUrl ? (fileUrl.split("/").pop() || "Fichier") : "Fichier");
+      const isImg = hasFile && isProbablyImageAttachment({ fileName, fileUrl });
+      const imgSrc = isImg ? attachmentImgSrc({ fileUrl }) : "";
+      const sbUrl = (isImg && !imgSrc) ? parseSbStorageUrl(fileUrl) : null;
+      const canPreview = isImg && (!!imgSrc || !!sbUrl);
       return `
         <div class="msg">
           ${msgAvatarHtml(p, "avatar msg-avatar")}
@@ -3183,8 +3379,22 @@
               <button class="btn small ghost" type="button" title="Signaler" aria-label="Signaler" data-msg-report="${escapeHtml(String(r.id || ""))}">🚩</button>
             </div>
             ${text ? `<div class="msg-text">${escapeHtml(text)}</div>` : ""}
-            ${hasFile ? `
-              <button class="file-box msg-file" type="button" data-open-file="1" data-file-url="${escapeHtml(fileUrl)}" data-file-name="${escapeHtml(fileName)}">
+            ${hasFile ? (canPreview ? `
+              <button class="media-box msg-file" type="button" data-file-url="${escapeHtml(fileUrl)}" data-file-name="${escapeHtml(fileName)}">
+                <img
+                  class="media-img"
+                  alt=""
+                  loading="lazy"
+                  src="${escapeHtml(imgSrc || FEED_IMG_PLACEHOLDER)}"
+                  ${sbUrl ? `data-sb-bucket="${escapeHtml(sbUrl.bucket)}" data-sb-path="${escapeHtml(sbUrl.path)}"` : ""}
+                />
+                <div class="media-bar">
+                  <div class="media-name">${escapeHtml(fileLabel || "Image")}</div>
+                  <span class="badge">Ouvrir</span>
+                </div>
+              </button>
+            ` : `
+              <button class="file-box msg-file" type="button" data-file-url="${escapeHtml(fileUrl)}" data-file-name="${escapeHtml(fileName)}">
                 <div class="file-left">
                   <div class="file-ico" aria-hidden="true">📄</div>
                   <div class="file-meta">
@@ -3194,7 +3404,7 @@
                 </div>
                 <span class="badge">Ouvrir</span>
               </button>
-            ` : ""}
+            `) : ""}
           </div>
         </div>
       `;
@@ -3255,6 +3465,7 @@
         ? msgs.map(m=> renderSbChatMessageHtml(m, sendersById.get(String(m.sender_id)))).join("")
         : emptyChatHtml("Aucun message", "Envoie le premier message.");
       dmMsgs.scrollTop = dmMsgs.scrollHeight;
+      void hydrateSbImagePreviews(dmMsgs);
 
       dmMsgs && (dmMsgs.onclick = async (e)=>{
         const reportId = e.target.closest("[data-msg-report]")?.getAttribute("data-msg-report") || "";
@@ -3312,11 +3523,17 @@
         ev.preventDefault();
         const text = (input?.value || "").trim();
         const selectedFile = form.__selectedFile || null;
-        if(!text && !selectedFile) return;
+        const selectedUrl = form.__selectedUrl || null;
+        if(!text && !selectedFile && !selectedUrl) return;
 
         let fileUrl = "";
         let fileName = "";
         let uploadedPath = "";
+
+        if(selectedUrl?.url && !selectedFile){
+          fileUrl = String(selectedUrl.url || "");
+          fileName = String(selectedUrl.name || "");
+        }
 
         if(selectedFile){
           if(/[\\\/]/.test(company)){
@@ -7218,6 +7435,12 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
       </div>
     `;
   }
+
+  const CHAT_EMOJIS = [
+    "😀","😁","😂","🤣","😅","😊","😍","😘","😎","🤩","🤔","😴","😮","😱","😤","😭","😡","🤯","🥳","👍",
+    "👎","🙏","👏","🙌","🤝","🔥","💯","✨","💡","🎉","🎯","✅","❌","⚠️","⭐","🚀","📌","🧠","💻","📎",
+    "🖼️","🎞️","🧪","🛠️","🧩","📚","📝","🔒","🔓","🕒","📣","💬","❤️","🩷","🫶","😺","🙈","🤖","👀",
+  ];
   function chatShellHtml({ icon, title, subtitle, placeholder }){
     return `
       <div class="chat">
@@ -7240,7 +7463,7 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
         <div class="chat-attach hidden" id="chatAttach" aria-live="polite">
           <div class="chat-attach-left">
-            <span class="badge">📎 Fichier</span>
+            <span class="badge" id="chatAttachBadge">📎 Fichier</span>
             <div class="chat-attach-label truncate" id="chatAttachLabel">Aucun fichier</div>
           </div>
           <button class="btn small ghost" type="button" data-chat-attach-clear>Retirer</button>
@@ -7249,9 +7472,37 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
         <form class="chat-composer" id="chatForm" autocomplete="off">
           <input id="chatFile" type="file" class="sr-only"/>
           <button class="btn icon ghost" type="button" title="Ajouter un fichier" data-chat-add>＋</button>
+          <button class="btn icon ghost" type="button" title="Emojis" aria-label="Emojis" data-chat-emoji>😊</button>
+          <button class="btn icon ghost" type="button" title="GIF" aria-label="GIF" data-chat-gif><span class="gif-ico">GIF</span></button>
           <textarea class="chat-input" id="chatInput" rows="1" placeholder="${escapeHtml(placeholder || "Écrire un message…")}"></textarea>
           <button class="btn primary send" type="submit">Envoyer</button>
         </form>
+
+        <div class="chat-pop hidden" id="chatEmojiPop" data-chat-pop="emoji" role="dialog" aria-label="Emojis">
+          <div class="chat-pop-head">
+            <div class="badge">Emojis</div>
+            <button class="btn icon ghost" type="button" aria-label="Fermer" data-chat-pop-close>✕</button>
+          </div>
+          <div class="chat-emoji-grid" role="list">
+            ${CHAT_EMOJIS.map(e=> `<button class="emoji-btn" type="button" data-emoji="${escapeHtml(e)}" aria-label="${escapeHtml(e)}">${escapeHtml(e)}</button>`).join("")}
+          </div>
+        </div>
+
+        <div class="chat-pop hidden" id="chatGifPop" data-chat-pop="gif" role="dialog" aria-label="GIF">
+          <div class="chat-pop-head">
+            <div class="badge">GIF</div>
+            <button class="btn icon ghost" type="button" aria-label="Fermer" data-chat-pop-close>✕</button>
+          </div>
+          <div class="chat-pop-body">
+            <div class="row" style="gap:8px; align-items:center">
+              <input class="input" type="url" inputmode="url" placeholder="Lien direct vers un GIF (.gif)" data-chat-gif-url />
+              <button class="btn small primary" type="button" data-chat-gif-add>Ajouter</button>
+            </div>
+            <div class="muted" style="font-size:12px; font-weight:800; margin-top:8px">
+              Astuce : envoie aussi un fichier GIF via <span class="kbd">＋</span>.
+            </div>
+          </div>
+        </div>
       </div>
     `;
   }
@@ -7268,6 +7519,8 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
     const fileDataUrl = String(m.fileData?.dataUrl || "");
     const hasFile = !!(fileName || fileUrl || fileDataUrl);
     const fileLabel = fileName || (fileUrl ? (String(fileUrl).split("/").pop() || "Fichier") : "Fichier");
+    const isImg = hasFile && isProbablyImageAttachment({ fileName, fileUrl, fileDataUrl });
+    const imgSrc = isImg ? attachmentImgSrc({ fileUrl, fileDataUrl }) : "";
     const canDelete = isAdmin() && !system;
     const canReport = !system;
 
@@ -7286,7 +7539,15 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
             ${canDelete ? `<button class="btn small ghost" type="button" title="Supprimer" aria-label="Supprimer" data-msg-del="${escapeHtml(String(idx ?? ""))}">🗑️</button>` : ""}
           </div>
           ${text ? `<div class="msg-text">${escapeHtml(text)}</div>` : ""}
-          ${hasFile ? `
+          ${hasFile ? (isImg && imgSrc ? `
+            <button class="media-box msg-file" type="button" data-open-file="${escapeHtml(String(idx ?? ""))}">
+              <img class="media-img" alt="" loading="lazy" src="${escapeHtml(imgSrc)}"/>
+              <div class="media-bar">
+                <div class="media-name">${escapeHtml(fileLabel || "Image")}</div>
+                <span class="badge">Ouvrir</span>
+              </div>
+            </button>
+          ` : `
             <button class="file-box msg-file" type="button" data-open-file="${escapeHtml(String(idx ?? ""))}">
               <div class="file-left">
                 <div class="file-ico" aria-hidden="true">📄</div>
@@ -7297,7 +7558,7 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
               </div>
               <span class="badge">Ouvrir</span>
             </button>
-          ` : ""}
+          `) : ""}
         </div>
       </div>
     `;
