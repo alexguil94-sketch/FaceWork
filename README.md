@@ -109,6 +109,12 @@ Un **assistant IA** peut être activé via une **Netlify Function** (clé API ga
 
 Ensuite, un bouton **🤖** apparaît en bas à droite (et un bouton “🤖 Aide IA” dans chaque exercice).
 
+### Générer des exercices (admin)
+Dans `app/admin.html` → **Exercices & tutoriels**, le bouton **🤖 Générer** remplit automatiquement le formulaire (à valider puis **Enregistrer**).
+
+### Modération (messages)
+Un admin peut supprimer des messages dans les canaux. Si tu utilises Supabase, pense à **rejouer** `supabase/schema.sql` (ajout des policies + trigger `after delete`).
+
 ### Note dev locale
 Avec **Live Server**, les Functions ne tournent pas : teste plutôt après déploiement Netlify (ou avec Netlify Dev si tu l’utilises).
 

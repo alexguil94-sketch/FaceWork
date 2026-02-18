@@ -341,6 +341,25 @@ create trigger channel_messages_ai
 after insert on public.channel_messages
 for each row execute function public.channel_messages_after_insert();
 
+create or replace function public.channel_messages_after_delete()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  update public.channels
+  set message_count = greatest(message_count - 1, 0)
+  where id = old.channel_id;
+  return old;
+end;
+$$;
+
+drop trigger if exists channel_messages_ad on public.channel_messages;
+create trigger channel_messages_ad
+after delete on public.channel_messages
+for each row execute function public.channel_messages_after_delete();
+
 create or replace function public.dm_messages_after_insert()
 returns trigger
 language plpgsql
@@ -655,6 +674,16 @@ with check (
   company = public.current_company()
   and user_id = auth.uid()
   and exists (select 1 from public.channels c where c.id = channel_id and c.company = public.current_company())
+);
+
+drop policy if exists channel_messages_delete_admin on public.channel_messages;
+create policy channel_messages_delete_admin
+on public.channel_messages
+for delete
+to authenticated
+using (
+  company = public.current_company()
+  and public.is_admin()
 );
 
 -- DM threads

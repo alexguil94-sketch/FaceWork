@@ -2188,6 +2188,28 @@
       }
 
       msgsRoot && (msgsRoot.onclick = async (e)=>{
+        const idxDel = e.target.closest("[data-msg-del]")?.getAttribute("data-msg-del");
+        if(idxDel != null){
+          if(!isAdmin()){
+            window.fwToast?.("Accès refusé","Seul un admin peut supprimer un message.");
+            return;
+          }
+          const i = Number(idxDel);
+          if(!Number.isFinite(i)) return;
+          const ok = confirm("Supprimer ce message ?");
+          if(!ok) return;
+
+          const map = loadChannelMsgs();
+          const arr = Array.isArray(map[key]) ? map[key] : [];
+          if(!arr[i]) return;
+          arr.splice(i, 1);
+          map[key] = arr;
+          saveChannelMsgs(map);
+          window.fwToast?.("Supprimé","Message supprimé.");
+          showChannel(key);
+          return;
+        }
+
         const idxRaw = e.target.closest("[data-open-file]")?.getAttribute("data-open-file");
         if(idxRaw == null) return;
         const i = Number(idxRaw);
@@ -2432,6 +2454,7 @@
       const name = String(p.name || "Utilisateur");
       const time = fmtTime(r.created_at);
       const text = String(r.text || "");
+      const canDelete = isAdmin();
       const fileUrl = String(r.file_url || "");
       const fileName = String(r.file_name || "");
       const hasFile = !!(fileUrl || fileName);
@@ -2443,6 +2466,7 @@
             <div class="msg-head">
               <span class="msg-name">${escapeHtml(name)}</span>
               <span class="msg-time">${escapeHtml(time)}</span>
+              ${canDelete ? `<button class="btn small ghost" type="button" title="Supprimer" aria-label="Supprimer" data-msg-del="${escapeHtml(String(r.id || ""))}">🗑️</button>` : ""}
             </div>
             ${text ? `<div class="msg-text">${escapeHtml(text)}</div>` : ""}
             ${hasFile ? `
@@ -2521,6 +2545,38 @@
       msgsRoot.scrollTop = msgsRoot.scrollHeight;
 
       msgsRoot && (msgsRoot.onclick = async (e)=>{
+        const delId = e.target.closest("[data-msg-del]")?.getAttribute("data-msg-del") || "";
+        if(delId){
+          if(!isAdmin()){
+            window.fwToast?.("Accès refusé","Seul un admin peut supprimer un message.");
+            return;
+          }
+          const ok = confirm("Supprimer ce message ?");
+          if(!ok) return;
+
+          const del = await sb
+            .from("channel_messages")
+            .delete()
+            .eq("company", company)
+            .eq("id", delId);
+
+          if(del.error){
+            sbToastError("Suppression", del.error);
+            return;
+          }
+
+          // Best-effort badge update (UI)
+          const badge = document.querySelector(`[data-ch-id="${String(ch.id)}"] .badge`);
+          if(badge){
+            const n = Number(badge.textContent || "0");
+            if(Number.isFinite(n)) badge.textContent = String(Math.max(n - 1, 0));
+          }
+
+          window.fwToast?.("Supprimé","Message supprimé.");
+          await showChannel(ch);
+          return;
+        }
+
         const btn = e.target.closest("[data-file-url]");
         if(!btn) return;
         const fileUrl = btn.getAttribute("data-file-url") || "";
@@ -2594,6 +2650,13 @@
           sbToastError("Message", res.error);
           return;
         }
+
+        const badge = document.querySelector(`[data-ch-id="${String(ch.id)}"] .badge`);
+        if(badge){
+          const n = Number(badge.textContent || "0");
+          if(Number.isFinite(n)) badge.textContent = String(n + 1);
+        }
+
         input.value = "";
         input.style.height = "";
         clearChatSelectedFile(panel);
@@ -2804,6 +2867,28 @@
       }
 
       dmMsgs && (dmMsgs.onclick = async (e)=>{
+        const idxDel = e.target.closest("[data-msg-del]")?.getAttribute("data-msg-del");
+        if(idxDel != null){
+          if(!isAdmin()){
+            window.fwToast?.("Accès refusé","Seul un admin peut supprimer un message.");
+            return;
+          }
+          const i = Number(idxDel);
+          if(!Number.isFinite(i)) return;
+          const ok = confirm("Supprimer ce message ?");
+          if(!ok) return;
+
+          const dms = loadDMs();
+          const arr = Array.isArray(dms[name]) ? dms[name] : [];
+          if(!arr[i]) return;
+          arr.splice(i, 1);
+          dms[name] = arr;
+          saveDMs(dms);
+          window.fwToast?.("Supprimé","Message supprimé.");
+          showDM(name);
+          return;
+        }
+
         const idxRaw = e.target.closest("[data-open-file]")?.getAttribute("data-open-file");
         if(idxRaw == null) return;
         const i = Number(idxRaw);
@@ -5142,6 +5227,116 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
     await loadLearnAdminItems();
   }
 
+  async function generateLearnAdminItemWithAi(){
+    const overlay = getLearnAdminOverlay();
+    if(!overlay) return;
+    if(!isAdmin()){
+      window.fwToast?.("Admin", "Accès réservé.");
+      return;
+    }
+
+    const kind = normalizeLearnKind($("#learnAdminKind", overlay)?.value || "exercise");
+    const lang = normalizeLearnLang($("#learnAdminLang", overlay)?.value || "html");
+    const difficulty = normalizeLearnDifficulty($("#learnAdminDifficulty", overlay)?.value || "beginner");
+
+    const topic = (prompt("Sujet/thème de l'exercice à générer (ex: flexbox, DOM, SELECT…)", "flexbox") || "").trim();
+    if(!topic) return;
+
+    const btn = $("#learnAdminGenerate", overlay);
+    const oldText = btn?.textContent || "";
+    if(btn) btn.disabled = true;
+    btn && (btn.textContent = "Génération…");
+    window.fwToast?.("IA", "Génération en cours…");
+
+    function stripCodeFences(raw){
+      let s = String(raw || "").trim();
+      s = s.replace(/^```(?:json)?\s*/i, "");
+      s = s.replace(/```$/i, "");
+      return s.trim();
+    }
+
+    function extractJsonObject(raw){
+      const s = stripCodeFences(raw);
+      if(s.startsWith("{") && s.endsWith("}")) return s;
+      const m = s.match(/\{[\s\S]*\}/);
+      return m ? m[0] : "";
+    }
+
+    async function callAi(context, messages){
+      const res = await fetch("/.netlify/functions/ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          context: context || null,
+          messages: Array.isArray(messages) ? messages : [],
+        }),
+      });
+      let data = {};
+      try{ data = await res.json(); }catch(e){ data = {}; }
+      if(!res.ok){
+        const msg = String(data?.error || "").trim();
+        if(res.status === 404) throw new Error("IA indisponible en local. Déploie sur Netlify (ou utilise netlify dev).");
+        if(res.status === 501) throw new Error(msg || "OPENAI_API_KEY manquant sur Netlify.");
+        throw new Error(msg || `Erreur IA (${res.status}).`);
+      }
+      return String(data?.output || "").trim();
+    }
+
+    try{
+      const kindLabel = (kind === "tutorial") ? "tutoriel" : "exercice";
+      const diffLabel = (difficulty === "advanced") ? "avancé" : (difficulty === "intermediate") ? "intermédiaire" : "débutant";
+      const langLabel = (lang === "js") ? "JavaScript" : (lang || "HTML").toUpperCase();
+
+      const instruction = [
+        `Génère 1 ${kindLabel} (${langLabel}, niveau ${diffLabel}).`,
+        `Sujet: ${topic}`,
+        "",
+        "Retourne UNIQUEMENT du JSON valide (sans markdown, sans ```).",
+        "Format: {\"title\":\"…\",\"prompt\":\"…\",\"answer\":\"…\"}",
+        "",
+        "Contraintes:",
+        "- title: court et clair (max 60 caractères).",
+        "- prompt: commence par \"Question :\" puis donne une consigne en 3–6 étapes.",
+        "- answer: une solution correcte et concise (code si HTML/CSS/JS/PHP, requête si SQL).",
+      ].join("\n");
+
+      const out = await callAi(
+        { kind, lang, difficulty, title: `${topic}`, prompt: "" },
+        [{ role: "user", content: instruction }]
+      );
+
+      const jsonStr = extractJsonObject(out);
+      let obj = null;
+      try{ obj = jsonStr ? JSON.parse(jsonStr) : null; }catch(e){ obj = null; }
+
+      const titleEl = $("#learnAdminTitle", overlay);
+      const promptEl = $("#learnAdminPrompt", overlay);
+      const answerEl = $("#learnAdminAnswer", overlay);
+
+      if(!obj || typeof obj !== "object"){
+        promptEl && (promptEl.value = `Question : ${topic}\n\n(IA) Réponse brute:\n${out}`);
+        answerEl && (answerEl.value = "");
+        window.fwToast?.("IA", "Réponse non parsable. Je l'ai collée dans le champ Consigne.");
+        return;
+      }
+
+      learnAdminModalState.editingId = "";
+      titleEl && (titleEl.value = String(obj.title || "").trim() || `${langLabel} — ${topic}`);
+      promptEl && (promptEl.value = String(obj.prompt || "").trim() || `Question : ${topic}`);
+      answerEl && (answerEl.value = String(obj.answer || "").trim());
+
+      window.fwToast?.("IA", "Exercice généré. Vérifie puis clique sur Enregistrer.");
+      titleEl?.focus?.();
+    }catch(err){
+      window.fwToast?.("IA", String(err?.message || err || "Erreur IA."));
+    }finally{
+      if(btn){
+        btn.disabled = false;
+        btn.textContent = oldText || "🤖 Générer";
+      }
+    }
+  }
+
   async function deleteLearnAdminItem(){
     const overlay = getLearnAdminOverlay();
     if(!overlay) return;
@@ -5210,6 +5405,7 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
     });
 
     $("#learnAdminSeed", overlay)?.addEventListener("click", ()=> addLearningExamples());
+    $("#learnAdminGenerate", overlay)?.addEventListener("click", ()=> generateLearnAdminItemWithAi());
 
     $("#learnAdminSearch", overlay)?.addEventListener("input", ()=>{
       learnAdminModalState.q = String($("#learnAdminSearch", overlay)?.value || "");
@@ -6539,6 +6735,7 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
     const fileDataUrl = String(m.fileData?.dataUrl || "");
     const hasFile = !!(fileName || fileUrl || fileDataUrl);
     const fileLabel = fileName || (fileUrl ? (String(fileUrl).split("/").pop() || "Fichier") : "Fichier");
+    const canDelete = isAdmin() && !system;
 
     const avatar = system
       ? `<div class="avatar msg-avatar" style="background: rgba(255,255,255,.10)">FW</div>`
@@ -6551,6 +6748,7 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
           <div class="msg-head">
             <span class="msg-name">${escapeHtml(name)}</span>
             <span class="msg-time">${escapeHtml(time)}</span>
+            ${canDelete ? `<button class="btn small ghost" type="button" title="Supprimer" aria-label="Supprimer" data-msg-del="${escapeHtml(String(idx ?? ""))}">🗑️</button>` : ""}
           </div>
           ${text ? `<div class="msg-text">${escapeHtml(text)}</div>` : ""}
           ${hasFile ? `
