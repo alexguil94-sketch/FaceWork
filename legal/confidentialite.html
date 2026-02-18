@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Confidentialité — FaceWork</title>
+  <link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body>
+  <header class="navbar">
+    <div class="container inner">
+      <a class="brand" href="../index.html" aria-label="FaceWork accueil">
+        <div class="logo" aria-hidden="true"><img src="../assets/fw-logo.png" alt=""/></div>
+        <div>
+          <div style="line-height:1; font-size:18px">FaceWork</div>
+          <div style="color:var(--muted); font-size:12px; font-weight:800">Documents légaux</div>
+        </div>
+      </a>
+
+      <div class="nav-actions">
+        <button class="btn icon" data-theme-toggle title="Basculer thème">🌓</button>
+        <a class="btn" href="../login.html">Connexion</a>
+        <a class="btn" href="../index.html">Retour</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="spacer"></div>
+
+    <section class="card panel">
+      <div class="badge">Légal</div>
+      <h1 class="page-title" style="margin-top:10px">Politique de confidentialité</h1>
+      <p class="page-sub">Dernière mise à jour : <strong>18/02/2026</strong></p>
+
+      <div class="hr"></div>
+
+      <div class="callout" style="max-width: 92ch">
+        <strong>Modèle à personnaliser.</strong>
+        <span class="muted">Cette page décrit les traitements de données d’un prototype FaceWork. Remplace les informations entre crochets et adapte selon ton hébergement/configuration réelle.</span>
+      </div>
+
+      <div class="spacer" style="height:10px"></div>
+
+      <h2>1. Responsable de traitement</h2>
+      <p>
+        Responsable de traitement : <strong>[Nom / Société]</strong><br/>
+        Contact : <strong>[email de contact]</strong>
+      </p>
+
+      <h2>2. Données traitées</h2>
+      <ul>
+        <li><strong>Données de compte</strong> : email, nom, entreprise/workspace, rôle, avatar.</li>
+        <li><strong>Contenus</strong> : publications, messages (canaux et DM), fichiers et liens partagés.</li>
+        <li><strong>Modération</strong> : signalements de messages et informations associées (raison, statut).</li>
+        <li><strong>Données techniques</strong> : éléments nécessaires au fonctionnement (préférences de thème, stockage local en mode démo).</li>
+      </ul>
+
+      <h2>3. Finalités</h2>
+      <ul>
+        <li>Fournir les fonctionnalités de la Plateforme (authentification, échanges, stockage).</li>
+        <li>Sécuriser la Plateforme (prévention des abus) et gérer la modération.</li>
+        <li>Améliorer l’expérience utilisateur (préférences, ergonomie).</li>
+      </ul>
+
+      <h2>4. Mode démo locale</h2>
+      <p>
+        En mode démo locale, certaines données peuvent être stockées dans le navigateur (localStorage) et rester sur votre appareil.
+        Vous pouvez réinitialiser la démo depuis <em>Paramètres</em>.
+      </p>
+
+      <h2>5. Mode Supabase (base de données + fichiers)</h2>
+      <p>
+        En mode Supabase, les données peuvent être stockées chez un prestataire technique (base Postgres + Storage).
+        Les accès sont encadrés par l’authentification et des règles (RLS/policies).
+      </p>
+
+      <h2>6. Assistant IA</h2>
+      <p>
+        Si l’assistant IA est activé, les messages envoyés à l’IA peuvent être transmis à un fournisseur tiers pour générer une réponse.
+        Évite d’y inclure des données sensibles. L’historique de conversation peut être conservé localement dans le navigateur pour afficher la discussion.
+      </p>
+
+      <h2>7. Durées de conservation</h2>
+      <ul>
+        <li>Données de compte : pendant la durée d’activation du compte.</li>
+        <li>Messages et contenus : pendant la durée nécessaire au fonctionnement du workspace (ou selon paramétrage interne).</li>
+        <li>Signalements : pendant le temps de traitement/modération puis archivage éventuel.</li>
+      </ul>
+
+      <h2>8. Destinataires</h2>
+      <ul>
+        <li>Utilisateurs du même workspace (selon les droits) pour l’affichage des contenus.</li>
+        <li>Administrateurs/modérateurs pour la gestion et la modération.</li>
+        <li>Prestataires techniques d’hébergement et de services (ex. Netlify, Supabase, fournisseur IA).</li>
+      </ul>
+
+      <h2>9. Vos droits</h2>
+      <p>
+        Selon la réglementation applicable, vous pouvez demander l’accès, la rectification, la suppression, la limitation ou l’opposition au traitement,
+        ainsi que la portabilité de vos données. Contact : <strong>[email de contact RGPD]</strong>.
+      </p>
+
+      <h2>10. Cookies / stockage local</h2>
+      <p>
+        La Plateforme peut utiliser du stockage local (localStorage) pour mémoriser des préférences (ex : thème) et des éléments de démo.
+        Aucun cookie publicitaire n’est nécessaire au fonctionnement du prototype.
+      </p>
+
+      <h2>11. Sécurité</h2>
+      <p>
+        Des mesures techniques (authentification, règles d’accès, contrôles) peuvent être mises en place pour protéger les données.
+        Malgré cela, aucun système n’est infaillible.
+      </p>
+    </section>
+
+    <footer class="footer">
+      <div class="inner container">
+        <div>
+          <div style="font-weight:950; color:var(--text)">FaceWork</div>
+          <div style="margin-top:6px">Politique de confidentialité — modèle à personnaliser.</div>
+        </div>
+        <div class="col" style="gap:8px">
+          <div class="badge">Liens</div>
+          <a href="../index.html">Accueil</a>
+          <a href="../tutoriel.html">Tutoriel</a>
+          <a href="../app/feed.html">Accéder à l’app</a>
+        </div>
+        <div class="col" style="gap:8px">
+          <div class="badge">Légal</div>
+          <a href="cgu.html">CGU</a>
+          <a href="confidentialite.html">Confidentialité</a>
+          <a href="mentions-legales.html">Mentions légales</a>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <div class="toast" role="status" aria-live="polite">
+    <div class="t">Info</div>
+    <div class="d">—</div>
+  </div>
+
+  <script src="../js/site.js"></script>
+</body>
+</html>
+
