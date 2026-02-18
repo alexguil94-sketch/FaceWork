@@ -124,10 +124,14 @@ Dans les **canaux** et les **DM**, le bouton **GIF** ouvre une bibliothèque (te
 Techniquement :
 - La recherche passe par une **Netlify Function** : `/.netlify/functions/gifs` (Tenor).
 
-### (Recommandé) Configurer ta clé Tenor sur Netlify
+### Clé Tenor (optionnel)
+Tenor n’accepte plus toujours les nouvelles inscriptions de clés (tu peux voir un message du type “ils ne donnent plus d’API key”).
+Dans ce cas, **tu n’as rien à faire** : FaceWork utilise une **clé de démo** par défaut.
+
+⚠️ Important : Tenor a annoncé une fin de support de l’API autour du **30/06/2026** (prévois une alternative si tu veux du long terme).
+
+Si tu as déjà une clé Tenor (Google Cloud), tu peux la mettre sur Netlify :
 Netlify → **Site configuration → Environment variables** :
 - `TENOR_API_KEY`
-
-Sans `TENOR_API_KEY`, le projet utilise une clé de démo (OK pour une présentation, mais limitée).
 
 Amuse-toi bien.
