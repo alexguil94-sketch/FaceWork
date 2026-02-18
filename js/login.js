@@ -15,15 +15,30 @@
     return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}`;
   }
 
-  function makeUser(email, company){
+  function normRole(role){
+    return String(role || "").trim().toLowerCase() === "admin" ? "admin" : "member";
+  }
+
+  function randomId(){
+    try{
+      if(typeof crypto?.randomUUID === "function") return crypto.randomUUID();
+      const a = new Uint32Array(4);
+      crypto.getRandomValues(a);
+      return Array.from(a).map(n=>n.toString(16).padStart(8,"0")).join("");
+    }catch(e){
+      return String(Date.now()) + String(Math.random()).slice(2);
+    }
+  }
+
+  function makeUser(email, company, role){
     const nameGuess = (email || "utilisateur").split("@")[0].replace(/[._-]+/g," ").trim();
     const name = nameGuess ? nameGuess.split(/\s+/).map(s=>s[0]?.toUpperCase()+s.slice(1)).join(" ") : "Utilisateur";
     return {
-      id: "",
+      id: randomId(),
       name,
       company: normCompany(company || "HeroForgeWeb"),
       email: email || "vous@exemple.com",
-      role: "admin",
+      role: normRole(role),
       joinedAt: dateStr(),
       avatarUrl: "",
       avatarBg: "",
@@ -44,6 +59,16 @@
     companyInput.value = window.fwSupabase?.companyDefault || "HeroForgeWeb";
   }
 
+  const demoRoleWrap = $("#demoRoleWrap");
+  const demoRoleSelect = $("#demoRole");
+  const isSupabaseEnabled = !!(window.fwSupabase?.enabled && window.fwSupabase?.client);
+  if(demoRoleWrap){
+    demoRoleWrap.classList.toggle("hidden", isSupabaseEnabled);
+  }
+  function selectedDemoRole(){
+    return normRole(demoRoleSelect?.value || "member");
+  }
+
   form.addEventListener("submit", async (ev)=>{
     ev.preventDefault();
     const email = $("#email").value.trim();
@@ -54,7 +79,7 @@
       return;
     }
     // Supabase mode
-    if(window.fwSupabase?.enabled && window.fwSupabase?.client){
+    if(isSupabaseEnabled){
       const sb = window.fwSupabase.client;
       const nameGuess = (email || "utilisateur").split("@")[0].replace(/[._-]+/g," ").trim();
       const name = nameGuess ? nameGuess.split(/\s+/).map(s=>s[0]?.toUpperCase()+s.slice(1)).join(" ") : "Utilisateur";
@@ -121,19 +146,27 @@
     }
 
     // Demo mode (localStorage)
-    setUser(makeUser(email, company));
+    setUser(makeUser(email, company, selectedDemoRole()));
     window.fwToast?.("Connecté","Bienvenue sur FaceWork (démo locale) !");
     setTimeout(go, 450);
   });
 
   $("#btnGoogle")?.addEventListener("click", ()=>{
-    setUser(makeUser("alexis.g@heroforgeweb.com", normCompany($("#company")?.value || window.fwSupabase?.companyDefault || "HeroForgeWeb")));
+    if(isSupabaseEnabled){
+      window.fwToast?.("Google", "OAuth non configuré. Utilise email + mot de passe.");
+      return;
+    }
+    setUser(makeUser("alexis.g@heroforgeweb.com", normCompany($("#company")?.value || window.fwSupabase?.companyDefault || "HeroForgeWeb"), selectedDemoRole()));
     window.fwToast?.("Connecté via Google","Bienvenue ! (démo)");
     setTimeout(go, 450);
   });
 
   $("#btnDiscord")?.addEventListener("click", ()=>{
-    setUser(makeUser("alexis.g@heroforgeweb.com", normCompany($("#company")?.value || window.fwSupabase?.companyDefault || "HeroForgeWeb")));
+    if(isSupabaseEnabled){
+      window.fwToast?.("Discord", "OAuth non configuré. Utilise email + mot de passe.");
+      return;
+    }
+    setUser(makeUser("alexis.g@heroforgeweb.com", normCompany($("#company")?.value || window.fwSupabase?.companyDefault || "HeroForgeWeb"), selectedDemoRole()));
     window.fwToast?.("Connecté via Discord","Bienvenue ! (démo)");
     setTimeout(go, 450);
   });

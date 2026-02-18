@@ -22,7 +22,7 @@
         <a data-app-nav href="app/feed.html">📰 Publications</a>
         <a data-app-nav href="app/channels.html"># Canaux</a>
         <a data-app-nav href="app/messages.html">💬 Messages</a>
-        <a data-app-nav href="app/admin.html">🛡️ Admin</a>
+        <a data-app-nav href="app/admin.html" data-admin-only class="hidden">🛡️ Admin</a>
         <a data-app-nav href="app/settings.html">⚙️ Paramètres</a>
         <a data-app-nav href="tutoriel.html">📘 Tutoriel</a>
       </nav>
@@ -83,7 +83,7 @@
 
       <div id="tutPostsEmpty" class="callout hidden">
         <strong>Aucun post pour le moment.</strong>
-        <span class="muted" data-admin-only>(Admin : clique sur “Ajouter” pour publier.)</span>
+        <span class="muted hidden" data-admin-only>(Admin : clique sur “Ajouter” pour publier.)</span>
       </div>
 
       <div id="tutPostsList" class="col" style="gap:14px"></div>

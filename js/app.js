@@ -1025,6 +1025,10 @@
     if(!localStorage.getItem("fwMembers")){
       const u = getUser() || {};
       const meCompany = u.company || "Entreprise";
+      const wantAdmin = String(u.role || "").trim().toLowerCase() === "admin";
+      const meRoleIds = [];
+      if(wantAdmin && adminRoleId) meRoleIds.push(adminRoleId);
+      else if(memberRoleId) meRoleIds.push(memberRoleId);
       const members = [
         {
           id: cryptoRandom(),
@@ -1032,7 +1036,7 @@
           email: u.email || "vous@exemple.com",
           company: meCompany,
           joinedAt: u.joinedAt || dateStr(),
-          roleIds: adminRoleId ? [adminRoleId] : [],
+          roleIds: meRoleIds,
           avatarUrl: u.avatarUrl || "",
           avatarBg: u.avatarBg || "",
         },

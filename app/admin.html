@@ -23,7 +23,7 @@
       <a data-app-nav href="feed.html">📰 Publications</a>
       <a data-app-nav href="channels.html"># Canaux</a>
       <a data-app-nav href="messages.html">💬 Messages</a>
-      <a data-app-nav href="admin.html">🛡️ Admin</a>
+      <a data-app-nav href="admin.html" data-admin-only class="hidden">🛡️ Admin</a>
       <a data-app-nav href="settings.html">⚙️ Paramètres</a>
       <a data-app-nav href="../tutoriel.html">📘 Tutoriel</a>
     </nav>
@@ -45,7 +45,7 @@
   </div>
 </header>
 
-    <main class="main">
+    <main class="main hidden" data-admin-only>
       <div class="container">
         <h1 class="page-title">Administration</h1>
         <p class="page-sub">Tableau de bord + gestion des rôles, membres et contenu (démo locale / Supabase).</p>

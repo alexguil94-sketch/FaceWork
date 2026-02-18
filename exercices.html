@@ -22,7 +22,7 @@
         <a data-app-nav href="app/feed.html">📰 Publications</a>
         <a data-app-nav href="app/channels.html"># Canaux</a>
         <a data-app-nav href="app/messages.html">💬 Messages</a>
-        <a data-app-nav href="app/admin.html">🛡️ Admin</a>
+        <a data-app-nav href="app/admin.html" data-admin-only class="hidden">🛡️ Admin</a>
         <a data-app-nav href="app/settings.html">⚙️ Paramètres</a>
         <a data-app-nav href="tutoriel.html">📘 Tutoriel</a>
         <a data-app-nav href="exercices.html">🧠 Exercices</a>
@@ -60,7 +60,7 @@
         HTML / CSS / JavaScript / SQL / PHP : une consigne, et la réponse apparaît uniquement si tu le souhaites.
       </p>
 
-      <div class="callout" style="max-width: 88ch" data-admin-only>
+      <div class="callout hidden" style="max-width: 88ch" data-admin-only>
         <strong>Admin :</strong> tu peux modifier le contenu depuis <a href="app/admin.html">Admin</a> → <em>Vue d’ensemble</em> → <em>Gérer exercices</em>.
       </div>
     </section>
@@ -74,7 +74,7 @@
         </div>
         <div class="row" style="gap:10px; flex-wrap:wrap; align-items:center">
           <span class="pill" id="learnCount">—</span>
-          <a class="btn small" href="app/admin.html" data-admin-only>Gérer (admin)</a>
+          <a class="btn small hidden" href="app/admin.html" data-admin-only>Gérer (admin)</a>
         </div>
       </div>
 

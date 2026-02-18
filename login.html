@@ -72,6 +72,21 @@
                 <input class="input" id="company" type="text" placeholder="Ex: HeroForgeWeb" autocomplete="organization"/>
               </div>
             </div>
+
+            <!-- Démo locale uniquement (sans Supabase) -->
+            <div id="demoRoleWrap" class="hidden">
+              <div class="label">Rôle (démo)</div>
+              <div class="field">
+                <span class="field-icon" aria-hidden="true">🧩</span>
+                <select class="input" id="demoRole" aria-label="Rôle en mode démo">
+                  <option value="member" selected>Membre</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+              <div class="muted" style="font-size:12px; font-weight:800; margin-top:6px">
+                Visible uniquement en démo locale (sans Supabase).
+              </div>
+            </div>
             <div>
               <div class="label">Mot de passe</div>
               <div class="field">
