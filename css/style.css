@@ -1484,6 +1484,19 @@ html[data-theme="light"] .toast{background: rgba(255,255,255,.62)}
 .toast .t{font-weight: 950}
 .toast .d{color: var(--muted); margin-top: 2px; font-weight: 700}
 
+/* AI helper */
+.ai-fab{
+  position: fixed;
+  right: 18px;
+  bottom: 88px;
+  z-index: 60;
+  box-shadow: var(--shadow);
+}
+body.ai-open .ai-fab{display:none}
+@media (max-width: 560px){
+  .ai-fab{right: 12px; bottom: 84px}
+}
+
 /* Tutorial */
 .tut-hero{padding-bottom: 10px}
 .tut-shell{margin-bottom: 10px}
@@ -1644,7 +1657,12 @@ html[data-theme="light"] .tut-details[open]{
 }
 .tut-txt{display:flex; flex-direction:column; gap:2px; min-width:0}
 .tut-title{color: var(--text)}
+.tut-question{color: var(--text); line-height: 1.35}
 .tut-meta{color: var(--muted); font-weight: 750; font-size: 12px}
+.tut-details[data-learn-kind="exercise"] .tut-summary{align-items:flex-start}
+.tut-details[data-learn-kind="exercise"] .tut-left{align-items:flex-start}
+.tut-details[data-learn-kind="exercise"] .tut-ico{margin-top: 2px}
+.tut-details[data-learn-kind="exercise"] .badge{margin-top: 4px}
 .tut-body{padding: 0 14px 14px}
 .tut-body p{
   margin: 10px 0;

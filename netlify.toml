@@ -2,6 +2,9 @@
   publish = "."
   command = ""
 
+[functions]
+  directory = "netlify/functions"
+
 [[redirects]]
   from = "/app"
   to = "/app/feed.html"
@@ -11,4 +14,3 @@
   from = "/app/"
   to = "/app/feed.html"
   status = 302
-

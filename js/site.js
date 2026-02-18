@@ -409,6 +409,370 @@
     window.__fwToastTimer = setTimeout(()=>toast.classList.remove("show"), 2600);
   };
 
+  // ---------- AI assistant (optional: Netlify Function)
+  const AI_ENDPOINT = "/.netlify/functions/ai";
+  const AI_LS_KEY = "fwAiChat_v1";
+  const AI_MAX_MESSAGES = 24;
+
+  const ai = {
+    overlay: null,
+    fab: null,
+    messagesEl: null,
+    inputEl: null,
+    formEl: null,
+    subEl: null,
+    sendBtn: null,
+    clearBtn: null,
+    closeBtn: null,
+    prevOverflow: "",
+    context: null,
+    messages: [],
+    sending: false,
+  };
+
+  function pad2(n){ return String(n).padStart(2, "0"); }
+  function fmtHm(ts){
+    const d = new Date(ts);
+    if(Number.isNaN(d.getTime())) return "";
+    return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+  }
+  function initials(name){
+    const parts = String(name || "U").trim().split(/\s+/).filter(Boolean);
+    return parts.slice(0,2).map(s=> (s[0] || "U").toUpperCase()).join("") || "U";
+  }
+
+  function loadAiMessages(){
+    try{
+      const raw = JSON.parse(localStorage.getItem(AI_LS_KEY) || "[]");
+      ai.messages = Array.isArray(raw) ? raw : [];
+    }catch(e){
+      ai.messages = [];
+    }
+
+    ai.messages = ai.messages
+      .filter(m=> m && typeof m === "object")
+      .map(m=>({
+        id: String(m.id || ""),
+        role: (m.role === "user" || m.role === "assistant" || m.role === "system") ? m.role : "system",
+        content: String(m.content || "").slice(0, 8000),
+        ts: Number(m.ts || 0) || Date.now(),
+      }))
+      .slice(-AI_MAX_MESSAGES);
+  }
+
+  function saveAiMessages(){
+    try{
+      localStorage.setItem(AI_LS_KEY, JSON.stringify((ai.messages || []).slice(-AI_MAX_MESSAGES)));
+    }catch(e){ /* ignore */ }
+  }
+
+  function pushAiMessage(role, content){
+    const safeRole = (role === "user" || role === "assistant" || role === "system") ? role : "system";
+    const msg = {
+      id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      role: safeRole,
+      content: String(content || "").slice(0, 8000),
+      ts: Date.now(),
+    };
+    ai.messages.push(msg);
+    ai.messages = ai.messages.slice(-AI_MAX_MESSAGES);
+    saveAiMessages();
+    return msg.id;
+  }
+
+  function updateAiMessage(id, patch){
+    const idx = (ai.messages || []).findIndex(m=> m && m.id === id);
+    if(idx < 0) return;
+    ai.messages[idx] = { ...ai.messages[idx], ...(patch || {}) };
+    saveAiMessages();
+  }
+
+  function contextLabel(ctx){
+    const c = (ctx && typeof ctx === "object") ? ctx : null;
+    const title = String(c?.title || "").trim();
+    const langRaw = String(c?.lang || "").trim();
+    const diffRaw = String(c?.difficulty || "").trim();
+
+    const lang = (()=>{
+      const l = langRaw.toLowerCase();
+      if(l === "js") return "JS";
+      if(l === "html") return "HTML";
+      if(l === "css") return "CSS";
+      if(l === "sql") return "SQL";
+      if(l === "php") return "PHP";
+      return langRaw ? langRaw.toUpperCase() : "";
+    })();
+
+    const diff = (()=>{
+      const d = diffRaw.toLowerCase();
+      if(d === "beginner") return "Débutant";
+      if(d === "intermediate") return "Intermédiaire";
+      if(d === "advanced") return "Avancé";
+      return diffRaw;
+    })();
+
+    if(title){
+      const meta = [lang ? lang.toUpperCase() : "", diff ? diff : ""].filter(Boolean).join(" • ");
+      return meta ? `${title} (${meta})` : title;
+    }
+    return "";
+  }
+
+  function setAiContext(ctx){
+    ai.context = (ctx && typeof ctx === "object") ? {
+      kind: String(ctx.kind || ""),
+      lang: String(ctx.lang || ""),
+      difficulty: String(ctx.difficulty || ""),
+      title: String(ctx.title || ""),
+      prompt: String(ctx.prompt || ""),
+    } : null;
+
+    if(ai.subEl){
+      const label = contextLabel(ai.context);
+      ai.subEl.textContent = label
+        ? `Contexte : ${label}`
+        : "Pose une question (ex: “donne-moi un indice”).";
+    }
+  }
+
+  function renderAiMessages(){
+    if(!ai.messagesEl) return;
+
+    const u = getUser?.() || null;
+    const userName = String(u?.name || "Toi").trim() || "Toi";
+    const userAvatar = initials(userName);
+
+    ai.messagesEl.innerHTML = (ai.messages || []).map(m=>{
+      const role = (m.role === "user" || m.role === "assistant" || m.role === "system") ? m.role : "system";
+      const isSystem = role === "system";
+      const name = isSystem ? "Système" : (role === "assistant" ? "Assistant IA" : userName);
+      const avatar = isSystem ? "•" : (role === "assistant" ? "IA" : userAvatar);
+      const time = m.ts ? fmtHm(m.ts) : "";
+      const msgClass = isSystem ? "msg system" : "msg";
+      const avatarStyle = role === "assistant"
+        ? "background: linear-gradient(135deg, rgba(0,245,255,.55), rgba(162,89,255,.55));"
+        : "";
+      return `
+        <div class="${msgClass}">
+          <div class="avatar msg-avatar" style="${avatarStyle}">${escapeHtml(avatar)}</div>
+          <div class="msg-body">
+            <div class="msg-head">
+              <span class="msg-name">${escapeHtml(name)}</span>
+              ${time ? `<span class="msg-time">${escapeHtml(time)}</span>` : ""}
+            </div>
+            <div class="msg-text">${escapeHtml(m.content || "")}</div>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    ai.messagesEl.scrollTop = ai.messagesEl.scrollHeight;
+  }
+
+  async function callAi(chatMessages){
+    const msgs = Array.isArray(chatMessages)
+      ? chatMessages
+      : (ai.messages || [])
+          .filter(m=> (m.role === "user" || m.role === "assistant"))
+          .slice(-12)
+          .map(m=> ({ role: m.role, content: String(m.content || "").slice(0, 8000) }));
+
+    const payload = {
+      context: ai.context,
+      messages: (msgs || []).slice(-12),
+    };
+
+    const res = await fetch(AI_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    let data = {};
+    try{ data = await res.json(); }catch(e){ data = {}; }
+
+    if(!res.ok){
+      const msg = String(data?.error || "").trim();
+      if(res.status === 404){
+        throw new Error("IA indisponible en local. Déploie sur Netlify (ou utilise netlify dev).");
+      }
+      if(res.status === 501){
+        throw new Error(msg || "OPENAI_API_KEY manquant sur Netlify.");
+      }
+      throw new Error(msg || `Erreur IA (${res.status}).`);
+    }
+
+    return String(data?.output || "").trim();
+  }
+
+  async function sendAi(){
+    if(ai.sending) return;
+    if(!ai.inputEl) return;
+
+    const text = String(ai.inputEl.value || "").trim();
+    if(!text) return;
+
+    ai.inputEl.value = "";
+    ai.inputEl.style.height = "";
+
+    pushAiMessage("user", text);
+    const convo = (ai.messages || [])
+      .filter(m=> (m.role === "user" || m.role === "assistant"))
+      .slice(-12)
+      .map(m=> ({ role: m.role, content: String(m.content || "").slice(0, 8000) }));
+
+    const pendingId = pushAiMessage("assistant", "…");
+    renderAiMessages();
+
+    ai.sending = true;
+    ai.sendBtn && (ai.sendBtn.disabled = true);
+
+    try{
+      const out = await callAi(convo);
+      updateAiMessage(pendingId, { content: out || "(réponse vide)" });
+      renderAiMessages();
+    }catch(err){
+      const msg = String(err?.message || err || "Erreur IA.");
+      updateAiMessage(pendingId, { role: "system", content: `IA : ${msg}` });
+      renderAiMessages();
+      window.fwToast?.("IA", msg);
+    }finally{
+      ai.sending = false;
+      ai.sendBtn && (ai.sendBtn.disabled = false);
+    }
+  }
+
+  function ensureAiUi(){
+    if(ai.overlay || !document.body) return;
+
+    loadAiMessages();
+
+    // Floating button
+    const fab = document.createElement("button");
+    fab.className = "btn primary icon ai-fab";
+    fab.type = "button";
+    fab.title = "Assistant IA";
+    fab.setAttribute("aria-label", "Assistant IA");
+    fab.textContent = "🤖";
+    document.body.appendChild(fab);
+
+    // Modal overlay
+    const overlay = document.createElement("div");
+    overlay.className = "composer-overlay hidden";
+    overlay.setAttribute("role", "dialog");
+    overlay.setAttribute("aria-modal", "true");
+    overlay.setAttribute("aria-label", "Assistant IA");
+    overlay.innerHTML = `
+      <div class="card composer-modal" role="document" style="width: min(980px, 96vw); max-height: 86vh; overflow:hidden">
+        <div class="chat" style="min-height: 0">
+          <div class="chat-header">
+            <div class="chat-left">
+              <div class="chat-icon" aria-hidden="true">🤖</div>
+              <div class="chat-meta">
+                <div class="chat-title">Assistant IA</div>
+                <div class="chat-sub" data-ai-sub>Pose une question (ex: “donne-moi un indice”).</div>
+              </div>
+            </div>
+            <div class="chat-actions">
+              <button class="btn small" type="button" data-ai-clear>Vider</button>
+              <button class="btn icon ghost" type="button" data-ai-close aria-label="Fermer" title="Fermer">✕</button>
+            </div>
+          </div>
+
+          <div class="chat-messages" data-ai-messages></div>
+
+          <form class="chat-composer" data-ai-form>
+            <textarea class="chat-input" data-ai-input rows="2" placeholder="Écris ta question… (Entrée = envoyer, Shift+Entrée = ligne)"></textarea>
+            <button class="btn primary" type="submit" data-ai-send>Envoyer</button>
+          </form>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    ai.overlay = overlay;
+    ai.fab = fab;
+    ai.messagesEl = overlay.querySelector("[data-ai-messages]");
+    ai.inputEl = overlay.querySelector("[data-ai-input]");
+    ai.formEl = overlay.querySelector("[data-ai-form]");
+    ai.subEl = overlay.querySelector("[data-ai-sub]");
+    ai.sendBtn = overlay.querySelector("[data-ai-send]");
+    ai.clearBtn = overlay.querySelector("[data-ai-clear]");
+    ai.closeBtn = overlay.querySelector("[data-ai-close]");
+
+    function open(ctx){
+      ensureAiUi();
+      setAiContext(ctx);
+      if(!ai.overlay || !ai.overlay.classList.contains("hidden")) return;
+      ai.prevOverflow = document.body.style.overflow ?? "";
+      document.body.style.overflow = "hidden";
+      document.body.classList.add("ai-open");
+      ai.overlay.classList.remove("hidden");
+      renderAiMessages();
+      setTimeout(()=> ai.inputEl?.focus(), 50);
+    }
+
+    function close(){
+      if(!ai.overlay || ai.overlay.classList.contains("hidden")) return;
+      ai.overlay.classList.add("hidden");
+      document.body.style.overflow = ai.prevOverflow;
+      document.body.classList.remove("ai-open");
+    }
+
+    function clear(){
+      ai.messages = [];
+      saveAiMessages();
+      renderAiMessages();
+      window.fwToast?.("IA", "Conversation vidée.");
+    }
+
+    function autosize(){
+      if(!ai.inputEl) return;
+      ai.inputEl.style.height = "auto";
+      ai.inputEl.style.height = `${Math.min(ai.inputEl.scrollHeight, 160)}px`;
+    }
+
+    fab.addEventListener("click", ()=> open(null));
+    ai.closeBtn?.addEventListener("click", close);
+    ai.clearBtn?.addEventListener("click", clear);
+
+    overlay.addEventListener("click", (e)=>{
+      if(e.target === overlay) close();
+    });
+
+    document.addEventListener("keydown", (e)=>{
+      if(e.key === "Escape" && ai.overlay && !ai.overlay.classList.contains("hidden")) close();
+    });
+
+    ai.formEl?.addEventListener("submit", (e)=>{
+      e.preventDefault();
+      sendAi();
+    });
+
+    ai.inputEl?.addEventListener("input", autosize);
+    ai.inputEl?.addEventListener("keydown", (e)=>{
+      if(e.key !== "Enter") return;
+      if(e.shiftKey) return;
+      e.preventDefault();
+      sendAi();
+    });
+
+    if(!(ai.messages || []).length){
+      pushAiMessage("system", "Salut ! Je peux t'aider à comprendre une consigne, donner un indice, ou corriger ton code (colle-le ici).");
+    }
+    renderAiMessages();
+
+    // expose helpers
+    window.fwAi = {
+      open,
+      close,
+      clear,
+      setContext: setAiContext,
+    };
+  }
+
+  ensureAiUi();
+
   // Expose a tiny API for other scripts
   window.fw = {
     $,

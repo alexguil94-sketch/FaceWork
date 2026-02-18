@@ -97,4 +97,19 @@ Pour déposer des fichiers directement (publications **et** messages dans canaux
 - **Premier membre d’un workspace** : devient **admin** automatiquement (trigger SQL).
 - **Admin → Membres** : les membres apparaissent après s’être connectés (Supabase Auth), puis l’admin peut leur attribuer des rôles.
 
+## IA (Assistant)
+Un **assistant IA** peut être activé via une **Netlify Function** (clé API gardée côté serveur).
+
+### Activer sur Netlify
+1. Netlify → **Site configuration → Environment variables**
+2. Ajoute :
+   - `OPENAI_API_KEY` (obligatoire)
+   - `OPENAI_MODEL` (optionnel, ex: `gpt-4o-mini`)
+3. Redéploie le site (ou “Clear cache and deploy site”).
+
+Ensuite, un bouton **🤖** apparaît en bas à droite (et un bouton “🤖 Aide IA” dans chaque exercice).
+
+### Note dev locale
+Avec **Live Server**, les Functions ne tournent pas : teste plutôt après déploiement Netlify (ou avec Netlify Dev si tu l’utilises).
+
 Amuse-toi bien.

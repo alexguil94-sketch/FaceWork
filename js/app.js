@@ -3707,14 +3707,32 @@ ${s}
       created ? fmtTs(created) : "",
     ].filter(Boolean).join(" • ");
 
+    const isExercise = kind === "exercise";
+    const promptFirstParagraph = (prompt ? String(prompt.split(/\n\s*\n/)[0] || "").trim() : "");
+    const questionSummary = isExercise
+      ? ((promptFirstParagraph ? promptFirstParagraph.replace(/\s+/g, " ").trim() : "") || title)
+      : title;
+
+    const exerciseMeta = [
+      (prompt && title && title !== questionSummary) ? title : "",
+      learnLangLabel(lang),
+      learnDifficultyLabel(diff),
+      created ? fmtTs(created) : "",
+    ].filter(Boolean).join(" • ");
+
     return `
-      <details class="tut-details" data-learn-item="${escapeHtml(String(it.id || ""))}">
+      <details class="tut-details" data-learn-item="${escapeHtml(String(it.id || ""))}" data-learn-kind="${escapeHtml(kind)}">
         <summary class="tut-summary">
           <span class="tut-left">
             <span class="tut-ico" aria-hidden="true">${escapeHtml(learnLangIcon(lang))}</span>
             <span class="tut-txt">
-              <span class="tut-title truncate">${escapeHtml(title)}</span>
-              <span class="tut-meta truncate">${escapeHtml(meta)}</span>
+              ${isExercise ? `
+                <span class="tut-question">${escapeHtml(questionSummary)}</span>
+                <span class="tut-meta truncate">${escapeHtml(exerciseMeta || meta)}</span>
+              ` : `
+                <span class="tut-title truncate">${escapeHtml(title)}</span>
+                <span class="tut-meta truncate">${escapeHtml(meta)}</span>
+              `}
             </span>
           </span>
           <span class="badge">${kind === "tutorial" ? "Voir" : "Réponse"}</span>
@@ -3724,6 +3742,13 @@ ${s}
             <div class="callout" style="margin:0">
               <strong>Consigne :</strong><br/>
               ${nl2brEscaped(prompt)}
+            </div>
+            <div class="spacer" style="height:12px"></div>
+          ` : ""}
+
+          ${isExercise ? `
+            <div class="row" style="gap:8px; flex-wrap:wrap">
+              <button class="btn small" type="button" data-ai-help>🤖 Aide IA</button>
             </div>
             <div class="spacer" style="height:12px"></div>
           ` : ""}
@@ -3820,7 +3845,7 @@ ${s}
       if(sub){
         sub.textContent = (normalizeLearnKind(state.kind) === "tutorial")
           ? "Mini-guides et rappels rapides par langage."
-          : "Une consigne, une réponse (affichée uniquement si tu ouvres l’exercice).";
+          : "Clique sur la consigne pour afficher la réponse.";
       }
 
       if(count){
@@ -3860,6 +3885,26 @@ ${s}
     });
 
     list.addEventListener("click", async (e)=>{
+      const aiBtn = e.target.closest("[data-ai-help]");
+      if(aiBtn){
+        const details = aiBtn.closest("details[data-learn-item]");
+        const id = details?.getAttribute("data-learn-item") || "";
+        const it = (state.items || []).find(x=> String(x?.id || "") === String(id)) || null;
+
+        if(window.fwAi?.open){
+          window.fwAi.open(it ? {
+            kind: normalizeLearnKind(it.kind),
+            lang: normalizeLearnLang(it.lang),
+            difficulty: normalizeLearnDifficulty(it.difficulty),
+            title: String(it.title || "").trim(),
+            prompt: String(it.prompt || "").trim(),
+          } : null);
+        }else{
+          window.fwToast?.("IA", "Assistant IA indisponible (script non chargé).");
+        }
+        return;
+      }
+
       const prevBtn = e.target.closest("[data-preview]");
       if(prevBtn){
         const sel = prevBtn.getAttribute("data-preview");
