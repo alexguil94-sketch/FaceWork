@@ -2102,6 +2102,11 @@
     try{ return JSON.parse(localStorage.getItem("fwChannelMsgs") || "{}"); }catch(e){ return {}; }
   }
   function saveChannelMsgs(m){ localStorage.setItem("fwChannelMsgs", JSON.stringify(m)); }
+  const MESSAGE_REPORTS_KEY = "fwMessageReports_v1";
+  function loadMessageReports(){
+    try{ return JSON.parse(localStorage.getItem(MESSAGE_REPORTS_KEY) || "{}"); }catch(e){ return {}; }
+  }
+  function saveMessageReports(r){ localStorage.setItem(MESSAGE_REPORTS_KEY, JSON.stringify(r || {})); }
 
   function renderChannels(){
     const panel = $("#channelPanel");
@@ -2207,6 +2212,48 @@
           saveChannelMsgs(map);
           window.fwToast?.("Supprimé","Message supprimé.");
           showChannel(key);
+          return;
+        }
+
+        const idxReport = e.target.closest("[data-msg-report]")?.getAttribute("data-msg-report");
+        if(idxReport != null){
+          const i = Number(idxReport);
+          if(!Number.isFinite(i)) return;
+          const m = msgs[i];
+          if(!m || m.system) return;
+
+          const reason = prompt("Pourquoi signaler ce message ? (facultatif)", "");
+          if(reason === null) return;
+
+          const reports = loadMessageReports();
+          const u = getUser() || {};
+          const reporter = normalizeEmail(u.email) || String(u.name || "Utilisateur");
+          const rid = `channel:${key}:${i}:${reporter}`;
+          if(reports[rid]){
+            window.fwToast?.("Déjà signalé","Tu as déjà signalé ce message.");
+            return;
+          }
+
+          reports[rid] = {
+            id: rid,
+            company: String(u.company || ""),
+            kind: "channel",
+            channel: key,
+            message_index: i,
+            message: {
+              from: String(m.from || ""),
+              text: String(m.text || ""),
+              file_url: String(m.fileUrl || m.file_url || ""),
+              file_name: String(m.fileName || m.file_name || ""),
+              created_at: String(m.at || ""),
+            },
+            reporter,
+            reason: String(reason || "").trim(),
+            status: "open",
+            created_at: new Date().toISOString(),
+          };
+          saveMessageReports(reports);
+          window.fwToast?.("Signalé","Merci, un admin va vérifier.");
           return;
         }
 
@@ -2466,6 +2513,7 @@
             <div class="msg-head">
               <span class="msg-name">${escapeHtml(name)}</span>
               <span class="msg-time">${escapeHtml(time)}</span>
+              <button class="btn small ghost" type="button" title="Signaler" aria-label="Signaler" data-msg-report="${escapeHtml(String(r.id || ""))}">🚩</button>
               ${canDelete ? `<button class="btn small ghost" type="button" title="Supprimer" aria-label="Supprimer" data-msg-del="${escapeHtml(String(r.id || ""))}">🗑️</button>` : ""}
             </div>
             ${text ? `<div class="msg-text">${escapeHtml(text)}</div>` : ""}
@@ -2545,6 +2593,35 @@
       msgsRoot.scrollTop = msgsRoot.scrollHeight;
 
       msgsRoot && (msgsRoot.onclick = async (e)=>{
+        const reportId = e.target.closest("[data-msg-report]")?.getAttribute("data-msg-report") || "";
+        if(reportId){
+          const reason = prompt("Pourquoi signaler ce message ? (facultatif)", "");
+          if(reason === null) return;
+
+          const ins = await sb.from("message_reports").insert({
+            company,
+            kind: "channel",
+            channel_id: ch.id,
+            message_id: reportId,
+            reporter_id: uid,
+            reason: String(reason || "").trim(),
+          });
+
+          if(ins.error){
+            const code = String(ins.error.code || "");
+            const msg = String(ins.error.message || "");
+            if(code === "23505" || msg.toLowerCase().includes("duplicate")){
+              window.fwToast?.("Déjà signalé","Tu as déjà signalé ce message.");
+              return;
+            }
+            sbToastError("Signalement", ins.error);
+            return;
+          }
+
+          window.fwToast?.("Signalé","Merci, un admin va vérifier.");
+          return;
+        }
+
         const delId = e.target.closest("[data-msg-del]")?.getAttribute("data-msg-del") || "";
         if(delId){
           if(!isAdmin()){
@@ -2889,6 +2966,48 @@
           return;
         }
 
+        const idxReport = e.target.closest("[data-msg-report]")?.getAttribute("data-msg-report");
+        if(idxReport != null){
+          const i = Number(idxReport);
+          if(!Number.isFinite(i)) return;
+          const m = msgs[i];
+          if(!m || m.system) return;
+
+          const reason = prompt("Pourquoi signaler ce message ? (facultatif)", "");
+          if(reason === null) return;
+
+          const reports = loadMessageReports();
+          const u = getUser() || {};
+          const reporter = normalizeEmail(u.email) || String(u.name || "Utilisateur");
+          const rid = `dm:${name}:${i}:${reporter}`;
+          if(reports[rid]){
+            window.fwToast?.("Déjà signalé","Tu as déjà signalé ce message.");
+            return;
+          }
+
+          reports[rid] = {
+            id: rid,
+            company: String(u.company || ""),
+            kind: "dm",
+            thread: String(name || ""),
+            message_index: i,
+            message: {
+              from: String(m.from || ""),
+              text: String(m.text || ""),
+              file_url: String(m.fileUrl || m.file_url || ""),
+              file_name: String(m.fileName || m.file_name || ""),
+              created_at: String(m.at || ""),
+            },
+            reporter,
+            reason: String(reason || "").trim(),
+            status: "open",
+            created_at: new Date().toISOString(),
+          };
+          saveMessageReports(reports);
+          window.fwToast?.("Signalé","Merci, un admin va vérifier.");
+          return;
+        }
+
         const idxRaw = e.target.closest("[data-open-file]")?.getAttribute("data-open-file");
         if(idxRaw == null) return;
         const i = Number(idxRaw);
@@ -3057,6 +3176,7 @@
             <div class="msg-head">
               <span class="msg-name">${escapeHtml(name)}</span>
               <span class="msg-time">${escapeHtml(time)}</span>
+              <button class="btn small ghost" type="button" title="Signaler" aria-label="Signaler" data-msg-report="${escapeHtml(String(r.id || ""))}">🚩</button>
             </div>
             ${text ? `<div class="msg-text">${escapeHtml(text)}</div>` : ""}
             ${hasFile ? `
@@ -3133,6 +3253,34 @@
       dmMsgs.scrollTop = dmMsgs.scrollHeight;
 
       dmMsgs && (dmMsgs.onclick = async (e)=>{
+        const reportId = e.target.closest("[data-msg-report]")?.getAttribute("data-msg-report") || "";
+        if(reportId){
+          const reason = prompt("Pourquoi signaler ce message ? (facultatif)", "");
+          if(reason === null) return;
+
+          const ins = await sb.from("message_reports").insert({
+            company,
+            kind: "dm",
+            thread_id: t.id,
+            message_id: reportId,
+            reporter_id: uid,
+            reason: String(reason || "").trim(),
+          });
+
+          if(ins.error){
+            const code = String(ins.error.code || "");
+            const msg = String(ins.error.message || "");
+            if(code === "23505" || msg.toLowerCase().includes("duplicate")){
+              window.fwToast?.("Déjà signalé","Tu as déjà signalé ce message.");
+              return;
+            }
+            sbToastError("Signalement", ins.error);
+            return;
+          }
+
+          window.fwToast?.("Signalé","Merci, un admin va vérifier.");
+          return;
+        }
         const btn = e.target.closest("[data-file-url]");
         if(!btn) return;
         const fileUrl = btn.getAttribute("data-file-url") || "";
@@ -4372,6 +4520,354 @@ ${s}
     return true;
   }
 
+  // ---- Message reports (admin modal)
+  const reportsAdminModalState = {
+    prevOverflow: "",
+    bound: false,
+    company: "",
+    status: "open",
+    items: [],
+  };
+
+  function getReportsAdminOverlay(){
+    return $("#reportsAdminOverlay");
+  }
+
+  function closeReportsAdminModal(){
+    const overlay = getReportsAdminOverlay();
+    if(!overlay) return false;
+    overlay.classList.add("hidden");
+    try{ document.body.style.overflow = reportsAdminModalState.prevOverflow; }catch(e){ /* ignore */ }
+    return true;
+  }
+
+  function reportsStatusLabel(status){
+    const s = String(status || "").trim().toLowerCase();
+    if(s === "resolved") return "Résolu";
+    if(s === "dismissed") return "Ignoré";
+    return "Ouvert";
+  }
+
+  function setReportsAdminActiveButtons(){
+    const overlay = getReportsAdminOverlay();
+    if(!overlay) return;
+    const root = $("#reportsAdminStatusFilters", overlay);
+    if(!root) return;
+    const want = String(reportsAdminModalState.status || "");
+    $$("[data-ra-status]", root).forEach(b=>{
+      const v = String(b.getAttribute("data-ra-status") || "");
+      b.classList.toggle("primary", v === want);
+    });
+  }
+
+  function reportItemHtml(report){
+    const r = report || {};
+    const id = String(r.id || "");
+    const kind = String(r.kind || "").trim().toLowerCase();
+    const status = String(r.status || "open").trim().toLowerCase();
+
+    let channelLabel = String(r.channel_name || "").trim();
+    if(!channelLabel){
+      const raw = String(r.channel || "").trim();
+      const parts = raw.split(":");
+      channelLabel = parts.length >= 2 ? parts.slice(1).join(":") : raw;
+    }
+    if(!channelLabel) channelLabel = "canal";
+
+    const where = (kind === "channel") ? `#${channelLabel}` : "DM";
+
+    const createdAt = fmtTs(r.created_at || "");
+    const msgAt = fmtTs(r.message_created_at || "");
+
+    const author = String(r.author_name || "Utilisateur");
+    const reporter = String(r.reporter_name || "Utilisateur");
+    const resolver = String(r.resolver_name || "");
+
+    const reason = String(r.reason || "").trim();
+    const msgTextRaw = String(r.message_text || "").replace(/\s+/g, " ").trim();
+    const msgText = msgTextRaw.length > 180 ? (msgTextRaw.slice(0, 177) + "…") : msgTextRaw;
+
+    const fileUrl = String(r.message_file_url || "");
+    const fileName = String(r.message_file_name || "");
+    const hasFile = !!(fileUrl || fileName);
+
+    const meta = [
+      `Auteur: ${author}`,
+      `Signalé par: ${reporter}`,
+      createdAt ? `Signalement: ${createdAt}` : "",
+      msgAt ? `Message: ${msgAt}` : "",
+      (status !== "open" && resolver) ? `${reportsStatusLabel(status)} par ${resolver}` : "",
+    ].filter(Boolean).join(" • ");
+
+    const actions = (status === "open")
+      ? `
+        <button class="btn small" type="button" data-ra-resolve="${escapeHtml(id)}">Résoudre</button>
+        <button class="btn small" type="button" data-ra-dismiss="${escapeHtml(id)}">Ignorer</button>
+      `
+      : `
+        <button class="btn small" type="button" data-ra-reopen="${escapeHtml(id)}">Réouvrir</button>
+      `;
+
+    return `
+      <div class="file-box" style="margin-top:0; cursor:default">
+        <div class="file-left" style="min-width:0">
+          <div class="file-ico" aria-hidden="true">🚩</div>
+          <div class="file-meta" style="min-width:0">
+            <div class="file-title truncate">${escapeHtml(where)} — Message signalé</div>
+            <div class="file-sub truncate">${escapeHtml(meta)}</div>
+            ${reason ? `<div class="file-sub truncate"><strong>Raison:</strong> ${escapeHtml(reason)}</div>` : ""}
+            ${msgText ? `<div class="file-sub">${escapeHtml(msgText)}</div>` : ""}
+          </div>
+        </div>
+
+        <div class="row" style="gap:8px; align-items:center; flex-wrap:wrap; justify-content:flex-end">
+          <span class="badge">${escapeHtml(reportsStatusLabel(status))}</span>
+          ${hasFile ? `<button class="btn small" type="button" title="Ouvrir fichier" data-file-url="${escapeHtml(fileUrl)}" data-file-name="${escapeHtml(fileName)}">📎</button>` : ""}
+          ${actions}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderReportsAdminList(){
+    const overlay = getReportsAdminOverlay();
+    if(!overlay) return;
+    const list = $("#reportsAdminList", overlay);
+    const empty = $("#reportsAdminEmpty", overlay);
+    if(!list || !empty) return;
+
+    const want = String(reportsAdminModalState.status || "").trim().toLowerCase();
+    const all = Array.isArray(reportsAdminModalState.items) ? reportsAdminModalState.items : [];
+    const filtered = want ? all.filter(r=> String(r?.status || "open").trim().toLowerCase() === want) : all;
+
+    list.innerHTML = filtered.map(reportItemHtml).join("");
+    empty.classList.toggle("hidden", filtered.length > 0);
+    setReportsAdminActiveButtons();
+  }
+
+  async function updateReportStatus(reportId, nextStatus){
+    const id = String(reportId || "");
+    if(!id) return false;
+
+    if(!sbEnabled){
+      const all = loadMessageReports();
+      const r = all[id];
+      if(!r) return false;
+      r.status = String(nextStatus || "open");
+      if(r.status === "open"){
+        r.resolved_at = null;
+        r.resolved_by = null;
+      }else{
+        r.resolved_at = new Date().toISOString();
+        r.resolved_by = String(getUser()?.name || "");
+      }
+      all[id] = r;
+      saveMessageReports(all);
+      await loadReportsAdminItems();
+      return true;
+    }
+
+    const uid = await sbUserId();
+    if(!uid) return false;
+
+    const company = reportsAdminModalState.company || companyFromUser();
+    const status = String(nextStatus || "open").trim().toLowerCase();
+
+    const patch = (status === "open")
+      ? { status: "open", resolved_at: null, resolved_by: null }
+      : { status, resolved_at: new Date().toISOString(), resolved_by: uid };
+
+    const up = await sb
+      .from("message_reports")
+      .update(patch)
+      .eq("company", company)
+      .eq("id", id);
+    if(up.error){
+      sbToastError("Signalements", up.error);
+      return false;
+    }
+
+    await loadReportsAdminItems();
+    return true;
+  }
+
+  async function loadReportsAdminItems(){
+    const overlay = getReportsAdminOverlay();
+    if(!overlay) return;
+    const modeEl = $("#reportsAdminMode", overlay);
+    const company = companyFromUser();
+    reportsAdminModalState.company = company;
+
+    if(!sbEnabled){
+      const all = Object.values(loadMessageReports() || {}).filter(Boolean);
+      const items = all
+        .map(r=> ({
+          ...r,
+          reporter_name: String(r.reporter || "Utilisateur"),
+          author_name: String(r.message?.from || "Utilisateur"),
+          message_text: String(r.message?.text || ""),
+          message_file_url: String(r.message?.file_url || ""),
+          message_file_name: String(r.message?.file_name || ""),
+          message_created_at: String(r.message?.created_at || ""),
+          created_at: String(r.created_at || ""),
+        }))
+        .sort((a,b)=> String(b.created_at || "").localeCompare(String(a.created_at || "")));
+
+      reportsAdminModalState.items = items;
+      modeEl && (modeEl.textContent = `Démo locale • ${items.length} signalement(s)`);
+      renderReportsAdminList();
+      return;
+    }
+
+    modeEl && (modeEl.textContent = "Supabase • Chargement…");
+    const uid = await sbUserId();
+    if(!uid){
+      window.fwSupabase?.requireAuth?.({ redirectTo: loginHref() });
+      return;
+    }
+
+    const res = await sb
+      .from("message_reports")
+      .select("*")
+      .eq("company", company)
+      .order("created_at", { ascending: false })
+      .limit(200);
+
+    if(res.error){
+      const code = String(res.error?.code || "");
+      const msg = String(res.error?.message || "");
+      if(code === "42P01" || msg.toLowerCase().includes("does not exist")){
+        modeEl && (modeEl.textContent = "Supabase • Table message_reports manquante (schema.sql)");
+      }else{
+        modeEl && (modeEl.textContent = "Supabase • Erreur");
+        sbToastError("Signalements", res.error);
+      }
+      reportsAdminModalState.items = [];
+      renderReportsAdminList();
+      return;
+    }
+
+    const rows = res.data || [];
+
+    const profIds = Array.from(new Set(
+      rows.flatMap(r=> [r?.reporter_id, r?.message_author_id, r?.resolved_by])
+        .filter(Boolean)
+        .map(String)
+    ));
+    let profById = new Map();
+    if(profIds.length){
+      const p = await sb.from("profiles").select("id,name,email").in("id", profIds);
+      if(!p.error){
+        profById = new Map((p.data || []).map(x=> [String(x.id), x]));
+      }
+    }
+
+    const chanIds = Array.from(new Set(
+      rows.filter(r=> String(r?.kind || "") === "channel" && r?.channel_id).map(r=> String(r.channel_id))
+    ));
+    let chanById = new Map();
+    if(chanIds.length){
+      const c = await sb.from("channels").select("id,name,type").in("id", chanIds);
+      if(!c.error){
+        chanById = new Map((c.data || []).map(x=> [String(x.id), x]));
+      }
+    }
+
+    reportsAdminModalState.items = rows.map(r=>{
+      const reporter = profById.get(String(r?.reporter_id || "")) || {};
+      const author = profById.get(String(r?.message_author_id || "")) || {};
+      const resolver = profById.get(String(r?.resolved_by || "")) || {};
+      const ch = chanById.get(String(r?.channel_id || "")) || {};
+      return {
+        ...r,
+        reporter_name: reporter.name || "Utilisateur",
+        author_name: author.name || "Utilisateur",
+        resolver_name: resolver.name || "",
+        channel_name: ch.name || "",
+      };
+    });
+
+    modeEl && (modeEl.textContent = `Supabase • ${rows.length} signalement(s)`);
+    renderReportsAdminList();
+  }
+
+  function bindReportsAdminModalUI(){
+    const overlay = getReportsAdminOverlay();
+    if(!overlay || reportsAdminModalState.bound) return;
+    reportsAdminModalState.bound = true;
+
+    overlay.addEventListener("click", async (e)=>{
+      const closeBtn = e.target.closest("[data-ra-close]");
+      if(closeBtn){
+        closeReportsAdminModal();
+        return;
+      }
+
+      const refreshBtn = e.target.closest("[data-ra-refresh]");
+      if(refreshBtn){
+        await loadReportsAdminItems();
+        return;
+      }
+
+      const statusBtn = e.target.closest("[data-ra-status]");
+      if(statusBtn){
+        reportsAdminModalState.status = String(statusBtn.getAttribute("data-ra-status") || "");
+        renderReportsAdminList();
+        return;
+      }
+
+      const resolveId = e.target.closest("[data-ra-resolve]")?.getAttribute("data-ra-resolve") || "";
+      if(resolveId){
+        await updateReportStatus(resolveId, "resolved");
+        return;
+      }
+
+      const dismissId = e.target.closest("[data-ra-dismiss]")?.getAttribute("data-ra-dismiss") || "";
+      if(dismissId){
+        await updateReportStatus(dismissId, "dismissed");
+        return;
+      }
+
+      const reopenId = e.target.closest("[data-ra-reopen]")?.getAttribute("data-ra-reopen") || "";
+      if(reopenId){
+        await updateReportStatus(reopenId, "open");
+        return;
+      }
+
+      const fileBtn = e.target.closest("[data-file-url]");
+      if(fileBtn){
+        const fileUrl = fileBtn.getAttribute("data-file-url") || "";
+        const fileName = fileBtn.getAttribute("data-file-name") || "";
+        await openFileFromPost({ fileUrl, fileName });
+      }
+    });
+  }
+
+  function openReportsAdminModal(){
+    const overlay = getReportsAdminOverlay();
+    if(!overlay){
+      window.fwToast?.("Admin", "Modal signalements introuvable (reportsAdminOverlay).");
+      return false;
+    }
+    if(!isAdmin()){
+      window.fwToast?.("Accès réservé","Cette section est disponible pour les admins.");
+      return false;
+    }
+
+    bindReportsAdminModalUI();
+    const opening = overlay.classList.contains("hidden");
+    overlay.classList.remove("hidden");
+    if(opening){
+      try{
+        reportsAdminModalState.prevOverflow = document.body.style.overflow ?? "";
+        document.body.style.overflow = "hidden";
+      }catch(e){ /* ignore */ }
+    }
+
+    loadReportsAdminItems();
+    return true;
+  }
+
   function getLearningExampleTemplates(){
     return [
       {
@@ -5537,6 +6033,7 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
         </div>
         <div class="row" style="gap:8px; flex-wrap:wrap">
           <button class="btn small" type="button" data-admin-action="manageLearning">🧠 Gérer exercices</button>
+          <button class="btn small" type="button" data-admin-action="manageReports">🚩 Signalements</button>
           <button class="btn small primary" type="button" data-admin-action="createRole">＋ Rôle</button>
           <button class="btn small" type="button" data-admin-action="createMember">＋ Membre</button>
         </div>
@@ -5642,6 +6139,10 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
       }
       if(action === "manageLearning"){
         openLearningAdminModal();
+        return;
+      }
+      if(action === "manageReports"){
+        openReportsAdminModal();
         return;
       }
 
@@ -6736,6 +7237,7 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
     const hasFile = !!(fileName || fileUrl || fileDataUrl);
     const fileLabel = fileName || (fileUrl ? (String(fileUrl).split("/").pop() || "Fichier") : "Fichier");
     const canDelete = isAdmin() && !system;
+    const canReport = !system;
 
     const avatar = system
       ? `<div class="avatar msg-avatar" style="background: rgba(255,255,255,.10)">FW</div>`
@@ -6748,6 +7250,7 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
           <div class="msg-head">
             <span class="msg-name">${escapeHtml(name)}</span>
             <span class="msg-time">${escapeHtml(time)}</span>
+            ${canReport ? `<button class="btn small ghost" type="button" title="Signaler" aria-label="Signaler" data-msg-report="${escapeHtml(String(idx ?? ""))}">🚩</button>` : ""}
             ${canDelete ? `<button class="btn small ghost" type="button" title="Supprimer" aria-label="Supprimer" data-msg-del="${escapeHtml(String(idx ?? ""))}">🗑️</button>` : ""}
           </div>
           ${text ? `<div class="msg-text">${escapeHtml(text)}</div>` : ""}

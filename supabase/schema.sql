@@ -131,6 +131,42 @@ create table if not exists public.dm_messages (
   created_at timestamptz not null default now()
 );
 
+-- Message reports (moderation)
+create table if not exists public.message_reports (
+  id uuid primary key default gen_random_uuid(),
+  company text not null,
+  kind text not null check (kind in ('channel','dm')),
+  channel_id uuid references public.channels(id) on delete set null,
+  thread_id uuid references public.dm_threads(id) on delete set null,
+  message_id uuid not null,
+  constraint message_reports_kind_refs check (
+    (kind = 'channel' and channel_id is not null and thread_id is null)
+    or (kind = 'dm' and thread_id is not null and channel_id is null)
+  ),
+
+  -- Snapshot (filled server-side via trigger)
+  message_author_id uuid references public.profiles(id) on delete set null,
+  message_text text not null default '',
+  message_file_url text not null default '',
+  message_file_name text not null default '',
+  message_created_at timestamptz,
+
+  reporter_id uuid not null references public.profiles(id) on delete cascade,
+  reason text not null default '',
+
+  status text not null default 'open' check (status in ('open','resolved','dismissed')),
+  resolved_at timestamptz,
+  resolved_by uuid references public.profiles(id) on delete set null,
+
+  created_at timestamptz not null default now()
+);
+
+create index if not exists message_reports_company_status_created_at
+on public.message_reports(company, status, created_at desc);
+
+create unique index if not exists message_reports_unique_reporter_message
+on public.message_reports(company, reporter_id, kind, message_id);
+
 -- Idempotent upgrades (in case tables already exist)
 alter table public.channel_messages add column if not exists file_url text not null default '';
 alter table public.channel_messages add column if not exists file_name text not null default '';
@@ -412,6 +448,117 @@ as $$
 $$;
 
 -- -------------------------------------------------------------------
+-- Message reports snapshot (before insert)
+-- -------------------------------------------------------------------
+create or replace function public.message_reports_before_insert()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  c text;
+  m record;
+  t record;
+begin
+  if auth.uid() is null then
+    raise exception 'not_authenticated';
+  end if;
+
+  -- Reporter + company enforced server-side
+  new.reporter_id := auth.uid();
+  c := public.current_company();
+  if c is null or btrim(c) = '' then
+    raise exception 'profile_missing';
+  end if;
+  new.company := c;
+
+  new.reason := btrim(coalesce(new.reason, ''));
+  new.status := 'open';
+  new.resolved_at := null;
+  new.resolved_by := null;
+
+  if new.message_id is null then
+    raise exception 'message_id_required';
+  end if;
+
+  if new.kind = 'channel' then
+    new.thread_id := null;
+    if new.channel_id is null then
+      raise exception 'channel_id_required';
+    end if;
+
+    select cm.user_id, cm.text, cm.file_url, cm.file_name, cm.created_at
+    into m
+    from public.channel_messages cm
+    where cm.company = c
+      and cm.channel_id = new.channel_id
+      and cm.id = new.message_id
+    limit 1;
+
+    if not found then
+      raise exception 'message_not_found';
+    end if;
+
+    new.message_author_id := m.user_id;
+    new.message_text := coalesce(m.text, '');
+    new.message_file_url := coalesce(m.file_url, '');
+    new.message_file_name := coalesce(m.file_name, '');
+    new.message_created_at := m.created_at;
+    return new;
+  end if;
+
+  if new.kind = 'dm' then
+    new.channel_id := null;
+    if new.thread_id is null then
+      raise exception 'thread_id_required';
+    end if;
+
+    select dt.user1, dt.user2
+    into t
+    from public.dm_threads dt
+    where dt.company = c
+      and dt.id = new.thread_id
+    limit 1;
+
+    if not found then
+      raise exception 'thread_not_found';
+    end if;
+
+    if not (t.user1 = auth.uid() or t.user2 = auth.uid()) then
+      raise exception 'not_in_thread';
+    end if;
+
+    select dm.sender_id, dm.text, dm.file_url, dm.file_name, dm.created_at
+    into m
+    from public.dm_messages dm
+    where dm.company = c
+      and dm.thread_id = new.thread_id
+      and dm.id = new.message_id
+    limit 1;
+
+    if not found then
+      raise exception 'message_not_found';
+    end if;
+
+    new.message_author_id := m.sender_id;
+    new.message_text := coalesce(m.text, '');
+    new.message_file_url := coalesce(m.file_url, '');
+    new.message_file_name := coalesce(m.file_name, '');
+    new.message_created_at := m.created_at;
+    return new;
+  end if;
+
+  raise exception 'invalid_kind';
+end;
+$$;
+
+drop trigger if exists message_reports_bi on public.message_reports;
+create trigger message_reports_bi
+before insert on public.message_reports
+for each row execute function public.message_reports_before_insert();
+
+-- -------------------------------------------------------------------
 -- RLS (Row Level Security)
 -- -------------------------------------------------------------------
 alter table public.profiles enable row level security;
@@ -425,6 +572,7 @@ alter table public.channels enable row level security;
 alter table public.channel_messages enable row level security;
 alter table public.dm_threads enable row level security;
 alter table public.dm_messages enable row level security;
+alter table public.message_reports enable row level security;
 
 -- Profiles
 drop policy if exists profiles_select_company on public.profiles;
@@ -751,6 +899,39 @@ with check (
   )
 );
 
+-- Message reports (moderation)
+drop policy if exists message_reports_select_admin_or_own on public.message_reports;
+create policy message_reports_select_admin_or_own
+on public.message_reports
+for select
+to authenticated
+using (
+  company = public.current_company()
+  and (public.is_admin() or reporter_id = auth.uid())
+);
+
+drop policy if exists message_reports_insert_auth on public.message_reports;
+create policy message_reports_insert_auth
+on public.message_reports
+for insert
+to authenticated
+with check (company = public.current_company() and reporter_id = auth.uid());
+
+drop policy if exists message_reports_update_admin on public.message_reports;
+create policy message_reports_update_admin
+on public.message_reports
+for update
+to authenticated
+using (public.is_admin() and company = public.current_company())
+with check (public.is_admin() and company = public.current_company());
+
+drop policy if exists message_reports_delete_admin on public.message_reports;
+create policy message_reports_delete_admin
+on public.message_reports
+for delete
+to authenticated
+using (public.is_admin() and company = public.current_company());
+
 -- -------------------------------------------------------------------
 -- Grants (Supabase typically already grants to authenticated, but keep explicit)
 -- -------------------------------------------------------------------
@@ -766,7 +947,8 @@ grant select, insert, update, delete on
   public.channels,
   public.channel_messages,
   public.dm_threads,
-  public.dm_messages
+  public.dm_messages,
+  public.message_reports
 to authenticated;
 
 -- Policies rely on these helper functions; grant EXECUTE explicitly (some projects revoke PUBLIC execute).

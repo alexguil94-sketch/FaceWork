@@ -197,6 +197,40 @@
     </div>
   </div>
 
+  <div class="composer-overlay hidden" id="reportsAdminOverlay" role="dialog" aria-modal="true" aria-label="Signalements">
+    <div class="card composer-modal" role="document" style="width: min(1100px, 96vw)">
+      <div class="row" style="justify-content:space-between; flex-wrap:wrap; gap:12px; align-items:flex-start">
+        <div>
+          <div class="badge">Admin</div>
+          <h3 style="margin:10px 0 6px; font-size:22px">Signalements</h3>
+          <p class="page-sub" id="reportsAdminMode">—</p>
+        </div>
+        <div class="row" style="gap:8px; flex-wrap:wrap">
+          <button class="btn small" type="button" data-ra-refresh>↻ Actualiser</button>
+          <button class="btn small" type="button" data-ra-close>✕ Fermer</button>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="row" style="gap:8px; flex-wrap:wrap" id="reportsAdminStatusFilters" aria-label="Statut">
+        <button class="btn small primary" type="button" data-ra-status="open">Ouverts</button>
+        <button class="btn small" type="button" data-ra-status="resolved">Résolus</button>
+        <button class="btn small" type="button" data-ra-status="dismissed">Ignorés</button>
+        <button class="btn small" type="button" data-ra-status="">Tous</button>
+      </div>
+
+      <div class="spacer" style="height:12px"></div>
+
+      <div class="callout hidden" id="reportsAdminEmpty" style="margin:0">
+        <strong>Aucun signalement.</strong>
+        <span class="muted">Rien à modérer pour le moment.</span>
+      </div>
+
+      <div class="col" id="reportsAdminList" style="gap:10px"></div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/env.js"></script>
   <script src="../js/supabase.js"></script>
