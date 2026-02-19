@@ -1800,6 +1800,215 @@
   }
   function savePosts(arr){ localStorage.setItem("fwPosts", JSON.stringify(arr)); }
 
+  const POST_COMMENTS_KEY = "fwPostComments_v1";
+  function loadPostComments(){
+    try{
+      const m = JSON.parse(localStorage.getItem(POST_COMMENTS_KEY) || "{}");
+      return (m && typeof m === "object") ? m : {};
+    }catch(e){
+      return {};
+    }
+  }
+  function savePostComments(map){ localStorage.setItem(POST_COMMENTS_KEY, JSON.stringify(map || {})); }
+  function getCommentsForPost(postId, map){
+    const pid = String(postId || "").trim();
+    if(!pid) return [];
+    const m = (map && typeof map === "object") ? map : {};
+    const arr = m[pid];
+    return Array.isArray(arr) ? arr : [];
+  }
+  function countCommentsForPost(postId, map){ return getCommentsForPost(postId, map).length; }
+  function trimCommentText(raw){
+    const t = String(raw || "").replace(/\r\n/g, "\n").trim();
+    return t.slice(0, 800);
+  }
+  function commentAvatarHtml({ name, avatarUrl, avatarBg } = {}){
+    const n = String(name || "Utilisateur").trim() || "Utilisateur";
+    const url = String(avatarUrl || "").trim();
+    const bg = String(avatarBg || "").trim();
+    if(url){
+      return `<div class="avatar sm" aria-hidden="true"><img src="${escapeHtml(url)}" alt=""/></div>`;
+    }
+    const style = bg ? ` style="background:${escapeHtml(bg)}"` : ` style="background:${escapeHtml(avatarBgFor(n))}"`;
+    return `<div class="avatar sm" aria-hidden="true"${style}>${escapeHtml(initials(n))}</div>`;
+  }
+  function commentTextHtml(text){ return escapeHtml(String(text || "")).replace(/\n/g, "<br/>"); }
+  function commentActionBtnHtml({ postId, count } = {}){
+    const pid = String(postId || "").trim();
+    const n = Number(count || 0);
+    return `<button class="iconbtn" type="button" data-comment-toggle="${escapeHtml(pid)}" aria-expanded="false" aria-controls="comments-${escapeHtml(pid)}">💬 <span data-comment-count="${escapeHtml(pid)}">${n}</span></button>`;
+  }
+  function commentPanelHtml({ postId } = {}){
+    const pid = String(postId || "").trim();
+    return `
+      <div class="comments hidden" id="comments-${escapeHtml(pid)}" data-comments-panel="${escapeHtml(pid)}">
+        <div class="comments-list" data-comments-list="${escapeHtml(pid)}"></div>
+        <form class="comments-form" data-comment-form="${escapeHtml(pid)}">
+          <textarea class="input comment-input" name="comment" rows="2" placeholder="Écrire un commentaire…" maxlength="800" required></textarea>
+          <button class="btn small" type="submit">Envoyer</button>
+        </form>
+      </div>
+    `;
+  }
+  function setCommentCountEl(root, postId, count){
+    const pid = String(postId || "").trim();
+    const el = root?.querySelector?.(`[data-comment-count="${pid}"]`);
+    if(el) el.textContent = String(Math.max(0, Number(count || 0)));
+  }
+  function renderLocalCommentsInto(panel, postId){
+    if(!panel) return;
+    const pid = String(postId || "").trim();
+    const list = panel.querySelector(`[data-comments-list="${pid}"]`) || panel.querySelector("[data-comments-list]");
+    if(!list) return;
+
+    const map = loadPostComments();
+    const comments = getCommentsForPost(pid, map);
+    if(!comments.length){
+      list.innerHTML = `<div class="comments-empty">Aucun commentaire pour le moment.</div>`;
+      return;
+    }
+
+    const me = getUser() || {};
+    const meRole = String(me.role || "").trim().toLowerCase();
+    const meEmail = String(me.email || "").trim().toLowerCase();
+
+    list.innerHTML = comments.map(c=>{
+      const name = String(c?.author || "Utilisateur");
+      const at = String(c?.createdAt || "");
+      const email = String(c?.authorEmail || "").trim().toLowerCase();
+      const canDelete = meRole === "admin" || (meEmail && email && meEmail === email);
+      return `
+        <div class="comment">
+          <div class="comment-head">
+            <div class="comment-who">
+              ${commentAvatarHtml({ name, avatarUrl: c?.avatarUrl, avatarBg: c?.avatarBg })}
+              <div class="comment-meta">
+                <div class="comment-name">${escapeHtml(name)}</div>
+                <div class="comment-time">${escapeHtml(at)}</div>
+              </div>
+            </div>
+            ${canDelete ? `<button class="btn small ghost" type="button" title="Supprimer" aria-label="Supprimer" data-comment-del="${escapeHtml(String(c?.id || ""))}" data-comment-post="${escapeHtml(pid)}">🗑️</button>` : ""}
+          </div>
+          <div class="comment-text">${commentTextHtml(c?.text)}</div>
+        </div>
+      `;
+    }).join("");
+  }
+  function addLocalComment({ postId, text } = {}){
+    const pid = String(postId || "").trim();
+    const t = trimCommentText(text);
+    if(!pid || !t) return null;
+
+    const me = getUser() || {};
+    const map = loadPostComments();
+    const next = getCommentsForPost(pid, map).slice();
+    const c = {
+      id: cryptoRandom(),
+      postId: pid,
+      author: String(me.name || "Utilisateur"),
+      authorEmail: String(me.email || ""),
+      avatarUrl: String(me.avatarUrl || ""),
+      avatarBg: String(me.avatarBg || ""),
+      text: t,
+      createdAt: nowStr(),
+    };
+    next.push(c);
+    map[pid] = next;
+    savePostComments(map);
+    return c;
+  }
+  function deleteLocalComment({ postId, commentId } = {}){
+    const pid = String(postId || "").trim();
+    const cid = String(commentId || "").trim();
+    if(!pid || !cid) return false;
+    const map = loadPostComments();
+    const prev = getCommentsForPost(pid, map);
+    const next = prev.filter(c=> String(c?.id || "") !== cid);
+    map[pid] = next;
+    savePostComments(map);
+    return next.length !== prev.length;
+  }
+
+  async function renderSupabaseCommentsInto(root, postId){
+    if(!sb || !root) return 0;
+
+    const pid = String(postId || "").trim();
+    if(!pid) return 0;
+
+    const panel = root.querySelector(`[data-comments-panel="${pid}"]`);
+    if(!panel) return 0;
+    const list = panel.querySelector(`[data-comments-list="${pid}"]`) || panel.querySelector("[data-comments-list]");
+    if(!list) return 0;
+
+    list.innerHTML = `<div class="comments-empty">Chargement…</div>`;
+
+    const uid = await sbUserId();
+    if(!uid){
+      list.innerHTML = `<div class="comments-empty">Connecte-toi pour commenter.</div>`;
+      return 0;
+    }
+
+    const company = companyFromUser();
+    const res = await sb
+      .from("post_comments")
+      .select("id,post_id,user_id,text,created_at")
+      .eq("company", company)
+      .eq("post_id", pid)
+      .order("created_at", { ascending: true });
+
+    if(res.error){
+      const msg = res.error?.message || "Commentaires indisponibles.";
+      console.error("[FaceWork] post_comments select failed", res.error);
+      list.innerHTML = `<div class="comments-empty">${escapeHtml(msg)}</div>`;
+      return 0;
+    }
+
+    const comments = res.data || [];
+    if(!comments.length){
+      list.innerHTML = `<div class="comments-empty">Aucun commentaire pour le moment.</div>`;
+      setCommentCountEl(root, pid, 0);
+      return 0;
+    }
+
+    const authorIds = Array.from(new Set((comments || []).map(c=> c?.user_id).filter(Boolean).map(x=> String(x))));
+    let authors = [];
+    if(authorIds.length){
+      const pres = await sb
+        .from("profiles")
+        .select("id,name,avatar_url,avatar_bg")
+        .in("id", authorIds);
+      if(!pres.error) authors = pres.data || [];
+    }
+    const authorById = new Map((authors || []).map(a=> [String(a.id), a]));
+
+    const meRole = String(getUser()?.role || "").trim().toLowerCase();
+
+    list.innerHTML = comments.map(c=>{
+      const author = authorById.get(String(c?.user_id)) || {};
+      const name = String(author?.name || "Utilisateur");
+      const at = fmtTs(c?.created_at);
+      const canDelete = meRole === "admin" || String(c?.user_id) === String(uid);
+      return `
+        <div class="comment">
+          <div class="comment-head">
+            <div class="comment-who">
+              ${commentAvatarHtml({ name, avatarUrl: author?.avatar_url, avatarBg: author?.avatar_bg })}
+              <div class="comment-meta">
+                <div class="comment-name">${escapeHtml(name)}</div>
+                <div class="comment-time">${escapeHtml(at)}</div>
+              </div>
+            </div>
+            ${canDelete ? `<button class="btn small ghost" type="button" title="Supprimer" aria-label="Supprimer" data-comment-del="${escapeHtml(String(c?.id || ""))}" data-comment-post="${escapeHtml(pid)}">🗑️</button>` : ""}
+          </div>
+          <div class="comment-text">${commentTextHtml(c?.text)}</div>
+        </div>
+      `;
+    }).join("");
+
+    setCommentCountEl(root, pid, comments.length);
+    return comments.length;
+  }
+
   function renderFeed(){
     const root = $("#feedList");
     if(!root) return;
@@ -1808,8 +2017,10 @@
     const meRole = String(me.role || "").trim().toLowerCase();
     const meEmail = String(me.email || "").trim().toLowerCase();
     const posts = loadPosts();
+    const commentsMap = loadPostComments();
     root.innerHTML = "";
     posts.slice().reverse().forEach(p=>{
+      const commentCount = countCommentsForPost(p.id, commentsMap);
       const authorEmail = String(p.authorEmail || "").trim().toLowerCase();
       const canManage = meRole === "admin" || (meEmail && authorEmail && meEmail === authorEmail);
       const el = document.createElement("div");
@@ -1829,23 +2040,74 @@
             </div>
           </div>
           <h4>${escapeHtml(p.title || "Publication")}</h4>
-          ${renderPostAttachmentHtml({ id: p.id, fileUrl: p.fileUrl, fileName: p.fileName, fileDataUrl: p.fileData?.dataUrl })}
-          ${renderPostBodyHtml(p.body)}
-          <div class="actions">
-            <button class="iconbtn" data-like="${p.id}">❤️ <span>${p.likes || 0}</span></button>
-            <span class="badge">${p.comments || 0} commentaires</span>
-          </div>
-      `;
-      root.appendChild(el);
-    });
+           ${renderPostAttachmentHtml({ id: p.id, fileUrl: p.fileUrl, fileName: p.fileName, fileDataUrl: p.fileData?.dataUrl })}
+           ${renderPostBodyHtml(p.body)}
+           <div class="actions">
+             <button class="iconbtn" data-like="${escapeHtml(p.id)}">❤️ <span>${p.likes || 0}</span></button>
+             ${commentActionBtnHtml({ postId: p.id, count: commentCount })}
+           </div>
+           ${commentPanelHtml({ postId: p.id })}
+       `;
+       root.appendChild(el);
+     });
 
     if(!root.__bound){
       root.__bound = true;
       root.addEventListener("click", async (e)=>{
+        const commentToggleId = e.target.closest("[data-comment-toggle]")?.getAttribute("data-comment-toggle");
+        const commentDelBtn = e.target.closest("[data-comment-del]");
+        const commentDelId = commentDelBtn?.getAttribute("data-comment-del");
+        const commentDelPostId = commentDelBtn?.getAttribute("data-comment-post");
         const editId = e.target.closest("[data-edit]")?.getAttribute("data-edit");
         const likeId = e.target.closest("[data-like]")?.getAttribute("data-like");
         const delId = e.target.closest("[data-del]")?.getAttribute("data-del");
         const openId = e.target.closest("[data-open]")?.getAttribute("data-open");
+
+        if(commentToggleId){
+          const pid = String(commentToggleId || "").trim();
+          const panel = root.querySelector(`[data-comments-panel="${pid}"]`);
+          const btn = e.target.closest("[data-comment-toggle]");
+          if(!panel) return;
+          const isOpen = !panel.classList.contains("hidden");
+          panel.classList.toggle("hidden", isOpen);
+          btn?.setAttribute("aria-expanded", isOpen ? "false" : "true");
+          if(!isOpen){
+            renderLocalCommentsInto(panel, pid);
+            setCommentCountEl(root, pid, countCommentsForPost(pid, loadPostComments()));
+          }
+          return;
+        }
+
+        if(commentDelId){
+          const pid = String(commentDelPostId || "").trim();
+          if(!pid) return;
+
+          const me = getUser() || {};
+          const meRole = String(me.role || "").trim().toLowerCase();
+          const meEmail = String(me.email || "").trim().toLowerCase();
+
+          const map = loadPostComments();
+          const comments = getCommentsForPost(pid, map);
+          const c = comments.find(x=> String(x?.id || "") === String(commentDelId));
+          if(!c){
+            window.fwToast?.("Commentaire", "Commentaire introuvable.");
+            return;
+          }
+
+          const email = String(c?.authorEmail || "").trim().toLowerCase();
+          const canDelete = meRole === "admin" || (meEmail && email && meEmail === email);
+          if(!canDelete){
+            window.fwToast?.("Commentaire", "Tu ne peux pas supprimer ce commentaire.");
+            return;
+          }
+
+          deleteLocalComment({ postId: pid, commentId: commentDelId });
+          const panel = root.querySelector(`[data-comments-panel="${pid}"]`);
+          renderLocalCommentsInto(panel, pid);
+          setCommentCountEl(root, pid, countCommentsForPost(pid, loadPostComments()));
+          window.fwToast?.("Commentaire", "Supprimé.");
+          return;
+        }
 
         if(editId){
           const posts = loadPosts();
@@ -1912,6 +2174,39 @@
           }
           await openFileFromPost({ fileUrl: p?.fileUrl, fileName: p?.fileName });
         }
+      });
+
+      root.addEventListener("submit", (e)=>{
+        const form = e.target.closest("form[data-comment-form]");
+        if(!form) return;
+        e.preventDefault();
+
+        const pid = String(form.getAttribute("data-comment-form") || "").trim();
+        const input = form.querySelector('textarea[name="comment"]');
+        const text = trimCommentText(input?.value || "");
+        if(!pid){
+          window.fwToast?.("Commentaire", "Publication introuvable.");
+          return;
+        }
+        if(!text){
+          window.fwToast?.("Commentaire", "Écris un commentaire.");
+          return;
+        }
+
+        const c = addLocalComment({ postId: pid, text });
+        if(!c){
+          window.fwToast?.("Commentaire", "Impossible d'ajouter ce commentaire.");
+          return;
+        }
+        if(input) input.value = "";
+
+        const panel = root.querySelector(`[data-comments-panel="${pid}"]`);
+        panel && panel.classList.remove("hidden");
+        const btn = root.querySelector(`[data-comment-toggle="${pid}"]`);
+        btn && btn.setAttribute("aria-expanded", "true");
+        renderLocalCommentsInto(panel, pid);
+        setCommentCountEl(root, pid, countCommentsForPost(pid, loadPostComments()));
+        window.fwToast?.("Commentaire", "Envoyé.");
       });
     }
 
@@ -2069,6 +2364,7 @@
       const canDelete = String(p.author_id) === String(uid) || meRole === "admin";
       const canEdit = canDelete;
       const likeCount = Number(p.likes_count || 0);
+      const commentCount = Number(p.comments_count || 0);
       const isLiked = likedSet.has(String(p.id));
 
       const avatar = author.avatar_url
@@ -2098,8 +2394,9 @@
         ${renderPostBodyHtml(p.body)}
         <div class="actions">
           <button class="iconbtn${isLiked ? " active" : ""}" data-like="${escapeHtml(p.id)}" aria-pressed="${isLiked ? "true" : "false"}">❤️ <span>${likeCount}</span></button>
-          <span class="badge">0 commentaires</span>
+          ${commentActionBtnHtml({ postId: p.id, count: commentCount })}
         </div>
+        ${commentPanelHtml({ postId: p.id })}
       `;
       root.appendChild(el);
     });
@@ -2109,10 +2406,52 @@
     if(!root.__sbBound){
       root.__sbBound = true;
       root.addEventListener("click", async (e)=>{
+        const commentToggleId = e.target.closest("[data-comment-toggle]")?.getAttribute("data-comment-toggle");
+        const commentDelBtn = e.target.closest("[data-comment-del]");
+        const commentDelId = commentDelBtn?.getAttribute("data-comment-del");
+        const commentDelPostId = commentDelBtn?.getAttribute("data-comment-post");
         const editId = e.target.closest("[data-edit]")?.getAttribute("data-edit");
         const likeBtn = e.target.closest("[data-like]");
         const delId = e.target.closest("[data-del]")?.getAttribute("data-del");
         const openId = e.target.closest("[data-open]")?.getAttribute("data-open");
+
+        if(commentToggleId){
+          const pid = String(commentToggleId || "").trim();
+          const panel = root.querySelector(`[data-comments-panel="${pid}"]`);
+          const btn = e.target.closest("[data-comment-toggle]");
+          if(!panel) return;
+          const isOpen = !panel.classList.contains("hidden");
+          panel.classList.toggle("hidden", isOpen);
+          btn?.setAttribute("aria-expanded", isOpen ? "false" : "true");
+          if(!isOpen){
+            const n = await renderSupabaseCommentsInto(root, pid);
+            setCommentCountEl(root, pid, n);
+          }
+          return;
+        }
+
+        if(commentDelId){
+          const pid = String(commentDelPostId || "").trim();
+          if(!pid) return;
+          const uid = await sbUserId();
+          if(!uid) return;
+
+          const company = companyFromUser();
+          const res = await sb
+            .from("post_comments")
+            .delete()
+            .eq("company", company)
+            .eq("id", commentDelId);
+          if(res.error){
+            sbToastError("Commentaire", res.error);
+            return;
+          }
+
+          const n = await renderSupabaseCommentsInto(root, pid);
+          setCommentCountEl(root, pid, n);
+          window.fwToast?.("Commentaire", "Supprimé.");
+          return;
+        }
 
         if(editId){
           const company = companyFromUser();
@@ -2211,6 +2550,47 @@
           const fileName = String(res.data?.file_name || nameAttr || "");
           await openFileFromPost({ fileUrl, fileName });
         }
+      });
+
+      root.addEventListener("submit", async (e)=>{
+        const form = e.target.closest("form[data-comment-form]");
+        if(!form) return;
+        e.preventDefault();
+
+        const pid = String(form.getAttribute("data-comment-form") || "").trim();
+        const input = form.querySelector('textarea[name="comment"]');
+        const text = trimCommentText(input?.value || "");
+        if(!pid){
+          window.fwToast?.("Commentaire", "Publication introuvable.");
+          return;
+        }
+        if(!text){
+          window.fwToast?.("Commentaire", "Écris un commentaire.");
+          return;
+        }
+
+        const uid = await sbUserId();
+        if(!uid) return;
+        const company = companyFromUser();
+
+        const ins = await sb
+          .from("post_comments")
+          .insert({ company, post_id: pid, user_id: uid, text });
+        if(ins.error){
+          sbToastError("Commentaire", ins.error);
+          return;
+        }
+
+        if(input) input.value = "";
+
+        const panel = root.querySelector(`[data-comments-panel="${pid}"]`);
+        panel && panel.classList.remove("hidden");
+        const btn = root.querySelector(`[data-comment-toggle="${pid}"]`);
+        btn && btn.setAttribute("aria-expanded", "true");
+
+        const n = await renderSupabaseCommentsInto(root, pid);
+        setCommentCountEl(root, pid, n);
+        window.fwToast?.("Commentaire", "Envoyé.");
       });
     }
 

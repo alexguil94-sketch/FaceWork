@@ -50,6 +50,7 @@ create table if not exists public.posts (
   file_url text not null default '',
   file_name text not null default '',
   likes_count integer not null default 0,
+  comments_count integer not null default 0,
   created_at timestamptz not null default now()
 );
 
@@ -90,6 +91,18 @@ create table if not exists public.post_likes (
   created_at timestamptz not null default now(),
   primary key (company, post_id, user_id)
 );
+
+create table if not exists public.post_comments (
+  id uuid primary key default gen_random_uuid(),
+  company text not null,
+  post_id uuid not null references public.posts(id) on delete cascade,
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  text text not null check (length(btrim(text)) > 0),
+  created_at timestamptz not null default now()
+);
+
+create index if not exists post_comments_company_post_created_at
+on public.post_comments(company, post_id, created_at);
 
 create table if not exists public.channels (
   id uuid primary key default gen_random_uuid(),
@@ -177,6 +190,7 @@ alter table public.channel_messages add column if not exists file_name text not 
 alter table public.dm_messages add column if not exists file_url text not null default '';
 alter table public.dm_messages add column if not exists file_name text not null default '';
 alter table public.learning_items add column if not exists difficulty text not null default 'beginner';
+alter table public.posts add column if not exists comments_count integer not null default 0;
 
 -- -------------------------------------------------------------------
 -- Seed per company (roles + default channels) + first admin assignment
@@ -361,6 +375,44 @@ drop trigger if exists post_likes_ad on public.post_likes;
 create trigger post_likes_ad
 after delete on public.post_likes
 for each row execute function public.post_likes_after_delete();
+
+create or replace function public.post_comments_after_insert()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  update public.posts
+  set comments_count = comments_count + 1
+  where id = new.post_id;
+  return new;
+end;
+$$;
+
+create or replace function public.post_comments_after_delete()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  update public.posts
+  set comments_count = greatest(comments_count - 1, 0)
+  where id = old.post_id;
+  return old;
+end;
+$$;
+
+drop trigger if exists post_comments_ai on public.post_comments;
+create trigger post_comments_ai
+after insert on public.post_comments
+for each row execute function public.post_comments_after_insert();
+
+drop trigger if exists post_comments_ad on public.post_comments;
+create trigger post_comments_ad
+after delete on public.post_comments
+for each row execute function public.post_comments_after_delete();
 
 create or replace function public.channel_messages_after_insert()
 returns trigger
@@ -572,6 +624,7 @@ alter table public.posts enable row level security;
 alter table public.tutorial_posts enable row level security;
 alter table public.learning_items enable row level security;
 alter table public.post_likes enable row level security;
+alter table public.post_comments enable row level security;
 alter table public.channels enable row level security;
 alter table public.channel_messages enable row level security;
 alter table public.dm_threads enable row level security;
@@ -793,6 +846,32 @@ for delete
 to authenticated
 using (company = public.current_company() and user_id = auth.uid());
 
+-- Post comments
+drop policy if exists post_comments_select_company on public.post_comments;
+create policy post_comments_select_company
+on public.post_comments
+for select
+to authenticated
+using (company = public.current_company());
+
+drop policy if exists post_comments_insert_own on public.post_comments;
+create policy post_comments_insert_own
+on public.post_comments
+for insert
+to authenticated
+with check (
+  company = public.current_company()
+  and user_id = auth.uid()
+  and exists (select 1 from public.posts p where p.id = post_id and p.company = public.current_company())
+);
+
+drop policy if exists post_comments_delete_own_or_admin on public.post_comments;
+create policy post_comments_delete_own_or_admin
+on public.post_comments
+for delete
+to authenticated
+using (company = public.current_company() and (user_id = auth.uid() or public.is_admin()));
+
 -- Channels
 drop policy if exists channels_select_company on public.channels;
 create policy channels_select_company
@@ -948,6 +1027,7 @@ grant select, insert, update, delete on
   public.tutorial_posts,
   public.learning_items,
   public.post_likes,
+  public.post_comments,
   public.channels,
   public.channel_messages,
   public.dm_threads,
