@@ -145,7 +145,17 @@
 
   $("#btnGoogle")?.addEventListener("click", ()=>{
     if(isSupabaseEnabled){
-      window.fwToast?.("Google", "OAuth non configuré. Utilise email + mot de passe.");
+      const sb = window.fwSupabase.client;
+      const redirectTo = new URL("app/feed.html", window.location.href).href;
+      window.fwToast?.("Google", "Redirection vers Google...");
+      sb.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo },
+      }).then(({ error })=>{
+        if(error){
+          window.fwToast?.("Google", error.message || "Connexion impossible.");
+        }
+      });
       return;
     }
     setUser(makeUser("alexis.g@heroforgeweb.com", normCompany($("#company")?.value || window.fwSupabase?.companyDefault || "HeroForgeWeb"), selectedDemoRole()));
