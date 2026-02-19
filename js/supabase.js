@@ -8,8 +8,34 @@
   const lib = window.supabase;
   const enabled = !!(SUPABASE_URL && SUPABASE_KEY && lib && typeof lib.createClient === "function");
 
+  function supabaseFetchWithApiKeyParam(input, init){
+    try{
+      const base = new URL(SUPABASE_URL);
+      const urlStr = (typeof input === "string")
+        ? input
+        : (input && typeof input.url === "string" ? input.url : "");
+      if(!urlStr) return fetch(input, init);
+
+      const u = new URL(urlStr, window.location.href);
+      if(u.origin !== base.origin) return fetch(input, init);
+
+      // Some browsers/extensions may strip custom headers; Supabase also accepts `apikey` as a URL param.
+      if(!u.searchParams.has("apikey")){
+        u.searchParams.set("apikey", SUPABASE_KEY);
+      }
+
+      if(typeof input === "string") return fetch(u.toString(), init);
+      return fetch(new Request(u.toString(), input), init);
+    }catch(e){
+      return fetch(input, init);
+    }
+  }
+
   const client = enabled
     ? lib.createClient(SUPABASE_URL, SUPABASE_KEY, {
+        global: {
+          fetch: supabaseFetchWithApiKeyParam,
+        },
         auth: {
           persistSession: true,
           autoRefreshToken: true,
