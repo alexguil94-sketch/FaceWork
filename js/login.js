@@ -107,22 +107,14 @@
           return;
         }
 
-        const create = confirm(`${msg}\n\nCréer un compte avec cet email ?`);
-        if(!create) return;
+        const goSignup = confirm(`${msg}\n\nPas de compte ? Ouvrir la page d’inscription ?`);
+        if(!goSignup) return;
 
-        const signUp = await sb.auth.signUp({
-          email,
-          password: pwd,
-          options: { data: { name, company } },
-        });
-        if(signUp.error){
-          window.fwToast?.("Erreur", signUp.error.message || "Impossible de créer le compte.");
-          return;
-        }
-        if(!signUp.data?.session){
-          window.fwToast?.("Vérification email","Compte créé. Vérifie tes emails (spam) puis reconnecte-toi.");
-          return;
-        }
+        const qs = new URLSearchParams();
+        qs.set("email", email);
+        qs.set("company", company);
+        window.location.href = `inscription.html?${qs.toString()}`;
+        return;
       }
 
       const profile = await window.fwSupabase.ensureProfile({ name, company });

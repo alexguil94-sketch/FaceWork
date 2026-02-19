@@ -18,6 +18,7 @@ Si tu vois des comportements bizarres, utilise Live Server.
 ## Pages
 - `index.html` : Landing
 - `login.html` : Connexion (démo localStorage + Supabase si configuré)
+- `inscription.html` : Inscription (création de compte)
 - `tutoriel.html` : Tutoriel (prise en main)
 - `exercices.html` : Exercices (hub) + pages dans `exercices/`
 - `tutos.html` : Tutos (hub) + pages dans `tutos/`

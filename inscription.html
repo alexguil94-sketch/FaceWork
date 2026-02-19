@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Connexion — FaceWork</title>
+  <title>Inscription — FaceWork</title>
   <link rel="icon" href="/favicon.ico" sizes="any"/>
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"/>
@@ -22,6 +22,7 @@
 
       <div class="nav-actions">
         <button class="btn icon" data-theme-toggle title="Basculer thème">🌓</button>
+        <a class="btn" href="login.html">Connexion</a>
         <a class="btn" href="index.html">Retour</a>
       </div>
     </div>
@@ -34,14 +35,14 @@
           <div class="logo" aria-hidden="true" style="width:56px;height:56px;border-radius:16px"><img src="assets/fw-logo.png" alt=""/></div>
           <div>
             <div class="badge">Réseau Social Inter‑Entreprise</div>
-            <div style="margin-top:6px; color:var(--muted); font-weight:800">Connectez‑vous avec des pros de votre secteur</div>
+            <div style="margin-top:6px; color:var(--muted); font-weight:800">Crée ton compte et rejoins ton équipe</div>
           </div>
         </div>
 
-        <h2>Réseau Social<br/>Inter‑Entreprise</h2>
+        <h2>Créer un compte<br/>FaceWork</h2>
         <p>
-          Connectez‑vous avec des professionnels de votre secteur et développez votre réseau.
-          Accédez à votre espace pour retrouver vos canaux, publications et messages.
+          Choisis ton email, ton entreprise (workspace) et un mot de passe.
+          Tu accéderas ensuite aux canaux, publications et messages.
         </p>
 
         <div class="mini">
@@ -55,11 +56,19 @@
       <div class="card auth-right">
         <div class="form">
           <div style="text-align:center">
-            <h3>Connexion</h3>
-            <p>Bienvenue sur votre espace</p>
+            <h3>Inscription</h3>
+            <p>Crée ton compte en quelques secondes</p>
           </div>
 
-          <form id="loginForm" class="grid">
+          <form id="signupForm" class="grid">
+            <div>
+              <div class="label">Nom (optionnel)</div>
+              <div class="field">
+                <span class="field-icon" aria-hidden="true">👤</span>
+                <input class="input" id="name" type="text" placeholder="Prénom Nom" autocomplete="name"/>
+              </div>
+            </div>
+
             <div>
               <div class="label">Email</div>
               <div class="field">
@@ -67,6 +76,7 @@
                 <input class="input" id="email" type="email" placeholder="vous@exemple.com" autocomplete="email"/>
               </div>
             </div>
+
             <div>
               <div class="label">Entreprise / workspace</div>
               <div class="field">
@@ -75,39 +85,26 @@
               </div>
             </div>
 
-            <!-- Démo locale uniquement (sans Supabase) -->
-            <div id="demoRoleWrap" class="hidden">
-              <div class="label">Rôle (démo)</div>
-              <div class="field">
-                <span class="field-icon" aria-hidden="true">🧩</span>
-                <select class="input" id="demoRole" aria-label="Rôle en mode démo">
-                  <option value="member" selected>Membre</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </div>
-              <div class="muted" style="font-size:12px; font-weight:800; margin-top:6px">
-                Visible uniquement en démo locale (sans Supabase).
-              </div>
-            </div>
             <div>
               <div class="label">Mot de passe</div>
               <div class="field">
                 <span class="field-icon" aria-hidden="true">🔒</span>
-                <input class="input" id="password" type="password" placeholder="••••••••" autocomplete="current-password"/>
+                <input class="input" id="password" type="password" placeholder="••••••••" autocomplete="new-password"/>
               </div>
             </div>
 
-            <button class="btn primary block" type="submit">Se connecter</button>
-
-            <div class="or">ou continuer avec</div>
-
-            <div class="row">
-              <button class="btn" type="button" id="btnGoogle" style="flex:1">🟡 Google</button>
-              <button class="btn" type="button" id="btnDiscord" style="flex:1">🟣 Discord</button>
+            <div>
+              <div class="label">Confirmer le mot de passe</div>
+              <div class="field">
+                <span class="field-icon" aria-hidden="true">🔁</span>
+                <input class="input" id="password2" type="password" placeholder="••••••••" autocomplete="new-password"/>
+              </div>
             </div>
 
+            <button class="btn primary block" type="submit">Créer mon compte</button>
+
             <div class="note">
-              Pas encore de compte ? <a href="inscription.html">S’inscrire</a>
+              Déjà un compte ? <a href="login.html">Se connecter</a>
             </div>
             <div class="note">
               En continuant, tu acceptes les <a href="legal/cgu.html" target="_blank" rel="noopener">CGU</a> et la
@@ -129,6 +126,6 @@
   <script src="js/env.js"></script>
   <script src="js/supabase.js"></script>
   <script src="js/site.js"></script>
-  <script src="js/login.js"></script>
+  <script src="js/signup.js"></script>
 </body>
 </html>

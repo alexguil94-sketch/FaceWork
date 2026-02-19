@@ -3,6 +3,20 @@
   const $ = (q, root=document) => root.querySelector(q);
   const $$ = (q, root=document) => Array.from(root.querySelectorAll(q));
 
+  // ---------- Base path
+  // Makes routing/guards work with file:// and sub-folder deploys (e.g. /facework/).
+  const SITE_BASE_PATH = (function(){
+    try{
+      const src = document.currentScript?.src;
+      if(!src) return "";
+      const u = new URL(src, window.location.href);
+      const p = String(u.pathname || "");
+      return p.replace(/\/js\/site\.js$/,"");
+    }catch(e){
+      return "";
+    }
+  })();
+
   // ---------- Theme
   const THEME_KEY = "fwTheme";
   function applyTheme(t){
@@ -35,8 +49,7 @@
     return String(user?.role || "").trim().toLowerCase() === "admin";
   }
   async function logout(){
-    const inApp = (window.location.pathname.includes("/app/") || window.location.href.includes("/app/"));
-    const base = inApp ? "../login.html" : "login.html";
+    const base = loginRedirectHref();
     try{ localStorage.removeItem(USER_KEY); }catch(e){ /* ignore */ }
     if(window.fwSupabase?.enabled){
       try{ await window.fwSupabase.signOut(); }catch(e){ /* ignore */ }
@@ -90,6 +103,7 @@
   function isProtectedPath(path){
     const p = String(path || "");
     if(p === "/login") return false;
+    if(p === "/inscription") return false;
     if(p.startsWith("/app")) return true;
     if(p === "/tutoriel") return true;
     if(p.startsWith("/guides/")) return true;
@@ -97,6 +111,8 @@
     if(p.startsWith("/tutos/")) return true;
     if(p === "/exercices") return true;
     if(p.startsWith("/exercices/")) return true;
+    if(p === "/langages") return true;
+    if(p.startsWith("/langages/")) return true;
     return false;
   }
 
@@ -125,7 +141,7 @@
     // Landing/login: hide shortcuts to pages that require auth (avoid redirect loops / confusion).
     document.querySelectorAll("a[href]").forEach(a=>{
       const p = pathFromHref(a.getAttribute("href") || "");
-      if(p === "/tutoriel" || p === "/exercices"){
+      if(p === "/tutoriel" || p === "/exercices" || p === "/langages"){
         a.classList.add("hidden");
       }
     });
@@ -208,6 +224,11 @@
   function canonPath(p){
     let s = String(p || "");
     if(!s.startsWith("/")) s = "/" + s;
+
+    // Strip hosting base path (file:// absolute path or sub-folder hosting)
+    if(SITE_BASE_PATH && s === SITE_BASE_PATH) s = "/";
+    else if(SITE_BASE_PATH && s.startsWith(SITE_BASE_PATH + "/")) s = s.slice(SITE_BASE_PATH.length);
+
     s = s.replace(/\/+$/, "");
     if(s === "") s = "/";
 
