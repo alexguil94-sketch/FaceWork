@@ -14,3 +14,13 @@
   from = "/app/"
   to = "/app/feed.html"
   status = 302
+
+[[redirects]]
+  from = "/app/crm"
+  to = "/app/crm-dashboard.html"
+  status = 302
+
+[[redirects]]
+  from = "/app/crm/"
+  to = "/app/crm-dashboard.html"
+  status = 302

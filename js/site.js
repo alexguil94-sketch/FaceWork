@@ -119,6 +119,7 @@
   function isAdminOnlyPath(path){
     const p = String(path || "");
     if(p === "/app/admin") return true;
+    if(p.startsWith("/app/crm")) return true;
     if(p === "/guides/admin") return true;
     return false;
   }
@@ -371,6 +372,9 @@
     // Keep landing page clean: only show extra links inside the app header.
     if(isAppHeader){
       addSideLink("Exercices", `${relPrefix()}exercices.html`);
+      if(isAdminUser(getUser())){
+        addSideLink("CRM", `${relPrefix()}app/crm-dashboard.html`);
+      }
     }
 
     let prevOverflow = "";

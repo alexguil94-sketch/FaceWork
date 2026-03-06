@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>CRM & Facturation - Edition devis</title>
+  <link rel="icon" href="/favicon.ico" sizes="any"/>
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"/>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <link rel="stylesheet" href="../css/crm.css"/>
+</head>
+<body class="crm-body" data-crm-page="quote-editor">
+  <div class="app">
+    <header class="appbar">
+      <div class="container inner">
+        <a class="brand" href="feed.html" aria-label="FaceWork">
+          <div class="logo" aria-hidden="true"><img src="../assets/fw-logo.png" alt=""/></div>
+          <div style="line-height:1.1">
+            <div style="font-size:18px; font-weight:950">FaceWork</div>
+            <div style="font-size:12px; color:var(--muted); font-weight:800">Espace entreprise</div>
+          </div>
+        </a>
+        <nav class="appnav" aria-label="Navigation application">
+          <a data-app-nav href="feed.html">Publications</a>
+          <a data-app-nav href="channels.html">Canaux</a>
+          <a data-app-nav href="messages.html">Messages</a>
+          <a data-app-nav href="crm-dashboard.html" data-admin-only class="hidden">CRM</a>
+          <a data-app-nav href="admin.html" data-admin-only class="hidden">Admin</a>
+          <a data-app-nav href="settings.html">Parametres</a>
+        </nav>
+        <div class="userbox">
+          <button class="btn icon" data-theme-toggle title="Basculer theme">Lune</button>
+          <div class="row" style="gap:10px">
+            <div class="avatar" data-user-avatar>FW</div>
+            <div style="display:flex; flex-direction:column; line-height:1.1">
+              <div style="font-weight:950" data-user-name>Utilisateur</div>
+              <div class="sub" data-user-company>Entreprise</div>
+            </div>
+          </div>
+          <button class="btn small" data-logout><span class="hide-sm">Deconnexion</span></button>
+        </div>
+      </div>
+    </header>
+    <main class="main crm-page hidden" data-admin-only>
+      <div class="container">
+        <div class="crm-shell">
+          <aside class="crm-sidebar">
+            <div class="crm-side-head">
+              <div class="crm-side-kicker">Espace prive</div>
+              <h1>CRM</h1>
+              <p class="crm-side-sub">Edition d'un devis avec calculs automatiques, apercu et generation PDF.</p>
+            </div>
+            <nav class="crm-nav" aria-label="Navigation CRM">
+              <a href="crm-dashboard.html"><strong>Tableau de bord</strong><span>Vue d'ensemble</span></a>
+              <a href="crm-clients.html"><strong>Clients</strong><span>Contacts et entreprises</span></a>
+              <a class="active" href="crm-quotes.html"><strong>Devis</strong><span>Creation et suivi</span></a>
+              <a href="crm-invoices.html"><strong>Factures</strong><span>Paiements et relances</span></a>
+              <a href="crm-settings.html"><strong>Parametres</strong><span>Identite et legal</span></a>
+            </nav>
+          </aside>
+          <section class="crm-main">
+            <div id="crmRoot"></div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+  <div class="toast" role="status" aria-live="polite"><div class="t">Info</div><div class="d">-</div></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js"></script>
+  <script src="../js/env.js"></script>
+  <script src="../js/supabase.js"></script>
+  <script src="../js/site.js"></script>
+  <script src="../js/crm.js"></script>
+</body>
+</html>
