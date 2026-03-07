@@ -46,6 +46,457 @@
     return u?.id || "";
   }
 
+  const NOTIFY_DEFAULTS = {
+    postsLastSeenAt: "",
+    dmsLastSeenAt: "",
+    unreadPosts: 0,
+    unreadDms: 0,
+    desktopEnabled: false,
+  };
+  const notifyRuntime = {
+    uid: "",
+    company: "",
+    channel: null,
+    visibilityBound: false,
+    storageBound: false,
+  };
+  const profileNameCache = new Map();
+
+  function isFeedPage(){
+    return !!$("#feedList");
+  }
+
+  function isMessagesPage(){
+    return !!$("#dmList") && !!$("#dmConvo");
+  }
+
+  function notifyUserKey(uid){
+    const u = getUser() || {};
+    return String(uid || u.id || u.email || u.name || "guest").trim() || "guest";
+  }
+
+  function notifyStateKey(uid){
+    return `fwNotify:${companyFromUser()}:${notifyUserKey(uid)}:state`;
+  }
+
+  function loadNotifyState(uid){
+    try{
+      const raw = JSON.parse(localStorage.getItem(notifyStateKey(uid)) || "null");
+      return { ...NOTIFY_DEFAULTS, ...(raw && typeof raw === "object" ? raw : {}) };
+    }catch(e){
+      return { ...NOTIFY_DEFAULTS };
+    }
+  }
+
+  function saveNotifyState(next, uid){
+    const state = { ...NOTIFY_DEFAULTS, ...(next || {}) };
+    localStorage.setItem(notifyStateKey(uid), JSON.stringify(state));
+    updateAppNavBadges(uid, state);
+    return state;
+  }
+
+  function patchNotifyState(patch, uid){
+    const current = loadNotifyState(uid);
+    return saveNotifyState({ ...current, ...(patch || {}) }, uid);
+  }
+
+  function clearNotifyState(){
+    try{
+      Object.keys(localStorage)
+        .filter((key)=> key.startsWith("fwNotify:"))
+        .forEach((key)=> localStorage.removeItem(key));
+    }catch(e){ /* ignore */ }
+    updateAppNavBadges(notifyRuntime.uid);
+  }
+
+  function appPageHref(page){
+    try{
+      return new URL(page, window.location.href).href;
+    }catch(e){
+      return page;
+    }
+  }
+
+  function clipText(raw, maxLen = 110){
+    const text = String(raw || "").replace(/\s+/g, " ").trim();
+    if(!text) return "";
+    return text.length > maxLen ? `${text.slice(0, maxLen - 1)}…` : text;
+  }
+
+  function ensureAppNavBadges(){
+    document.querySelectorAll(".appnav a[data-app-nav]").forEach((link)=>{
+      if(link.querySelector(".appnav-label")) return;
+      const label = document.createElement("span");
+      label.className = "appnav-label";
+      label.textContent = (link.textContent || "").trim();
+      link.textContent = "";
+      link.appendChild(label);
+
+      const href = String(link.getAttribute("href") || "").trim();
+      let kind = "";
+      if(/feed\.html$/i.test(href)) kind = "posts";
+      if(/messages\.html$/i.test(href)) kind = "dms";
+      if(!kind) return;
+
+      const pill = document.createElement("span");
+      pill.className = "appnav-pill";
+      pill.hidden = true;
+      pill.setAttribute("data-nav-pill", kind);
+      link.appendChild(pill);
+    });
+  }
+
+  function setNavBadge(kind, count){
+    const n = Math.max(0, Number(count || 0));
+    document.querySelectorAll(`[data-nav-pill="${kind}"]`).forEach((pill)=>{
+      if(!n){
+        pill.hidden = true;
+        pill.classList.remove("show");
+        pill.textContent = "";
+        return;
+      }
+      pill.hidden = false;
+      pill.classList.add("show");
+      pill.textContent = n > 99 ? "99+" : String(n);
+    });
+  }
+
+  function updateAppNavBadges(uid, state){
+    ensureAppNavBadges();
+    const next = state || loadNotifyState(uid);
+    setNavBadge("posts", next.unreadPosts);
+    setNavBadge("dms", next.unreadDms);
+  }
+
+  function browserNotificationsSupported(){
+    return typeof window !== "undefined" && "Notification" in window;
+  }
+
+  async function requestBrowserNotificationPermission(){
+    if(!browserNotificationsSupported()) return "unsupported";
+    try{
+      return await Notification.requestPermission();
+    }catch(e){
+      return "denied";
+    }
+  }
+
+  function browserNotificationsEnabled(uid){
+    const state = loadNotifyState(uid);
+    return !!state.desktopEnabled && browserNotificationsSupported() && Notification.permission === "granted";
+  }
+
+  async function showBrowserNotification({ title, body, href } = {}){
+    if(!browserNotificationsEnabled(notifyRuntime.uid)) return;
+    try{
+      const notification = new Notification(String(title || "FaceWork"), {
+        body: clipText(body, 140),
+        icon: appPageHref("../favicon-32.png"),
+        tag: String(href || title || "facework"),
+      });
+      notification.onclick = ()=>{
+        try{ window.focus(); }catch(e){ /* ignore */ }
+        if(href) window.location.href = href;
+        notification.close();
+      };
+      window.setTimeout(()=>{
+        try{ notification.close(); }catch(e){ /* ignore */ }
+      }, 10_000);
+    }catch(e){
+      console.warn("Browser notification failed", e);
+    }
+  }
+
+  async function profileNameById(userId){
+    const id = String(userId || "").trim();
+    if(!id) return "";
+    if(profileNameCache.has(id)) return profileNameCache.get(id) || "";
+    if(!sb) return "";
+    const res = await sb.from("profiles").select("id,name").eq("id", id).maybeSingle();
+    if(res.error){
+      return "";
+    }
+    const name = String(res.data?.name || "").trim();
+    profileNameCache.set(id, name);
+    return name;
+  }
+
+  function ensureNotifyStateInitialized(uid){
+    const current = loadNotifyState(uid);
+    let changed = false;
+    if(!String(current.postsLastSeenAt || "").trim()){
+      current.postsLastSeenAt = new Date().toISOString();
+      changed = true;
+    }
+    if(!String(current.dmsLastSeenAt || "").trim()){
+      current.dmsLastSeenAt = new Date().toISOString();
+      changed = true;
+    }
+    return changed ? saveNotifyState(current, uid) : current;
+  }
+
+  function markPostsSeen(uid, seenAt){
+    return patchNotifyState({
+      postsLastSeenAt: String(seenAt || new Date().toISOString()),
+      unreadPosts: 0,
+    }, uid);
+  }
+
+  function markDmsSeen(uid, seenAt){
+    return patchNotifyState({
+      dmsLastSeenAt: String(seenAt || new Date().toISOString()),
+      unreadDms: 0,
+    }, uid);
+  }
+
+  async function refreshPostNotifications(uid){
+    if(!sbEnabled || !uid) return;
+    const state = ensureNotifyStateInitialized(uid);
+    const company = notifyRuntime.company || companyFromUser();
+    const res = await sb
+      .from("posts")
+      .select("id", { head: true, count: "exact" })
+      .eq("company", company)
+      .neq("author_id", uid)
+      .gt("created_at", state.postsLastSeenAt);
+    if(res.error) return;
+    patchNotifyState({ unreadPosts: Number(res.count || 0) }, uid);
+  }
+
+  async function refreshDmNotifications(uid){
+    if(!sbEnabled || !uid) return;
+    const state = ensureNotifyStateInitialized(uid);
+    const company = notifyRuntime.company || companyFromUser();
+    const res = await sb
+      .from("dm_messages")
+      .select("id", { head: true, count: "exact" })
+      .eq("company", company)
+      .neq("sender_id", uid)
+      .gt("created_at", state.dmsLastSeenAt);
+    if(res.error) return;
+    patchNotifyState({ unreadDms: Number(res.count || 0) }, uid);
+  }
+
+  async function refreshNotificationCounts(uid){
+    if(!uid) return;
+    await Promise.all([
+      refreshPostNotifications(uid),
+      refreshDmNotifications(uid),
+    ]);
+  }
+
+  async function handleIncomingPostNotification(row){
+    const uid = notifyRuntime.uid;
+    const company = notifyRuntime.company || companyFromUser();
+    if(!uid || !row || String(row.company || "") !== String(company)) return;
+    if(String(row.author_id || "") === String(uid)) return;
+
+    const createdAt = String(row.created_at || new Date().toISOString());
+    const authorName = await profileNameById(row.author_id);
+    const postTitle = String(row.title || "Nouvelle publication").trim() || "Nouvelle publication";
+    const pageVisible = document.visibilityState === "visible";
+    const onFeed = isFeedPage() && pageVisible;
+
+    if(onFeed){
+      await renderFeedSupabase();
+      markPostsSeen(uid, createdAt);
+      window.fwToast?.("Nouvelle publication", authorName ? `${authorName} • ${postTitle}` : postTitle);
+      return;
+    }
+
+    const current = loadNotifyState(uid);
+    patchNotifyState({ unreadPosts: Number(current.unreadPosts || 0) + 1 }, uid);
+
+    if(pageVisible){
+      window.fwToast?.("Nouvelle publication", authorName ? `${authorName} • ${postTitle}` : postTitle);
+      return;
+    }
+
+    await showBrowserNotification({
+      title: "Nouvelle publication",
+      body: authorName ? `${authorName} • ${postTitle}` : postTitle,
+      href: appPageHref("feed.html"),
+    });
+  }
+
+  async function handleIncomingDmNotification(row){
+    const uid = notifyRuntime.uid;
+    const company = notifyRuntime.company || companyFromUser();
+    if(!uid || !row || String(row.company || "") !== String(company)) return;
+    if(String(row.sender_id || "") === String(uid)) return;
+
+    const threadId = String(row.thread_id || "");
+    const createdAt = String(row.created_at || new Date().toISOString());
+    const pageVisible = document.visibilityState === "visible";
+    const onMessages = isMessagesPage();
+    const activeThreadId = String(localStorage.getItem("fwActiveDMThreadId") || "");
+    const activeVisible = onMessages && pageVisible && activeThreadId === threadId;
+
+    if(onMessages && pageVisible){
+      await renderDMSupabase();
+    }
+
+    if(activeVisible){
+      markDmsSeen(uid, createdAt);
+      return;
+    }
+
+    const senderName = await profileNameById(row.sender_id);
+    const preview = clipText(row.text || row.file_name || "Tu as reçu un message.", 100);
+    const current = loadNotifyState(uid);
+    patchNotifyState({ unreadDms: Number(current.unreadDms || 0) + 1 }, uid);
+
+    if(pageVisible){
+      window.fwToast?.("Nouveau message", senderName ? `${senderName} : ${preview}` : preview);
+      return;
+    }
+
+    await showBrowserNotification({
+      title: senderName ? `Message de ${senderName}` : "Nouveau message",
+      body: preview,
+      href: appPageHref("messages.html"),
+    });
+  }
+
+  async function syncSeenNotifications(){
+    const uid = notifyRuntime.uid;
+    if(!uid || document.visibilityState !== "visible") return;
+    const now = new Date().toISOString();
+    if(isFeedPage()) markPostsSeen(uid, now);
+    if(isMessagesPage()) markDmsSeen(uid, now);
+    await refreshNotificationCounts(uid);
+  }
+
+  function updateNotificationPermissionUi(uid){
+    const toggle = $("#notifDesktopEnabled");
+    const button = $("#notifPermissionBtn");
+    const status = $("#notifPermissionStatus");
+    if(!toggle || !button || !status) return;
+
+    if(!browserNotificationsSupported()){
+      toggle.checked = false;
+      toggle.disabled = true;
+      button.disabled = true;
+      button.textContent = "Notifications indisponibles";
+      status.textContent = "Indisponibles";
+      return;
+    }
+
+    const state = loadNotifyState(uid);
+    const permission = Notification.permission;
+    toggle.checked = !!state.desktopEnabled && permission === "granted";
+    toggle.disabled = permission === "denied";
+    button.disabled = permission === "granted";
+    button.textContent = permission === "granted"
+      ? "Notifications autorisées"
+      : permission === "denied"
+        ? "Notifications bloquées"
+        : "Autoriser les notifications";
+    status.textContent = permission === "granted"
+      ? "Autorisées"
+      : permission === "denied"
+        ? "Bloquées"
+        : "À autoriser";
+  }
+
+  function bindNotificationSettings(uid){
+    const toggle = $("#notifDesktopEnabled");
+    const button = $("#notifPermissionBtn");
+    const status = $("#notifPermissionStatus");
+    if(!toggle || !button || !status) return;
+
+    updateNotificationPermissionUi(uid);
+
+    if(!toggle.__fwNotifyBound){
+      toggle.__fwNotifyBound = true;
+      toggle.addEventListener("change", async ()=>{
+        if(!browserNotificationsSupported()){
+          toggle.checked = false;
+          updateNotificationPermissionUi(uid);
+          return;
+        }
+
+        if(toggle.checked && Notification.permission !== "granted"){
+          const permission = await requestBrowserNotificationPermission();
+          if(permission !== "granted"){
+            toggle.checked = false;
+            patchNotifyState({ desktopEnabled: false }, uid);
+            updateNotificationPermissionUi(uid);
+            window.fwToast?.("Notifications", permission === "denied" ? "Le navigateur a bloqué les notifications." : "Autorisation annulée.");
+            return;
+          }
+        }
+
+        patchNotifyState({ desktopEnabled: !!toggle.checked }, uid);
+        updateNotificationPermissionUi(uid);
+        window.fwToast?.("Notifications", toggle.checked ? "Notifications navigateur activées." : "Notifications navigateur désactivées.");
+      });
+    }
+
+    if(!button.__fwNotifyBound){
+      button.__fwNotifyBound = true;
+      button.addEventListener("click", async ()=>{
+        const permission = await requestBrowserNotificationPermission();
+        if(permission === "granted"){
+          patchNotifyState({ desktopEnabled: true }, uid);
+          toggle.checked = true;
+          window.fwToast?.("Notifications", "Notifications navigateur activées.");
+        }else if(permission === "denied"){
+          patchNotifyState({ desktopEnabled: false }, uid);
+          toggle.checked = false;
+          window.fwToast?.("Notifications", "Le navigateur a bloqué les notifications.");
+        }else{
+          window.fwToast?.("Notifications", "Autorisation annulée.");
+        }
+        updateNotificationPermissionUi(uid);
+      });
+    }
+  }
+
+  async function initRealtimeNotifications(){
+    ensureAppNavBadges();
+    updateAppNavBadges(notifyRuntime.uid);
+
+    if(!sbEnabled) return;
+
+    const uid = await sbUserId();
+    if(!uid) return;
+
+    notifyRuntime.uid = uid;
+    notifyRuntime.company = companyFromUser();
+    ensureNotifyStateInitialized(uid);
+
+    if(!notifyRuntime.storageBound){
+      notifyRuntime.storageBound = true;
+      window.addEventListener("storage", (event)=>{
+        const key = String(event?.key || "");
+        if(key && key !== notifyStateKey(notifyRuntime.uid)) return;
+        updateAppNavBadges(notifyRuntime.uid);
+        updateNotificationPermissionUi(notifyRuntime.uid);
+      });
+    }
+
+    if(!notifyRuntime.visibilityBound){
+      notifyRuntime.visibilityBound = true;
+      document.addEventListener("visibilitychange", ()=>{
+        void syncSeenNotifications();
+      });
+    }
+
+    await refreshNotificationCounts(uid);
+
+    if(notifyRuntime.channel) return;
+    notifyRuntime.channel = sb.channel(`fw-notify:${notifyRuntime.company}:${uid}`);
+    notifyRuntime.channel
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "posts" }, ({ new: row })=>{
+        void handleIncomingPostNotification(row);
+      })
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "dm_messages" }, ({ new: row })=>{
+        void handleIncomingDmNotification(row);
+      })
+      .subscribe();
+  }
+
   function fmtTs(ts){
     const d = new Date(ts);
     if(Number.isNaN(d.getTime())) return String(ts || "");
@@ -2756,6 +3207,10 @@
         window.fwToast?.("Publié","Ta publication est en ligne.");
       });
     }
+
+    if(document.visibilityState === "visible"){
+      markPostsSeen(uid);
+    }
   }
   sbEnabled ? renderFeedSupabase() : renderFeed();
 
@@ -4137,6 +4592,10 @@
     let current = localStorage.getItem("fwActiveDMThreadId") || "";
     if(!current || !threads.some(t=> String(t.id) === String(current))) current = threads[0]?.id || "";
     current ? await showDM(threads.find(t=> String(t.id) === String(current))) : (convo.innerHTML = emptyChatHtml("Aucun contact", "Crée un DM pour commencer."));
+
+    if(document.visibilityState === "visible"){
+      markDmsSeen(uid);
+    }
   }
   sbEnabled ? renderDMSupabase() : renderDM();
 
@@ -4156,9 +4615,11 @@
     };
 
     const u = getUser() || {};
+    const notifyKey = notifyUserKey();
     $("#setName") && ($("#setName").value = u.name || "");
     $("#setCompany") && ($("#setCompany").value = u.company || "");
     $("#avatarUrl") && ($("#avatarUrl").value = u.avatarUrl || "");
+    bindNotificationSettings(notifyKey);
 
     // Avatar presets (colors)
     const presetsRoot = $("#avatarPresets");
@@ -4247,6 +4708,7 @@
       localStorage.removeItem("fwRoles");
       localStorage.removeItem("fwMembers");
       localStorage.removeItem("fwActiveAdmin");
+      clearNotifyState();
       window.fwToast?.("Réinitialisé","Données de démo supprimées.");
     });
   }
@@ -4286,6 +4748,7 @@
     $("#setName") && ($("#setName").value = u.name || "");
     $("#setCompany") && ($("#setCompany").value = u.company || "");
     $("#avatarUrl") && ($("#avatarUrl").value = u.avatarUrl || "");
+    bindNotificationSettings(uid);
 
     // In Supabase mode, company is the workspace key: keep it read-only (demo safety).
     const companyInput = $("#setCompany");
@@ -4382,11 +4845,13 @@
       localStorage.removeItem("fwActiveAdmin");
       localStorage.removeItem("fwActiveChannelId");
       localStorage.removeItem("fwActiveDMThreadId");
+      clearNotifyState();
       window.fwToast?.("Nettoyé","Cache local supprimé (Supabase inchangé).");
     });
   }
 
   sbEnabled ? renderSettingsSupabase() : renderSettings();
+  void initRealtimeNotifications();
 
   // ---------- LEARNING (exercices / tutoriels)
   const LEARNING_LS_KEY = "fwLearningItems_v1";

@@ -106,6 +106,26 @@
             </div>
 
             <div class="account-box">
+              <div class="badge">Notifications</div>
+              <div class="spacer" style="height:10px"></div>
+              <div class="col" style="gap:12px">
+                <label class="notif-toggle" for="notifDesktopEnabled">
+                  <input id="notifDesktopEnabled" type="checkbox"/>
+                  <span>
+                    <strong>Notifications du navigateur</strong>
+                    <span class="muted" style="display:block; margin-top:4px">
+                      Prévenir pour les nouveaux messages et les nouvelles publications quand l'onglet n'est pas au premier plan.
+                    </span>
+                  </span>
+                </label>
+                <div class="row" style="gap:10px; flex-wrap:wrap">
+                  <button class="btn small" type="button" id="notifPermissionBtn">Autoriser les notifications</button>
+                  <span class="badge" id="notifPermissionStatus">Vérification…</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="account-box">
               <div class="badge">Légal</div>
               <div class="spacer" style="height:10px"></div>
               <div class="row" style="gap:10px; flex-wrap:wrap">

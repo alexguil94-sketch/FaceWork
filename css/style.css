@@ -680,6 +680,37 @@ html[data-theme="light"] .appnav{
   text-decoration:none;
   transition: transform .08s ease, background .12s ease, color .12s ease, box-shadow .12s ease, filter .12s ease;
 }
+.appnav-label{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  min-width:0;
+}
+.appnav-pill{
+  display:none;
+  align-items:center;
+  justify-content:center;
+  min-width:20px;
+  height:20px;
+  padding:0 6px;
+  border-radius:999px;
+  border:1px solid rgba(255,45,120,.30);
+  background: rgba(255,45,120,.18);
+  color:#fff;
+  font-size:11px;
+  font-weight:950;
+  line-height:1;
+  box-shadow: 0 8px 18px rgba(255,45,120,.18);
+}
+.appnav-pill.show{display:inline-flex}
+html[data-theme="light"] .appnav-pill{
+  color: var(--text);
+  border-color: rgba(0,245,255,.34);
+  background: rgba(0,245,255,.20);
+  box-shadow:
+    0 8px 18px rgba(0,245,255,.14),
+    0 0 20px rgba(162,89,255,.10);
+}
 .appnav a:hover{
   background: rgba(255,255,255,.07);
   color: var(--text);
@@ -1617,6 +1648,26 @@ html[data-theme="light"] .file-box:hover{
 }
 .account-box .k{color: var(--muted); font-weight: 850; font-size: 12px}
 .account-box .v{font-weight: 850}
+.notif-toggle{
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  padding:12px;
+  border-radius:14px;
+  border:1px solid var(--stroke);
+  background: rgba(255,255,255,.05);
+}
+.notif-toggle:hover{text-decoration:none}
+.notif-toggle input{
+  width:18px;
+  height:18px;
+  margin-top:2px;
+  accent-color: var(--accent2);
+}
+html[data-theme="light"] .notif-toggle{
+  background: rgba(255,255,255,.72);
+}
+.notif-toggle strong{display:block}
 
 /* Toast */
 .toast{
