@@ -9,6 +9,7 @@
   const STORAGE_BUCKET = String(window.FW_ENV?.SUPABASE_BUCKET || "facework").trim() || "facework";
   const PARAMS = new URLSearchParams(window.location.search);
   const APP_COMPANY = String(getUser()?.company || window.fwSupabase?.companyDefault || "Entreprise").trim() || "Entreprise";
+  const DEFAULT_CRM_LOGO_URL = new URL("../assets/landing/landing-logo.png", window.location.href).href;
   const NOW = ()=> new Date().toISOString();
   const TODAY = ()=> new Date().toISOString().slice(0, 10);
 
@@ -181,6 +182,15 @@
       || String(client.company_name || "").trim()
       || `${String(client.first_name || "").trim()} ${String(client.last_name || "").trim()}`.trim()
       || "Client";
+  }
+
+  function companyDisplayName(settings){
+    return String(settings?.trade_name || settings?.legal_name || APP_COMPANY).trim() || APP_COMPANY;
+  }
+
+  function effectiveLogoUrl(settings){
+    const raw = String(settings?.logo_url || "").trim();
+    return raw || DEFAULT_CRM_LOGO_URL;
   }
 
   function clientAddress(client){
@@ -1247,6 +1257,8 @@
     const displayStatus = kind === "quote" ? quoteDisplayStatus(doc) : invoiceEffectiveStatus(doc);
     const title = kind === "quote" ? "Devis" : "Facture";
     const dateLabel = kind === "quote" ? "Valable jusqu'au" : "Echeance";
+    const brandName = companyDisplayName(settings);
+    const logoUrl = effectiveLogoUrl(settings);
 
     const rows = (doc.items || []).map((item)=> `
       <tr>
@@ -1264,8 +1276,13 @@
       <div class="crm-doc-preview">
         <div class="crm-doc-head">
           <div class="crm-doc-brand">
-            <span class="crm-doc-chip">${escapeHtml(title)}</span>
-            <strong>${escapeHtml(settings.trade_name || settings.legal_name || APP_COMPANY)}</strong>
+            <div class="crm-doc-brand-row">
+              <div class="crm-doc-brand-copy">
+                <span class="crm-doc-chip">${escapeHtml(title)}</span>
+                <strong>${escapeHtml(brandName)}</strong>
+              </div>
+              <img class="crm-doc-logo" src="${escapeHtml(logoUrl)}" alt="Logo ${escapeHtml(brandName)}"/>
+            </div>
             <div style="color:rgba(18,18,18,.64); line-height:1.65">${companyBlockHtml(settings)}</div>
           </div>
           <div class="crm-doc-block" style="min-width:240px">
@@ -1327,7 +1344,7 @@
 
   async function resolveLogoDataUrl(){
     const settings = state.settings || DEFAULT_SETTINGS;
-    const raw = String(settings.logo_url || "").trim();
+    const raw = effectiveLogoUrl(settings);
     if(!raw) return "";
     if(raw.startsWith("data:")) return raw;
     const sbUrl = parseSbUrl(raw);
@@ -2617,6 +2634,7 @@
                 <div class="crm-field"><label>Logo (URL ou data URL)</label><input name="logo_url" id="crmLogoUrl" value="${escapeHtml(settings.logo_url)}"/></div>
                 <div class="crm-field"><label>Uploader un logo</label><input type="file" id="crmLogoFile" accept="image/*"/></div>
               </div>
+              <div class="crm-doc-legal">Si ce champ reste vide, le logo Atelier Numerique sera utilise par defaut sur les devis, factures et PDF.</div>
             </section>
 
             <div class="crm-actions">
@@ -2629,7 +2647,12 @@
           <section class="crm-summary-card">
             <div class="crm-kicker">Apercu legal</div>
             <div class="crm-doc-preview">
-              <div class="crm-doc-brand"><strong>${escapeHtml(settings.trade_name || settings.legal_name || APP_COMPANY)}</strong></div>
+              <div class="crm-doc-brand">
+                <div class="crm-doc-brand-row">
+                  <strong>${escapeHtml(companyDisplayName(settings))}</strong>
+                  <img class="crm-doc-logo crm-doc-logo--small" src="${escapeHtml(effectiveLogoUrl(settings))}" alt="Logo ${escapeHtml(companyDisplayName(settings))}"/>
+                </div>
+              </div>
               <div class="crm-doc-legal" style="margin-top:12px">${companyBlockHtml(settings)}</div>
               <div class="crm-doc-legal" style="margin-top:12px">${legalBlockHtml(settings)}</div>
               <div class="crm-doc-legal" style="margin-top:12px"><strong>Format numeros :</strong> ${escapeHtml((settings.numbering_quote_prefix || "DEV") + "-2026-001")} / ${escapeHtml((settings.numbering_invoice_prefix || "FAC") + "-2026-001")}</div>

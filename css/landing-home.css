@@ -993,7 +993,7 @@ body.landing-home .site-footer {
 
 body.landing-home .footer-grid {
   display: grid;
-  grid-template-columns: minmax(260px, 1.2fr) repeat(3, minmax(0, 1fr));
+  grid-template-columns: minmax(260px, 1.2fr) repeat(2, minmax(0, 1fr));
   gap: 24px;
   padding: 28px 0;
   color: var(--landing-muted);
@@ -1020,6 +1020,15 @@ body.landing-home .footer-col strong {
 body.landing-home .footer-brand p,
 body.landing-home .footer-meta {
   margin: 0;
+}
+
+body.landing-home .footer-brand a {
+  color: var(--landing-muted);
+}
+
+body.landing-home .footer-brand a:hover,
+body.landing-home .footer-brand a:focus-visible {
+  color: #ffffff;
 }
 
 body.landing-home .footer-col {

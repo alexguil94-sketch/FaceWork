@@ -152,7 +152,7 @@
         return;
       }
 
-      const to = form.getAttribute("data-mail") || "contact@atelier-numerique.fr";
+      const to = form.getAttribute("data-mail") || "alexguil94@hotmail.fr";
       const subject = project ? `Projet - ${project}` : "Demande depuis le site";
       const body = [
         `Nom: ${name}`,
@@ -171,7 +171,7 @@
 
   if(copyButton){
     copyButton.addEventListener("click", function(){
-      const to = form ? form.getAttribute("data-mail") || "contact@atelier-numerique.fr" : "contact@atelier-numerique.fr";
+      const to = form ? form.getAttribute("data-mail") || "alexguil94@hotmail.fr" : "alexguil94@hotmail.fr";
       if(!navigator.clipboard || !navigator.clipboard.writeText){
         showToast(`Copie indisponible. Adresse: ${to}`);
         return;
