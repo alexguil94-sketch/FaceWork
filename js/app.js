@@ -189,7 +189,7 @@
       window.fwToast?.("Aucun lien","Ajoute un lien de fichier ou dépose un fichier dans le formulaire.");
       return;
     }
-    window.open(href, "_blank");
+    window.open(href, "_blank", "noopener,noreferrer");
   }
 
   function bindComposerFileUI(){
@@ -1824,12 +1824,12 @@
   }
   function commentAvatarHtml({ name, avatarUrl, avatarBg } = {}){
     const n = String(name || "Utilisateur").trim() || "Utilisateur";
-    const url = String(avatarUrl || "").trim();
-    const bg = String(avatarBg || "").trim();
+    const url = safeMediaUrl(avatarUrl);
+    const bg = safeAvatarBg(avatarBg, avatarBgFor(n));
     if(url){
       return `<div class="avatar sm" aria-hidden="true"><img src="${escapeHtml(url)}" alt=""/></div>`;
     }
-    const style = bg ? ` style="background:${escapeHtml(bg)}"` : ` style="background:${escapeHtml(avatarBgFor(n))}"`;
+    const style = ` style="background:${escapeHtml(bg)}"`;
     return `<div class="avatar sm" aria-hidden="true"${style}>${escapeHtml(initials(n))}</div>`;
   }
   function commentTextHtml(text){ return escapeHtml(String(text || "")).replace(/\n/g, "<br/>"); }
@@ -2367,9 +2367,11 @@
       const commentCount = Number(p.comments_count || 0);
       const isLiked = likedSet.has(String(p.id));
 
-      const avatar = author.avatar_url
-        ? `<div class="avatar" aria-hidden="true"><img src="${escapeHtml(author.avatar_url)}" alt=""/></div>`
-        : `<div class="avatar" aria-hidden="true"${author.avatar_bg ? ` style="background:${escapeHtml(author.avatar_bg)}"` : ""}>${escapeHtml(initials(name))}</div>`;
+      const avatarUrl = safeMediaUrl(author.avatar_url);
+      const avatarBg = safeAvatarBg(author.avatar_bg, avatarBgFor(name));
+      const avatar = avatarUrl
+        ? `<div class="avatar" aria-hidden="true"><img src="${escapeHtml(avatarUrl)}" alt=""/></div>`
+        : `<div class="avatar" aria-hidden="true" style="background:${escapeHtml(avatarBg)}">${escapeHtml(initials(name))}</div>`;
 
       const el = document.createElement("div");
       el.className = "post";
@@ -3152,9 +3154,10 @@
         avatarBg: p.avatar_bg || "",
       };
       const cls = className || "avatar msg-avatar";
-      if(u.avatarUrl) return `<div class="${cls}"><img src="${escapeHtml(u.avatarUrl)}" alt=""/></div>`;
-      const bg = u.avatarBg ? ` style="background:${escapeHtml(u.avatarBg)}"` : "";
-      return `<div class="${cls}"${bg}>${escapeHtml(initials(u.name))}</div>`;
+      const url = safeMediaUrl(u.avatarUrl);
+      const style = ` style="background:${escapeHtml(safeAvatarBg(u.avatarBg, avatarBgFor(u.name)))}"`;
+      if(url) return `<div class="${cls}"><img src="${escapeHtml(url)}" alt=""/></div>`;
+      return `<div class="${cls}"${style}>${escapeHtml(initials(u.name))}</div>`;
     }
     function renderSbChatMessageHtml(row, profile){
       const r = row || {};
@@ -3848,9 +3851,10 @@
         avatarBg: p.avatar_bg || "",
       };
       const cls = className || "avatar msg-avatar";
-      if(u.avatarUrl) return `<div class="${cls}"><img src="${escapeHtml(u.avatarUrl)}" alt=""/></div>`;
-      const bg = u.avatarBg ? ` style="background:${escapeHtml(u.avatarBg)}"` : "";
-      return `<div class="${cls}"${bg}>${escapeHtml(initials(u.name))}</div>`;
+      const url = safeMediaUrl(u.avatarUrl);
+      const style = ` style="background:${escapeHtml(safeAvatarBg(u.avatarBg, avatarBgFor(u.name)))}"`;
+      if(url) return `<div class="${cls}"><img src="${escapeHtml(url)}" alt=""/></div>`;
+      return `<div class="${cls}"${style}>${escapeHtml(initials(u.name))}</div>`;
     }
     function renderSbChatMessageHtml(row, profile){
       const r = row || {};
@@ -4179,7 +4183,13 @@
     if(urlInput && !urlInput.__bound){
       urlInput.__bound = true;
       urlInput.addEventListener("change", ()=>{
-        const url = urlInput.value.trim();
+        const raw = urlInput.value.trim();
+        const url = raw ? safeMediaUrl(raw) : "";
+        if(raw && !url){
+          urlInput.value = "";
+          window.fwToast?.("Avatar","URL refusée. Utilise une image http(s), blob ou data:image.");
+          return;
+        }
         updateUser({ avatarUrl: url, avatarBg: url ? "" : (getUser()?.avatarBg || "") });
         url && window.fwToast?.("Avatar","URL enregistrée.");
       });
@@ -4250,8 +4260,8 @@
       const payload = {};
       if(patch && Object.prototype.hasOwnProperty.call(patch, "name")) payload.name = patch.name;
       if(patch && Object.prototype.hasOwnProperty.call(patch, "company")) payload.company = patch.company;
-      if(patch && Object.prototype.hasOwnProperty.call(patch, "avatarUrl")) payload.avatar_url = patch.avatarUrl;
-      if(patch && Object.prototype.hasOwnProperty.call(patch, "avatarBg")) payload.avatar_bg = patch.avatarBg;
+      if(patch && Object.prototype.hasOwnProperty.call(patch, "avatarUrl")) payload.avatar_url = patch.avatarUrl ? safeMediaUrl(patch.avatarUrl) : "";
+      if(patch && Object.prototype.hasOwnProperty.call(patch, "avatarBg")) payload.avatar_bg = safeAvatarBg(patch.avatarBg);
 
       const res = await sb.from("profiles").update(payload).eq("id", uid);
       if(res.error){
@@ -4307,7 +4317,13 @@
     if(urlInput && !urlInput.__sbBound){
       urlInput.__sbBound = true;
       urlInput.addEventListener("change", async ()=>{
-        const url = urlInput.value.trim();
+        const raw = urlInput.value.trim();
+        const url = raw ? safeMediaUrl(raw) : "";
+        if(raw && !url){
+          urlInput.value = "";
+          window.fwToast?.("Avatar","URL refusée. Utilise une image http(s), blob ou data:image.");
+          return;
+        }
         await updateProfile({ avatarUrl: url, avatarBg: url ? "" : (getUser()?.avatarBg || "") });
         url && window.fwToast?.("Avatar","URL enregistrée.");
       });
@@ -6988,9 +7004,11 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
       .filter(Boolean);
     const subtitle = roleObjects.length ? roleObjects.map(r=> r.name).join(", ") : "Aucun rôle";
 
-    const avatar = m.avatarUrl
-      ? `<div class="avatar lg"><img src="${escapeHtml(m.avatarUrl)}" alt=""/></div>`
-      : `<div class="avatar lg" style="background:${escapeHtml(m.avatarBg || avatarBgFor(m.name))}">${escapeHtml(initials(m.name))}</div>`;
+    const avatarUrl = safeMediaUrl(m.avatarUrl);
+    const avatarBg = safeAvatarBg(m.avatarBg, avatarBgFor(m.name));
+    const avatar = avatarUrl
+      ? `<div class="avatar lg"><img src="${escapeHtml(avatarUrl)}" alt=""/></div>`
+      : `<div class="avatar lg" style="background:${escapeHtml(avatarBg)}">${escapeHtml(initials(m.name))}</div>`;
 
     return `
       <div class="badge">Membre</div>
@@ -7915,10 +7933,10 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
   }
   function renderUserAvatarHtml(user){
     const name = user?.name || "Utilisateur";
-    const url = (user && user.avatarUrl) ? String(user.avatarUrl) : "";
-    const bg = (user && user.avatarBg) ? String(user.avatarBg) : "";
+    const url = safeMediaUrl(user && user.avatarUrl);
+    const bg = safeAvatarBg(user && user.avatarBg, avatarBgFor(name));
     if(url) return `<div class="avatar msg-avatar"><img src="${escapeHtml(url)}" alt=""/></div>`;
-    const style = bg ? ` style="background:${escapeHtml(bg)}"` : "";
+    const style = ` style="background:${escapeHtml(bg)}"`;
     return `<div class="avatar msg-avatar"${style}>${escapeHtml(initials(name))}</div>`;
   }
   function emptyChatHtml(title, hint){
@@ -8082,6 +8100,33 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
     }catch(e){
       return "";
     }
+  }
+  function safeMediaUrl(raw){
+    const s = String(raw || "").trim();
+    if(!s) return "";
+    const compact = s.replace(/[\u0000-\u0020\u007f]+/g, "");
+    const lower = compact.toLowerCase();
+    if(lower.startsWith("javascript:") || lower.startsWith("vbscript:")) return "";
+    if(lower.startsWith("data:")) return /^data:image\//i.test(lower) ? s : "";
+    if(lower.startsWith("blob:")) return s;
+    try{
+      const u = new URL(s, window.location.href);
+      if(u.protocol === "http:" || u.protocol === "https:" || u.protocol === "file:") return u.href;
+      return "";
+    }catch(e){
+      return "";
+    }
+  }
+  function safeAvatarBg(raw, fallback = ""){
+    const s = String(raw || "").trim();
+    if(!s) return fallback;
+    if(s.length > 180) return fallback;
+    if(/[;"<>]/.test(s) || /url\s*\(/i.test(s)) return fallback;
+    if(/^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(s)) return s;
+    if(/^rgba?\([0-9.,%\s]+\)$/i.test(s)) return s;
+    if(/^hsla?\([0-9.,%\s]+\)$/i.test(s)) return s;
+    if(/^linear-gradient\([^)]+\)$/i.test(s)) return s;
+    return fallback;
   }
   function escapeHtml(str){
     return String(str).replace(/[&<>"']/g, (m)=>({

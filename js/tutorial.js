@@ -328,7 +328,7 @@
       window.fwToast?.("Aucun lien","Ajoute un lien de fichier ou dépose un fichier dans le formulaire.");
       return;
     }
-    window.open(href, "_blank", "noopener");
+    window.open(href, "_blank", "noopener,noreferrer");
   }
 
   function looksLikeHtml(code){

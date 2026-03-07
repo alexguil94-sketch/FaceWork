@@ -65,10 +65,38 @@
       return parts.slice(0,2).map(s=>s[0]?.toUpperCase() || "U").join("") || "U";
     };
 
+    const safeMediaUrl = (raw)=>{
+      const s = String(raw || "").trim();
+      if(!s) return "";
+      const compact = s.replace(/[\u0000-\u0020\u007f]+/g, "");
+      const lower = compact.toLowerCase();
+      if(lower.startsWith("javascript:") || lower.startsWith("vbscript:")) return "";
+      if(lower.startsWith("data:")) return /^data:image\//i.test(lower) ? s : "";
+      if(lower.startsWith("blob:")) return s;
+      try{
+        const u = new URL(s, window.location.href);
+        return (u.protocol === "http:" || u.protocol === "https:") ? u.href : "";
+      }catch(e){
+        return "";
+      }
+    };
+
+    const safeAvatarBg = (raw, fallback = "")=>{
+      const s = String(raw || "").trim();
+      if(!s) return fallback;
+      if(s.length > 180) return fallback;
+      if(/[;"<>]/.test(s) || /url\s*\(/i.test(s)) return fallback;
+      if(/^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(s)) return s;
+      if(/^rgba?\([0-9.,%\s]+\)$/i.test(s)) return s;
+      if(/^hsla?\([0-9.,%\s]+\)$/i.test(s)) return s;
+      if(/^linear-gradient\([^)]+\)$/i.test(s)) return s;
+      return fallback;
+    };
+
     const setAvatar = (el, user)=>{
       if(!el) return;
-      const url = (user && user.avatarUrl) ? String(user.avatarUrl) : "";
-      const bg = (user && user.avatarBg) ? String(user.avatarBg) : "";
+      const url = safeMediaUrl(user && user.avatarUrl);
+      const bg = safeAvatarBg(user && user.avatarBg);
 
       if(bg) el.style.background = bg;
       else el.style.background = "";
@@ -95,6 +123,53 @@
     applyVisibility();
   }
   hydrateUserUI();
+
+  function isUnsafeHref(raw){
+    const compact = String(raw || "").replace(/[\u0000-\u0020\u007f]+/g, "").toLowerCase();
+    return compact.startsWith("javascript:") || compact.startsWith("vbscript:") || compact.startsWith("data:text/html");
+  }
+
+  function hardenAnchor(anchor){
+    if(!anchor || anchor.__fwLinkHardened) return;
+    const rawHref = anchor.getAttribute("href");
+    if(rawHref && isUnsafeHref(rawHref)){
+      anchor.removeAttribute("href");
+      anchor.setAttribute("aria-disabled", "true");
+      anchor.setAttribute("role", "link");
+    }
+    if(String(anchor.getAttribute("target") || "").toLowerCase() === "_blank"){
+      const rel = new Set(String(anchor.getAttribute("rel") || "").split(/\s+/).filter(Boolean));
+      rel.add("noopener");
+      rel.add("noreferrer");
+      anchor.setAttribute("rel", Array.from(rel).join(" "));
+    }
+    anchor.__fwLinkHardened = true;
+  }
+
+  function hardenLinks(root = document){
+    if(!root) return;
+    if(root.matches?.("a[href], a[target=\"_blank\"]")){
+      hardenAnchor(root);
+      return;
+    }
+    root.querySelectorAll?.("a[href], a[target=\"_blank\"]").forEach(hardenAnchor);
+  }
+
+  function initLinkHardening(){
+    hardenLinks(document);
+    const target = document.body || document.documentElement;
+    if(!target || !window.MutationObserver) return;
+    const observer = new MutationObserver((mutations)=>{
+      mutations.forEach((mutation)=>{
+        mutation.addedNodes.forEach((node)=>{
+          if(node.nodeType !== Node.ELEMENT_NODE) return;
+          hardenLinks(node);
+        });
+      });
+    });
+    observer.observe(target, { childList: true, subtree: true });
+  }
+  initLinkHardening();
 
   // Logout buttons
   $$("[data-logout]").forEach(b=>b.addEventListener("click", ()=> logout()));
@@ -261,15 +336,71 @@
 
   // ---------- Side menu (drawer)
   function relPrefix(){
-    const p = window.location.pathname || "";
-    const inSubdir =
-      p.includes("/app/") ||
-      p.includes("/guides/") ||
-      p.includes("/tutos/") ||
-      p.includes("/exercices/") ||
-      p.includes("/langages/");
-    return inSubdir ? "../" : "";
+    let p = String(window.location.pathname || "");
+    if(SITE_BASE_PATH && p === SITE_BASE_PATH) p = "/";
+    else if(SITE_BASE_PATH && p.startsWith(SITE_BASE_PATH + "/")) p = p.slice(SITE_BASE_PATH.length);
+
+    p = p.replace(/^\/+/, "");
+    if(!p) return "";
+
+    const parts = p.split("/").filter(Boolean);
+    if(parts.length <= 1) return "";
+    return "../".repeat(parts.length - 1);
   }
+
+  function landingAtelierHref(){
+    return `${relPrefix()}landing-atelier.html`;
+  }
+
+  function ensureLandingShortcut(){
+    if(currentPath === "/landing-atelier") return;
+
+    const href = landingAtelierHref();
+    const title = "Retour a la page Atelier Numerique";
+
+    const createLink = (label, className)=>{
+      const a = document.createElement("a");
+      a.href = href;
+      a.className = className;
+      a.textContent = label;
+      a.title = title;
+      a.setAttribute("aria-label", title);
+      a.setAttribute("data-atelier-link", "1");
+      return a;
+    };
+
+    const navActions = document.querySelector(".navbar .nav-actions");
+    if(navActions && !navActions.querySelector("[data-atelier-link]")){
+      const existingReturn = Array.from(navActions.querySelectorAll("a.btn[href]")).find((link)=>{
+        const label = String(link.textContent || "").trim().toLowerCase();
+        const targetPath = pathFromHref(link.getAttribute("href") || "");
+        return label.includes("retour") && targetPath === "/";
+      });
+
+      if(existingReturn){
+        existingReturn.href = href;
+        existingReturn.textContent = "Retour atelier";
+        existingReturn.title = title;
+        existingReturn.setAttribute("aria-label", title);
+        existingReturn.setAttribute("data-atelier-link", "1");
+      }else{
+        const button = createLink("Retour atelier", "btn small");
+        const primaryAction = navActions.querySelector("a.btn.primary, button.btn.primary");
+        if(primaryAction) navActions.insertBefore(button, primaryAction);
+        else navActions.appendChild(button);
+      }
+    }
+
+    const userbox = document.querySelector(".appbar .userbox");
+    if(userbox && !userbox.querySelector("[data-atelier-link]")){
+      const button = createLink("Atelier", "btn small ghost hide-sm");
+      const logoutBtn = userbox.querySelector("[data-logout]");
+      if(logoutBtn) userbox.insertBefore(button, logoutBtn);
+      else userbox.appendChild(button);
+    }
+  }
+
+  ensureLandingShortcut();
 
   function initSideMenu(){
     const header = document.querySelector(".appbar, .navbar");
@@ -370,6 +501,9 @@
 
     // Global shortcuts (some pages don't show these in the top nav)
     // Keep landing page clean: only show extra links inside the app header.
+    if(currentPath !== "/landing-atelier"){
+      addSideLink("Retour atelier", landingAtelierHref());
+    }
     if(isAppHeader){
       addSideLink("Exercices", `${relPrefix()}exercices.html`);
       if(isAdminUser(getUser())){

@@ -1464,7 +1464,7 @@
 
   function triggerBlobDownload(blob, filename, shouldPrint){
     const url = URL.createObjectURL(blob);
-    const opened = shouldPrint ? window.open(url, "_blank", "noopener") : null;
+    const opened = shouldPrint ? window.open(url, "_blank", "noopener,noreferrer") : null;
     if(shouldPrint && opened){
       setTimeout(()=>{
         try{ opened.print(); }catch(error){ /* ignore */ }
