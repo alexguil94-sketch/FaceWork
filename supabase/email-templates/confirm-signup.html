@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Confirme ton email</title>
+  </head>
+  <body style="margin:0; padding:0; background-color:#05070d; color:#f4f7ff;">
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#05070d; margin:0; padding:0; width:100%;">
+      <tr>
+        <td align="center" style="padding:32px 16px;">
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:640px; width:100%;">
+            <tr>
+              <td style="padding-bottom:16px; text-align:center;">
+                <img
+                  src="{{ .SiteURL }}/assets/landing/landing-logo.png"
+                  alt="Atelier Numerique"
+                  width="160"
+                  style="display:inline-block; width:160px; max-width:100%; height:auto; border:0;"
+                />
+              </td>
+            </tr>
+            <tr>
+              <td
+                style="
+                  border:1px solid rgba(255,255,255,0.10);
+                  border-radius:28px;
+                  overflow:hidden;
+                  background-color:#0d1324;
+                  box-shadow:0 28px 90px rgba(0,0,0,0.42);
+                "
+              >
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                  <tr>
+                    <td
+                      style="
+                        padding:18px 24px;
+                        background:
+                          linear-gradient(90deg, #2ab6ff 0%, #81ebff 36%, #ff922c 100%);
+                      "
+                    >
+                      <div
+                        style="
+                          font-family:Arial, Helvetica, sans-serif;
+                          font-size:11px;
+                          letter-spacing:2px;
+                          line-height:1.4;
+                          text-transform:uppercase;
+                          color:#07111e;
+                          font-weight:700;
+                        "
+                      >
+                        Atelier Numerique x FaceWork
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:34px 28px 12px 28px;">
+                      <div
+                        style="
+                          font-family:'Trebuchet MS', 'Arial Narrow', Arial, sans-serif;
+                          font-size:34px;
+                          line-height:1.05;
+                          color:#f4f7ff;
+                          font-weight:700;
+                          letter-spacing:-1px;
+                        "
+                      >
+                        Confirme ton adresse email.
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:0 28px 8px 28px;">
+                      <div
+                        style="
+                          font-family:Arial, Helvetica, sans-serif;
+                          font-size:16px;
+                          line-height:1.8;
+                          color:#a6b0c8;
+                        "
+                      >
+                        Ton acces est presque pret. Clique sur le bouton ci-dessous pour activer ton compte
+                        et finaliser l'inscription.
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:16px 28px 10px 28px;">
+                      <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                        <tr>
+                          <td
+                            align="center"
+                            bgcolor="#81ebff"
+                            style="
+                              border-radius:16px;
+                              background:linear-gradient(135deg, #81ebff 0%, #ffffff 48%, #ffd38c 100%);
+                            "
+                          >
+                            <a
+                              href="{{ .ConfirmationURL }}"
+                              style="
+                                display:inline-block;
+                                padding:15px 24px;
+                                font-family:Arial, Helvetica, sans-serif;
+                                font-size:15px;
+                                line-height:1;
+                                color:#07111e;
+                                text-decoration:none;
+                                font-weight:700;
+                              "
+                            >
+                              Confirmer mon email
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:6px 28px 0 28px;">
+                      <div
+                        style="
+                          font-family:Arial, Helvetica, sans-serif;
+                          font-size:13px;
+                          line-height:1.75;
+                          color:#a6b0c8;
+                        "
+                      >
+                        Si le bouton ne fonctionne pas, copie ce lien dans ton navigateur :
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:8px 28px 0 28px;">
+                      <div
+                        style="
+                          font-family:Arial, Helvetica, sans-serif;
+                          font-size:13px;
+                          line-height:1.7;
+                          color:#81ebff;
+                          word-break:break-all;
+                        "
+                      >
+                        <a href="{{ .ConfirmationURL }}" style="color:#81ebff; text-decoration:underline;">
+                          {{ .ConfirmationURL }}
+                        </a>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:22px 28px 0 28px;">
+                      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                        <tr>
+                          <td
+                            style="
+                              border-top:1px solid rgba(255,255,255,0.10);
+                              font-size:0;
+                              line-height:0;
+                              height:1px;
+                            "
+                          >
+                            &nbsp;
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:20px 28px 30px 28px;">
+                      <div
+                        style="
+                          font-family:Arial, Helvetica, sans-serif;
+                          font-size:13px;
+                          line-height:1.8;
+                          color:#a6b0c8;
+                        "
+                      >
+                        Cet email concerne uniquement la confirmation de ton compte. Si tu n'es pas a
+                        l'origine de cette demande, tu peux l'ignorer.
+                      </div>
+                      <div
+                        style="
+                          margin-top:10px;
+                          font-family:Arial, Helvetica, sans-serif;
+                          font-size:12px;
+                          line-height:1.7;
+                          color:#7b87a5;
+                        "
+                      >
+                        Site : <a href="{{ .SiteURL }}" style="color:#ff922c; text-decoration:none;">{{ .SiteURL }}</a>
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
