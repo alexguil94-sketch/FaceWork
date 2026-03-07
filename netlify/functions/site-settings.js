@@ -10,6 +10,7 @@ const PUBLIC_FIELDS = [
   "social_linkedin_url",
   "social_whatsapp_url",
 ];
+const DEFAULT_SUPABASE_URL = "https://livucppvekqyfswehasz.supabase.co";
 
 function json(statusCode, obj){
   return {
@@ -44,7 +45,7 @@ exports.handler = async (event) => {
     return json(405, { error: "Method not allowed." });
   }
 
-  const supabaseUrl = pickStr(process.env.SUPABASE_URL, 2000).replace(/\/+$/, "");
+  const supabaseUrl = pickStr(process.env.SUPABASE_URL || DEFAULT_SUPABASE_URL, 2000).replace(/\/+$/, "");
   const serviceRoleKey = pickStr(process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY, 4000);
   if(!supabaseUrl || !serviceRoleKey){
     return json(501, { error: "Supabase server env missing." });
