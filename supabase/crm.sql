@@ -42,10 +42,19 @@ create table if not exists public.crm_settings (
   primary_color text not null default '#111111',
   logo_url text not null default '',
   logo_storage_path text not null default '',
+  social_instagram_url text not null default '',
+  social_facebook_url text not null default '',
+  social_linkedin_url text not null default '',
+  social_whatsapp_url text not null default '',
   business_type text not null default 'micro' check (business_type in ('micro','subject_to_vat','company')),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.crm_settings add column if not exists social_instagram_url text not null default '';
+alter table public.crm_settings add column if not exists social_facebook_url text not null default '';
+alter table public.crm_settings add column if not exists social_linkedin_url text not null default '';
+alter table public.crm_settings add column if not exists social_whatsapp_url text not null default '';
 
 create table if not exists public.crm_clients (
   id uuid primary key default gen_random_uuid(),

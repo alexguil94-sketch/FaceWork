@@ -39,6 +39,10 @@
     primary_color: "#111111",
     logo_url: "",
     logo_storage_path: "",
+    social_instagram_url: "",
+    social_facebook_url: "",
+    social_linkedin_url: "",
+    social_whatsapp_url: "",
     business_type: "micro",
   };
 
@@ -2637,6 +2641,19 @@
               <div class="crm-doc-legal">Si ce champ reste vide, le logo Atelier Numerique sera utilise par defaut sur les devis, factures et PDF.</div>
             </section>
 
+            <section class="crm-form-section">
+              <h2>Reseaux sociaux</h2>
+              <p class="crm-doc-legal">Ces liens alimentent automatiquement les icones du footer sur la landing page.</p>
+              <div class="crm-grid cols-2">
+                <div class="crm-field"><label>Instagram</label><input name="social_instagram_url" type="url" placeholder="https://instagram.com/votre-compte" value="${escapeHtml(settings.social_instagram_url)}"/></div>
+                <div class="crm-field"><label>Facebook</label><input name="social_facebook_url" type="url" placeholder="https://facebook.com/votre-page" value="${escapeHtml(settings.social_facebook_url)}"/></div>
+              </div>
+              <div class="crm-grid cols-2">
+                <div class="crm-field"><label>LinkedIn</label><input name="social_linkedin_url" type="url" placeholder="https://www.linkedin.com/in/votre-profil" value="${escapeHtml(settings.social_linkedin_url)}"/></div>
+                <div class="crm-field"><label>WhatsApp</label><input name="social_whatsapp_url" placeholder="https://wa.me/33600000000" value="${escapeHtml(settings.social_whatsapp_url)}"/></div>
+              </div>
+            </section>
+
             <div class="crm-actions">
               <button class="btn primary" type="submit">Enregistrer les parametres</button>
             </div>
@@ -2690,6 +2707,10 @@
         numbering_padding: Number(form.get("numbering_padding") || 3),
         primary_color: String(form.get("primary_color") || "#111111").trim(),
         logo_url: String(form.get("logo_url") || "").trim(),
+        social_instagram_url: String(form.get("social_instagram_url") || "").trim(),
+        social_facebook_url: String(form.get("social_facebook_url") || "").trim(),
+        social_linkedin_url: String(form.get("social_linkedin_url") || "").trim(),
+        social_whatsapp_url: String(form.get("social_whatsapp_url") || "").trim(),
       });
       renderSettingsPage();
       toast("Parametres", "Parametres CRM enregistres.");

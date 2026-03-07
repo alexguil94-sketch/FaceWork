@@ -11,8 +11,16 @@
   const modalImage = document.getElementById("image-modal-image");
   const modalTriggers = document.querySelectorAll("[data-modal-trigger]");
   const modalCloseNodes = document.querySelectorAll("[data-modal-close]");
+  const footerSocial = document.querySelector("[data-footer-social]");
   const guestOnlyNodes = document.querySelectorAll("[data-guest-only]");
   const sessionOnlyNodes = document.querySelectorAll("[data-session-only]");
+  const siteCompany = String(window.FW_ENV?.SUPABASE_COMPANY || "Entreprise").trim() || "Entreprise";
+  const SOCIAL_LINKS = [
+    { key: "social_instagram_url", label: "Instagram", icon: "assets/insta.png" },
+    { key: "social_facebook_url", label: "Facebook", icon: "assets/facebook.png" },
+    { key: "social_linkedin_url", label: "LinkedIn", icon: "assets/linkedin.png" },
+    { key: "social_whatsapp_url", label: "WhatsApp", icon: "assets/whatsapp.png" },
+  ];
 
   if(yearNode){
     yearNode.textContent = String(new Date().getFullYear());
@@ -73,6 +81,97 @@
     modalImage.alt = alt;
     modal.hidden = false;
     document.body.classList.add("has-modal-open");
+  }
+
+  function crmSettingsStorageKey(){
+    return `fwCrm:${siteCompany}:settings`;
+  }
+
+  function hasSocialLinks(settings){
+    return SOCIAL_LINKS.some(function(item){
+      return !!String(settings?.[item.key] || "").trim();
+    });
+  }
+
+  function readLocalSocialSettings(){
+    try{
+      const raw = localStorage.getItem(crmSettingsStorageKey());
+      if(!raw) return {};
+      return JSON.parse(raw) || {};
+    }catch(error){
+      return {};
+    }
+  }
+
+  function normalizeSocialUrl(key, raw){
+    const value = String(raw || "").trim();
+    if(!value) return "";
+
+    if(/^https?:\/\//i.test(value)){
+      return value;
+    }
+
+    if(key === "social_whatsapp_url"){
+      const digits = value.replace(/[^\d]/g, "");
+      if(digits){
+        return `https://wa.me/${digits}`;
+      }
+      if(/^wa\.me\//i.test(value) || /^api\.whatsapp\.com\//i.test(value)){
+        return `https://${value.replace(/^\/+/, "")}`;
+      }
+    }
+
+    return "";
+  }
+
+  function renderFooterSocial(settings){
+    if(!footerSocial) return;
+    footerSocial.innerHTML = "";
+
+    let visibleCount = 0;
+    SOCIAL_LINKS.forEach(function(item){
+      const href = normalizeSocialUrl(item.key, settings?.[item.key]);
+      if(!href) return;
+
+      const link = document.createElement("a");
+      link.href = href;
+      link.target = "_blank";
+      link.rel = "noreferrer";
+      link.setAttribute("aria-label", item.label);
+      link.title = item.label;
+
+      const image = document.createElement("img");
+      image.src = item.icon;
+      image.alt = item.label;
+      image.width = 20;
+      image.height = 20;
+      image.loading = "lazy";
+
+      link.appendChild(image);
+      footerSocial.appendChild(link);
+      visibleCount += 1;
+    });
+
+    footerSocial.hidden = visibleCount === 0;
+  }
+
+  async function loadFooterSocial(){
+    if(!footerSocial) return;
+    const localSettings = readLocalSocialSettings();
+
+    try{
+      const response = await fetch(`/.netlify/functions/site-settings?company=${encodeURIComponent(siteCompany)}`, {
+        headers: { "Accept": "application/json" },
+      });
+      if(!response.ok){
+        throw new Error(`site-settings ${response.status}`);
+      }
+      const remoteSettings = await response.json();
+      const settings = hasSocialLinks(remoteSettings) ? { ...localSettings, ...remoteSettings } : localSettings;
+      renderFooterSocial(settings);
+    }catch(error){
+      renderFooterSocial(localSettings);
+    }
   }
 
   if(menuToggle && nav){
@@ -187,10 +286,19 @@
     });
   }
 
-  window.addEventListener("load", syncSessionCtas);
-  window.addEventListener("storage", syncSessionCtas);
+  window.addEventListener("load", function(){
+    syncSessionCtas();
+    loadFooterSocial();
+  });
+  window.addEventListener("storage", function(event){
+    syncSessionCtas();
+    if(!event || !event.key || event.key === crmSettingsStorageKey()){
+      loadFooterSocial();
+    }
+  });
   window.setTimeout(syncSessionCtas, 250);
   window.setTimeout(syncSessionCtas, 1200);
 
   syncSessionCtas();
+  loadFooterSocial();
 })();

@@ -1005,6 +1005,11 @@ body.landing-home .footer-brand {
   gap: 16px;
 }
 
+body.landing-home .footer-brand > div {
+  display: grid;
+  gap: 12px;
+}
+
 body.landing-home .footer-logo {
   width: 148px;
   height: auto;
@@ -1029,6 +1034,46 @@ body.landing-home .footer-brand a {
 body.landing-home .footer-brand a:hover,
 body.landing-home .footer-brand a:focus-visible {
   color: #ffffff;
+}
+
+body.landing-home .footer-social {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+body.landing-home .footer-social[hidden] {
+  display: none;
+}
+
+body.landing-home .footer-social a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease;
+}
+
+body.landing-home .footer-social a:hover,
+body.landing-home .footer-social a:focus-visible {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.26);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+body.landing-home .footer-social img {
+  display: block;
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
 }
 
 body.landing-home .footer-col {
