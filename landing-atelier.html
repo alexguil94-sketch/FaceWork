@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Atelier Numerique | Presence digitale & espace prive</title>
+  <meta
+    name="description"
+    content="Atelier Numerique concoit des sites, des landing pages, des strategies social media et un pilotage commercial premium pour independants et marques."
+  />
+  <meta name="theme-color" content="#05070d"/>
+  <link rel="icon" type="image/png" href="assets/landing/landing-favicon.png"/>
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/landing/landing-favicon.png"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="stylesheet" href="css/landing-home.css"/>
+</head>
+<body id="top" class="landing-home">
+  <a class="skip-link" href="#main">Aller au contenu</a>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="#top" aria-label="Retour en haut de la page">
+        <span class="brand-stamp" aria-hidden="true">
+          <img src="assets/landing/landing-logo.png" alt=""/>
+        </span>
+        <span class="brand-copy">
+          <strong>Atelier Numerique</strong>
+          <span>strategie digitale & pilotage freelance</span>
+        </span>
+      </a>
+
+      <button
+        class="menu-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="site-nav"
+        data-menu-toggle
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+        <span class="sr-only">Ouvrir le menu</span>
+      </button>
+
+      <nav class="site-nav" id="site-nav" data-nav>
+        <a href="#approche">Approche</a>
+        <a href="#services">Services</a>
+        <a href="#pilotage">Espace prive</a>
+        <a href="#cv">CV</a>
+        <a href="#vision">Vision</a>
+        <a href="#contact">Contact</a>
+        <a class="hidden" href="app/crm-dashboard.html" data-admin-only>CRM</a>
+      </nav>
+
+      <div class="header-actions">
+        <a class="button button-secondary" href="cv-alexis.html">Mon CV</a>
+        <a class="button button-secondary" href="login.html" data-guest-only>Acces FaceWork</a>
+        <a class="button button-secondary hidden" href="app/feed.html" data-session-only>Ouvrir FaceWork</a>
+        <a class="button button-primary hidden" href="app/crm-dashboard.html" data-admin-only>Ouvrir le CRM</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="container hero-layout">
+        <div class="hero-copy" data-reveal>
+          <p class="eyebrow">Agent numerique freelance</p>
+          <h1>Je transforme ton savoir-faire en presence digitale claire, premium et actionnable.</h1>
+          <p class="hero-text">
+            Creation de site, landing pages, strategie reseaux sociaux, communication digitale et
+            back-office client dans un seul systeme coherent. L'objectif est simple : rendre ton image plus
+            forte et ton pilotage plus fluide.
+          </p>
+
+          <div class="cta-row">
+            <a class="button button-primary" href="#contact">Parler du projet</a>
+            <a class="button button-secondary" href="cv-alexis.html">Voir mon CV</a>
+            <a class="button button-secondary" href="#pilotage">Voir FaceWork</a>
+          </div>
+
+          <div class="service-pills">
+            <span>Landing pages</span>
+            <span>Sites vitrines</span>
+            <span>Social media</span>
+            <span>CRM freelance</span>
+          </div>
+
+          <article class="surface hero-proof">
+            <strong>Ce que je construis</strong>
+            <p>
+              Une image digitale coherente cote public et un espace prive propre cote production pour gerer
+              clients, devis, factures et suivi commercial sans perdre de temps.
+            </p>
+          </article>
+        </div>
+
+        <div class="hero-visual" data-reveal data-reveal-delay="1">
+          <div class="orb orb-blue" aria-hidden="true"></div>
+          <div class="orb orb-orange" aria-hidden="true"></div>
+
+          <figure class="surface hero-main">
+            <img
+              src="assets/landing/landing-hero-main.png"
+              alt="Agent numerique au travail, entoure d'outils de communication digitale."
+              width="1536"
+              height="1024"
+              fetchpriority="high"
+            />
+          </figure>
+
+          <figure class="surface hero-accent-card">
+            <img
+              src="assets/landing/landing-hero-card.png"
+              alt="Visuel creatif complementaire."
+              width="1024"
+              height="1536"
+              loading="lazy"
+            />
+            <figcaption class="accent-dashboard">
+              <div class="accent-dashboard-head">
+                <span class="accent-kicker">Pilotage</span>
+                <span class="accent-status">En ligne</span>
+              </div>
+              <div class="accent-panel" aria-hidden="true">
+                <span class="accent-line accent-line-a"></span>
+                <span class="accent-line accent-line-b"></span>
+                <span class="accent-dot accent-dot-a"></span>
+                <span class="accent-dot accent-dot-b"></span>
+                <span class="accent-dot accent-dot-c"></span>
+              </div>
+            </figcaption>
+          </figure>
+
+          <button
+            class="surface hero-tag"
+            type="button"
+            aria-haspopup="dialog"
+            aria-controls="image-modal"
+            aria-label="Agrandir le logo Atelier Numerique"
+            data-modal-trigger
+            data-modal-image="assets/landing/landing-logo.png"
+            data-modal-alt="Logo Atelier Numerique"
+          >
+            <img
+              src="assets/landing/landing-logo.png"
+              alt="Logo Atelier Numerique"
+              width="1024"
+              height="1024"
+            />
+            <span class="sr-only">Ouvrir le logo en grand</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="approche">
+      <div class="container split-layout">
+        <figure class="surface story-image" data-reveal>
+          <img
+            src="assets/landing/landing-story.png"
+            alt="Transformation d'un savoir-faire en offre digitale, strategie et execution."
+            width="1536"
+            height="1024"
+            loading="lazy"
+          />
+        </figure>
+
+        <div class="story-copy" data-reveal data-reveal-delay="1">
+          <p class="eyebrow">Approche</p>
+          <h2>Je fais le lien entre ton expertise, ton image et le systeme qui convertit.</h2>
+          <p>
+            Je ne pose pas juste un design. Je clarifie ton positionnement, je mets en forme ton discours,
+            puis je construis une experience digitale qui aide a comprendre ta valeur et a passer a
+            l'action.
+          </p>
+
+          <div class="process-grid">
+            <article class="surface process-card">
+              <span>01</span>
+              <h3>Positionnement</h3>
+              <p>Message, cible, angle et promesse pour poser une base claire avant toute execution.</p>
+            </article>
+
+            <article class="surface process-card">
+              <span>02</span>
+              <h3>Presence visuelle</h3>
+              <p>Une direction sobre, premium et memorisable sur le site, les contenus et les visuels.</p>
+            </article>
+
+            <article class="surface process-card">
+              <span>03</span>
+              <h3>Systeme de vente</h3>
+              <p>Des CTA, des pages et un espace prive qui simplifient la prise de contact et le suivi.</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-band" id="services">
+      <div class="container">
+        <div class="section-heading" data-reveal>
+          <p class="eyebrow">Services</p>
+          <h2>Je concois un ecosysteme digital utile, lisible et premium.</h2>
+          <p>
+            Le site public doit faire bonne impression et guider. L'outil prive doit, lui, accelerer
+            l'operationnel. Les deux doivent parler le meme langage.
+          </p>
+        </div>
+
+        <div class="offer-grid">
+          <article class="surface offer-card" data-reveal>
+            <h3>Landing page signature</h3>
+            <p>Une page d'accueil forte avec storytelling, preuves de confiance et appels a l'action clairs.</p>
+          </article>
+
+          <article class="surface offer-card" data-reveal data-reveal-delay="1">
+            <h3>Creation ou refonte de site</h3>
+            <p>Structure, contenus et experience pour un site propre, rapide et adapte a ton activite.</p>
+          </article>
+
+          <article class="surface offer-card" data-reveal data-reveal-delay="2">
+            <h3>Strategie reseaux sociaux</h3>
+            <p>Positionnement, rythme de contenu et coherence visuelle pour mieux occuper ton territoire.</p>
+          </article>
+
+          <article class="surface offer-card" data-reveal>
+            <h3>Automatisation commerciale</h3>
+            <p>Clients, devis, factures, relances et archivage centralises dans un espace admin prive.</p>
+          </article>
+
+          <article class="surface offer-card" data-reveal data-reveal-delay="1">
+            <h3>PDF & documents premium</h3>
+            <p>Devis et factures au rendu professionnel, lisibles, coherents et rapides a generer.</p>
+          </article>
+
+          <article class="surface offer-card" data-reveal data-reveal-delay="2">
+            <h3>Suivi d'activite</h3>
+            <p>Vue d'ensemble sur le chiffre d'affaires, les clients actifs et l'etat des paiements.</p>
+          </article>
+
+          <figure class="surface offer-figure" data-reveal data-reveal-delay="1">
+            <img
+              src="assets/landing/landing-offer.png"
+              alt="Strategie digitale, communication et pilotage d'outils."
+              width="1536"
+              height="1024"
+              loading="lazy"
+            />
+            <figcaption>Clarifier l'image, aligner les outils, accelerer l'execution.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="pilotage">
+      <div class="container workspace-shell">
+        <div class="workspace-copy" data-reveal>
+          <p class="eyebrow">Espace prive</p>
+          <h2>Le site attire. Le back-office pilote.</h2>
+          <p>
+            L'integration au site va plus loin qu'une vitrine. Un espace admin protege permet de gerer les
+            clients, automatiser les devis et factures, suivre les paiements et garder un historique propre.
+          </p>
+
+          <ul class="vision-points">
+            <li>Creation client rapide et recherche instantanee</li>
+            <li>Devis transformables en facture sans ressaisie</li>
+            <li>PDF premium, archives et statuts de paiement</li>
+            <li>Tableau de bord pour piloter l'activite au mois</li>
+          </ul>
+
+          <div class="cta-row">
+            <a class="button button-primary" href="login.html">Acceder a FaceWork</a>
+            <a class="button button-secondary hidden" href="app/crm-dashboard.html" data-admin-only>Voir le CRM</a>
+          </div>
+        </div>
+
+        <div class="workspace-grid">
+          <article class="surface workspace-card" data-reveal data-reveal-delay="1">
+            <span class="workspace-kicker">Clients</span>
+            <h3>Coordonnees, notes et historique centralises.</h3>
+            <p>Chaque fiche reste exploitable pour relancer, facturer et contextualiser les projets.</p>
+          </article>
+
+          <article class="surface workspace-card" data-reveal data-reveal-delay="2">
+            <span class="workspace-kicker">Documents</span>
+            <h3>Numerotation auto, calculs fiables et PDF propres.</h3>
+            <p>Moins d'erreurs manuelles, plus de temps pour la vente et la production.</p>
+          </article>
+
+          <figure class="surface workspace-figure" data-reveal data-reveal-delay="1">
+            <img
+              src="assets/landing/landing-vision-extra.png"
+              alt="Vision creativement mise en scene pour illustrer l'ambition du projet."
+              width="1536"
+              height="1024"
+              loading="lazy"
+            />
+          </figure>
+
+          <article class="surface workspace-card" data-reveal data-reveal-delay="2">
+            <span class="workspace-kicker">Suivi</span>
+            <h3>Reste a payer, statuts et statistiques mensuelles.</h3>
+            <p>Le pilotage commercial devient lisible, meme quand les projets s'enchainent vite.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="vision">
+      <div class="container vision-layout">
+        <article class="vision-copy" data-reveal>
+          <p class="eyebrow">Vision</p>
+          <h2>Je pense une presence digitale comme un univers complet, pas comme une page isolee.</h2>
+          <p>
+            Quand le fond, la forme et le pilotage sont alignes, le projet gagne en lisibilite. La marque
+            devient plus credible, la vente plus simple et l'experience plus memorable.
+          </p>
+
+          <ul class="vision-points">
+            <li>Une identite immediate et plus serieuse</li>
+            <li>Un discours qui tient sur le site comme sur les reseaux</li>
+            <li>Un outil prive qui soutient l'activite au lieu de la ralentir</li>
+          </ul>
+        </article>
+
+        <figure class="surface vision-main" data-reveal data-reveal-delay="1">
+          <img
+            src="assets/landing/landing-vision-city.png"
+            alt="Vision ambitieuse d'un ecosysteme digital structure."
+            width="1536"
+            height="1024"
+            loading="lazy"
+          />
+        </figure>
+
+        <figure class="surface vision-side" data-reveal>
+          <img
+            src="assets/landing/landing-vision-cosmic.png"
+            alt="Univers visuel fort pour traduire l'ambition digitale."
+            width="1536"
+            height="1024"
+            loading="lazy"
+          />
+          <figcaption>Ambition visible des le premier regard.</figcaption>
+        </figure>
+
+        <figure class="surface vision-side" data-reveal data-reveal-delay="1">
+          <img
+            src="assets/landing/landing-vision-forest.png"
+            alt="Clarte, direction et lisibilite dans l'experience."
+            width="1024"
+            height="1536"
+            loading="lazy"
+          />
+          <figcaption>Clarte dans le message, calme dans l'execution.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section section-band" id="cv">
+      <div class="container split-layout cv-shell">
+        <figure class="surface cv-portrait" data-reveal>
+          <img
+            src="assets/cv/alexis-avatar.png"
+            alt="Portrait d'Alexis Guillotin dans un univers digital neon."
+            width="1024"
+            height="1536"
+            loading="lazy"
+          />
+        </figure>
+
+        <div class="cv-copy" data-reveal data-reveal-delay="1">
+          <p class="eyebrow">CV</p>
+          <h2>Alexis Guillotin, createur digital en reconversion web.</h2>
+          <p>
+            Je developpe des univers digitaux complets pour des artistes et des projets creatifs :
+            site vitrine, identite visuelle, visuels numeriques, contenus et strategie de presence.
+          </p>
+
+          <ul class="vision-points">
+            <li>HTML, CSS, JavaScript, Netlify et Supabase</li>
+            <li>Direction artistique, compositions et visuels premium</li>
+            <li>Approche globale : image, web, contenu et accompagnement</li>
+          </ul>
+
+          <div class="cv-pills">
+            <span>Reconversion numerique</span>
+            <span>Portfolio</span>
+            <span>Community management</span>
+          </div>
+
+          <div class="cta-row">
+            <a class="button button-primary" href="cv-alexis.html">Ouvrir le CV complet</a>
+            <a class="button button-secondary" href="mailto:alexguil94@hotmail.fr">Me contacter</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-contact" id="contact">
+      <div class="container">
+        <div class="contact-shell" data-reveal>
+          <div class="contact-copy">
+            <p class="eyebrow">Contact</p>
+            <h2>Si ton image merite mieux qu'une presence bricolee, on en parle.</h2>
+            <p>
+              Que tu partes de zero ou avec des bases existantes, je peux transformer l'ensemble en site
+              public premium et en espace prive clair pour ton activite.
+            </p>
+
+            <div class="contact-notes">
+              <div>
+                <strong>Email</strong>
+                <span>contact@atelier-numerique.fr</span>
+              </div>
+              <div>
+                <strong>Types de missions</strong>
+                <span>Landing page, site vitrine, communication digitale, CRM freelance, automatisation.</span>
+              </div>
+              <div>
+                <strong>Suite possible</strong>
+                <span>Ce bloc peut ensuite pointer vers Calendly, WhatsApp, Instagram ou un formulaire live.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="contact-form-wrap">
+            <form id="contact-form" class="contact-form" data-mail="contact@atelier-numerique.fr">
+              <label>
+                <span>Nom</span>
+                <input type="text" name="name" placeholder="Ton nom" required/>
+              </label>
+
+              <label>
+                <span>Email</span>
+                <input type="email" name="email" placeholder="ton@email.com" required/>
+              </label>
+
+              <label>
+                <span>Projet</span>
+                <input type="text" name="project" placeholder="Landing page, site, CRM, communication..."/>
+              </label>
+
+              <label>
+                <span>Message</span>
+                <textarea
+                  name="message"
+                  rows="5"
+                  placeholder="Explique ton besoin, ton activite et ce que tu veux transmettre."
+                  required
+                ></textarea>
+              </label>
+
+              <div class="form-actions">
+                <button class="button button-primary" type="submit">Ouvrir l'email</button>
+                <button class="button button-secondary" type="button" data-copy-email>Copier l'adresse</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <img
+          class="footer-logo"
+          src="assets/landing/landing-logo.png"
+          alt="Logo Atelier Numerique"
+          width="1024"
+          height="1024"
+        />
+        <div>
+          <strong>Atelier Numerique</strong>
+          <p>Presence digitale, communication et pilotage freelance.</p>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <strong>Navigation</strong>
+        <a href="#approche">Approche</a>
+        <a href="#services">Services</a>
+        <a href="#pilotage">Espace prive</a>
+        <a href="#cv">CV</a>
+        <a href="#contact">Contact</a>
+      </div>
+
+      <div class="footer-col">
+        <strong>Acces</strong>
+        <a href="cv-alexis.html">CV complet</a>
+        <a href="login.html">Acces FaceWork</a>
+        <a class="hidden" href="app/feed.html" data-session-only>Ouvrir FaceWork</a>
+        <a class="hidden" href="app/crm-dashboard.html" data-admin-only>CRM admin</a>
+      </div>
+
+      <div class="footer-col">
+        <strong>Legal</strong>
+        <a href="legal/cgu.html">CGU</a>
+        <a href="legal/confidentialite.html">Confidentialite</a>
+        <a href="legal/mentions-legales.html">Mentions legales</a>
+        <p class="footer-meta">Copyright <span id="year"></span> Atelier Numerique</p>
+      </div>
+    </div>
+  </footer>
+
+  <div class="image-modal" id="image-modal" hidden data-image-modal>
+    <div class="image-modal-backdrop" data-modal-close></div>
+    <div class="image-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="image-modal-title">
+      <p class="sr-only" id="image-modal-title">Apercu du logo Atelier Numerique</p>
+      <button class="image-modal-close" type="button" aria-label="Fermer l'apercu" data-modal-close>
+        Fermer
+      </button>
+      <img id="image-modal-image" class="image-modal-image" alt=""/>
+    </div>
+  </div>
+
+  <div class="toast" role="status" aria-live="polite">
+    <div class="t">Info</div>
+    <div class="d">-</div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/env.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/site.js"></script>
+  <script src="js/landing-home.js"></script>
+</body>
+</html>
