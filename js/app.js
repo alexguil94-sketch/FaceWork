@@ -1071,7 +1071,17 @@
       window.fwToast?.("Visio", "Connecté.");
     }catch(e){
       console.error("joinCall failed", e);
-      window.fwToast?.("Visio", "Impossible de démarrer la visio.");
+      const errName = String(e?.name || "").trim();
+      const errMsg = String(e?.message || "").trim().toLowerCase();
+      if(errName === "NotAllowedError"){
+        window.fwToast?.("Visio", "Micro/camera bloques. Autorise-les dans le navigateur et verifie Permissions-Policy.");
+      } else if(errName === "NotFoundError"){
+        window.fwToast?.("Visio", "Aucun micro ou aucune camera detecte(e).");
+      } else if(errMsg.includes("secure") || !window.isSecureContext){
+        window.fwToast?.("Visio", "La visio exige HTTPS ou localhost.");
+      } else {
+        window.fwToast?.("Visio", "Impossible de demarrer la visio.");
+      }
       await leaveCall();
     }finally{
       callState.joining = false;

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Confirmation email - FaceWork</title>
+  <link rel="icon" href="/favicon.ico" sizes="any"/>
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"/>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+  <header class="navbar">
+    <div class="container inner">
+      <a class="brand" href="index.html" aria-label="FaceWork accueil">
+        <div class="logo" aria-hidden="true"><img src="assets/fw-logo.png" alt=""/></div>
+        <div>
+          <div style="line-height:1; font-size:18px">FaceWork</div>
+          <div style="color:var(--muted); font-size:12px; font-weight:800">Confirmation du compte</div>
+        </div>
+      </a>
+
+      <div class="nav-actions">
+        <button class="btn icon" data-theme-toggle title="Basculer theme">🌓</button>
+        <a class="btn" href="login.html">Connexion</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="auth" style="grid-template-columns:minmax(0, 760px); justify-content:center;">
+      <div class="card auth-right" style="width:100%;">
+        <div class="form" style="gap:18px;">
+          <div style="text-align:center">
+            <h3 id="confirmTitle">Confirmation en cours</h3>
+            <p id="confirmText">Nous verifions ton lien de confirmation.</p>
+          </div>
+
+          <div class="mini" style="justify-content:center;">
+            <span class="pill">Email</span>
+            <span class="pill">Supabase Auth</span>
+            <span class="pill">Resend</span>
+          </div>
+
+          <div class="row" style="justify-content:center;">
+            <a class="btn primary" id="confirmCta" href="login.html">Retour a la connexion</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" role="status" aria-live="polite">
+    <div class="t">Info</div>
+    <div class="d">-</div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/env.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/site.js"></script>
+  <script src="js/confirm-email.js"></script>
+</body>
+</html>

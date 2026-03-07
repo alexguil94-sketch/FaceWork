@@ -5,6 +5,8 @@
   const form = $("#loginForm");
   if(!form) return;
 
+  const emailInput = $("#email");
+
   function go(){
     window.location.href = "app/feed.html";
   }
@@ -59,6 +61,36 @@
     companyInput.value = window.fwSupabase?.companyDefault || "HeroForgeWeb";
   }
 
+  try{
+    const qs = new URLSearchParams(window.location.search || "");
+    const qEmail = String(qs.get("email") || "").trim();
+    if(qEmail && emailInput && !emailInput.value){
+      emailInput.value = qEmail;
+    }
+
+    let changed = false;
+    if(qs.get("confirmed") === "1"){
+      window.fwToast?.("Email confirme", "Tu peux maintenant te connecter.");
+      qs.delete("confirmed");
+      changed = true;
+    }
+
+    const confirmError = String(qs.get("confirm_error") || "").trim();
+    if(confirmError){
+      const msg = confirmError === "expired_token"
+        ? "Lien expire. Demande un nouvel email de confirmation."
+        : "Lien de confirmation invalide ou deja utilise.";
+      window.fwToast?.("Confirmation email", msg);
+      qs.delete("confirm_error");
+      changed = true;
+    }
+
+    if(changed){
+      const next = `${window.location.pathname}${qs.toString() ? `?${qs.toString()}` : ""}${window.location.hash || ""}`;
+      window.history.replaceState({}, "", next);
+    }
+  }catch(e){ /* ignore */ }
+
   const demoRoleWrap = $("#demoRoleWrap");
   const demoRoleSelect = $("#demoRole");
   const isSupabaseEnabled = !!(window.fwSupabase?.enabled && window.fwSupabase?.client);
@@ -94,16 +126,36 @@
         if(msgLower.includes("email not confirmed") || msgLower.includes("not confirmed")){
           const resendOk = confirm("Email non confirmé.\n\n1) Va dans tes emails (spam) et clique le lien.\n2) Ou veux-tu renvoyer l’email de confirmation ?");
           if(!resendOk) return;
+
+          let customError = "";
+          if(typeof window.fwSupabase?.sendConfirmationEmail === "function"){
+            const resendCustom = await window.fwSupabase.sendConfirmationEmail({ email });
+            if(resendCustom.ok){
+              if(resendCustom.data?.alreadyConfirmed){
+                window.fwToast?.("Email", "Ce compte est deja confirme. Reessaie de te connecter.");
+                return;
+              }
+              window.fwToast?.("Envoye", "Email de confirmation renvoye. Verifie ta boite.");
+              return;
+            }
+            customError = String(
+              resendCustom?.data?.details ||
+              resendCustom?.data?.error ||
+              resendCustom?.error?.message ||
+              ""
+            ).trim();
+          }
+
           if(typeof sb.auth?.resend === "function"){
             const resend = await sb.auth.resend({ type: "signup", email });
             if(resend.error){
-              window.fwToast?.("Renvoyer", resend.error.message || "Impossible de renvoyer l’email.");
+              window.fwToast?.("Renvoyer", resend.error.message || customError || "Impossible de renvoyer l’email.");
               return;
             }
             window.fwToast?.("Envoyé", "Email de confirmation renvoyé. Vérifie ta boîte.");
             return;
           }
-          window.fwToast?.("Renvoyer", "Fonction resend indisponible dans cette version.");
+          window.fwToast?.("Renvoyer", customError || "Fonction resend indisponible dans cette version.");
           return;
         }
 

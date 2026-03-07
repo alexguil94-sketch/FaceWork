@@ -146,6 +146,64 @@
     return true;
   }
 
+  async function sendConfirmationEmail({ email, userId, user } = {}){
+    if(!client || typeof client.functions?.invoke !== "function"){
+      return { ok: false, data: null, error: new Error("Supabase Functions unavailable") };
+    }
+
+    const body = user && typeof user === "object"
+      ? { user }
+      : {
+          email: String(email || "").trim(),
+          userId: String(userId || "").trim(),
+        };
+
+    const { data, error } = await client.functions.invoke("send-confirmation", { body });
+    setLastError(error || null);
+    if(error){
+      console.error("[FaceWork] sendConfirmationEmail failed", error);
+      let details = null;
+      try{
+        if(typeof error.context?.json === "function"){
+          details = await error.context.json();
+        }
+      }catch(e){ /* ignore */ }
+      return { ok: false, data: details, error };
+    }
+    return {
+      ok: !!data?.ok,
+      data: data || null,
+      error: data?.ok ? null : data || null,
+    };
+  }
+
+  async function confirmEmailToken(token){
+    if(!client || typeof client.functions?.invoke !== "function"){
+      return { ok: false, data: null, error: new Error("Supabase Functions unavailable") };
+    }
+
+    const { data, error } = await client.functions.invoke("confirm-email", {
+      body: { token: String(token || "").trim() },
+    });
+
+    setLastError(error || null);
+    if(error){
+      console.error("[FaceWork] confirmEmailToken failed", error);
+      let details = null;
+      try{
+        if(typeof error.context?.json === "function"){
+          details = await error.context.json();
+        }
+      }catch(e){ /* ignore */ }
+      return { ok: false, data: details, error };
+    }
+    return {
+      ok: !!data?.ok,
+      data: data || null,
+      error: data?.ok ? null : data || null,
+    };
+  }
+
   async function signOut(){
     try{ localStorage.removeItem("fwUser"); }catch(e){ /* ignore */ }
     if(!client) return;
@@ -183,6 +241,8 @@
     fetchProfile,
     ensureProfile,
     syncLocalUser,
+    sendConfirmationEmail,
+    confirmEmailToken,
     signOut,
     requireAuth,
   };
