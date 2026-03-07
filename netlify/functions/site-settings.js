@@ -36,6 +36,28 @@ function emptySettings(){
   }, {});
 }
 
+function hasAnySocialLink(row){
+  return PUBLIC_FIELDS.some((field)=> String(row?.[field] || "").trim());
+}
+
+async function fetchSettingsRows({ supabaseUrl, serviceRoleKey, query }){
+  const response = await fetch(`${supabaseUrl}/rest/v1/crm_settings?${query}`, {
+    headers: {
+      "Content-Type": "application/json",
+      "apikey": serviceRoleKey,
+      "Authorization": `Bearer ${serviceRoleKey}`,
+    },
+  });
+
+  if(!response.ok){
+    const detail = await response.text();
+    throw new Error(detail || `Supabase settings fetch failed (${response.status})`);
+  }
+
+  const rows = await response.json();
+  return Array.isArray(rows) ? rows : (rows ? [rows] : []);
+}
+
 exports.handler = async (event) => {
   if(event.httpMethod === "OPTIONS"){
     return { statusCode: 204, headers: CORS, body: "" };
@@ -54,25 +76,27 @@ exports.handler = async (event) => {
   const qs = event.queryStringParameters || {};
   const company = pickStr(qs.company || "Entreprise", 120) || "Entreprise";
   const select = PUBLIC_FIELDS.join(",");
-  const url = `${supabaseUrl}/rest/v1/crm_settings?company=eq.${encodeURIComponent(company)}&select=${encodeURIComponent(select)}`;
 
   try{
-    const response = await fetch(url, {
-      headers: {
-        "Content-Type": "application/json",
-        "apikey": serviceRoleKey,
-        "Authorization": `Bearer ${serviceRoleKey}`,
-      },
+    const rows = await fetchSettingsRows({
+      supabaseUrl,
+      serviceRoleKey,
+      query: `company=eq.${encodeURIComponent(company)}&select=${encodeURIComponent(select)}&limit=1`,
     });
 
-    if(!response.ok){
-      const detail = await response.text();
-      return json(502, { error: "Supabase settings fetch failed.", details: detail });
+    const exactRow = rows[0] || null;
+    if(hasAnySocialLink(exactRow)){
+      return json(200, { ...emptySettings(), ...(exactRow || {}) });
     }
 
-    const rows = await response.json();
-    const row = Array.isArray(rows) ? rows[0] : rows;
-    return json(200, { ...emptySettings(), ...(row || {}) });
+    const fallbackRows = await fetchSettingsRows({
+      supabaseUrl,
+      serviceRoleKey,
+      query: `select=${encodeURIComponent(select)}&order=updated_at.desc&limit=20`,
+    });
+    const fallbackRow = fallbackRows.find(hasAnySocialLink) || exactRow || null;
+
+    return json(200, { ...emptySettings(), ...(fallbackRow || {}) });
   }catch(error){
     return json(500, { error: "Internal error.", details: String(error) });
   }

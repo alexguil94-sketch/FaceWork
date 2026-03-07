@@ -23,7 +23,7 @@
 
 [[redirects]]
   from = "/"
-  to = "/landing-atelier.html"
+  to = "/ancienne-accueil.html"
   status = 200
   force = true
 

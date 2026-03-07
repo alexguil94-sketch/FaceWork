@@ -1069,6 +1069,19 @@ body.landing-home .footer-social a:focus-visible {
   background: rgba(255, 255, 255, 0.1);
 }
 
+body.landing-home .footer-social span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+  opacity: 0.48;
+  cursor: not-allowed;
+}
+
 body.landing-home .footer-social img {
   display: block;
   width: 20px;

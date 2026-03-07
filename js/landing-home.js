@@ -14,7 +14,12 @@
   const footerSocial = document.querySelector("[data-footer-social]");
   const guestOnlyNodes = document.querySelectorAll("[data-guest-only]");
   const sessionOnlyNodes = document.querySelectorAll("[data-session-only]");
-  const siteCompany = String(window.FW_ENV?.SUPABASE_COMPANY || "Entreprise").trim() || "Entreprise";
+  const siteCompany = String(
+    window.fw?.getUser?.()?.company
+    || window.FW_ENV?.PUBLIC_COMPANY
+    || window.FW_ENV?.SUPABASE_COMPANY
+    || "Entreprise"
+  ).trim() || "Entreprise";
   const SOCIAL_LINKS = [
     { key: "social_instagram_url", label: "Instagram", icon: "assets/insta.png" },
     { key: "social_facebook_url", label: "Facebook", icon: "assets/facebook.png" },
@@ -128,17 +133,19 @@
     if(!footerSocial) return;
     footerSocial.innerHTML = "";
 
-    let visibleCount = 0;
     SOCIAL_LINKS.forEach(function(item){
       const href = normalizeSocialUrl(item.key, settings?.[item.key]);
-      if(!href) return;
-
-      const link = document.createElement("a");
-      link.href = href;
-      link.target = "_blank";
-      link.rel = "noreferrer";
-      link.setAttribute("aria-label", item.label);
-      link.title = item.label;
+      const node = href ? document.createElement("a") : document.createElement("span");
+      node.className = href ? "is-active" : "is-disabled";
+      node.setAttribute("aria-label", item.label);
+      node.title = href ? item.label : `${item.label} : ajoute le lien dans le CRM`;
+      if(href){
+        node.href = href;
+        node.target = "_blank";
+        node.rel = "noreferrer";
+      }else{
+        node.setAttribute("aria-disabled", "true");
+      }
 
       const image = document.createElement("img");
       image.src = item.icon;
@@ -147,12 +154,11 @@
       image.height = 20;
       image.loading = "lazy";
 
-      link.appendChild(image);
-      footerSocial.appendChild(link);
-      visibleCount += 1;
+      node.appendChild(image);
+      footerSocial.appendChild(node);
     });
 
-    footerSocial.hidden = visibleCount === 0;
+    footerSocial.hidden = false;
   }
 
   async function loadFooterSocial(){
