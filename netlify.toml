@@ -6,6 +6,12 @@
   directory = "netlify/functions"
 
 [[redirects]]
+  from = "/"
+  to = "/landing-atelier.html"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/app"
   to = "/app/feed.html"
   status = 302
@@ -24,3 +30,13 @@
   from = "/app/crm/"
   to = "/app/crm-dashboard.html"
   status = 302
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/cv-alexis.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, follow"

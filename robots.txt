@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /app/
+Disallow: /login.html
+Disallow: /signup.html
+Disallow: /inscription.html
+Disallow: /index.html
+
+Sitemap: https://faceworld.app/sitemap.xml
