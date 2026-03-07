@@ -8,7 +8,7 @@
 [[headers]]
   for = "/*"
   [headers.values]
-    Content-Security-Policy = "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self' mailto:; script-src 'self' https://cdn.jsdelivr.net https://scripts.simpleanalyticscdn.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://queue.simpleanalyticscdn.com; frame-src 'self' blob: data:; worker-src 'self' blob:; media-src 'self' data: blob: https:; manifest-src 'self'"
+    Content-Security-Policy = "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self' mailto:; script-src 'self' https://cdn.jsdelivr.net https://scripts.simpleanalyticscdn.com https://connect.facebook.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://queue.simpleanalyticscdn.com https://graph.facebook.com https://www.facebook.com https://www.instagram.com; frame-src 'self' blob: data: https://www.facebook.com https://web.facebook.com https://www.instagram.com; worker-src 'self' blob:; media-src 'self' data: blob: https:; manifest-src 'self'"
     Permissions-Policy = "accelerometer=(), camera=(self), display-capture=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(self), payment=(), usb=()"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Strict-Transport-Security = "max-age=31536000"
