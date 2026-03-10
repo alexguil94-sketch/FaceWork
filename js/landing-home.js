@@ -26,6 +26,12 @@
     { key: "social_linkedin_url", label: "LinkedIn", icon: "assets/linkedin.png" },
     { key: "social_whatsapp_url", label: "WhatsApp", icon: "assets/whatsapp.png" },
   ];
+  const DEFAULT_PUBLIC_SOCIAL_SETTINGS = {
+    social_instagram_url: "https://www.instagram.com/mouket10/",
+    social_facebook_url: "https://www.facebook.com/alexis.guillotin.3",
+    social_linkedin_url: "https://www.linkedin.com/in/alexis-guillotin-9a2aa3b5/",
+    social_whatsapp_url: "https://wa.me/33767033408",
+  };
 
   if(yearNode){
     yearNode.textContent = String(new Date().getFullYear());
@@ -101,10 +107,10 @@
   function readLocalSocialSettings(){
     try{
       const raw = localStorage.getItem(crmSettingsStorageKey());
-      if(!raw) return {};
-      return JSON.parse(raw) || {};
+      if(!raw) return { ...DEFAULT_PUBLIC_SOCIAL_SETTINGS };
+      return { ...DEFAULT_PUBLIC_SOCIAL_SETTINGS, ...(JSON.parse(raw) || {}) };
     }catch(error){
-      return {};
+      return { ...DEFAULT_PUBLIC_SOCIAL_SETTINGS };
     }
   }
 
