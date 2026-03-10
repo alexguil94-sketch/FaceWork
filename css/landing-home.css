@@ -256,13 +256,13 @@ body.landing-home .menu-toggle span {
 
 body.landing-home .hero {
   position: relative;
-  padding: 64px 0 32px;
+  padding: 56px 0 26px;
 }
 
 body.landing-home .hero-layout {
   display: grid;
   grid-template-columns: minmax(0, 0.94fr) minmax(360px, 1.06fr);
-  gap: 42px;
+  gap: 36px;
   align-items: start;
 }
 
@@ -312,18 +312,18 @@ body.landing-home .story-copy p,
 body.landing-home .vision-copy p,
 body.landing-home .contact-copy p,
 body.landing-home .workspace-copy p {
-  margin-top: 20px;
-  max-width: 42rem;
-  font-size: 1.04rem;
-  line-height: 1.85;
+  margin-top: 18px;
+  max-width: 39rem;
+  font-size: 1rem;
+  line-height: 1.78;
 }
 
 body.landing-home .cta-row,
 body.landing-home .form-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 30px;
+  gap: 10px;
+  margin-top: 24px;
 }
 
 body.landing-home .button {
@@ -361,25 +361,30 @@ body.landing-home .button-secondary {
 body.landing-home .service-pills {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 28px;
+  gap: 8px;
+  margin-top: 18px;
+  max-width: 34rem;
 }
 
 body.landing-home .service-pills span {
   display: inline-flex;
   align-items: center;
-  min-height: 42px;
-  padding: 0 16px;
+  min-height: 34px;
+  padding: 0 12px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.04);
-  color: #eef5ff;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.025);
+  color: rgba(238, 245, 255, 0.82);
+  font-size: 0.82rem;
 }
 
 body.landing-home .hero-proof {
-  margin-top: 24px;
-  padding: 20px 22px;
-  max-width: 34rem;
+  margin-top: 18px;
+  padding: 16px 18px;
+  max-width: 31rem;
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.025);
+  box-shadow: none;
 }
 
 body.landing-home .hero-proof strong,
@@ -389,9 +394,14 @@ body.landing-home .workspace-card h3 {
   color: #ffffff;
 }
 
+body.landing-home .hero-proof strong {
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+}
+
 body.landing-home .hero-proof p {
-  margin: 10px 0 0;
-  line-height: 1.8;
+  margin: 8px 0 0;
+  line-height: 1.72;
 }
 
 body.landing-home .hero-visual {
