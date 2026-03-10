@@ -221,6 +221,37 @@
           </div>
 
           <aside class="quote-sidebar" data-reveal data-reveal-delay="1">
+            <section class="surface quote-client-card">
+              <p class="eyebrow">Ton devis</p>
+              <h2>Renseigne tes coordonnees pour generer un devis a ton nom.</h2>
+              <p class="quote-client-intro">
+                Ces informations sont reprises dans le document printable, le PDF et la demande finale de devis.
+              </p>
+
+              <div class="quote-client-grid">
+                <label>
+                  <span>Prenom</span>
+                  <input type="text" placeholder="Ton prenom" data-client-field="first_name"/>
+                </label>
+                <label>
+                  <span>Nom</span>
+                  <input type="text" placeholder="Ton nom" data-client-field="last_name"/>
+                </label>
+                <label class="quote-client-full">
+                  <span>Entreprise</span>
+                  <input type="text" placeholder="Nom de l'entreprise" data-client-field="company"/>
+                </label>
+                <label>
+                  <span>Email</span>
+                  <input type="email" placeholder="ton@email.com" data-client-field="email"/>
+                </label>
+                <label>
+                  <span>Telephone</span>
+                  <input type="text" placeholder="+33 6 00 00 00 00" data-client-field="phone"/>
+                </label>
+              </div>
+            </section>
+
             <section class="surface quote-summary-card">
               <p class="eyebrow">Estimation indicative</p>
               <h2>Ton budget se clarifie en direct.</h2>
@@ -240,8 +271,8 @@
               </div>
 
               <div class="quote-action-bar">
-                <button class="button button-primary" type="button" data-action="download-pdf">Telecharger le PDF</button>
-                <button class="button button-secondary" type="button" data-action="print-quote">Imprimer</button>
+                <button class="button button-primary" type="button" data-action="download-pdf">Generer mon devis PDF</button>
+                <button class="button button-secondary" type="button" data-action="print-quote">Imprimer mon devis</button>
                 <button class="button button-secondary" type="button" data-action="copy-json">Copier le JSON</button>
                 <button class="button button-secondary" type="button" data-action="reset-services">Reinitialiser</button>
               </div>
@@ -333,6 +364,9 @@
 
           <div class="contact-stage-form surface" data-reveal data-reveal-delay="1">
             <form id="quote-request-form" class="quote-request-form" data-mail="alexguil94@hotmail.fr">
+              <p class="quote-request-lead">
+                Les champs ci-dessous reprennent tes coordonnees de devis. Tu peux les ajuster avant envoi si besoin.
+              </p>
               <div class="quote-request-grid">
                 <label>
                   <span>Nom</span>

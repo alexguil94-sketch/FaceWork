@@ -33,6 +33,7 @@ body.landing-home.quote-page .quote-hero-board {
 }
 
 body.landing-home.quote-page .quote-hero-board h2,
+body.landing-home.quote-page .quote-client-card h2,
 body.landing-home.quote-page .quote-summary-card h2,
 body.landing-home.quote-page .quote-selection-head h2,
 body.landing-home.quote-page .quote-document-head h2,
@@ -369,11 +370,60 @@ body.landing-home.quote-page .quote-sidebar {
   top: 106px;
 }
 
+body.landing-home.quote-page .quote-client-card,
 body.landing-home.quote-page .quote-summary-card,
 body.landing-home.quote-page .quote-selection-card,
 body.landing-home.quote-page .quote-document-card,
 body.landing-home.quote-page .quote-json-card {
   padding: 26px;
+}
+
+body.landing-home.quote-page .quote-client-intro {
+  margin: 14px 0 0;
+  color: var(--landing-muted);
+  line-height: 1.8;
+}
+
+body.landing-home.quote-page .quote-client-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+
+body.landing-home.quote-page .quote-client-grid label {
+  display: grid;
+  gap: 8px;
+}
+
+body.landing-home.quote-page .quote-client-grid span {
+  font-size: 0.88rem;
+  color: var(--landing-muted);
+}
+
+body.landing-home.quote-page .quote-client-grid input {
+  width: 100%;
+  min-height: 52px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: #ffffff;
+}
+
+body.landing-home.quote-page .quote-client-grid input:hover,
+body.landing-home.quote-page .quote-client-grid input:focus-visible {
+  border-color: rgba(129, 235, 255, 0.34);
+}
+
+body.landing-home.quote-page .quote-client-grid input::placeholder,
+body.landing-home.quote-page .quote-request-form input::placeholder,
+body.landing-home.quote-page .quote-request-form textarea::placeholder {
+  color: rgba(221, 233, 255, 0.44);
+}
+
+body.landing-home.quote-page .quote-client-full {
+  grid-column: 1 / -1;
 }
 
 body.landing-home.quote-page .quote-summary-intro {
@@ -561,6 +611,15 @@ body.landing-home.quote-page .quote-doc-block p {
   line-height: 1.7;
 }
 
+body.landing-home.quote-page .quote-doc-block-client {
+  background: rgba(255, 213, 133, 0.14);
+}
+
+body.landing-home.quote-page .quote-doc-block-wide {
+  grid-column: 1 / -1;
+  background: rgba(18, 24, 39, 0.04);
+}
+
 body.landing-home.quote-page .quote-doc-table {
   width: 100%;
   margin-top: 22px;
@@ -701,6 +760,12 @@ body.landing-home.quote-page .quote-request-grid {
   gap: 16px;
 }
 
+body.landing-home.quote-page .quote-request-lead {
+  margin: 0 0 6px;
+  color: var(--landing-muted);
+  line-height: 1.8;
+}
+
 body.landing-home.quote-page .quote-request-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
@@ -766,6 +831,7 @@ body.landing-home.quote-page .quote-request-full {
 @media (max-width: 760px) {
   body.landing-home.quote-page .quote-hero-board,
   body.landing-home.quote-page .service-category,
+  body.landing-home.quote-page .quote-client-card,
   body.landing-home.quote-page .quote-summary-card,
   body.landing-home.quote-page .quote-selection-card,
   body.landing-home.quote-page .quote-document-card,
@@ -776,7 +842,8 @@ body.landing-home.quote-page .quote-request-full {
 
   body.landing-home.quote-page .quote-hero-board-grid,
   body.landing-home.quote-page .quote-summary-metrics,
-  body.landing-home.quote-page .quote-doc-grid {
+  body.landing-home.quote-page .quote-doc-grid,
+  body.landing-home.quote-page .quote-client-grid {
     grid-template-columns: 1fr;
   }
 
@@ -808,6 +875,7 @@ body.landing-home.quote-page .quote-request-full {
   body.landing-home.quote-page .hero,
   body.landing-home.quote-page .quote-anchor-section,
   body.landing-home.quote-page .quote-catalog,
+  body.landing-home.quote-page .quote-client-card,
   body.landing-home.quote-page .quote-summary-card,
   body.landing-home.quote-page .quote-selection-card,
   body.landing-home.quote-page .quote-json-card,

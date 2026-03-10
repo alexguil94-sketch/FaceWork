@@ -16,6 +16,11 @@
   const projectTypeField = document.getElementById("project-type");
   const estimatedBudgetField = document.getElementById("estimated-budget");
   const summaryJsonField = document.getElementById("summary-json-field");
+  const clientFieldNodes = Array.from(document.querySelectorAll("[data-client-field]"));
+  const CLIENT_FIELDS = ["first_name", "last_name", "company", "email", "phone"];
+  const clientFieldMap = new Map(clientFieldNodes.map(function(node){
+    return [node.getAttribute("data-client-field"), node];
+  }));
   const toast = document.querySelector(".toast");
   const STORAGE_KEY = "digitalex-premium-quote-v2";
   const CONTACT_EMAIL = DATA.contactEmail || "alexguil94@hotmail.fr";
@@ -51,16 +56,24 @@
   const defaultState = {
     quoteNumber: buildQuoteNumber(),
     issueDate: todayIso(),
+    client: buildEmptyClientState(),
     selections: {},
   };
 
   const state = loadState();
 
   renderStaticContent();
+  syncClientFields("init");
   renderAll();
   bindEvents();
 
   function bindEvents(){
+    clientFieldNodes.forEach(function(field){
+      field.addEventListener("input", function(){
+        updateClientDetails(field.getAttribute("data-client-field"), field.value, "sidebar");
+      });
+    });
+
     serviceGroupsNode.addEventListener("click", function(event){
       const toggle = event.target.closest("[data-service-toggle]");
       if(toggle){
@@ -121,10 +134,19 @@
       }
     });
 
+    requestForm.addEventListener("input", function(event){
+      const field = event.target.closest("[name]");
+      if(!field) return;
+      const fieldName = field.getAttribute("name");
+      if(!CLIENT_FIELDS.includes(fieldName)) return;
+      updateClientDetails(fieldName, field.value, "form");
+    });
+
     requestForm.addEventListener("submit", function(event){
       event.preventDefault();
       if(!requestForm.reportValidity()) return;
 
+      syncClientStateFromRequestForm();
       const summary = buildSummary();
       const payload = buildRequestPayload(summary);
       const subject = `Demande de devis - ${payload.projectType}`;
@@ -282,6 +304,7 @@
   }
 
   function buildSummary(){
+    const client = buildClientSummary();
     let oneTimeMin = 0;
     let oneTimeMax = 0;
     let recurringMin = 0;
@@ -359,13 +382,25 @@
       projectionMax,
       budgetLabel,
       dominantCategory,
+      client,
       lines,
       jsonPayload: {
         quote_number: state.quoteNumber,
         issue_date: state.issueDate,
         valid_until: addDaysIso(state.issueDate, 30),
         provider: COMPANY,
+        client: {
+          first_name: client.first_name,
+          last_name: client.last_name,
+          full_name: client.fullName,
+          company: client.company,
+          email: client.email,
+          phone: client.phone,
+          display_name: client.displayName,
+        },
         note: LEGAL_NOTE,
+        budget_label: budgetLabel,
+        dominant_category: dominantCategory || "Projet mixte",
         totals: {
           launch: { min: launchMin, max: launchMax },
           recurring_monthly: { min: recurringMin, max: recurringMax },
@@ -452,7 +487,7 @@
           <div class="quote-doc-brand">
             <p class="eyebrow">${escapeHtml(COMPANY)}</p>
             <strong>Devis estimatif</strong>
-            <p class="quote-doc-empty">Aucune prestation selectionnee pour le moment.</p>
+            <p class="quote-doc-empty">Aucune prestation selectionnee pour le moment${summary.client.hasAny ? ` pour ${escapeHtml(summary.client.displayName)}` : ""}.</p>
           </div>
         </div>
       `;
@@ -479,7 +514,12 @@
           <strong>${escapeHtml(COMPANY)}</strong>
           <p>${escapeHtml(CONTACT_EMAIL)}<br/>${escapeHtml(DATA.contactPhone || "")}</p>
         </div>
-        <div class="quote-doc-block">
+        <div class="quote-doc-block quote-doc-block-client">
+          <span>Client</span>
+          <strong>${escapeHtml(summary.client.displayName)}</strong>
+          <p>${buildClientDetailsHtml(summary.client)}</p>
+        </div>
+        <div class="quote-doc-block quote-doc-block-wide">
           <span>Cadre</span>
           <strong>${escapeHtml(summary.dominantCategory || "Projet mixte")}</strong>
           <p>${escapeHtml(LEGAL_NOTE)}</p>
@@ -539,12 +579,13 @@
 
   function buildRequestPayload(summary){
     const formData = new FormData(requestForm);
+    const client = buildClientSummary();
     return {
-      lastName: String(formData.get("last_name") || "").trim(),
-      firstName: String(formData.get("first_name") || "").trim(),
-      company: String(formData.get("company") || "").trim(),
-      email: String(formData.get("email") || "").trim(),
-      phone: String(formData.get("phone") || "").trim(),
+      lastName: String(formData.get("last_name") || client.last_name || "").trim(),
+      firstName: String(formData.get("first_name") || client.first_name || "").trim(),
+      company: String(formData.get("company") || client.company || "").trim(),
+      email: String(formData.get("email") || client.email || "").trim(),
+      phone: String(formData.get("phone") || client.phone || "").trim(),
       projectType: String(formData.get("project_type") || summary.dominantCategory || "Projet mixte").trim(),
       estimatedBudget: String(formData.get("estimated_budget") || summary.budgetLabel || "").trim(),
       message: String(formData.get("message") || "").trim(),
@@ -638,15 +679,16 @@
   function loadState(){
     try{
       const raw = localStorage.getItem(STORAGE_KEY);
-      if(!raw) return { ...defaultState, selections: {} };
+      if(!raw) return { ...defaultState, client: buildEmptyClientState(), selections: {} };
       const parsed = JSON.parse(raw) || {};
       return {
         quoteNumber: String(parsed.quoteNumber || defaultState.quoteNumber),
         issueDate: String(parsed.issueDate || defaultState.issueDate),
+        client: sanitizeClientState(parsed.client),
         selections: typeof parsed.selections === "object" && parsed.selections ? parsed.selections : {},
       };
     }catch(error){
-      return { ...defaultState, selections: {} };
+      return { ...defaultState, client: buildEmptyClientState(), selections: {} };
     }
   }
 
@@ -670,6 +712,10 @@
     }
     const readable = [
       `${COMPANY} - ${summary.quoteNumber}`,
+      summary.client.hasAny ? `Client : ${summary.client.displayName}` : "",
+      summary.client.company && summary.client.company !== summary.client.displayName ? `Entreprise : ${summary.client.company}` : "",
+      summary.client.email ? `Email : ${summary.client.email}` : "",
+      summary.client.phone ? `Telephone : ${summary.client.phone}` : "",
       `Lancement : ${formatRange(summary.launchMin, summary.launchMax)}`,
       `Mensuel : ${summary.recurringMin || summary.recurringMax ? formatRange(summary.recurringMin, summary.recurringMax, " / mois") : "Aucun"}`,
       `Projection : ${formatRange(summary.projectionMin, summary.projectionMax)}`,
@@ -677,7 +723,7 @@
       ...summary.lines.map(function(line){
         return `- ${line.title} (${line.categoryTitle}) : ${formatRange(line.lineMin, line.lineMax)}`;
       }),
-    ].join("\n");
+    ].filter(Boolean).join("\n");
     copyText(readable, "Le recapitulatif du devis a ete copie.");
   }
 
@@ -720,14 +766,28 @@
     pdf.text(`Emission : ${formatDate(summary.issueDate)}`, pageWidth - margin - 170, 58);
     pdf.text(`Validite : ${formatDate(summary.validUntil)}`, pageWidth - margin - 170, 74);
 
+    const columnGap = 24;
+    const columnWidth = (pageWidth - (margin * 2) - columnGap) / 2;
+    const rightColumnX = margin + columnWidth + columnGap;
+    const clientLines = pdf.splitTextToSize(buildClientPdfText(summary.client), columnWidth);
+    const frameLines = pdf.splitTextToSize(`Projet ${summary.dominantCategory || "mixte"} avec estimation indicative. ${LEGAL_NOTE}`, columnWidth);
+
     pdf.setFont("helvetica", "bold");
-    pdf.text("Cadre", margin, 118);
+    pdf.text("Client", margin, 118);
     pdf.setFont("helvetica", "normal");
-    pdf.text(pdf.splitTextToSize(`Projet ${summary.dominantCategory || "mixte"} avec estimation indicative. ${LEGAL_NOTE}`, pageWidth - (margin * 2)), margin, 136);
+    pdf.text(clientLines, margin, 136);
+
+    pdf.setFont("helvetica", "bold");
+    pdf.text("Cadre", rightColumnX, 118);
+    pdf.setFont("helvetica", "normal");
+    pdf.text(frameLines, rightColumnX, 136);
+
+    const blockHeight = Math.max(clientLines.length, frameLines.length) * 14;
+    const tableStartY = 160 + blockHeight;
 
     if(typeof pdf.autoTable === "function"){
       pdf.autoTable({
-        startY: 190,
+        startY: tableStartY,
         margin: { left: margin, right: margin },
         head: [["Prestation", "Categorie", "Qt", "Facturation", "Estimation"]],
         body: summary.lines.map(function(line){
@@ -784,8 +844,139 @@
     pdf.setFont("helvetica", "normal");
     pdf.text(pdf.splitTextToSize(`${LEGAL_NOTE} Le devis final est personnalise apres echange et validation du perimetre.`, pageWidth - (margin * 2)), margin, y);
 
-    pdf.save(`${slugify(summary.quoteNumber || "devis-digitalex-studio") || "devis-digitalex-studio"}.pdf`);
+    const pdfFileName = slugify(`${summary.quoteNumber || "devis-digitalex-studio"}-${summary.client.displayName !== "Prospect" ? summary.client.displayName : COMPANY}`) || "devis-digitalex-studio";
+    pdf.save(`${pdfFileName}.pdf`);
     showToast("Le PDF du devis a ete telecharge.");
+  }
+
+  function updateClientDetails(fieldName, value, source){
+    if(!CLIENT_FIELDS.includes(fieldName)) return;
+    const nextValue = String(value || "");
+    if(state.client[fieldName] === nextValue){
+      syncClientFieldValue(fieldName, nextValue, source);
+      return;
+    }
+    state.client[fieldName] = nextValue;
+    syncClientFieldValue(fieldName, nextValue, source);
+    persistState();
+    renderSummary();
+  }
+
+  function syncClientFields(source){
+    CLIENT_FIELDS.forEach(function(fieldName){
+      syncClientFieldValue(fieldName, String(state.client[fieldName] || ""), source);
+    });
+  }
+
+  function syncClientFieldValue(fieldName, value, source){
+    const sidebarField = clientFieldMap.get(fieldName);
+    const requestField = getRequestFormField(fieldName);
+
+    if(source !== "sidebar" && sidebarField && sidebarField.value !== value){
+      sidebarField.value = value;
+    }
+
+    if(source !== "form" && requestField && requestField.value !== value){
+      requestField.value = value;
+    }
+  }
+
+  function syncClientStateFromRequestForm(){
+    let changed = false;
+    CLIENT_FIELDS.forEach(function(fieldName){
+      const field = getRequestFormField(fieldName);
+      if(!field) return;
+      const nextValue = String(field.value || "");
+      if(state.client[fieldName] !== nextValue){
+        state.client[fieldName] = nextValue;
+        changed = true;
+      }
+      syncClientFieldValue(fieldName, nextValue, "form");
+    });
+    if(changed){
+      persistState();
+      renderSummary();
+    }
+  }
+
+  function getRequestFormField(fieldName){
+    const field = requestForm.elements.namedItem(fieldName);
+    return field && typeof field.value === "string" ? field : null;
+  }
+
+  function buildEmptyClientState(){
+    return {
+      first_name: "",
+      last_name: "",
+      company: "",
+      email: "",
+      phone: "",
+    };
+  }
+
+  function sanitizeClientState(raw){
+    const base = buildEmptyClientState();
+    if(!raw || typeof raw !== "object") return base;
+    CLIENT_FIELDS.forEach(function(fieldName){
+      base[fieldName] = String(raw[fieldName] || "");
+    });
+    return base;
+  }
+
+  function buildClientSummary(){
+    const client = sanitizeClientState(state.client);
+    const firstName = client.first_name.trim();
+    const lastName = client.last_name.trim();
+    const company = client.company.trim();
+    const email = client.email.trim();
+    const phone = client.phone.trim();
+    const fullName = [firstName, lastName].filter(Boolean).join(" ").trim();
+    const displayName = fullName || company || "Prospect";
+
+    return {
+      first_name: firstName,
+      last_name: lastName,
+      company,
+      email,
+      phone,
+      fullName,
+      displayName,
+      hasAny: !!(firstName || lastName || company || email || phone),
+    };
+  }
+
+  function buildClientDetailsHtml(client){
+    const detailLines = [];
+    if(client.company && client.company !== client.displayName){
+      detailLines.push(client.company);
+    }
+    if(client.email){
+      detailLines.push(client.email);
+    }
+    if(client.phone){
+      detailLines.push(client.phone);
+    }
+    if(!detailLines.length){
+      detailLines.push("Coordonnees a confirmer lors de l'echange.");
+    }
+    return detailLines.map(escapeHtml).join("<br/>");
+  }
+
+  function buildClientPdfText(client){
+    const lines = [client.displayName];
+    if(client.company && client.company !== client.displayName){
+      lines.push(client.company);
+    }
+    if(client.email){
+      lines.push(client.email);
+    }
+    if(client.phone){
+      lines.push(client.phone);
+    }
+    if(lines.length === 1 && client.displayName === "Prospect"){
+      lines.push("Coordonnees a confirmer lors de l'echange.");
+    }
+    return lines.join("\n");
   }
 
   function buildQuoteNumber(){
