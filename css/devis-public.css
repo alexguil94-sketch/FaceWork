@@ -209,9 +209,15 @@ body.landing-home.quote-page .service-card:hover {
 
 body.landing-home.quote-page .service-card-head {
   display: flex;
+  flex-wrap: wrap;
   gap: 14px;
   justify-content: space-between;
   align-items: start;
+}
+
+body.landing-home.quote-page .service-card-head > div {
+  flex: 1 1 220px;
+  min-width: 0;
 }
 
 body.landing-home.quote-page .service-card-labels {
@@ -259,6 +265,7 @@ body.landing-home.quote-page .service-toggle {
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.04);
   color: #ffffff;
+  white-space: nowrap;
   cursor: pointer;
   transition:
     background-color 180ms ease,
