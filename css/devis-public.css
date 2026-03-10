@@ -2,6 +2,12 @@ body.landing-home.quote-page .quote-hero {
   padding-bottom: 18px;
 }
 
+/* Keep the quote page readable even if the global reveal script fails. */
+body.landing-home.quote-page [data-reveal] {
+  opacity: 1;
+  transform: none;
+}
+
 body.landing-home.quote-page .quote-hero-note {
   margin-top: 24px;
   padding: 22px 24px;
