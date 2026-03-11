@@ -9,6 +9,7 @@
   const toast = document.querySelector(".toast");
   const modal = document.querySelector("[data-image-modal]");
   const modalImage = document.getElementById("image-modal-image");
+  const modalLink = document.querySelector("[data-modal-link-node]");
   const modalTriggers = document.querySelectorAll("[data-modal-trigger]");
   const modalCloseNodes = document.querySelectorAll("[data-modal-close]");
   const footerSocial = document.querySelector("[data-footer-social]");
@@ -81,15 +82,33 @@
       modalImage.removeAttribute("src");
       modalImage.alt = "";
     }
+    if(modalLink){
+      modalLink.hidden = true;
+      modalLink.href = "#";
+      modalLink.textContent = "";
+    }
   }
 
   function openModal(trigger){
     if(!modal || !modalImage || !trigger) return;
     const src = trigger.getAttribute("data-modal-image");
     const alt = trigger.getAttribute("data-modal-alt") || "";
+    const link = trigger.getAttribute("data-modal-link") || "";
+    const linkLabel = trigger.getAttribute("data-modal-link-label") || "Voir le site lie";
     if(!src) return;
     modalImage.src = src;
     modalImage.alt = alt;
+    if(modalLink){
+      if(link){
+        modalLink.href = link;
+        modalLink.textContent = linkLabel;
+        modalLink.hidden = false;
+      }else{
+        modalLink.hidden = true;
+        modalLink.href = "#";
+        modalLink.textContent = "";
+      }
+    }
     modal.hidden = false;
     document.body.classList.add("has-modal-open");
   }

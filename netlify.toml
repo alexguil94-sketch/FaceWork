@@ -23,7 +23,7 @@
 
 [[redirects]]
   from = "/"
-  to = "/ancienne-accueil.html"
+  to = "/landing-atelier.html"
   status = 200
   force = true
 
@@ -49,6 +49,11 @@
 
 [[headers]]
   for = "/index.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/ancienne-accueil.html"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
 
