@@ -6,4 +6,4 @@ Disallow: /signup.html
 Disallow: /inscription.html
 Disallow: /index.html
 
-Sitemap: https://faceworld.app/sitemap.xml
+Sitemap: https://www.digitalexis-studio.org/sitemap.xml
