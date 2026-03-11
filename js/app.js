@@ -7670,10 +7670,6 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
   }
   function memberEditorHtml(member, roles){
     const m = member || {};
-    const accessState = adminAccessState(m.accessState);
-    const accessLabel = adminAccessLabel(accessState);
-    const accessHint = adminAccessHint(m);
-    const isSelf = !!m.isSelf;
     const roleObjects = (Array.isArray(m.roleIds) ? m.roleIds : [])
       .map(id=> roles.find(r=> String(r.id) === String(id)))
       .filter(Boolean);
