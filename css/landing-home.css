@@ -1325,6 +1325,10 @@ body.landing-home .footer-simple-grid {
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+body.landing-home .footer-simple-grid-compact {
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr) minmax(0, 0.9fr);
+}
+
 body.landing-home .footer-simple-col {
   display: grid;
   gap: 10px;
@@ -1369,9 +1373,9 @@ body.landing-home.landing-service .eyebrow {
 body.landing-home.landing-service .hero h1,
 body.landing-home.landing-service .section-heading h2,
 body.landing-home.landing-service .story-copy h2 {
-  font-size: clamp(2.6rem, 5.4vw, 4.6rem);
-  line-height: 1;
-  letter-spacing: -0.04em;
+  font-size: clamp(2.35rem, 4.9vw, 4rem);
+  line-height: 1.04;
+  letter-spacing: -0.035em;
 }
 
 body.landing-home.landing-service .hero-text,
@@ -1391,9 +1395,9 @@ body.landing-home.landing-service .footer-simple-header {
 }
 
 body.landing-home.landing-service .footer-simple-header h2 {
-  font-size: clamp(2rem, 4vw, 3rem);
-  line-height: 1.02;
-  letter-spacing: -0.035em;
+  font-size: clamp(1.8rem, 3.4vw, 2.55rem);
+  line-height: 1.06;
+  letter-spacing: -0.03em;
   max-width: 18ch;
 }
 
@@ -1401,10 +1405,6 @@ body.landing-home.landing-service .footer-simple-header p {
   font-size: 0.96rem;
   line-height: 1.86;
   max-width: 40rem;
-}
-
-body.landing-home.landing-service .footer-simple-grid-compact {
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr) minmax(0, 0.9fr);
 }
 
 body.landing-home.landing-service .footer-simple-col {
@@ -1568,16 +1568,13 @@ body.landing-home .ai-fab {
     padding-left: 24px;
   }
 
-  body.landing-home .footer-simple-grid {
+  body.landing-home .footer-simple-grid,
+  body.landing-home .footer-simple-grid-compact {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   body.landing-home .footer-simple-header h2 {
     max-width: 15ch;
-  }
-
-  body.landing-home.landing-service .footer-simple-grid-compact {
-    grid-template-columns: 1fr 1fr;
   }
 }
 
@@ -1692,14 +1689,15 @@ body.landing-home .ai-fab {
     flex-direction: column;
   }
 
-  body.landing-home .footer-simple-grid {
+  body.landing-home .footer-simple-grid,
+  body.landing-home .footer-simple-grid-compact {
     grid-template-columns: 1fr;
   }
 
   body.landing-home.landing-service .hero h1,
   body.landing-home.landing-service .section-heading h2,
   body.landing-home.landing-service .story-copy h2 {
-    font-size: clamp(2.25rem, 8vw, 3.5rem);
+    font-size: clamp(2rem, 7.4vw, 3.2rem);
   }
 }
 
@@ -1754,7 +1752,7 @@ body.landing-home .ai-fab {
   }
 
   body.landing-home.landing-service .footer-simple-header h2 {
-    font-size: clamp(1.85rem, 10vw, 2.6rem);
+    font-size: clamp(1.7rem, 9vw, 2.3rem);
   }
 
   body.landing-home .footer-simple-actions .button {

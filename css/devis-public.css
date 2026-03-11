@@ -38,6 +38,19 @@ body.landing-home.quote-page .quote-hero-board {
   z-index: 3;
 }
 
+body.landing-home.quote-page .hero h1,
+body.landing-home.quote-page .section-heading h2 {
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  line-height: 1.03;
+  letter-spacing: -0.035em;
+}
+
+body.landing-home.quote-page .hero-text,
+body.landing-home.quote-page .section-heading p {
+  font-size: 0.98rem;
+  line-height: 1.88;
+}
+
 body.landing-home.quote-page .quote-hero-board h2,
 body.landing-home.quote-page .quote-client-card h2,
 body.landing-home.quote-page .quote-summary-card h2,
@@ -47,9 +60,9 @@ body.landing-home.quote-page .contact-stage-copy h2,
 body.landing-home.quote-page .quote-anchor-head h2 {
   margin: 8px 0 0;
   font-family: var(--landing-display);
-  font-size: clamp(2rem, 3vw, 3rem);
-  line-height: 0.96;
-  letter-spacing: -0.04em;
+  font-size: clamp(1.7rem, 2.5vw, 2.45rem);
+  line-height: 1.03;
+  letter-spacing: -0.03em;
 }
 
 body.landing-home.quote-page .quote-hero-board-grid,
@@ -72,7 +85,7 @@ body.landing-home.quote-page .quote-anchor-head {
 body.landing-home.quote-page .quote-anchor-head p {
   margin: 0;
   color: var(--landing-muted);
-  line-height: 1.8;
+  line-height: 1.86;
 }
 
 body.landing-home.quote-page .quote-anchor-card {
@@ -1101,6 +1114,21 @@ body.landing-home.quote-page .quote-request-full {
 }
 
 @media (max-width: 760px) {
+  body.landing-home.quote-page .hero h1,
+  body.landing-home.quote-page .section-heading h2 {
+    font-size: clamp(2rem, 8vw, 3rem);
+  }
+
+  body.landing-home.quote-page .quote-hero-board h2,
+  body.landing-home.quote-page .quote-client-card h2,
+  body.landing-home.quote-page .quote-summary-card h2,
+  body.landing-home.quote-page .quote-selection-head h2,
+  body.landing-home.quote-page .quote-document-head h2,
+  body.landing-home.quote-page .contact-stage-copy h2,
+  body.landing-home.quote-page .quote-anchor-head h2 {
+    font-size: clamp(1.55rem, 6vw, 2.1rem);
+  }
+
   body.landing-home.quote-page .quote-hero-board,
   body.landing-home.quote-page .service-category,
   body.landing-home.quote-page .quote-client-card,
