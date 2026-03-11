@@ -11,6 +11,9 @@
   const metricsNode = document.getElementById("summary-metrics");
   const selectedServicesNode = document.getElementById("selected-services");
   const documentNode = document.getElementById("quote-document");
+  const documentPreviewStatsNode = document.getElementById("quote-document-preview-stats");
+  const quotePreviewModal = document.getElementById("quote-preview-modal");
+  const modalDocumentNode = document.getElementById("quote-document-modal");
   const requestForm = document.getElementById("quote-request-form");
   const projectTypeField = document.getElementById("project-type");
   const estimatedBudgetField = document.getElementById("estimated-budget");
@@ -28,6 +31,7 @@
   const PDF_LOGO_URL = DATA.logoUrl || "assets/favicon_DS.png";
   const serviceIndex = new Map();
   const categoryIndex = new Map();
+  let quotePreviewFocusNode = null;
 
   if(
     !serviceGroupsNode
@@ -37,6 +41,7 @@
     || !metricsNode
     || !selectedServicesNode
     || !documentNode
+    || !documentPreviewStatsNode
     || !requestForm
     || !projectTypeField
     || !estimatedBudgetField
@@ -57,6 +62,7 @@
     issueDate: todayIso(),
     client: buildEmptyClientState(),
     selections: {},
+    expandedCategories: buildInitialExpandedCategories(),
   };
 
   const state = loadState();
@@ -73,7 +79,19 @@
       });
     });
 
+    serviceNavNode.addEventListener("click", function(event){
+      const jump = event.target.closest("[data-category-jump]");
+      if(!jump) return;
+      openCategory(jump.getAttribute("data-category-jump"), { scrollIntoView: true });
+    });
+
     serviceGroupsNode.addEventListener("click", function(event){
+      const categoryToggle = event.target.closest("[data-category-toggle]");
+      if(categoryToggle){
+        toggleCategory(categoryToggle.getAttribute("data-category-toggle"));
+        return;
+      }
+
       const toggle = event.target.closest("[data-service-toggle]");
       if(toggle){
         toggleService(toggle.getAttribute("data-service-toggle"));
@@ -128,6 +146,22 @@
         resetSelections();
       }else if(action === "copy-summary"){
         copyReadableSummary();
+      }else if(action === "open-quote-preview"){
+        openQuotePreview(actionNode);
+      }
+    });
+
+    if(quotePreviewModal){
+      quotePreviewModal.addEventListener("click", function(event){
+        if(event.target === quotePreviewModal || event.target.closest("[data-quote-preview-close]")){
+          closeQuotePreview();
+        }
+      });
+    }
+
+    document.addEventListener("keydown", function(event){
+      if(event.key === "Escape" && quotePreviewModal && !quotePreviewModal.hidden){
+        closeQuotePreview();
       }
     });
 
@@ -186,10 +220,6 @@
       `;
     }).join("");
 
-    serviceNavNode.innerHTML = catalog.map(function(category){
-      return `<a href="#${escapeHtml(category.id)}">${escapeHtml(category.title)}</a>`;
-    }).join("");
-
     faqGridNode.innerHTML = faqItems.map(function(item, index){
       const delayAttr = index % 2 === 1 ? ' data-reveal-delay="1"' : "";
       return `
@@ -209,22 +239,63 @@
   }
 
   function renderAll(){
+    renderCategoryNav();
     renderCatalog();
     renderSummary();
     persistState();
   }
 
+  function renderCategoryNav(){
+    serviceNavNode.innerHTML = catalog.map(function(category){
+      const selectedCount = getCategorySelectionCount(category.id);
+      const isActive = isCategoryExpanded(category.id);
+      return `
+        <button
+          type="button"
+          class="${isActive ? "is-active" : ""}"
+          data-category-jump="${escapeHtml(category.id)}"
+          aria-pressed="${isActive ? "true" : "false"}"
+        >
+          <span>${escapeHtml(category.title)}</span>
+          <span class="quote-category-nav-count">${escapeHtml(selectedCount)}</span>
+        </button>
+      `;
+    }).join("");
+  }
+
   function renderCatalog(){
     serviceGroupsNode.innerHTML = catalog.map(function(category){
+      const isExpanded = isCategoryExpanded(category.id);
+      const selectedCount = getCategorySelectionCount(category.id);
+      const offerCount = Array.isArray(category.items) ? category.items.length : 0;
       return `
-        <section class="surface service-category" id="${escapeHtml(category.id)}">
-          <div class="service-category-head">
-            <p class="eyebrow">${escapeHtml(category.title)}</p>
-            <h3>${escapeHtml(category.title)}</h3>
-            <p>${escapeHtml(category.description)}</p>
-          </div>
-          <div class="service-grid">
-            ${(category.items || []).map(renderServiceCard).join("")}
+        <section class="surface service-category${isExpanded ? " is-open" : ""}" id="${escapeHtml(category.id)}">
+          <button
+            class="service-category-toggle"
+            type="button"
+            data-category-toggle="${escapeHtml(category.id)}"
+            aria-expanded="${isExpanded ? "true" : "false"}"
+            aria-controls="category-panel-${escapeHtml(category.id)}"
+          >
+            <div class="service-category-head">
+              <p class="eyebrow">${escapeHtml(category.title)}</p>
+              <h3>${escapeHtml(category.title)}</h3>
+              <p>${escapeHtml(category.description)}</p>
+            </div>
+            <div class="service-category-meta">
+              <div class="service-category-badges">
+                <span class="service-category-badge">${escapeHtml(offerCount)} offre${offerCount > 1 ? "s" : ""}</span>
+                <span class="service-category-badge${selectedCount ? " is-accent" : ""}">${selectedCount ? `${escapeHtml(selectedCount)} retenue${selectedCount > 1 ? "s" : ""}` : "Aucune retenue"}</span>
+              </div>
+              <span class="service-category-caret" aria-hidden="true"></span>
+            </div>
+          </button>
+          <div class="service-category-panel${isExpanded ? " is-open" : ""}" id="category-panel-${escapeHtml(category.id)}" aria-hidden="${isExpanded ? "false" : "true"}" ${isExpanded ? "" : "inert"}>
+            <div class="service-category-panel-inner">
+              <div class="service-grid">
+                ${(category.items || []).map(renderServiceCard).join("")}
+              </div>
+            </div>
           </div>
         </section>
       `;
@@ -294,6 +365,10 @@
     metricsNode.innerHTML = buildMetricsMarkup(summary);
     selectedServicesNode.innerHTML = buildSelectedServicesMarkup(summary);
     documentNode.innerHTML = buildPrintableDocument(summary);
+    if(modalDocumentNode){
+      modalDocumentNode.innerHTML = buildPrintableDocument(summary);
+    }
+    documentPreviewStatsNode.innerHTML = buildDocumentPreviewStats(summary);
     estimatedBudgetField.value = summary.budgetLabel;
     summaryJsonField.value = JSON.stringify(summary.jsonPayload);
     syncSuggestedProjectType(summary);
@@ -476,6 +551,17 @@
     }).join("");
   }
 
+  function buildDocumentPreviewStats(summary){
+    const pills = [
+      summary.quoteNumber,
+      summary.client.displayName,
+      summary.selectedCount ? `${summary.selectedCount} prestation${summary.selectedCount > 1 ? "s" : ""}` : "Aucune prestation",
+    ];
+    return pills.map(function(label){
+      return `<span class="quote-document-preview-pill">${escapeHtml(label)}</span>`;
+    }).join("");
+  }
+
   function buildPrintableDocument(summary){
     if(!summary.lines.length){
       return `
@@ -617,6 +703,7 @@
       selected: true,
       quantity: defaultQuantityFor(service),
     };
+    ensureCategoryExpanded(service.categoryId);
     renderAll();
   }
 
@@ -637,6 +724,7 @@
     }else{
       state.selections[serviceId].quantity = quantity;
     }
+    ensureCategoryExpanded(service.categoryId);
     renderAll();
   }
 
@@ -644,6 +732,7 @@
     state.quoteNumber = buildQuoteNumber();
     state.issueDate = todayIso();
     state.selections = {};
+    state.expandedCategories = buildInitialExpandedCategories();
     renderAll();
     showToast("La simulation a ete reinitialisee.");
   }
@@ -672,24 +761,134 @@
     return Math.min(Math.max(parsed, min), max);
   }
 
+  function buildInitialExpandedCategories(selections){
+    const selectedCategoryIds = getSelectedCategoryIdsFromSelections(selections);
+    if(selectedCategoryIds.length){
+      return selectedCategoryIds;
+    }
+    const firstCategoryId = String(catalog[0]?.id || "").trim();
+    return firstCategoryId ? [firstCategoryId] : [];
+  }
+
+  function sanitizeExpandedCategories(raw){
+    if(!Array.isArray(raw)) return [];
+    return raw
+      .map(function(value){
+        return String(value || "").trim();
+      })
+      .filter(function(categoryId, index, list){
+        return categoryId && categoryIndex.has(categoryId) && list.indexOf(categoryId) === index;
+      });
+  }
+
+  function getSelectedCategoryIdsFromSelections(selections){
+    if(!selections || typeof selections !== "object") return [];
+    const seen = [];
+    Object.keys(selections).forEach(function(serviceId){
+      if(!selections[serviceId]?.selected) return;
+      const service = serviceIndex.get(serviceId);
+      if(!service?.categoryId || seen.includes(service.categoryId)) return;
+      seen.push(service.categoryId);
+    });
+    return seen;
+  }
+
+  function getCategorySelectionCount(categoryId){
+    const category = categoryIndex.get(categoryId);
+    if(!category?.items?.length) return 0;
+    return category.items.reduce(function(total, service){
+      return total + (state.selections[service.id]?.selected ? 1 : 0);
+    }, 0);
+  }
+
+  function isCategoryExpanded(categoryId){
+    return Array.isArray(state.expandedCategories) && state.expandedCategories.includes(categoryId);
+  }
+
+  function ensureCategoryExpanded(categoryId){
+    if(!categoryId || isCategoryExpanded(categoryId)) return;
+    state.expandedCategories = sanitizeExpandedCategories([...(state.expandedCategories || []), categoryId]);
+  }
+
+  function toggleCategory(categoryId){
+    if(!categoryId || !categoryIndex.has(categoryId)) return;
+    if(isCategoryExpanded(categoryId)){
+      state.expandedCategories = sanitizeExpandedCategories((state.expandedCategories || []).filter(function(currentId){
+        return currentId !== categoryId;
+      }));
+    }else{
+      state.expandedCategories = sanitizeExpandedCategories([...(state.expandedCategories || []), categoryId]);
+    }
+    renderAll();
+  }
+
+  function openCategory(categoryId, options){
+    if(!categoryId || !categoryIndex.has(categoryId)) return;
+    ensureCategoryExpanded(categoryId);
+    renderAll();
+    if(options?.scrollIntoView){
+      window.requestAnimationFrame(function(){
+        const target = document.getElementById(categoryId);
+        target?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+      });
+    }
+  }
+
   function loadState(){
     try{
       const raw = localStorage.getItem(STORAGE_KEY);
-      if(!raw) return { ...defaultState, client: buildEmptyClientState(), selections: {} };
+      if(!raw){
+        return {
+          ...defaultState,
+          client: buildEmptyClientState(),
+          selections: {},
+          expandedCategories: buildInitialExpandedCategories(),
+        };
+      }
       const parsed = JSON.parse(raw) || {};
+      const selections = typeof parsed.selections === "object" && parsed.selections ? parsed.selections : {};
+      const expandedCategories = sanitizeExpandedCategories(parsed.expandedCategories);
       return {
         quoteNumber: String(parsed.quoteNumber || defaultState.quoteNumber),
         issueDate: String(parsed.issueDate || defaultState.issueDate),
         client: sanitizeClientState(parsed.client),
-        selections: typeof parsed.selections === "object" && parsed.selections ? parsed.selections : {},
+        selections,
+        expandedCategories: expandedCategories.length
+          ? sanitizeExpandedCategories([...expandedCategories, ...getSelectedCategoryIdsFromSelections(selections)])
+          : buildInitialExpandedCategories(selections),
       };
     }catch(error){
-      return { ...defaultState, client: buildEmptyClientState(), selections: {} };
+      return {
+        ...defaultState,
+        client: buildEmptyClientState(),
+        selections: {},
+        expandedCategories: buildInitialExpandedCategories(),
+      };
     }
   }
 
   function persistState(){
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  function openQuotePreview(triggerNode){
+    if(!quotePreviewModal) return;
+    quotePreviewFocusNode = triggerNode || document.activeElement;
+    quotePreviewModal.hidden = false;
+    document.body.classList.add("has-modal-open");
+    window.requestAnimationFrame(function(){
+      quotePreviewModal.querySelector("button[data-quote-preview-close]")?.focus?.();
+    });
+  }
+
+  function closeQuotePreview(){
+    if(!quotePreviewModal) return;
+    quotePreviewModal.hidden = true;
+    document.body.classList.remove("has-modal-open");
+    if(quotePreviewFocusNode && typeof quotePreviewFocusNode.focus === "function"){
+      quotePreviewFocusNode.focus();
+    }
+    quotePreviewFocusNode = null;
   }
 
   function copyReadableSummary(){
@@ -765,7 +964,12 @@
       const header = { x: margin, y: 28, w: contentWidth, h: 138 };
       const metaWidth = 168;
       const metaX = header.x + header.w - metaWidth - 20;
-      const titleX = logo ? header.x + 96 : header.x + 26;
+      const titleX = logo ? header.x + 84 : header.x + 26;
+      const titleMaxWidth = Math.max(140, metaX - titleX - 28);
+      const cardPaddingX = 18;
+      const cardLineHeight = getPdfLineHeight(10, 1.32);
+      const metricPaddingX = 18;
+      const metricLineHeight = getPdfLineHeight(16, 1.16);
 
       pdf.setFillColor(...palette.dark);
       pdf.roundedRect(header.x, header.y, header.w, header.h, 28, 28, "F");
@@ -786,16 +990,19 @@
       pdf.setFont("helvetica", "bold");
       pdf.setFontSize(10);
       pdf.text(sanitizePdfText(COMPANY.toUpperCase()), titleX, header.y + 34);
-      pdf.setFontSize(28);
-      pdf.text("DEVIS ESTIMATIF", titleX, header.y + 68);
+      const headerTitle = "DEVIS ESTIMATIF";
+      const titleFontSize = fitPdfFontSize(pdf, headerTitle, titleMaxWidth, 28, 22);
+      pdf.setFontSize(titleFontSize);
+      pdf.text(headerTitle, titleX, header.y + 68);
       pdf.setFont("helvetica", "normal");
       pdf.setFontSize(11);
       pdf.setTextColor(194, 205, 225);
+      const subtitleLines = pdf.splitTextToSize(
+        sanitizePdfText(`Simulation premium pour ${projectType.toLowerCase()}. ${selectedLabel}.`),
+        titleMaxWidth
+      );
       pdf.text(
-        pdf.splitTextToSize(
-          sanitizePdfText(`Simulation premium pour ${projectType.toLowerCase()}. ${selectedLabel}.`),
-          Math.max(120, metaX - titleX - 26)
-        ),
+        subtitleLines,
         titleX,
         header.y + 92
       );
@@ -818,14 +1025,15 @@
 
       const cardGap = 16;
       const cardWidth = (contentWidth - cardGap) / 2;
-      const clientLines = pdf.splitTextToSize(sanitizePdfText(buildClientPdfText(summary.client)), cardWidth - 28);
+      const cardTextWidth = cardWidth - (cardPaddingX * 2);
+      const clientLines = pdf.splitTextToSize(sanitizePdfText(buildClientPdfText(summary.client)), cardTextWidth);
       const frameLines = pdf.splitTextToSize(
         sanitizePdfText(
           `Projet ${projectType}. Budget de lancement ${formatPdfRange(summary.launchMin, summary.launchMax)}.${summary.recurringMin || summary.recurringMax ? ` Budget mensuel ${formatPdfRange(summary.recurringMin, summary.recurringMax, " / mois")}.` : " Aucun abonnement mensuel n'est inclus."}`
         ),
-        cardWidth - 28
+        cardTextWidth
       );
-      const cardHeight = 56 + (Math.max(clientLines.length, frameLines.length) * 14);
+      const cardHeight = 64 + (Math.max(clientLines.length, frameLines.length) * cardLineHeight);
       const cardY = header.y + header.h + 18;
 
       drawPdfInfoCard(pdf, {
@@ -837,6 +1045,7 @@
         lines: clientLines,
         palette,
         accent: palette.cyan,
+        paddingX: cardPaddingX,
       });
 
       drawPdfInfoCard(pdf, {
@@ -848,6 +1057,7 @@
         lines: frameLines,
         palette,
         accent: palette.orange,
+        paddingX: cardPaddingX,
       });
 
       const tableLabelY = cardY + cardHeight + 28;
@@ -938,12 +1148,13 @@
       ];
       const metricGap = 12;
       const metricWidth = (contentWidth - (metricGap * 2)) / 3;
+      const metricTextWidth = metricWidth - (metricPaddingX * 2);
       const metricLineSets = metrics.map(function(metric){
-        return pdf.splitTextToSize(sanitizePdfText(metric.value), metricWidth - 24);
+        return pdf.splitTextToSize(sanitizePdfText(metric.value), metricTextWidth);
       });
-      const metricHeight = 56 + (Math.max.apply(null, metricLineSets.map(function(lines){
+      const metricHeight = 60 + (Math.max.apply(null, metricLineSets.map(function(lines){
         return lines.length;
-      })) * 16);
+      })) * metricLineHeight);
       const metricY = y + 12;
 
       metrics.forEach(function(metric, index){
@@ -957,6 +1168,7 @@
           palette,
           accent: metric.accent,
           dark: !!metric.dark,
+          paddingX: metricPaddingX,
         });
       });
 
@@ -1207,6 +1419,21 @@
       .replace(/[•·]/g, "-");
   }
 
+  function getPdfLineHeight(fontSize, factor){
+    return Number(fontSize || 10) * Number(factor || 1.2);
+  }
+
+  function fitPdfFontSize(pdf, text, maxWidth, startSize, minSize){
+    let size = Number(startSize || 12);
+    const floor = Number(minSize || 8);
+    pdf.setFontSize(size);
+    while(size > floor && pdf.getTextWidth(sanitizePdfText(text)) > maxWidth){
+      size -= 1;
+      pdf.setFontSize(size);
+    }
+    return size;
+  }
+
   function paintPdfPageBackground(pdf, pageWidth, pageHeight, fillColor){
     pdf.setFillColor(...fillColor);
     pdf.rect(0, 0, pageWidth, pageHeight, "F");
@@ -1224,22 +1451,24 @@
 
   function drawPdfInfoCard(pdf, options){
     const accent = options.accent || [42, 182, 255];
+    const paddingX = Number(options.paddingX || 16);
     pdf.setFillColor(...options.palette.surface);
     pdf.setDrawColor(...options.palette.line);
     pdf.roundedRect(options.x, options.y, options.w, options.h, 22, 22, "FD");
     pdf.setFillColor(...accent);
-    pdf.roundedRect(options.x + 16, options.y + 16, 42, 5, 2.5, 2.5, "F");
+    pdf.roundedRect(options.x + paddingX, options.y + 16, 42, 5, 2.5, 2.5, "F");
     pdf.setFont("helvetica", "bold");
     pdf.setFontSize(11);
     pdf.setTextColor(...options.palette.text);
-    pdf.text(sanitizePdfText(options.title), options.x + 16, options.y + 38);
+    pdf.text(sanitizePdfText(options.title), options.x + paddingX, options.y + 38);
     pdf.setFont("helvetica", "normal");
     pdf.setFontSize(10);
     pdf.setTextColor(...options.palette.muted);
-    pdf.text(options.lines, options.x + 16, options.y + 58);
+    pdf.text(options.lines, options.x + paddingX, options.y + 60);
   }
 
   function drawPdfMetricCard(pdf, options){
+    const paddingX = Number(options.paddingX || 16);
     if(options.dark){
       pdf.setFillColor(...options.palette.dark);
       pdf.setDrawColor(...options.palette.dark);
@@ -1252,13 +1481,13 @@
       pdf.setTextColor(...options.palette.text);
     }
     pdf.setFillColor(...options.accent);
-    pdf.roundedRect(options.x + 16, options.y + 16, 44, 5, 2.5, 2.5, "F");
+    pdf.roundedRect(options.x + paddingX, options.y + 16, 44, 5, 2.5, 2.5, "F");
     pdf.setFont("helvetica", "bold");
     pdf.setFontSize(10);
-    pdf.text(sanitizePdfText(options.label), options.x + 16, options.y + 38);
+    pdf.text(sanitizePdfText(options.label), options.x + paddingX, options.y + 38);
     pdf.setFont("helvetica", "bold");
     pdf.setFontSize(16);
-    pdf.text(options.valueLines, options.x + 16, options.y + 64);
+    pdf.text(options.valueLines, options.x + paddingX, options.y + 66);
   }
 
   async function resolvePublicPdfLogo(){

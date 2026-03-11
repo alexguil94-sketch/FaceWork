@@ -122,36 +122,70 @@ body.landing-home.quote-page .quote-category-nav {
   gap: 10px;
 }
 
-body.landing-home.quote-page .quote-category-nav a {
+body.landing-home.quote-page .quote-category-nav button {
   display: inline-flex;
   align-items: center;
+  gap: 10px;
   min-height: 42px;
   padding: 0 16px;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.05);
   color: #eef5ff;
+  font: inherit;
+  cursor: pointer;
   transition:
     transform 180ms ease,
     border-color 180ms ease,
     background-color 180ms ease;
 }
 
-body.landing-home.quote-page .quote-category-nav a:hover,
-body.landing-home.quote-page .quote-category-nav a:focus-visible {
+body.landing-home.quote-page .quote-category-nav button:hover,
+body.landing-home.quote-page .quote-category-nav button:focus-visible,
+body.landing-home.quote-page .quote-category-nav button.is-active {
   transform: translateY(-1px);
   border-color: rgba(129, 235, 255, 0.32);
   background: rgba(255, 255, 255, 0.08);
 }
 
+body.landing-home.quote-page .quote-category-nav-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  padding: 0 0.38rem;
+  border-radius: 999px;
+  background: rgba(129, 235, 255, 0.14);
+  color: var(--landing-cyan);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
 body.landing-home.quote-page .quote-category-list {
   display: grid;
-  gap: 26px;
+  gap: 18px;
 }
 
 body.landing-home.quote-page .service-category {
-  padding: 28px;
+  padding: 22px 22px 18px;
   border-radius: 30px;
+  overflow: hidden;
+}
+
+body.landing-home.quote-page .service-category-toggle {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: start;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
 }
 
 body.landing-home.quote-page .service-category-head {
@@ -169,16 +203,117 @@ body.landing-home.quote-page .service-category-head p {
 body.landing-home.quote-page .service-category-head h3 {
   margin: 0;
   font-family: var(--landing-display);
-  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  font-size: clamp(1.55rem, 2.6vw, 2.3rem);
   line-height: 0.98;
   letter-spacing: -0.04em;
+}
+
+body.landing-home.quote-page .service-category-meta {
+  display: grid;
+  justify-items: end;
+  gap: 10px;
+}
+
+body.landing-home.quote-page .service-category-badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+body.landing-home.quote-page .service-category-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #f3f8ff;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+body.landing-home.quote-page .service-category-badge.is-accent {
+  background: rgba(129, 235, 255, 0.14);
+  color: var(--landing-cyan);
+}
+
+body.landing-home.quote-page .service-category-caret {
+  width: 48px;
+  height: 48px;
+  position: relative;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease;
+}
+
+body.landing-home.quote-page .service-category-caret::before,
+body.landing-home.quote-page .service-category-caret::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 12px;
+  height: 2px;
+  border-radius: 999px;
+  background: #ffffff;
+  transform-origin: center;
+  transition: transform 180ms ease;
+}
+
+body.landing-home.quote-page .service-category-caret::before {
+  transform: translate(-72%, -50%) rotate(45deg);
+}
+
+body.landing-home.quote-page .service-category-caret::after {
+  transform: translate(-28%, -50%) rotate(-45deg);
+}
+
+body.landing-home.quote-page .service-category-toggle:hover .service-category-caret,
+body.landing-home.quote-page .service-category-toggle:focus-visible .service-category-caret,
+body.landing-home.quote-page .service-category.is-open .service-category-caret {
+  border-color: rgba(129, 235, 255, 0.34);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+body.landing-home.quote-page .service-category.is-open .service-category-caret::before {
+  transform: translate(-72%, -50%) rotate(-45deg);
+}
+
+body.landing-home.quote-page .service-category.is-open .service-category-caret::after {
+  transform: translate(-28%, -50%) rotate(45deg);
+}
+
+body.landing-home.quote-page .service-category-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0.24;
+  transition:
+    grid-template-rows 220ms ease,
+    opacity 180ms ease,
+    margin-top 180ms ease;
+}
+
+body.landing-home.quote-page .service-category-panel.is-open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  margin-top: 18px;
+}
+
+body.landing-home.quote-page .service-category-panel-inner {
+  overflow: hidden;
 }
 
 body.landing-home.quote-page .service-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
-  margin-top: 20px;
 }
 
 body.landing-home.quote-page .service-card {
@@ -550,6 +685,46 @@ body.landing-home.quote-page .quote-document-card {
   overflow: hidden;
 }
 
+body.landing-home.quote-page .quote-document-preview {
+  display: grid;
+  gap: 18px;
+  margin-top: 18px;
+  padding: 20px 22px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    radial-gradient(circle at top left, rgba(42, 182, 255, 0.14), rgba(42, 182, 255, 0) 34%),
+    linear-gradient(180deg, rgba(12, 19, 33, 0.94), rgba(6, 9, 17, 0.98));
+}
+
+body.landing-home.quote-page .quote-document-preview p {
+  margin: 0;
+  color: var(--landing-muted);
+  line-height: 1.72;
+}
+
+body.landing-home.quote-page .quote-document-preview-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+body.landing-home.quote-page .quote-document-preview-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: #eef5ff;
+  font-size: 0.82rem;
+}
+
+body.landing-home.quote-page .quote-document-print-only {
+  display: none;
+}
+
 body.landing-home.quote-page .quote-document {
   border-radius: 28px;
   margin-top: 18px;
@@ -734,6 +909,85 @@ body.landing-home.quote-page .quote-doc-note p {
   line-height: 1.74;
 }
 
+body.landing-home.quote-page .quote-preview-modal {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 28px;
+  z-index: 130;
+}
+
+body.landing-home.quote-page .quote-preview-modal[hidden] {
+  display: none;
+}
+
+body.landing-home.quote-page .quote-preview-backdrop {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at center, rgba(42, 182, 255, 0.12), rgba(4, 7, 14, 0.92) 58%),
+    rgba(2, 4, 10, 0.9);
+  backdrop-filter: blur(12px);
+}
+
+body.landing-home.quote-page .quote-preview-dialog {
+  position: relative;
+  width: min(1100px, 94vw);
+  max-height: min(90vh, 980px);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 18px;
+  padding: 22px;
+  border-radius: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    radial-gradient(circle at top left, rgba(42, 182, 255, 0.12), rgba(42, 182, 255, 0) 30%),
+    linear-gradient(180deg, rgba(7, 11, 20, 0.96), rgba(5, 7, 13, 0.98));
+  box-shadow: 0 40px 120px rgba(0, 0, 0, 0.5);
+}
+
+body.landing-home.quote-page .quote-preview-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  justify-content: space-between;
+  align-items: start;
+}
+
+body.landing-home.quote-page .quote-preview-copy {
+  display: grid;
+  gap: 8px;
+  max-width: 42rem;
+}
+
+body.landing-home.quote-page .quote-preview-copy h2,
+body.landing-home.quote-page .quote-preview-copy p {
+  margin: 0;
+}
+
+body.landing-home.quote-page .quote-preview-copy p:last-child {
+  color: var(--landing-muted);
+  line-height: 1.7;
+}
+
+body.landing-home.quote-page .quote-preview-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+body.landing-home.quote-page .quote-preview-body {
+  min-height: 0;
+  overflow: auto;
+  padding-right: 6px;
+}
+
+body.landing-home.quote-page .quote-preview-body .quote-document {
+  margin-top: 0;
+}
+
 body.landing-home.quote-page .contact-stage {
   display: grid;
   grid-template-columns: minmax(0, 0.86fr) minmax(340px, 0.94fr);
@@ -834,6 +1088,16 @@ body.landing-home.quote-page .quote-request-full {
   body.landing-home.quote-page .quote-request-grid {
     grid-template-columns: 1fr;
   }
+
+  body.landing-home.quote-page .service-category-toggle {
+    grid-template-columns: 1fr;
+  }
+
+  body.landing-home.quote-page .service-category-meta,
+  body.landing-home.quote-page .service-category-badges {
+    justify-items: start;
+    justify-content: flex-start;
+  }
 }
 
 @media (max-width: 760px) {
@@ -856,13 +1120,26 @@ body.landing-home.quote-page .quote-request-full {
 
   body.landing-home.quote-page .service-card-head,
   body.landing-home.quote-page .quote-selection-line,
-  body.landing-home.quote-page .quote-doc-top {
+  body.landing-home.quote-page .quote-doc-top,
+  body.landing-home.quote-page .quote-preview-head,
+  body.landing-home.quote-page .quote-preview-actions {
     flex-direction: column;
   }
 
   body.landing-home.quote-page .quote-doc-badge {
     min-width: 0;
     width: 100%;
+  }
+
+  body.landing-home.quote-page .quote-preview-modal {
+    padding: 16px;
+  }
+
+  body.landing-home.quote-page .quote-preview-dialog {
+    width: 100%;
+    max-height: calc(100vh - 32px);
+    padding: 18px;
+    border-radius: 24px;
   }
 
   body.landing-home.quote-page .quote-doc-table th:nth-child(3),
@@ -889,7 +1166,8 @@ body.landing-home.quote-page .quote-request-full {
   body.landing-home.quote-page .contact-stage,
   body.landing-home.quote-page .site-footer,
   body.landing-home.quote-page .toast,
-  body.landing-home.quote-page .image-modal {
+  body.landing-home.quote-page .image-modal,
+  body.landing-home.quote-page .quote-preview-modal {
     display: none !important;
   }
 
@@ -909,7 +1187,12 @@ body.landing-home.quote-page .quote-request-full {
     background: transparent;
   }
 
+  body.landing-home.quote-page .quote-document-preview {
+    display: none !important;
+  }
+
   body.landing-home.quote-page .quote-document {
+    display: block !important;
     padding: 0;
     border-radius: 0;
     box-shadow: none;
