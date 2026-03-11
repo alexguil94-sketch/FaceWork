@@ -11,7 +11,6 @@
   const metricsNode = document.getElementById("summary-metrics");
   const selectedServicesNode = document.getElementById("selected-services");
   const documentNode = document.getElementById("quote-document");
-  const jsonNode = document.getElementById("summary-json");
   const requestForm = document.getElementById("quote-request-form");
   const projectTypeField = document.getElementById("project-type");
   const estimatedBudgetField = document.getElementById("estimated-budget");
@@ -24,8 +23,9 @@
   const toast = document.querySelector(".toast");
   const STORAGE_KEY = "digitalex-premium-quote-v2";
   const CONTACT_EMAIL = DATA.contactEmail || "alexguil94@hotmail.fr";
-  const COMPANY = DATA.companyName || "Digitalex Studio";
+  const COMPANY = DATA.companyName || "Digitalexis-Studio";
   const LEGAL_NOTE = DATA.legalNote || "Tarifs indicatifs. Le devis final reste ajuste au besoin reel.";
+  const PDF_LOGO_URL = DATA.logoUrl || "assets/favicon_DS.png";
   const serviceIndex = new Map();
   const categoryIndex = new Map();
 
@@ -37,7 +37,6 @@
     || !metricsNode
     || !selectedServicesNode
     || !documentNode
-    || !jsonNode
     || !requestForm
     || !projectTypeField
     || !estimatedBudgetField
@@ -125,8 +124,6 @@
           return;
         }
         window.print();
-      }else if(action === "copy-json"){
-        copySummaryJson();
       }else if(action === "reset-services"){
         resetSelections();
       }else if(action === "copy-summary"){
@@ -297,7 +294,6 @@
     metricsNode.innerHTML = buildMetricsMarkup(summary);
     selectedServicesNode.innerHTML = buildSelectedServicesMarkup(summary);
     documentNode.innerHTML = buildPrintableDocument(summary);
-    jsonNode.textContent = JSON.stringify(summary.jsonPayload, null, 2);
     estimatedBudgetField.value = summary.budgetLabel;
     summaryJsonField.value = JSON.stringify(summary.jsonPayload);
     syncSuggestedProjectType(summary);
@@ -696,14 +692,6 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }
 
-  function copySummaryJson(){
-    if(!hasActiveSelections()){
-      showToast("Ajoute au moins une prestation avant de copier le JSON.");
-      return;
-    }
-    copyText(JSON.stringify(buildSummary().jsonPayload, null, 2), "Le JSON du devis a ete copie.");
-  }
-
   function copyReadableSummary(){
     const summary = buildSummary();
     if(!summary.lines.length){
@@ -736,7 +724,7 @@
     }
   }
 
-  function downloadPdf(){
+  async function downloadPdf(){
     const summary = buildSummary();
     if(!summary.lines.length){
       showToast("Ajoute au moins une prestation avant de generer le PDF.");
@@ -749,104 +737,274 @@
       return;
     }
 
-    const pdf = new pdfCtor({ unit: "pt", format: "a4" });
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const margin = 42;
+    try{
+      const pdf = new pdfCtor({ unit: "pt", format: "a4" });
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 42;
+      const contentWidth = pageWidth - (margin * 2);
+      const palette = {
+        page: [244, 247, 255],
+        surface: [255, 255, 255],
+        surfaceSoft: [247, 250, 255],
+        line: [218, 227, 239],
+        text: [16, 24, 39],
+        muted: [102, 112, 133],
+        dark: [5, 7, 13],
+        darkSoft: [11, 18, 32],
+        cyan: [42, 182, 255],
+        orange: [255, 146, 44],
+        gold: [255, 211, 140],
+      };
+      const projectType = sanitizePdfText(projectTypeField.value || summary.dominantCategory || "Projet mixte");
+      const selectedLabel = `${summary.selectedCount} prestation${summary.selectedCount > 1 ? "s" : ""} selectionnee${summary.selectedCount > 1 ? "s" : ""}`;
 
-    pdf.setFillColor(8, 17, 32);
-    pdf.rect(0, 0, pageWidth, 18, "F");
-    pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(24);
-    pdf.setTextColor(16, 24, 39);
-    pdf.text("DEVIS ESTIMATIF", margin, 56);
-    pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(12);
-    pdf.text(COMPANY, margin, 76);
-    pdf.text(`Numero : ${summary.quoteNumber}`, pageWidth - margin - 170, 42);
-    pdf.text(`Emission : ${formatDate(summary.issueDate)}`, pageWidth - margin - 170, 58);
-    pdf.text(`Validite : ${formatDate(summary.validUntil)}`, pageWidth - margin - 170, 74);
+      paintPdfPageBackground(pdf, pageWidth, pageHeight, palette.page);
 
-    const columnGap = 24;
-    const columnWidth = (pageWidth - (margin * 2) - columnGap) / 2;
-    const rightColumnX = margin + columnWidth + columnGap;
-    const clientLines = pdf.splitTextToSize(buildClientPdfText(summary.client), columnWidth);
-    const frameLines = pdf.splitTextToSize(`Projet ${summary.dominantCategory || "mixte"} avec estimation indicative. ${LEGAL_NOTE}`, columnWidth);
+      const logo = await resolvePublicPdfLogo();
+      const header = { x: margin, y: 28, w: contentWidth, h: 138 };
+      const metaWidth = 168;
+      const metaX = header.x + header.w - metaWidth - 20;
+      const titleX = logo ? header.x + 96 : header.x + 26;
 
-    pdf.setFont("helvetica", "bold");
-    pdf.text("Client", margin, 118);
-    pdf.setFont("helvetica", "normal");
-    pdf.text(clientLines, margin, 136);
+      pdf.setFillColor(...palette.dark);
+      pdf.roundedRect(header.x, header.y, header.w, header.h, 28, 28, "F");
+      pdf.setFillColor(...palette.cyan);
+      pdf.rect(header.x, header.y, 160, 6, "F");
+      pdf.setFillColor(...palette.orange);
+      pdf.rect(header.x + 160, header.y, 88, 6, "F");
+      pdf.setFillColor(...palette.cyan);
+      pdf.circle(header.x + header.w - 56, header.y + 28, 8, "F");
+      pdf.setFillColor(...palette.orange);
+      pdf.circle(header.x + header.w - 30, header.y + 46, 6, "F");
 
-    pdf.setFont("helvetica", "bold");
-    pdf.text("Cadre", rightColumnX, 118);
-    pdf.setFont("helvetica", "normal");
-    pdf.text(frameLines, rightColumnX, 136);
+      if(logo){
+        pdf.addImage(logo, "PNG", header.x + 24, header.y + 24, 50, 50, undefined, "FAST");
+      }
 
-    const blockHeight = Math.max(clientLines.length, frameLines.length) * 14;
-    const tableStartY = 160 + blockHeight;
+      pdf.setTextColor(236, 244, 255);
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(10);
+      pdf.text(sanitizePdfText(COMPANY.toUpperCase()), titleX, header.y + 34);
+      pdf.setFontSize(28);
+      pdf.text("DEVIS ESTIMATIF", titleX, header.y + 68);
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(11);
+      pdf.setTextColor(194, 205, 225);
+      pdf.text(
+        pdf.splitTextToSize(
+          sanitizePdfText(`Simulation premium pour ${projectType.toLowerCase()}. ${selectedLabel}.`),
+          Math.max(120, metaX - titleX - 26)
+        ),
+        titleX,
+        header.y + 92
+      );
 
-    if(typeof pdf.autoTable === "function"){
-      pdf.autoTable({
-        startY: tableStartY,
-        margin: { left: margin, right: margin },
-        head: [["Prestation", "Categorie", "Qt", "Facturation", "Estimation"]],
-        body: summary.lines.map(function(line){
-          return [
-            line.title,
-            line.categoryTitle,
-            String(line.quantity),
-            line.billing === "monthly" ? "Mensuel" : "Ponctuel",
-            formatRange(line.lineMin, line.lineMax),
-          ];
-        }),
-        styles: {
-          font: "helvetica",
-          fontSize: 10,
-          cellPadding: 10,
-          textColor: [18, 24, 39],
-          lineColor: [228, 234, 242],
-        },
-        headStyles: {
-          fillColor: [8, 17, 32],
-          textColor: [245, 248, 255],
-          fontStyle: "bold",
-        },
+      pdf.setFillColor(...palette.darkSoft);
+      pdf.roundedRect(metaX, header.y + 20, metaWidth, 98, 18, 18, "F");
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(8);
+      pdf.setTextColor(...palette.gold);
+      pdf.text("DOCUMENT", metaX + 16, header.y + 38);
+      pdf.setTextColor(236, 244, 255);
+      pdf.setFontSize(9);
+      pdf.text("Numero", metaX + 16, header.y + 58);
+      pdf.text("Emission", metaX + 16, header.y + 80);
+      pdf.text("Validite", metaX + 16, header.y + 102);
+      pdf.setFont("helvetica", "normal");
+      pdf.text(sanitizePdfText(summary.quoteNumber), metaX + 72, header.y + 58);
+      pdf.text(sanitizePdfText(formatDate(summary.issueDate)), metaX + 72, header.y + 80);
+      pdf.text(sanitizePdfText(formatDate(summary.validUntil)), metaX + 72, header.y + 102);
+
+      const cardGap = 16;
+      const cardWidth = (contentWidth - cardGap) / 2;
+      const clientLines = pdf.splitTextToSize(sanitizePdfText(buildClientPdfText(summary.client)), cardWidth - 28);
+      const frameLines = pdf.splitTextToSize(
+        sanitizePdfText(
+          `Projet ${projectType}. Budget de lancement ${formatPdfRange(summary.launchMin, summary.launchMax)}.${summary.recurringMin || summary.recurringMax ? ` Budget mensuel ${formatPdfRange(summary.recurringMin, summary.recurringMax, " / mois")}.` : " Aucun abonnement mensuel n'est inclus."}`
+        ),
+        cardWidth - 28
+      );
+      const cardHeight = 56 + (Math.max(clientLines.length, frameLines.length) * 14);
+      const cardY = header.y + header.h + 18;
+
+      drawPdfInfoCard(pdf, {
+        x: margin,
+        y: cardY,
+        w: cardWidth,
+        h: cardHeight,
+        title: "Client",
+        lines: clientLines,
+        palette,
+        accent: palette.cyan,
       });
-    }
 
-    let y = (pdf.lastAutoTable?.finalY || 240) + 24;
-    const rows = [
-      ["Lancement", formatRange(summary.launchMin, summary.launchMax)],
-      ["Mensuel", summary.recurringMin || summary.recurringMax ? formatRange(summary.recurringMin, summary.recurringMax, " / mois") : "Aucun"],
-      ["Projection totale", formatRange(summary.projectionMin, summary.projectionMax)],
-    ];
+      drawPdfInfoCard(pdf, {
+        x: margin + cardWidth + cardGap,
+        y: cardY,
+        w: cardWidth,
+        h: cardHeight,
+        title: "Cadrage",
+        lines: frameLines,
+        palette,
+        accent: palette.orange,
+      });
 
-    pdf.setFont("helvetica", "bold");
-    pdf.text("Recapitulatif", pageWidth - 210, y);
-    y += 18;
-    pdf.setFont("helvetica", "normal");
-    rows.forEach(function(row, index){
-      if(index === rows.length - 1){
-        pdf.setFont("helvetica", "bold");
+      const tableLabelY = cardY + cardHeight + 28;
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(14);
+      pdf.setTextColor(...palette.text);
+      pdf.text("Prestations retenues", margin, tableLabelY);
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(10);
+      pdf.setTextColor(...palette.muted);
+      pdf.text("Synthese actuelle du simulateur avec estimation indicative.", margin, tableLabelY + 16);
+
+      if(typeof pdf.autoTable === "function"){
+        pdf.autoTable({
+          startY: tableLabelY + 28,
+          margin: { left: margin, right: margin },
+          tableWidth: contentWidth,
+          head: [["Prestation", "Categorie", "Qt", "Mode", "Estimation"]],
+          body: summary.lines.map(function(line){
+            return [
+              sanitizePdfText(line.title),
+              sanitizePdfText(line.categoryTitle),
+              String(line.quantity),
+              line.billing === "monthly" ? "Mensuel" : "Ponctuel",
+              formatPdfRange(line.lineMin, line.lineMax),
+            ];
+          }),
+          theme: "plain",
+          headStyles: {
+            fillColor: palette.dark,
+            textColor: [245, 248, 255],
+            fontStyle: "bold",
+            fontSize: 10,
+            cellPadding: { top: 10, right: 10, bottom: 10, left: 10 },
+          },
+          bodyStyles: {
+            font: "helvetica",
+            fontSize: 10,
+            textColor: palette.text,
+            cellPadding: { top: 9, right: 10, bottom: 9, left: 10 },
+            lineColor: palette.line,
+            lineWidth: 0.8,
+            valign: "middle",
+          },
+          alternateRowStyles: {
+            fillColor: [248, 250, 254],
+          },
+          columnStyles: {
+            0: { cellWidth: 175 },
+            1: { cellWidth: 120 },
+            2: { cellWidth: 42, halign: "center" },
+            3: { cellWidth: 72, halign: "center" },
+            4: { cellWidth: 102, halign: "right" },
+          },
+        });
       }
-      pdf.text(row[0], pageWidth - 210, y);
-      pdf.text(row[1], pageWidth - margin, y, { align: "right" });
-      if(index === rows.length - 1){
+
+      let y = ensurePdfRoom(pdf, (pdf.lastAutoTable?.finalY || (tableLabelY + 28)) + 26, 180, {
+        top: 56,
+        pageWidth,
+        pageHeight,
+        background: palette.page,
+      });
+
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(14);
+      pdf.setTextColor(...palette.text);
+      pdf.text("Budget indicatif", margin, y);
+      y += 14;
+
+      const metrics = [
+        {
+          label: "Lancement",
+          value: formatPdfRange(summary.launchMin, summary.launchMax),
+          accent: palette.cyan,
+        },
+        {
+          label: "Mensuel",
+          value: summary.recurringMin || summary.recurringMax ? formatPdfRange(summary.recurringMin, summary.recurringMax, " / mois") : "Aucun abonnement",
+          accent: palette.orange,
+        },
+        {
+          label: "Projection totale",
+          value: formatPdfRange(summary.projectionMin, summary.projectionMax),
+          accent: palette.gold,
+          dark: true,
+        },
+      ];
+      const metricGap = 12;
+      const metricWidth = (contentWidth - (metricGap * 2)) / 3;
+      const metricLineSets = metrics.map(function(metric){
+        return pdf.splitTextToSize(sanitizePdfText(metric.value), metricWidth - 24);
+      });
+      const metricHeight = 56 + (Math.max.apply(null, metricLineSets.map(function(lines){
+        return lines.length;
+      })) * 16);
+      const metricY = y + 12;
+
+      metrics.forEach(function(metric, index){
+        drawPdfMetricCard(pdf, {
+          x: margin + (index * (metricWidth + metricGap)),
+          y: metricY,
+          w: metricWidth,
+          h: metricHeight,
+          label: metric.label,
+          valueLines: metricLineSets[index],
+          palette,
+          accent: metric.accent,
+          dark: !!metric.dark,
+        });
+      });
+
+      y = ensurePdfRoom(pdf, metricY + metricHeight + 24, 120, {
+        top: 56,
+        pageWidth,
+        pageHeight,
+        background: palette.page,
+      });
+
+      const noteLines = pdf.splitTextToSize(
+        sanitizePdfText(`${LEGAL_NOTE} Le devis final est personnalise apres echange et validation du perimetre.`),
+        contentWidth - 42
+      );
+      const noteHeight = 58 + (noteLines.length * 14);
+      pdf.setFillColor(...palette.surfaceSoft);
+      pdf.setDrawColor(...palette.line);
+      pdf.roundedRect(margin, y, contentWidth, noteHeight, 24, 24, "FD");
+      pdf.setFillColor(...palette.cyan);
+      pdf.roundedRect(margin + 18, y + 18, 6, noteHeight - 36, 3, 3, "F");
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(12);
+      pdf.setTextColor(...palette.text);
+      pdf.text("Note importante", margin + 36, y + 30);
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(10);
+      pdf.setTextColor(...palette.muted);
+      pdf.text(noteLines, margin + 36, y + 50);
+
+      const totalPages = pdf.getNumberOfPages();
+      for(let pageNumber = 1; pageNumber <= totalPages; pageNumber += 1){
+        pdf.setPage(pageNumber);
+        pdf.setDrawColor(...palette.line);
+        pdf.line(margin, pageHeight - 34, pageWidth - margin, pageHeight - 34);
         pdf.setFont("helvetica", "normal");
+        pdf.setFontSize(9);
+        pdf.setTextColor(...palette.muted);
+        pdf.text(sanitizePdfText(`${COMPANY} | ${summary.quoteNumber} | ${CONTACT_EMAIL}`), margin, pageHeight - 20);
+        pdf.text(`Page ${pageNumber} / ${totalPages}`, pageWidth - margin, pageHeight - 20, { align: "right" });
       }
-      y += 18;
-    });
 
-    y += 18;
-    pdf.setFont("helvetica", "bold");
-    pdf.text("Note", margin, y);
-    y += 16;
-    pdf.setFont("helvetica", "normal");
-    pdf.text(pdf.splitTextToSize(`${LEGAL_NOTE} Le devis final est personnalise apres echange et validation du perimetre.`, pageWidth - (margin * 2)), margin, y);
-
-    const pdfFileName = slugify(`${summary.quoteNumber || "devis-digitalex-studio"}-${summary.client.displayName !== "Prospect" ? summary.client.displayName : COMPANY}`) || "devis-digitalex-studio";
-    pdf.save(`${pdfFileName}.pdf`);
-    showToast("Le PDF du devis a ete telecharge.");
+      const pdfFileName = slugify(`${summary.quoteNumber || "devis-digitalexis-studio"}-${summary.client.displayName !== "Prospect" ? summary.client.displayName : COMPANY}`) || "devis-digitalexis-studio";
+      pdf.save(`${pdfFileName}.pdf`);
+      showToast("Le PDF du devis a ete telecharge.");
+    }catch(error){
+      console.error("[devis-public] pdf generation failed", error);
+      showToast("Impossible de generer le PDF pour le moment.");
+    }
   }
 
   function updateClientDetails(fieldName, value, source){
@@ -1026,6 +1184,113 @@
     return `${formatMoney(min)} a ${formatMoney(max)}${extra}`;
   }
 
+  function formatPdfMoney(value){
+    const amount = Math.round(Number(value || 0));
+    const sign = amount < 0 ? "-" : "";
+    const digits = Math.abs(amount).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+    return `${sign}${digits} ${(DATA.currency || "EUR").toUpperCase()}`;
+  }
+
+  function formatPdfRange(min, max, suffix){
+    const extra = suffix || "";
+    if(Number(min) === Number(max)){
+      return `${formatPdfMoney(min)}${extra}`;
+    }
+    return `${formatPdfMoney(min)} a ${formatPdfMoney(max)}${extra}`;
+  }
+
+  function sanitizePdfText(value){
+    return String(value || "")
+      .replace(/\u202f/g, " ")
+      .replace(/\u00a0/g, " ")
+      .replace(/[–—]/g, "-")
+      .replace(/[•·]/g, "-");
+  }
+
+  function paintPdfPageBackground(pdf, pageWidth, pageHeight, fillColor){
+    pdf.setFillColor(...fillColor);
+    pdf.rect(0, 0, pageWidth, pageHeight, "F");
+  }
+
+  function ensurePdfRoom(pdf, y, needed, options){
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    if((y + needed) <= (pageHeight - 52)){
+      return y;
+    }
+    pdf.addPage();
+    paintPdfPageBackground(pdf, options.pageWidth, options.pageHeight, options.background);
+    return Number(options.top || 48);
+  }
+
+  function drawPdfInfoCard(pdf, options){
+    const accent = options.accent || [42, 182, 255];
+    pdf.setFillColor(...options.palette.surface);
+    pdf.setDrawColor(...options.palette.line);
+    pdf.roundedRect(options.x, options.y, options.w, options.h, 22, 22, "FD");
+    pdf.setFillColor(...accent);
+    pdf.roundedRect(options.x + 16, options.y + 16, 42, 5, 2.5, 2.5, "F");
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(11);
+    pdf.setTextColor(...options.palette.text);
+    pdf.text(sanitizePdfText(options.title), options.x + 16, options.y + 38);
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(10);
+    pdf.setTextColor(...options.palette.muted);
+    pdf.text(options.lines, options.x + 16, options.y + 58);
+  }
+
+  function drawPdfMetricCard(pdf, options){
+    if(options.dark){
+      pdf.setFillColor(...options.palette.dark);
+      pdf.setDrawColor(...options.palette.dark);
+      pdf.roundedRect(options.x, options.y, options.w, options.h, 22, 22, "FD");
+      pdf.setTextColor(238, 244, 255);
+    }else{
+      pdf.setFillColor(...options.palette.surface);
+      pdf.setDrawColor(...options.palette.line);
+      pdf.roundedRect(options.x, options.y, options.w, options.h, 22, 22, "FD");
+      pdf.setTextColor(...options.palette.text);
+    }
+    pdf.setFillColor(...options.accent);
+    pdf.roundedRect(options.x + 16, options.y + 16, 44, 5, 2.5, 2.5, "F");
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(10);
+    pdf.text(sanitizePdfText(options.label), options.x + 16, options.y + 38);
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(16);
+    pdf.text(options.valueLines, options.x + 16, options.y + 64);
+  }
+
+  async function resolvePublicPdfLogo(){
+    const raw = String(PDF_LOGO_URL || "").trim();
+    if(!raw) return "";
+    if(raw.startsWith("data:")) return raw;
+    try{
+      const response = await fetch(new URL(raw, window.location.href).href);
+      if(!response.ok){
+        throw new Error(`HTTP ${response.status}`);
+      }
+      const blob = await response.blob();
+      return await readBlobAsDataUrl(blob);
+    }catch(error){
+      console.warn("[devis-public] logo skipped", error);
+      return "";
+    }
+  }
+
+  function readBlobAsDataUrl(blob){
+    return new Promise(function(resolve, reject){
+      const reader = new FileReader();
+      reader.onload = function(){
+        resolve(String(reader.result || ""));
+      };
+      reader.onerror = function(){
+        reject(new Error("Lecture du logo impossible."));
+      };
+      reader.readAsDataURL(blob);
+    });
+  }
+
   function slugify(value){
     return String(value || "")
       .toLowerCase()
@@ -1061,3 +1326,4 @@
     }, 2600);
   }
 })();
+

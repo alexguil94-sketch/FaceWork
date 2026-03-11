@@ -2638,7 +2638,7 @@
                 <div class="crm-field"><label>Logo (URL ou data URL)</label><input name="logo_url" id="crmLogoUrl" value="${escapeHtml(settings.logo_url)}"/></div>
                 <div class="crm-field"><label>Uploader un logo</label><input type="file" id="crmLogoFile" accept="image/*"/></div>
               </div>
-              <div class="crm-doc-legal">Si ce champ reste vide, le logo Digitalex Studio sera utilise par defaut sur les devis, factures et PDF.</div>
+              <div class="crm-doc-legal">Si ce champ reste vide, le logo Digitalexis-Studio sera utilise par defaut sur les devis, factures et PDF.</div>
             </section>
 
             <section class="crm-form-section">
@@ -2816,3 +2816,4 @@
 
   initPage();
 })();
+

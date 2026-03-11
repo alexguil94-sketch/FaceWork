@@ -1,5 +1,5 @@
 window.DEVIS_PUBLIC_DATA = {
-  companyName: "Digitalex Studio",
+  companyName: "Digitalexis-Studio",
   contactEmail: "alexguil94@hotmail.fr",
   contactPhone: "+33 7 67 03 34 08",
   currency: "EUR",
@@ -487,3 +487,4 @@ window.DEVIS_PUBLIC_DATA = {
     }
   ]
 };
+

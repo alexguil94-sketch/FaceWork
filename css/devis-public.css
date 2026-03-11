@@ -386,8 +386,7 @@ body.landing-home.quote-page .quote-sidebar {
 body.landing-home.quote-page .quote-client-card,
 body.landing-home.quote-page .quote-summary-card,
 body.landing-home.quote-page .quote-selection-card,
-body.landing-home.quote-page .quote-document-card,
-body.landing-home.quote-page .quote-json-card {
+body.landing-home.quote-page .quote-document-card {
   padding: 26px;
 }
 
@@ -478,6 +477,18 @@ body.landing-home.quote-page .quote-summary-note {
   padding: 16px 18px;
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.04);
+}
+
+body.landing-home.quote-page .quote-action-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 16px;
+  margin-top: 22px;
+}
+
+body.landing-home.quote-page .quote-action-bar .button,
+body.landing-home.quote-page .form-actions .button {
+  padding-inline: 26px;
 }
 
 body.landing-home.quote-page .quote-selection-head {
@@ -723,22 +734,6 @@ body.landing-home.quote-page .quote-doc-note p {
   line-height: 1.74;
 }
 
-body.landing-home.quote-page .quote-json-card summary {
-  cursor: pointer;
-  font-weight: 700;
-}
-
-body.landing-home.quote-page .quote-json-card pre {
-  margin: 16px 0 0;
-  padding: 18px;
-  border-radius: 20px;
-  background: rgba(0, 0, 0, 0.18);
-  color: #dce8ff;
-  overflow: auto;
-  font-size: 0.84rem;
-  line-height: 1.65;
-}
-
 body.landing-home.quote-page .contact-stage {
   display: grid;
   grid-template-columns: minmax(0, 0.86fr) minmax(340px, 0.94fr);
@@ -848,7 +843,6 @@ body.landing-home.quote-page .quote-request-full {
   body.landing-home.quote-page .quote-summary-card,
   body.landing-home.quote-page .quote-selection-card,
   body.landing-home.quote-page .quote-document-card,
-  body.landing-home.quote-page .quote-json-card,
   body.landing-home.quote-page .contact-stage-form {
     padding: 22px;
   }
@@ -891,7 +885,6 @@ body.landing-home.quote-page .quote-request-full {
   body.landing-home.quote-page .quote-client-card,
   body.landing-home.quote-page .quote-summary-card,
   body.landing-home.quote-page .quote-selection-card,
-  body.landing-home.quote-page .quote-json-card,
   body.landing-home.quote-page .section-band,
   body.landing-home.quote-page .contact-stage,
   body.landing-home.quote-page .site-footer,

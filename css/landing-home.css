@@ -217,7 +217,7 @@ body.landing-home .header-actions {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 10px;
+  gap: 14px;
 }
 
 body.landing-home .site-header .button {
@@ -322,16 +322,16 @@ body.landing-home .cta-row,
 body.landing-home .form-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 24px;
+  gap: 14px 16px;
+  margin-top: 28px;
 }
 
 body.landing-home .button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 54px;
-  padding: 0 22px;
+  min-height: 56px;
+  padding: 0 26px;
   border-radius: 999px;
   border: 1px solid transparent;
   cursor: pointer;
