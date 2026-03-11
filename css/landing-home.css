@@ -1362,6 +1362,66 @@ body.landing-home .footer-simple-col a:focus-visible {
   color: #ffffff;
 }
 
+body.landing-home.landing-service .eyebrow {
+  letter-spacing: 0.22em;
+}
+
+body.landing-home.landing-service .hero h1,
+body.landing-home.landing-service .section-heading h2,
+body.landing-home.landing-service .story-copy h2 {
+  font-size: clamp(2.6rem, 5.4vw, 4.6rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+body.landing-home.landing-service .hero-text,
+body.landing-home.landing-service .section-heading p,
+body.landing-home.landing-service .story-copy p {
+  max-width: 42rem;
+  font-size: 0.98rem;
+  line-height: 1.9;
+}
+
+body.landing-home.landing-service .footer-simple {
+  gap: 24px;
+}
+
+body.landing-home.landing-service .footer-simple-header {
+  max-width: 46rem;
+}
+
+body.landing-home.landing-service .footer-simple-header h2 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  max-width: 18ch;
+}
+
+body.landing-home.landing-service .footer-simple-header p {
+  font-size: 0.96rem;
+  line-height: 1.86;
+  max-width: 40rem;
+}
+
+body.landing-home.landing-service .footer-simple-grid-compact {
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr) minmax(0, 0.9fr);
+}
+
+body.landing-home.landing-service .footer-simple-col {
+  gap: 8px;
+}
+
+body.landing-home.landing-service .footer-simple-col strong {
+  font-size: 0.98rem;
+}
+
+body.landing-home.landing-service .footer-simple-col p,
+body.landing-home.landing-service .footer-simple-col a,
+body.landing-home.landing-service .footer-meta,
+body.landing-home.landing-service .footer-bottom-links a {
+  font-size: 0.94rem;
+}
+
 body.landing-home .footer-bottom {
   display: flex;
   align-items: center;
@@ -1515,6 +1575,10 @@ body.landing-home .ai-fab {
   body.landing-home .footer-simple-header h2 {
     max-width: 15ch;
   }
+
+  body.landing-home.landing-service .footer-simple-grid-compact {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 @media (max-width: 760px) {
@@ -1631,6 +1695,12 @@ body.landing-home .ai-fab {
   body.landing-home .footer-simple-grid {
     grid-template-columns: 1fr;
   }
+
+  body.landing-home.landing-service .hero h1,
+  body.landing-home.landing-service .section-heading h2,
+  body.landing-home.landing-service .story-copy h2 {
+    font-size: clamp(2.25rem, 8vw, 3.5rem);
+  }
 }
 
 @media (max-width: 560px) {
@@ -1681,6 +1751,10 @@ body.landing-home .ai-fab {
 
   body.landing-home .footer-simple-header h2 {
     font-size: clamp(2rem, 11vw, 3rem);
+  }
+
+  body.landing-home.landing-service .footer-simple-header h2 {
+    font-size: clamp(1.85rem, 10vw, 2.6rem);
   }
 
   body.landing-home .footer-simple-actions .button {
