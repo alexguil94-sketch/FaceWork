@@ -8450,13 +8450,6 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
       });
     }
 
-    if(createMemberBtn && !createMemberBtn.__sbBound){
-      createMemberBtn.__sbBound = true;
-      createMemberBtn.addEventListener("click", ()=>{
-        window.fwToast?.("Info","Les membres apparaissent ici après s'être connectés (Supabase Auth).");
-      });
-    }
-
     if(!canManage){
       main.innerHTML = emptyAdminHtml("🔒","Accès réservé","Cette section est disponible pour les admins.");
       return;
@@ -8692,72 +8685,6 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
       `);
 
       $("#memCompany", main) && ($("#memCompany", main).disabled = true);
-
-      $("#adminMemberForm", main)?.addEventListener("submit", async (ev)=>{
-        ev.preventDefault();
-        const name = ($("#memName", main)?.value || "").trim() || "Membre";
-        const email = ($("#memEmail", main)?.value || "").trim();
-        const password = ($("#memPassword", main)?.value || "").trim();
-        if(!email || !email.includes("@")){
-          window.fwToast?.("Email invalide","Entre un email valide.");
-          return;
-        }
-        if(password && password.length < 6){
-          window.fwToast?.("Mot de passe","Minimum 6 caracteres.");
-          return;
-        }
-        const selected = Array.from(main.querySelectorAll('input[name="memberRole"]:checked'))
-          .map(el=> String(el.value))
-          .filter(Boolean);
-
-        const emailNorm = normalizeEmail(email);
-        const dup = members.find((m)=> String(m.id) !== String(id) && normalizeEmail(m?.email) === emailNorm);
-        if(dup){
-          window.fwToast?.("Email deja utilise","Cet email est deja utilise par un autre membre.");
-          return;
-        }
-
-        const result = await adminUsersRequest("PATCH", {
-          userId: id,
-          name,
-          email,
-          password,
-          roleIds: selected,
-        });
-        if(!result.ok){
-          window.fwToast?.("Membre", result.message || "Mise a jour impossible.");
-          return;
-        }
-        if(String(id) === String(uid)){
-          await window.fwSupabase?.syncLocalUser?.();
-        }
-
-        await renderAdminSupabase();
-        window.fwToast?.("Enregistre","Membre mis a jour.");
-        return;
-        if(del.error){
-          sbToastError("Rôles", del.error);
-          return;
-        }
-        if(selected.length){
-          const ins = await sb.from("member_roles").insert(selected.map(role_id=>({ company, user_id: id, role_id })));
-          if(ins.error){
-            sbToastError("Rôles", ins.error);
-            return;
-          }
-        }
-
-        if(String(id) === String(uid)){
-          await window.fwSupabase?.syncLocalUser?.();
-        }
-
-        await renderAdminSupabase();
-        window.fwToast?.("Enregistré","Membre mis à jour.");
-      });
-
-      $("#deleteMember", main)?.addEventListener("click", ()=>{
-        window.fwToast?.("Indisponible","Suppression d’un compte non disponible en front-only (Supabase Auth).");
-      });
       return;
     }
 
