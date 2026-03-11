@@ -5481,6 +5481,202 @@ ${s}
     `;
   }
 
+  async function adminUsersRequest(method, payload){
+    if(!sbEnabled || !sb){
+      return { ok: false, message: "Supabase requis." };
+    }
+
+    const { data, error } = await sb.auth.getSession();
+    if(error || !data?.session?.access_token){
+      return { ok: false, message: "Session invalide." };
+    }
+
+    try{
+      const httpMethod = String(method || "GET").trim().toUpperCase() || "GET";
+      const endpoint = new URL("/.netlify/functions/admin-users", window.location.origin);
+      if(httpMethod === "GET" && payload && typeof payload === "object"){
+        Object.entries(payload).forEach(([key, value])=>{
+          if(value === null || value === undefined || value === "") return;
+          endpoint.searchParams.set(key, String(value));
+        });
+      }
+
+      const response = await fetch(endpoint.toString(), {
+        method: httpMethod,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${data.session.access_token}`,
+        },
+        body: httpMethod === "GET" ? undefined : JSON.stringify(payload || {}),
+      });
+
+      const body = await response.json().catch(()=> null);
+      if(response.ok){
+        return { ok: true, data: body || null };
+      }
+
+      return {
+        ok: false,
+        message: String(body?.message || body?.details || body?.error || "Operation impossible.").trim(),
+        data: body || null,
+      };
+    }catch(error2){
+      return {
+        ok: false,
+        message: String(error2?.message || error2 || "Operation impossible.").trim(),
+      };
+    }
+  }
+
+  function adminAccessState(raw){
+    return String(raw || "").trim().toLowerCase() === "blocked" ? "blocked" : "active";
+  }
+
+  function adminAccessLabel(raw){
+    return adminAccessState(raw) === "blocked" ? "Bloque" : "Actif";
+  }
+
+  function adminAccessHint(member){
+    const state = adminAccessState(member?.accessState);
+    if(state === "blocked"){
+      const bannedUntil = String(member?.bannedUntil || "").trim();
+      if(bannedUntil){
+        return `Connexion bloquee jusqu'au ${fmtTs(bannedUntil)}.`;
+      }
+      return "Connexion bloquee.";
+    }
+    return "Connexion autorisee.";
+  }
+
+  const userAdminModalState = {
+    prevOverflow: "",
+    company: "",
+    roles: [],
+  };
+
+  function getUserAdminOverlay(){
+    return $("#userAdminOverlay");
+  }
+
+  function defaultUserAdminRoleIds(roles){
+    const allRoles = Array.isArray(roles) ? roles : [];
+    const memberRole = allRoles.find((role)=>{
+      const raw = String(role?.name || "").trim().toLowerCase();
+      return raw === "membre" || raw === "member";
+    });
+    return memberRole?.id ? [String(memberRole.id)] : [];
+  }
+
+  function userAdminRoleOptionHtml(role, selectedIds){
+    const r = role || {};
+    const selected = Array.isArray(selectedIds) ? selectedIds.map(String) : [];
+    const checked = selected.includes(String(r.id));
+    const color = normalizeHexColor(r.color || "#7c3aed");
+    const hint = r.perms?.admin ? "Administrateur" : (r.perms?.manageMembers || r.perms?.manageRoles ? "Gestion" : "Standard");
+    return `
+      <label class="check">
+        <div>
+          <div class="t"><span class="role-pill"><span class="role-dot" style="background:${escapeHtml(color)}"></span>${escapeHtml(r.name || "Role")}</span></div>
+          <div class="d">${escapeHtml(hint)}</div>
+        </div>
+        <input type="checkbox" name="userAdminRole" value="${escapeHtml(r.id)}" ${checked ? "checked" : ""}/>
+      </label>
+    `;
+  }
+
+  function renderUserAdminRoles(selectedIds){
+    const overlay = getUserAdminOverlay();
+    const rolesRoot = overlay ? $("#userAdminRoles", overlay) : null;
+    if(!rolesRoot) return;
+    rolesRoot.innerHTML = (userAdminModalState.roles || []).map((role)=> userAdminRoleOptionHtml(role, selectedIds)).join("");
+  }
+
+  function closeUserAdminModal(){
+    const overlay = getUserAdminOverlay();
+    if(!overlay) return false;
+    overlay.classList.add("hidden");
+    try{ document.body.style.overflow = userAdminModalState.prevOverflow; }catch(e){ /* ignore */ }
+    return true;
+  }
+
+  function openUserAdminModal({ roles, company } = {}){
+    const overlay = getUserAdminOverlay();
+    if(!overlay) return false;
+
+    userAdminModalState.roles = Array.isArray(roles) ? roles.slice() : [];
+    userAdminModalState.company = String(company || companyFromUser() || "Entreprise");
+    bindUserAdminModalUI();
+
+    const opening = overlay.classList.contains("hidden");
+    overlay.classList.remove("hidden");
+    if(opening){
+      try{
+        userAdminModalState.prevOverflow = document.body.style.overflow ?? "";
+        document.body.style.overflow = "hidden";
+      }catch(e){ /* ignore */ }
+    }
+
+    const nameEl = $("#userAdminName", overlay);
+    const emailEl = $("#userAdminEmail", overlay);
+    const pwdEl = $("#userAdminPassword", overlay);
+    const companyEl = $("#userAdminCompany", overlay);
+    if(nameEl) nameEl.value = "";
+    if(emailEl) emailEl.value = "";
+    if(pwdEl) pwdEl.value = "";
+    if(companyEl) companyEl.value = userAdminModalState.company;
+    renderUserAdminRoles(defaultUserAdminRoleIds(userAdminModalState.roles));
+    emailEl?.focus?.();
+    return true;
+  }
+
+  function bindUserAdminModalUI(){
+    const overlay = getUserAdminOverlay();
+    if(!overlay || overlay.__bound) return;
+    overlay.__bound = true;
+
+    overlay.addEventListener("click", (e)=>{
+      if(e.target === overlay || e.target.hasAttribute("data-user-admin-close")){
+        closeUserAdminModal();
+      }
+    });
+
+    const form = $("#userAdminForm", overlay);
+    form?.addEventListener("submit", async (e)=>{
+      e.preventDefault();
+      const name = ($("#userAdminName", overlay)?.value || "").trim();
+      const email = ($("#userAdminEmail", overlay)?.value || "").trim();
+      const password = ($("#userAdminPassword", overlay)?.value || "").trim();
+      const roleIds = Array.from(overlay.querySelectorAll('input[name="userAdminRole"]:checked'))
+        .map((el)=> String(el.value || ""))
+        .filter(Boolean);
+
+      if(!email || !password){
+        window.fwToast?.("Utilisateur", "Email et mot de passe requis.");
+        return;
+      }
+
+      const result = await adminUsersRequest("POST", {
+        name,
+        email,
+        password,
+        roleIds,
+      });
+
+      if(!result.ok){
+        window.fwToast?.("Utilisateur", result.message || "Creation impossible.");
+        return;
+      }
+
+      const userId = String(result.data?.user?.id || "");
+      closeUserAdminModal();
+      if(userId){
+        localStorage.setItem(ADMIN_ACTIVE_KEY, `member:${userId}`);
+      }
+      await renderAdminSupabase();
+      window.fwToast?.("Utilisateur cree", result.data?.user?.email || email);
+    });
+  }
+
   // ---- Admin dashboard helpers
   const TUTORIAL_POSTS_LS_KEY = "fwTutorialPosts_v1";
   function loadTutorialPosts(){
@@ -7474,6 +7670,10 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
   }
   function memberEditorHtml(member, roles){
     const m = member || {};
+    const accessState = adminAccessState(m.accessState);
+    const accessLabel = adminAccessLabel(accessState);
+    const accessHint = adminAccessHint(m);
+    const isSelf = !!m.isSelf;
     const roleObjects = (Array.isArray(m.roleIds) ? m.roleIds : [])
       .map(id=> roles.find(r=> String(r.id) === String(id)))
       .filter(Boolean);
@@ -7512,6 +7712,17 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
           </div>
         </div>
 
+        <div class="grid2">
+          <div>
+            <div class="label">Nouveau mot de passe</div>
+            <input class="input" id="memPassword" type="password" placeholder="Laisser vide pour ne pas changer"/>
+          </div>
+          <div>
+            <div class="label">Niveau</div>
+            <input class="input" value="${escapeHtml(String(m.role || "member").trim().toLowerCase() === "admin" ? "Admin" : "Membre")}" disabled/>
+          </div>
+        </div>
+
         <div>
           <div class="label">Entreprise</div>
           <input class="input" id="memCompany" value="${escapeHtml(m.company || "")}" placeholder="Entreprise"/>
@@ -7543,6 +7754,129 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
         </div>
       </form>
     `;
+  }
+
+  function activeSupabaseAdminMemberContext(root){
+    const current = String(localStorage.getItem(ADMIN_ACTIVE_KEY) || "");
+    const [type, userId] = current.split(":");
+    if(type !== "member" || !userId) return null;
+
+    const nameEl = $("#memName", root);
+    const emailEl = $("#memEmail", root);
+    return {
+      userId: String(userId),
+      name: String(nameEl?.value || nameEl?.getAttribute("value") || "").trim() || "Membre",
+      email: String(emailEl?.value || emailEl?.getAttribute("value") || "").trim(),
+    };
+  }
+
+  function bindSupabaseAdminMemberDelegates(){
+    if(document.__fwSupabaseAdminMemberBound) return;
+    document.__fwSupabaseAdminMemberBound = true;
+
+    document.addEventListener("submit", async (ev)=>{
+      if(!sbEnabled) return;
+      const form = ev.target?.closest ? ev.target.closest("#adminMemberForm") : null;
+      if(!form) return;
+      const root = $("#adminMain");
+      if(!root || !root.contains(form)) return;
+      const ctx = activeSupabaseAdminMemberContext(root);
+      if(!ctx?.userId) return;
+
+      ev.preventDefault();
+      ev.stopImmediatePropagation();
+
+      const password = ($("#memPassword", root)?.value || "").trim();
+      if(!ctx.email || !ctx.email.includes("@")){
+        window.fwToast?.("Email invalide","Entre un email valide.");
+        return;
+      }
+      if(password && password.length < 6){
+        window.fwToast?.("Mot de passe","Minimum 6 caracteres.");
+        return;
+      }
+
+      const selected = Array.from(root.querySelectorAll('input[name="memberRole"]:checked'))
+        .map((el)=> String(el.value || ""))
+        .filter(Boolean);
+
+      const result = await adminUsersRequest("PATCH", {
+        userId: ctx.userId,
+        name: ctx.name,
+        email: ctx.email,
+        password,
+        roleIds: selected,
+      });
+      if(!result.ok){
+        window.fwToast?.("Membre", result.message || "Mise a jour impossible.");
+        return;
+      }
+
+      const currentUid = await sbUserId();
+      if(String(ctx.userId) === String(currentUid || "")){
+        await window.fwSupabase?.syncLocalUser?.();
+      }
+
+      await renderAdminSupabase();
+      window.fwToast?.("Enregistre","Membre mis a jour.");
+    }, true);
+
+    document.addEventListener("click", async (ev)=>{
+      if(!sbEnabled) return;
+      const btn = ev.target?.closest ? ev.target.closest("#blockMember, #restoreMember, #deleteMember") : null;
+      if(!btn) return;
+
+      const root = $("#adminMain");
+      if(!root || !root.contains(btn)) return;
+      const ctx = activeSupabaseAdminMemberContext(root);
+      if(!ctx?.userId) return;
+
+      ev.preventDefault();
+      ev.stopImmediatePropagation();
+
+      if(btn.id === "blockMember"){
+        const ok = confirm(`Interdire l'acces a "${ctx.name || ctx.email || "ce membre"}" ?`);
+        if(!ok) return;
+        const result = await adminUsersRequest("PATCH", {
+          userId: ctx.userId,
+          access: "blocked",
+        });
+        if(!result.ok){
+          window.fwToast?.("Acces", result.message || "Blocage impossible.");
+          return;
+        }
+        await renderAdminSupabase();
+        window.fwToast?.("Acces bloque", ctx.name || ctx.email || "Utilisateur");
+        return;
+      }
+
+      if(btn.id === "restoreMember"){
+        const result = await adminUsersRequest("PATCH", {
+          userId: ctx.userId,
+          access: "active",
+        });
+        if(!result.ok){
+          window.fwToast?.("Acces", result.message || "Reactivation impossible.");
+          return;
+        }
+        await renderAdminSupabase();
+        window.fwToast?.("Acces reactive", ctx.name || ctx.email || "Utilisateur");
+        return;
+      }
+
+      if(btn.id === "deleteMember"){
+        const ok = confirm(`Supprimer "${ctx.name || ctx.email || "ce membre"}" ?`);
+        if(!ok) return;
+        const result = await adminUsersRequest("DELETE", { userId: ctx.userId });
+        if(!result.ok){
+          window.fwToast?.("Suppression", result.message || "Suppression impossible.");
+          return;
+        }
+        localStorage.removeItem(ADMIN_ACTIVE_KEY);
+        await renderAdminSupabase();
+        window.fwToast?.("Supprime", ctx.name || ctx.email || "Utilisateur");
+      }
+    }, true);
   }
 
   function renderAdmin(){
@@ -7721,6 +8055,19 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
         renderAdmin();
         window.fwToast?.("Membre ajouté", name);
       });
+    }
+
+    if(createMemberBtn && !createMemberBtn.__adminCreateBound){
+      createMemberBtn.__adminCreateBound = true;
+      createMemberBtn.addEventListener("click", (ev)=>{
+        ev.preventDefault();
+        ev.stopImmediatePropagation();
+        if(createMemberBtn.disabled){
+          window.fwToast?.("Acces refuse","Tu n'as pas la permission d'ajouter un membre.");
+          return;
+        }
+        openUserAdminModal({ roles, company });
+      }, true);
     }
 
     if(!canManage){
@@ -7947,7 +8294,7 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
     const profRes = await sb
       .from("profiles")
-      .select("id,name,email,company,avatar_url,avatar_bg,created_at")
+      .select("id,name,email,company,role,avatar_url,avatar_bg,created_at")
       .eq("company", company)
       .order("name", { ascending: true });
     if(profRes.error){
@@ -7976,6 +8323,7 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
       name: p.name || "Utilisateur",
       email: p.email || "",
       company: p.company || company,
+      role: p.role || "member",
       joinedAt: (fmtTs(p.created_at).split(" •")[0] || ""),
       roleIds: roleIdsByUser.get(String(p.id)) || [],
       avatarUrl: p.avatar_url || "",
@@ -8320,26 +8668,77 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
         main.innerHTML = emptyAdminHtml("👤","Membre introuvable","Sélectionne un membre à gauche.");
         return;
       }
-      main.innerHTML = memberEditorHtml(member, roles);
+      let accessState = "active";
+      let bannedUntil = "";
+      const detail = await adminUsersRequest("GET", { userId: id });
+      if(detail.ok){
+        accessState = adminAccessState(detail.data?.user?.accessState);
+        bannedUntil = String(detail.data?.user?.bannedUntil || "");
+      }
 
-      // Read-only fields in demo
-      $("#memEmail", main) && ($("#memEmail", main).disabled = true);
+      main.innerHTML = memberEditorHtml({
+        ...member,
+        accessState,
+        bannedUntil,
+        isSelf: String(id) === String(uid),
+      }, roles);
+      const isSelfMember = String(id) === String(uid);
+      const memberActionsRow = $("#deleteMember", main)?.closest(".row");
+      memberActionsRow?.insertAdjacentHTML("beforebegin", `
+        <div class="callout" style="margin:0">
+          <strong>Acces ${escapeHtml(adminAccessLabel(accessState))}</strong>
+          <span class="muted">${escapeHtml(adminAccessHint({ accessState, bannedUntil }))}${isSelfMember ? " Ton propre compte ne peut pas etre bloque ici." : ""}</span>
+        </div>
+        <div class="row" style="gap:10px; flex-wrap:wrap">
+          <button class="btn small" type="button" id="blockMember" ${accessState === "blocked" || isSelfMember ? "disabled" : ""} style="border-color: rgba(255,120,150,.35); color: rgba(255,120,150,.95)">Interdire l'acces</button>
+          <button class="btn small" type="button" id="restoreMember" ${accessState !== "blocked" ? "disabled" : ""} style="border-color: rgba(52,211,153,.35); color: rgba(110,231,183,.95)">Reactiver l'acces</button>
+        </div>
+      `);
+
       $("#memCompany", main) && ($("#memCompany", main).disabled = true);
 
       $("#adminMemberForm", main)?.addEventListener("submit", async (ev)=>{
         ev.preventDefault();
         const name = ($("#memName", main)?.value || "").trim() || "Membre";
+        const email = ($("#memEmail", main)?.value || "").trim();
+        const password = ($("#memPassword", main)?.value || "").trim();
+        if(!email || !email.includes("@")){
+          window.fwToast?.("Email invalide","Entre un email valide.");
+          return;
+        }
+        if(password && password.length < 6){
+          window.fwToast?.("Mot de passe","Minimum 6 caracteres.");
+          return;
+        }
         const selected = Array.from(main.querySelectorAll('input[name="memberRole"]:checked'))
           .map(el=> String(el.value))
           .filter(Boolean);
 
-        const up = await sb.from("profiles").update({ name }).eq("id", id).eq("company", company);
-        if(up.error){
-          sbToastError("Membre", up.error);
+        const emailNorm = normalizeEmail(email);
+        const dup = members.find((m)=> String(m.id) !== String(id) && normalizeEmail(m?.email) === emailNorm);
+        if(dup){
+          window.fwToast?.("Email deja utilise","Cet email est deja utilise par un autre membre.");
           return;
         }
 
-        const del = await sb.from("member_roles").delete().eq("company", company).eq("user_id", id);
+        const result = await adminUsersRequest("PATCH", {
+          userId: id,
+          name,
+          email,
+          password,
+          roleIds: selected,
+        });
+        if(!result.ok){
+          window.fwToast?.("Membre", result.message || "Mise a jour impossible.");
+          return;
+        }
+        if(String(id) === String(uid)){
+          await window.fwSupabase?.syncLocalUser?.();
+        }
+
+        await renderAdminSupabase();
+        window.fwToast?.("Enregistre","Membre mis a jour.");
+        return;
         if(del.error){
           sbToastError("Rôles", del.error);
           return;
@@ -8369,6 +8768,7 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
     main.innerHTML = emptyAdminHtml("🛡️","Sélectionne","Choisis un rôle ou un membre à gauche.");
   }
 
+  bindSupabaseAdminMemberDelegates();
   sbEnabled ? renderAdminSupabase() : renderAdmin();
 
   // ---------- Utilities
