@@ -60,8 +60,8 @@ body.landing-home.quote-page .contact-stage-copy h2,
 body.landing-home.quote-page .quote-anchor-head h2 {
   margin: 8px 0 0;
   font-family: var(--landing-display);
-  font-size: clamp(1.7rem, 2.5vw, 2.45rem);
-  line-height: 1.03;
+  font-size: clamp(1.85rem, 3.6vw, 2.6rem);
+  line-height: 1.08;
   letter-spacing: -0.03em;
 }
 
@@ -1126,7 +1126,7 @@ body.landing-home.quote-page .quote-request-full {
   body.landing-home.quote-page .quote-document-head h2,
   body.landing-home.quote-page .contact-stage-copy h2,
   body.landing-home.quote-page .quote-anchor-head h2 {
-    font-size: clamp(1.55rem, 6vw, 2.1rem);
+    font-size: clamp(1.7rem, 7vw, 2.25rem);
   }
 
   body.landing-home.quote-page .quote-hero-board,
