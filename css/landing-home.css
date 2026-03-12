@@ -291,10 +291,10 @@ body.landing-home .workspace-copy h2 {
 }
 
 body.landing-home:not(.landing-service):not(.quote-page) .hero h1 {
-  max-width: 11ch;
-  font-size: clamp(2.7rem, 6.1vw, 4.8rem);
-  line-height: 0.98;
-  letter-spacing: -0.04em;
+  max-width: 10ch;
+  font-size: clamp(2.35rem, 5.4vw, 4.2rem);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
 }
 
 body.landing-home .hero-text,
@@ -1702,7 +1702,7 @@ body.landing-home .ai-fab {
   }
 
   body.landing-home:not(.landing-service):not(.quote-page) .hero h1 {
-    font-size: clamp(2.25rem, 8.4vw, 3.7rem);
+    font-size: clamp(2rem, 7.6vw, 3.3rem);
     line-height: 1.02;
   }
 
@@ -1764,7 +1764,7 @@ body.landing-home .ai-fab {
   }
 
   body.landing-home:not(.landing-service):not(.quote-page) .hero h1 {
-    font-size: clamp(2rem, 10.5vw, 3rem);
+    font-size: clamp(1.85rem, 9vw, 2.65rem);
   }
 
   body.landing-home.landing-service .footer-simple-header h2 {
