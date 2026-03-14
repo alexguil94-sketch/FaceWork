@@ -22,7 +22,7 @@ body.crm-body .appbar{
 }
 
 body.crm-body .container{
-  width: min(1520px, 96vw);
+  width: min(1680px, 97vw);
 }
 
 body.crm-body .brand .logo{
@@ -41,8 +41,8 @@ body.crm-body .appnav a.active{
 
 .crm-shell{
   display: grid;
-  grid-template-columns: 280px minmax(0, 1fr);
-  gap: 18px;
+  grid-template-columns: 256px minmax(0, 1fr);
+  gap: 22px;
   align-items: start;
 }
 
@@ -148,8 +148,8 @@ body.crm-body .appnav a.active{
   border-radius: 26px;
   border: 1px solid rgba(255,255,255,.08);
   background:
-    linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04)),
-    rgba(10,10,11,.72);
+    linear-gradient(180deg, rgba(26,26,30,.97), rgba(15,15,18,.92)),
+    rgba(10,10,11,.88);
   box-shadow: 0 24px 60px rgba(0,0,0,.3);
 }
 
@@ -182,6 +182,15 @@ body.crm-body .appnav a.active{
   margin: 0;
   color: rgba(255,255,255,.64);
   line-height: 1.65;
+}
+
+.crm-hero h1,
+.crm-hero p{
+  max-width: 14ch;
+}
+
+.crm-hero p{
+  max-width: 72ch;
 }
 
 .crm-actions,
@@ -385,7 +394,7 @@ body.crm-body .appnav a.active{
   padding: 22px;
   border-radius: 22px;
   border: 1px solid rgba(255,255,255,.08);
-  background: rgba(255,255,255,.04);
+  background: linear-gradient(180deg, rgba(22,22,26,.94), rgba(14,14,17,.9));
 }
 
 .crm-form-section > h2,
@@ -471,10 +480,10 @@ html[data-theme="light"] .crm-service-toolbar .input optgroup{
 .crm-example-card{
   display: grid;
   gap: 12px;
-  padding: 16px;
+  padding: 18px;
   border-radius: 18px;
   border: 1px solid rgba(255,255,255,.08);
-  background: rgba(255,255,255,.03);
+  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.035));
 }
 
 .crm-example-card strong{
@@ -520,10 +529,10 @@ html[data-theme="light"] .crm-service-toolbar .input optgroup{
 .crm-service-preview-card{
   display: grid;
   gap: 10px;
-  padding: 14px;
+  padding: 16px;
   border-radius: 18px;
   border: 1px solid rgba(255,255,255,.08);
-  background: rgba(255,255,255,.035);
+  background: linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.03));
 }
 
 .crm-service-preview-card strong{
@@ -553,8 +562,8 @@ html[data-theme="light"] .crm-service-toolbar .input optgroup{
 
 .crm-split{
   display: grid;
-  grid-template-columns: minmax(0, 1.42fr) minmax(420px, .96fr);
-  gap: 22px;
+  grid-template-columns: minmax(0, 1.72fr) minmax(360px, .82fr);
+  gap: 26px;
   align-items: start;
 }
 
@@ -562,14 +571,15 @@ html[data-theme="light"] .crm-service-toolbar .input optgroup{
   position: sticky;
   top: 94px;
   display: grid;
-  gap: 16px;
+  gap: 18px;
 }
 
 .crm-summary-card{
-  padding: 22px;
+  padding: 24px;
   border-radius: 22px;
   border: 1px solid rgba(255,255,255,.08);
-  background: rgba(255,255,255,.04);
+  background: linear-gradient(180deg, rgba(18,18,21,.96), rgba(11,11,13,.92));
+  box-shadow: 0 18px 40px rgba(0,0,0,.26);
 }
 
 .crm-totals{
@@ -604,10 +614,10 @@ html[data-theme="light"] .crm-service-toolbar .input optgroup{
 .crm-item{
   display: grid;
   gap: 12px;
-  padding: 18px;
+  padding: 20px;
   border-radius: 18px;
   border: 1px solid rgba(255,255,255,.08);
-  background: rgba(255,255,255,.03);
+  background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.03));
 }
 
 .crm-item-head{
@@ -620,7 +630,7 @@ html[data-theme="light"] .crm-service-toolbar .input optgroup{
 .crm-item-grid{
   display: grid;
   grid-template-columns: minmax(220px, 1.45fr) minmax(260px, 1.7fr) minmax(110px, .6fr) minmax(140px, .72fr) minmax(140px, .72fr);
-  gap: 14px 16px;
+  gap: 16px 18px;
   align-items: end;
 }
 
@@ -822,7 +832,7 @@ html[data-theme="light"] .crm-service-toolbar .input optgroup{
   font-weight: 800;
 }
 
-@media (max-width: 1380px){
+@media (max-width: 1600px){
   .crm-split{
     grid-template-columns: 1fr;
   }
@@ -890,5 +900,10 @@ html[data-theme="light"] .crm-service-toolbar .input optgroup{
 
   body.crm-body .container{
     width: min(100%, 97vw);
+  }
+
+  .crm-hero h1,
+  .crm-hero p{
+    max-width: none;
   }
 }
