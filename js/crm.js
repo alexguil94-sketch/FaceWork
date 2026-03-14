@@ -9,7 +9,7 @@
   const STORAGE_BUCKET = String(window.FW_ENV?.SUPABASE_BUCKET || "facework").trim() || "facework";
   const PARAMS = new URLSearchParams(window.location.search);
   let APP_COMPANY = String(getUser()?.company || window.fwSupabase?.companyDefault || "Entreprise").trim() || "Entreprise";
-  const DEFAULT_CRM_LOGO_URL = new URL("../assets/favicon_DS.png", window.location.href).href;
+  const DEFAULT_CRM_LOGO_URL = new URL("../assets/landing/landing-logo.png", window.location.href).href;
   const NOW = ()=> new Date().toISOString();
   const TODAY = ()=> new Date().toISOString().slice(0, 10);
 
@@ -39,10 +39,10 @@
     primary_color: "#111111",
     logo_url: "",
     logo_storage_path: "",
-    social_instagram_url: "https://www.instagram.com/mouket10/",
-    social_facebook_url: "https://www.facebook.com/alexis.guillotin.3",
-    social_linkedin_url: "https://www.linkedin.com/in/alexis-guillotin-9a2aa3b5/",
-    social_whatsapp_url: "https://wa.me/33767033408",
+    social_instagram_url: "",
+    social_facebook_url: "",
+    social_linkedin_url: "",
+    social_whatsapp_url: "",
     business_type: "micro",
   };
 
@@ -251,27 +251,49 @@
     toast("CRM", msg);
   }
 
+  function crmErrorMeta(error){
+    return {
+      code: String(error?.code || "").trim(),
+      status: String(error?.status || error?.statusCode || "").trim(),
+      message: String(error?.message || error?.error_description || error || "Erreur CRM").trim(),
+      details: String(error?.details || "").trim(),
+      hint: String(error?.hint || "").trim(),
+    };
+  }
+
+  function crmErrorDebugLine(label, error){
+    const meta = crmErrorMeta(error);
+    return [
+      `[CRM action:${label}]`,
+      meta.status ? `status=${meta.status}` : "",
+      meta.code ? `code=${meta.code}` : "",
+      meta.message ? `message=${meta.message}` : "",
+      meta.details ? `details=${meta.details}` : "",
+      meta.hint ? `hint=${meta.hint}` : "",
+    ].filter(Boolean).join(" | ");
+  }
+
+  function crmErrorToast(label, error){
+    const friendly = errorMessage(error);
+    const meta = crmErrorMeta(error);
+    const suffix = meta.code ? ` [${meta.code}]` : "";
+    toast(label, `${friendly}${suffix}`);
+  }
+
   function runAction(label, fn){
     return async (...args)=>{
       try{
         await fn(...args);
       }catch(error){
-        console.error("[CRM action]", {
-          label,
-          code: error?.code || "",
-          message: error?.message || String(error || ""),
-          details: error?.details || null,
-          hint: error?.hint || null,
-          error,
-        });
-        toast(label, errorMessage(error));
+        console.error(crmErrorDebugLine(label, error));
+        console.error("[CRM action raw]", error);
+        crmErrorToast(label, error);
       }
     };
   }
 
   function errorMessage(error){
-    const code = String(error?.code || "").trim();
-    const msg = String(error?.message || error?.error_description || error || "Erreur CRM").trim();
+    const { code, message: msg } = crmErrorMeta(error);
     if(code === "42P01" || /crm_/i.test(msg) && /does not exist|relation/i.test(msg)){
       return "Applique d'abord le fichier supabase/crm.sql dans Supabase SQL Editor.";
     }
@@ -297,12 +319,24 @@
       if(/^invoice_not_found$/i.test(msg)){
         return "La facture cible est introuvable dans Supabase.";
       }
+      if(/^client_display_name_required$/i.test(msg)){
+        return "Le client doit avoir un nom ou une raison sociale avant l'enregistrement.";
+      }
     }
-    if(code === "22P02"){
+    if(code === "22P02" || /invalid input syntax for type uuid/i.test(msg)){
       return "Un identifiant CRM est invalide. Recharge la page puis reselectionne le client ou le document.";
     }
     if(code === "23503"){
       return "Le client ou le document lie n'existe pas dans Supabase. Recharge les donnees puis reessaie.";
+    }
+    if(code === "23502"){
+      return "Un champ obligatoire manque dans le document CRM. Verifie surtout le client, les dates et le titre.";
+    }
+    if(code === "23505"){
+      return "Le numero du document existe deja. Recharge la page puis reessaie.";
+    }
+    if(code === "23514"){
+      return "Une valeur CRM est invalide. Verifie les quantites, remises, TVA et statuts du document.";
     }
     if(code === "42501" || /row-level security|permission denied/i.test(msg)){
       return "Acces CRM refuse par Supabase. Verifie la session active et les policies RLS.";
@@ -2690,6 +2724,7 @@
 
   function collectQuoteFormData(){
     const form = $("#crmQuoteForm", root);
+    const clientId = String(form.querySelector("[name='client_id']")?.value || "").trim();
     const items = Array.from(root.querySelectorAll("[data-index]")).map((node, index)=> normalizeItem({
       title: node.querySelector("[data-item='title']")?.value || "",
       description: node.querySelector("[data-item='description']")?.value || "",
@@ -2700,7 +2735,7 @@
       ...(state.quoteForm || baseQuote(state.settings)),
       id: state.quoteForm?.id || "",
       title: form.querySelector("[name='title']")?.value || "",
-      client_id: form.querySelector("[name='client_id']")?.value || "",
+      client_id: clientId,
       issue_date: form.querySelector("[name='issue_date']")?.value || TODAY(),
       valid_until: form.querySelector("[name='valid_until']")?.value || addDays(TODAY(), 30),
       status: form.querySelector("[name='status']")?.value || "draft",
@@ -2714,7 +2749,7 @@
       accepted_name: form.querySelector("[name='accepted_name']")?.value || "",
       accepted_signature: form.querySelector("[name='accepted_signature']")?.value || "",
       items,
-      client: state.clients.find((client)=> client.id === (form.querySelector("[name='client_id']")?.value || "")) || null,
+      client: state.clients.find((client)=> client.id === clientId) || null,
     });
     state.quoteForm = next;
     return next;
@@ -2911,6 +2946,8 @@
 
   function collectInvoiceFormData(){
     const form = $("#crmInvoiceForm", root);
+    const clientId = String(form.querySelector("[name='client_id']")?.value || "").trim();
+    const sourceQuoteId = String(form.querySelector("[name='source_quote_id']")?.value || "").trim();
     const items = Array.from(root.querySelectorAll("[data-index]")).map((node, index)=> normalizeItem({
       title: node.querySelector("[data-item='title']")?.value || "",
       description: node.querySelector("[data-item='description']")?.value || "",
@@ -2928,8 +2965,8 @@
       ...(state.invoiceForm || baseInvoice(state.settings)),
       id: state.invoiceForm?.id || "",
       title: form.querySelector("[name='title']")?.value || "",
-      client_id: form.querySelector("[name='client_id']")?.value || "",
-      source_quote_id: form.querySelector("[name='source_quote_id']")?.value || "",
+      client_id: clientId,
+      source_quote_id: sourceQuoteId,
       issue_date: form.querySelector("[name='issue_date']")?.value || TODAY(),
       due_date: form.querySelector("[name='due_date']")?.value || addDays(TODAY(), 30),
       status: form.querySelector("[name='status']")?.value || "draft",
@@ -2941,7 +2978,7 @@
       vat_rate: form.querySelector("[name='vat_rate']")?.value || 0,
       items,
       payments,
-      client: state.clients.find((client)=> client.id === (form.querySelector("[name='client_id']")?.value || "")) || null,
+      client: state.clients.find((client)=> client.id === clientId) || null,
     });
     state.invoiceForm = next;
     return next;
@@ -3186,7 +3223,7 @@
                 <div class="crm-field"><label>Logo (URL ou data URL)</label><input name="logo_url" id="crmLogoUrl" value="${escapeHtml(settings.logo_url)}"/></div>
                 <div class="crm-field"><label>Uploader un logo</label><input type="file" id="crmLogoFile" accept="image/*"/></div>
               </div>
-              <div class="crm-doc-legal">Si ce champ reste vide, le logo Digitalexis-Studio sera utilise par defaut sur les devis, factures et PDF.</div>
+              <div class="crm-doc-legal">Si ce champ reste vide, le logo Atelier Numerique sera utilise par defaut sur les devis, factures et PDF.</div>
             </section>
 
             <section class="crm-form-section">

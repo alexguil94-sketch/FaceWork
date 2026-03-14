@@ -8,7 +8,6 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"/>
   <link rel="stylesheet" href="../css/style.css"/>
-</head>
 <body>
   <div class="app">
     
@@ -232,61 +231,6 @@
       </div>
 
       <div class="col" id="reportsAdminList" style="gap:10px"></div>
-    </div>
-  </div>
-
-  <div class="composer-overlay hidden" id="userAdminOverlay" role="dialog" aria-modal="true" aria-label="Creer un utilisateur">
-    <div class="card composer-modal" role="document" style="width: min(760px, 96vw)">
-      <div class="row" style="justify-content:space-between; flex-wrap:wrap; gap:12px; align-items:flex-start">
-        <div>
-          <div class="badge">Admin</div>
-          <h3 style="margin:10px 0 6px; font-size:22px">Nouvel utilisateur</h3>
-          <p class="page-sub" id="userAdminMode">Ajoute un compte directement depuis ton espace admin.</p>
-        </div>
-        <div class="row" style="gap:8px; flex-wrap:wrap">
-          <button class="btn small" type="button" data-user-admin-close>Fermer</button>
-        </div>
-      </div>
-
-      <div class="hr"></div>
-
-      <form id="userAdminForm" class="col" style="gap:14px" autocomplete="off">
-        <div class="grid2">
-          <div>
-            <div class="label">Nom</div>
-            <input class="input" id="userAdminName" placeholder="Nom de l'utilisateur"/>
-          </div>
-          <div>
-            <div class="label">Email</div>
-            <input class="input" id="userAdminEmail" type="email" placeholder="email@exemple.com" required/>
-          </div>
-        </div>
-
-        <div class="grid2">
-          <div>
-            <div class="label">Mot de passe temporaire</div>
-            <input class="input" id="userAdminPassword" type="password" placeholder="Minimum 6 caracteres" required/>
-          </div>
-          <div>
-            <div class="label">Entreprise</div>
-            <input class="input" id="userAdminCompany" disabled/>
-          </div>
-        </div>
-
-        <div>
-          <div class="label">Roles</div>
-          <div class="checklist" id="userAdminRoles" style="margin-top:8px"></div>
-        </div>
-
-        <div class="callout" style="margin:0">
-          <strong>Info :</strong> le compte est cree et valide automatiquement, puis il apparaitra dans la liste des membres.
-        </div>
-
-        <div class="row" style="justify-content:space-between; flex-wrap:wrap; gap:10px">
-          <button class="btn primary" type="submit">Creer l'utilisateur</button>
-          <button class="btn" type="button" data-user-admin-close>Annuler</button>
-        </div>
-      </form>
     </div>
   </div>
 
