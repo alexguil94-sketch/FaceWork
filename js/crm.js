@@ -53,6 +53,8 @@
     invoices: [],
     quoteForm: null,
     invoiceForm: null,
+    quotePresetId: "",
+    invoicePresetId: "",
     listFilters: {
       search: "",
       status: "",
@@ -236,6 +238,38 @@
     },
   ]);
 
+  const SERVICE_PRESETS = Object.freeze([
+    { id: "audit-digital", category: "strategie", label: "Audit digital complet", title: "Audit digital complet", description: "Analyse du positionnement, du site, du parcours et des points de friction prioritaires.", quantity: 1, unit_price: 420 },
+    { id: "atelier-cadrage", category: "strategie", label: "Atelier de cadrage (3h)", title: "Atelier de cadrage (3h)", description: "Session de travail, tri des priorites, clarification des objectifs et plan d'action.", quantity: 1, unit_price: 330 },
+    { id: "feuille-route", category: "strategie", label: "Feuille de route 30 jours", title: "Feuille de route 30 jours", description: "Plan d'action concret avec quick wins, messages cles et prochaines etapes.", quantity: 1, unit_price: 190 },
+    { id: "landing-page", category: "web", label: "Landing page sur-mesure", title: "Creation landing page sur-mesure", description: "Conception, copywriting de base, integration responsive et formulaire de conversion.", quantity: 1, unit_price: 690 },
+    { id: "site-vitrine-5p", category: "web", label: "Site vitrine 5 pages", title: "Creation site vitrine 5 pages", description: "Arborescence, maquettes, integration responsive, optimisations et mise en ligne.", quantity: 1, unit_price: 1490 },
+    { id: "refonte-ui", category: "web", label: "Refonte UX/UI", title: "Refonte UX/UI", description: "Refonte de l'experience utilisateur, maquettes desktop/mobile et ajustements design.", quantity: 1, unit_price: 890 },
+    { id: "seo-technique", category: "web", label: "SEO technique", title: "Optimisation SEO technique", description: "Balises, structure, vitesse, schema et correctifs techniques avant indexation.", quantity: 1, unit_price: 260 },
+    { id: "copywriting-page", category: "contenu", label: "Copywriting page de vente", title: "Copywriting page de vente", description: "Redaction persuasive orientee conversion avec structure, sections et CTA.", quantity: 1, unit_price: 240 },
+    { id: "newsletter", category: "contenu", label: "Newsletter mensuelle", title: "Conception newsletter mensuelle", description: "Angle editorial, redaction, mise en forme et integration dans l'outil d'envoi.", quantity: 1, unit_price: 180 },
+    { id: "shooting-photo", category: "contenu", label: "Shooting photo marque", title: "Shooting photo marque", description: "Prise de vues marque personnelle ou produits avec selection et livraison optimisees web.", quantity: 1, unit_price: 480 },
+    { id: "montage-reel", category: "contenu", label: "Montage reel / video courte", title: "Montage reel / video courte", description: "Montage, sous-titres, rythme, habillage et export vertical pret a publier.", quantity: 1, unit_price: 220 },
+    { id: "pack-posts", category: "social", label: "Pack 10 posts reseaux", title: "Creation de 10 posts reseaux sociaux", description: "Visuels et textes prets a publier, adaptes a Instagram, Facebook ou LinkedIn.", quantity: 1, unit_price: 420 },
+    { id: "pack-carrousels", category: "social", label: "4 carrousels premium", title: "Creation de 4 carrousels premium", description: "Concept, structure, design slide par slide et declinaisons de publication.", quantity: 1, unit_price: 360 },
+    { id: "programmation-sociale", category: "social", label: "Programmation mensuelle", title: "Programmation et suivi mensuel", description: "Mise en ligne, planning, verification et retour synthetique sur les contenus programmes.", quantity: 1, unit_price: 180 },
+    { id: "identite-visuelle", category: "branding", label: "Identite visuelle mini-pack", title: "Creation identite visuelle mini-pack", description: "Palette, typo, logo secondaire, univers visuel et mini-guide d'utilisation.", quantity: 1, unit_price: 520 },
+    { id: "templates-canva", category: "branding", label: "Kit templates Canva", title: "Creation kit templates Canva", description: "Series de templates modifies facilement pour stories, posts et annonces.", quantity: 1, unit_price: 210 },
+    { id: "automation-email", category: "automation", label: "Tunnel email automatise", title: "Creation tunnel email automatise", description: "Scenario de bienvenue, sequence de relance, segmentation et automatisations de base.", quantity: 1, unit_price: 390 },
+    { id: "maintenance", category: "suivi", label: "Maintenance mensuelle", title: "Maintenance technique mensuelle", description: "Mises a jour, sauvegardes, supervision et support prioritaire.", quantity: 1, unit_price: 260 },
+    { id: "formation", category: "suivi", label: "Formation prise en main (2h)", title: "Formation prise en main (2h)", description: "Session de transfert pour gerer le site, les contenus ou les outils CRM/social media.", quantity: 1, unit_price: 180 },
+  ]);
+
+  const SERVICE_CATEGORY_LABELS = Object.freeze({
+    strategie: "Strategie",
+    web: "Web",
+    contenu: "Contenu",
+    social: "Social media",
+    branding: "Branding",
+    automation: "Automatisation",
+    suivi: "Suivi",
+  });
+
   function toast(title, desc){
     window.fwToast?.(title, desc || "");
   }
@@ -294,6 +328,9 @@
 
   function errorMessage(error){
     const { code, message: msg } = crmErrorMeta(error);
+    if(code === "42702"){
+      return "Une fonction CRM de Supabase doit etre corrigee. Applique le patch `supabase/crm_patch_recalculate_totals.sql` puis relance la generation du PDF.";
+    }
     if(code === "42P01" || /crm_/i.test(msg) && /does not exist|relation/i.test(msg)){
       return "Applique d'abord le fichier supabase/crm.sql dans Supabase SQL Editor.";
     }
@@ -538,6 +575,71 @@
         </article>
       `;
     }).join("");
+  }
+
+  function servicePresetOptionsHtml(selectedId){
+    const groups = Object.keys(SERVICE_CATEGORY_LABELS).map((category)=> ({
+      category,
+      label: SERVICE_CATEGORY_LABELS[category],
+      items: SERVICE_PRESETS.filter((preset)=> preset.category === category),
+    })).filter((group)=> group.items.length);
+    return [
+      `<option value="">Choisir une prestation frequente</option>`,
+      ...groups.map((group)=> `
+        <optgroup label="${escapeHtml(group.label)}">
+          ${group.items.map((preset)=> `<option value="${escapeHtml(preset.id)}"${preset.id === String(selectedId || "") ? " selected" : ""}>${escapeHtml(preset.label)} - ${escapeHtml(fmtMoney(roundMoney((preset.quantity || 0) * (preset.unit_price || 0)), state.settings.currency))}</option>`).join("")}
+        </optgroup>
+      `),
+    ].join("");
+  }
+
+  function servicePresetPreviewHtml(presetId){
+    const preset = SERVICE_PRESETS.find((entry)=> entry.id === String(presetId || ""));
+    if(!preset){
+      return `<div class="crm-muted">Choisis une prestation dans le menu pour l'ajouter en un clic avec son libelle, sa description et son prix type.</div>`;
+    }
+    return `
+      <div class="crm-service-preview-card">
+        <div class="crm-inline" style="justify-content:space-between">
+          <div class="crm-pill">${escapeHtml(SERVICE_CATEGORY_LABELS[preset.category] || "Prestation")}</div>
+          <div class="crm-example-amount">${escapeHtml(fmtMoney(roundMoney((preset.quantity || 0) * (preset.unit_price || 0)), state.settings.currency))}</div>
+        </div>
+        <strong>${escapeHtml(preset.title)}</strong>
+        <p>${escapeHtml(preset.description)}</p>
+        <div class="crm-example-tags">
+          <span>Quantite suggeree: ${escapeHtml(preset.quantity)}</span>
+          <span>Prix unitaire: ${escapeHtml(fmtMoney(preset.unit_price || 0, state.settings.currency))}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  function addServicePresetToQuote(presetId){
+    const preset = SERVICE_PRESETS.find((entry)=> entry.id === String(presetId || ""));
+    if(!preset) throw new Error("Prestation introuvable.");
+    collectQuoteFormData();
+    state.quoteForm.items.push(normalizeItem({
+      title: preset.title,
+      description: preset.description,
+      quantity: preset.quantity,
+      unit_price: preset.unit_price,
+    }, state.quoteForm.items.length));
+    renderQuoteEditorPage();
+    toast("Devis", `${preset.label} ajoute au devis.`);
+  }
+
+  function addServicePresetToInvoice(presetId){
+    const preset = SERVICE_PRESETS.find((entry)=> entry.id === String(presetId || ""));
+    if(!preset) throw new Error("Prestation introuvable.");
+    collectInvoiceFormData();
+    state.invoiceForm.items.push(normalizeItem({
+      title: preset.title,
+      description: preset.description,
+      quantity: preset.quantity,
+      unit_price: preset.unit_price,
+    }, state.invoiceForm.items.length));
+    renderInvoiceEditorPage();
+    toast("Facture", `${preset.label} ajoute a la facture.`);
   }
 
   function invoiceExampleCardsHtml(){
@@ -2820,8 +2922,13 @@
             <section class="crm-form-section">
               <h2>Lignes de prestation</h2>
               <p>Ajoute, retire ou modifie les lignes pour construire automatiquement le devis.</p>
+              <div class="crm-service-toolbar">
+                <select class="input" id="crmQuotePresetSelect">${servicePresetOptionsHtml(state.quotePresetId)}</select>
+                <button class="btn crm-btn-quiet" type="button" id="crmQuoteAddPreset">Ajouter la prestation</button>
+              </div>
+              <div class="crm-service-preview" id="crmQuotePresetPreview">${servicePresetPreviewHtml(state.quotePresetId)}</div>
               <div class="crm-items" id="crmQuoteItems">${quoteItemsHtml(quote.items)}</div>
-              <div class="crm-actions"><button class="btn crm-btn-quiet" type="button" id="crmQuoteAddItem">Ajouter une ligne</button></div>
+              <div class="crm-actions"><button class="btn crm-btn-quiet" type="button" id="crmQuoteAddItem">Ajouter une ligne vide</button></div>
             </section>
 
             <section class="crm-form-section">
@@ -2866,6 +2973,16 @@
     root.querySelectorAll("[data-quote-example-pdf]").forEach((button)=> button.addEventListener("click", runAction("PDF", async ()=>{
       await applyQuoteExampleWithClient(button.getAttribute("data-quote-example-pdf"), { generatePdf: true });
     })));
+    $("#crmQuotePresetSelect", root)?.addEventListener("change", (event)=>{
+      state.quotePresetId = String(event.target.value || "").trim();
+      $("#crmQuotePresetPreview", root).innerHTML = servicePresetPreviewHtml(state.quotePresetId);
+    });
+    $("#crmQuoteAddPreset", root)?.addEventListener("click", runAction("Devis", async ()=>{
+      if(!state.quotePresetId){
+        throw new Error("Choisis d'abord une prestation dans le menu.");
+      }
+      addServicePresetToQuote(state.quotePresetId);
+    }));
     $("#crmQuoteAddItem", root)?.addEventListener("click", ()=>{
       collectQuoteFormData();
       state.quoteForm.items.push(normalizeItem({ title: `Prestation ${state.quoteForm.items.length + 1}`, quantity: 1, unit_price: 0 }, state.quoteForm.items.length));
@@ -3044,8 +3161,13 @@
 
             <section class="crm-form-section">
               <h2>Lignes facturees</h2>
+              <div class="crm-service-toolbar">
+                <select class="input" id="crmInvoicePresetSelect">${servicePresetOptionsHtml(state.invoicePresetId)}</select>
+                <button class="btn crm-btn-quiet" type="button" id="crmInvoiceAddPreset">Ajouter la prestation</button>
+              </div>
+              <div class="crm-service-preview" id="crmInvoicePresetPreview">${servicePresetPreviewHtml(state.invoicePresetId)}</div>
               <div class="crm-items" id="crmInvoiceItems">${quoteItemsHtml(invoice.items)}</div>
-              <div class="crm-actions"><button class="btn crm-btn-quiet" type="button" id="crmInvoiceAddItem">Ajouter une ligne</button></div>
+              <div class="crm-actions"><button class="btn crm-btn-quiet" type="button" id="crmInvoiceAddItem">Ajouter une ligne vide</button></div>
             </section>
 
             <section class="crm-form-section">
@@ -3091,6 +3213,16 @@
     root.querySelectorAll("[data-invoice-example-pdf]").forEach((button)=> button.addEventListener("click", runAction("PDF", async ()=>{
       await applyInvoiceExampleWithClient(button.getAttribute("data-invoice-example-pdf"), { generatePdf: true });
     })));
+    $("#crmInvoicePresetSelect", root)?.addEventListener("change", (event)=>{
+      state.invoicePresetId = String(event.target.value || "").trim();
+      $("#crmInvoicePresetPreview", root).innerHTML = servicePresetPreviewHtml(state.invoicePresetId);
+    });
+    $("#crmInvoiceAddPreset", root)?.addEventListener("click", runAction("Facture", async ()=>{
+      if(!state.invoicePresetId){
+        throw new Error("Choisis d'abord une prestation dans le menu.");
+      }
+      addServicePresetToInvoice(state.invoicePresetId);
+    }));
     $("#crmInvoiceAddItem", root)?.addEventListener("click", ()=>{
       collectInvoiceFormData();
       state.invoiceForm.items.push(normalizeItem({ title: `Prestation ${state.invoiceForm.items.length + 1}`, quantity: 1, unit_price: 0 }, state.invoiceForm.items.length));

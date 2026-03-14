@@ -470,6 +470,37 @@ body.crm-body .appnav a.active{
   gap: 10px;
 }
 
+.crm-service-toolbar{
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.crm-service-preview{
+  margin-bottom: 14px;
+}
+
+.crm-service-preview-card{
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(255,255,255,.035);
+}
+
+.crm-service-preview-card strong{
+  color: rgba(255,255,255,.96);
+  font-size: 15px;
+}
+
+.crm-service-preview-card p{
+  margin: 0;
+  color: rgba(255,255,255,.62);
+  line-height: 1.55;
+}
+
 .crm-example-tags span,
 .crm-example-amount{
   display: inline-flex;
@@ -797,5 +828,9 @@ body.crm-body .appnav a.active{
 
   .crm-doc-logo{
     max-width: 160px;
+  }
+
+  .crm-service-toolbar{
+    grid-template-columns: 1fr;
   }
 }

@@ -634,12 +634,12 @@ set search_path = public
 as $$
 declare
   q record;
-  subtotal numeric := 0;
-  discount_amount numeric := 0;
-  taxable_base numeric := 0;
-  vat_amount numeric := 0;
-  total_amount numeric := 0;
-  amount_due numeric := 0;
+  v_subtotal numeric := 0;
+  v_discount_amount numeric := 0;
+  v_taxable_base numeric := 0;
+  v_vat_amount numeric := 0;
+  v_total_amount numeric := 0;
+  v_amount_due numeric := 0;
 begin
   select *
   into q
@@ -651,23 +651,23 @@ begin
   end if;
 
   select coalesce(round(sum(line_total), 2), 0)
-  into subtotal
+  into v_subtotal
   from public.crm_quote_items
   where quote_id = _quote_id;
 
-  discount_amount := public.crm_discount_amount(subtotal, q.discount_type, q.discount_value);
-  taxable_base := greatest(subtotal - discount_amount, 0);
-  vat_amount := round(taxable_base * greatest(coalesce(q.vat_rate, 0), 0) / 100, 2);
-  total_amount := round(taxable_base + vat_amount, 2);
-  amount_due := greatest(total_amount - greatest(coalesce(q.deposit_amount, 0), 0), 0);
+  v_discount_amount := public.crm_discount_amount(v_subtotal, q.discount_type, q.discount_value);
+  v_taxable_base := greatest(v_subtotal - v_discount_amount, 0);
+  v_vat_amount := round(v_taxable_base * greatest(coalesce(q.vat_rate, 0), 0) / 100, 2);
+  v_total_amount := round(v_taxable_base + v_vat_amount, 2);
+  v_amount_due := greatest(v_total_amount - greatest(coalesce(q.deposit_amount, 0), 0), 0);
 
   update public.crm_quotes
   set
-    subtotal_amount = subtotal,
-    discount_amount = discount_amount,
-    vat_amount = vat_amount,
-    total_amount = total_amount,
-    amount_due = amount_due,
+    subtotal_amount = v_subtotal,
+    discount_amount = v_discount_amount,
+    vat_amount = v_vat_amount,
+    total_amount = v_total_amount,
+    amount_due = v_amount_due,
     updated_at = now()
   where id = _quote_id;
 end;
@@ -681,13 +681,13 @@ set search_path = public
 as $$
 declare
   i record;
-  subtotal numeric := 0;
-  discount_amount numeric := 0;
-  taxable_base numeric := 0;
-  vat_amount numeric := 0;
-  total_amount numeric := 0;
-  amount_paid numeric := 0;
-  amount_due numeric := 0;
+  v_subtotal numeric := 0;
+  v_discount_amount numeric := 0;
+  v_taxable_base numeric := 0;
+  v_vat_amount numeric := 0;
+  v_total_amount numeric := 0;
+  v_amount_paid numeric := 0;
+  v_amount_due numeric := 0;
   next_status text;
 begin
   select *
@@ -700,25 +700,25 @@ begin
   end if;
 
   select coalesce(round(sum(line_total), 2), 0)
-  into subtotal
+  into v_subtotal
   from public.crm_invoice_items
   where invoice_id = _invoice_id;
 
   select coalesce(round(sum(amount), 2), 0)
-  into amount_paid
+  into v_amount_paid
   from public.crm_invoice_payments
   where invoice_id = _invoice_id;
 
-  discount_amount := public.crm_discount_amount(subtotal, i.discount_type, i.discount_value);
-  taxable_base := greatest(subtotal - discount_amount, 0);
-  vat_amount := round(taxable_base * greatest(coalesce(i.vat_rate, 0), 0) / 100, 2);
-  total_amount := round(taxable_base + vat_amount, 2);
-  amount_due := greatest(total_amount - amount_paid, 0);
+  v_discount_amount := public.crm_discount_amount(v_subtotal, i.discount_type, i.discount_value);
+  v_taxable_base := greatest(v_subtotal - v_discount_amount, 0);
+  v_vat_amount := round(v_taxable_base * greatest(coalesce(i.vat_rate, 0), 0) / 100, 2);
+  v_total_amount := round(v_taxable_base + v_vat_amount, 2);
+  v_amount_due := greatest(v_total_amount - v_amount_paid, 0);
 
   next_status := i.status;
   if i.status = 'cancelled' then
     next_status := 'cancelled';
-  elsif amount_due <= 0 and total_amount > 0 then
+  elsif v_amount_due <= 0 and v_total_amount > 0 then
     next_status := 'paid';
   elsif i.status = 'draft' then
     next_status := 'draft';
@@ -730,14 +730,14 @@ begin
 
   update public.crm_invoices
   set
-    subtotal_amount = subtotal,
-    discount_amount = discount_amount,
-    vat_amount = vat_amount,
-    total_amount = total_amount,
-    amount_paid = amount_paid,
-    amount_due = amount_due,
+    subtotal_amount = v_subtotal,
+    discount_amount = v_discount_amount,
+    vat_amount = v_vat_amount,
+    total_amount = v_total_amount,
+    amount_paid = v_amount_paid,
+    amount_due = v_amount_due,
     status = next_status,
-    paid_at = case when amount_due <= 0 and total_amount > 0 then coalesce(paid_at, now()) else null end,
+    paid_at = case when v_amount_due <= 0 and v_total_amount > 0 then coalesce(paid_at, now()) else null end,
     updated_at = now()
   where id = _invoice_id;
 end;
