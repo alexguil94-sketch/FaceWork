@@ -9,7 +9,7 @@
   const STORAGE_BUCKET = String(window.FW_ENV?.SUPABASE_BUCKET || "facework").trim() || "facework";
   const PARAMS = new URLSearchParams(window.location.search);
   let APP_COMPANY = String(getUser()?.company || window.fwSupabase?.companyDefault || "Entreprise").trim() || "Entreprise";
-  const DEFAULT_CRM_LOGO_URL = new URL("../assets/landing/landing-logo.png", window.location.href).href;
+  const DEFAULT_CRM_LOGO_URL = new URL("../assets/favicon_DS.png", window.location.href).href;
   const NOW = ()=> new Date().toISOString();
   const TODAY = ()=> new Date().toISOString().slice(0, 10);
 
@@ -3355,7 +3355,7 @@
                 <div class="crm-field"><label>Logo (URL ou data URL)</label><input name="logo_url" id="crmLogoUrl" value="${escapeHtml(settings.logo_url)}"/></div>
                 <div class="crm-field"><label>Uploader un logo</label><input type="file" id="crmLogoFile" accept="image/*"/></div>
               </div>
-              <div class="crm-doc-legal">Si ce champ reste vide, le logo Atelier Numerique sera utilise par defaut sur les devis, factures et PDF.</div>
+              <div class="crm-doc-legal">Si ce champ reste vide, le logo Digitalexis-Studio sera utilise par defaut sur les devis, factures et PDF.</div>
             </section>
 
             <section class="crm-form-section">

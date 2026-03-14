@@ -1581,6 +1581,21 @@ body.landing-home.landing-atelier-page .hero h1 {
   max-width: 10ch;
 }
 
+body.landing-home.landing-atelier-page .section-heading h2,
+body.landing-home.landing-atelier-page .story-copy h2,
+body.landing-home.landing-atelier-page .vision-copy h2,
+body.landing-home.landing-atelier-page .contact-copy h2,
+body.landing-home.landing-atelier-page .workspace-copy h2,
+body.landing-home.landing-atelier-page .cv-copy h2 {
+  font-size: clamp(2.2rem, 4.8vw, 4rem);
+  line-height: 0.98;
+}
+
+body.landing-home.landing-atelier-page .footer-band-copy h2 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1;
+}
+
 body.landing-home.landing-atelier-page .hero-text,
 body.landing-home.landing-atelier-page .section-heading p,
 body.landing-home.landing-atelier-page .story-copy p,

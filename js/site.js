@@ -356,7 +356,7 @@
     if(currentPath === "/landing-atelier") return;
 
     const href = landingAtelierHref();
-    const title = "Retour a la page Atelier Numerique";
+    const title = "Retour vers Digitalexis-Studio";
 
     const createLink = (label, className)=>{
       const a = document.createElement("a");
@@ -379,12 +379,12 @@
 
       if(existingReturn){
         existingReturn.href = href;
-        existingReturn.textContent = "Retour atelier";
+        existingReturn.textContent = "Retour studio";
         existingReturn.title = title;
         existingReturn.setAttribute("aria-label", title);
         existingReturn.setAttribute("data-atelier-link", "1");
       }else{
-        const button = createLink("Retour atelier", "btn small");
+        const button = createLink("Retour studio", "btn small");
         const primaryAction = navActions.querySelector("a.btn.primary, button.btn.primary");
         if(primaryAction) navActions.insertBefore(button, primaryAction);
         else navActions.appendChild(button);
@@ -393,7 +393,7 @@
 
     const userbox = document.querySelector(".appbar .userbox");
     if(userbox && !userbox.querySelector("[data-atelier-link]")){
-      const button = createLink("Atelier", "btn small ghost hide-sm");
+      const button = createLink("Studio", "btn small ghost hide-sm");
       const logoutBtn = userbox.querySelector("[data-logout]");
       if(logoutBtn) userbox.insertBefore(button, logoutBtn);
       else userbox.appendChild(button);
@@ -502,7 +502,7 @@
     // Global shortcuts (some pages don't show these in the top nav)
     // Keep landing page clean: only show extra links inside the app header.
     if(currentPath !== "/landing-atelier"){
-      addSideLink("Retour atelier", landingAtelierHref());
+      addSideLink("Retour studio", landingAtelierHref());
     }
     if(isAppHeader){
       addSideLink("Exercices", `${relPrefix()}exercices.html`);
