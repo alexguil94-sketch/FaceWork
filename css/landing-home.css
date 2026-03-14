@@ -1445,3 +1445,338 @@ body.landing-home .ai-fab {
     transition: none !important;
   }
 }
+
+/* Atelier editorial override */
+body.landing-home.landing-atelier-page {
+  --landing-bg: #0a0907;
+  --landing-bg-soft: #14110d;
+  --landing-bg-deep: #050403;
+  --landing-panel: transparent;
+  --landing-panel-strong: transparent;
+  --landing-line: rgba(242, 225, 197, 0.14);
+  --landing-line-strong: rgba(242, 225, 197, 0.26);
+  --landing-text: #f6efe4;
+  --landing-muted: #b8aa98;
+  --landing-blue: #d8b67a;
+  --landing-cyan: #f3e4c8;
+  --landing-orange: #c99058;
+  --landing-pink: #8e674a;
+  --landing-gold: #e2c28f;
+  --landing-shadow: none;
+  --landing-max: 1320px;
+  background:
+    radial-gradient(circle at 18% 14%, rgba(226, 194, 143, 0.09), transparent 22%),
+    radial-gradient(circle at 82% 10%, rgba(201, 144, 88, 0.08), transparent 18%),
+    linear-gradient(180deg, #070605 0%, #0a0907 44%, #120f0c 100%);
+}
+
+body.landing-home.landing-atelier-page::before {
+  background-image: linear-gradient(rgba(242, 225, 197, 0.035) 1px, transparent 1px);
+  background-size: 100% 38px;
+  opacity: 0.22;
+}
+
+body.landing-home.landing-atelier-page::after {
+  background:
+    radial-gradient(circle at center, rgba(10, 9, 7, 0), rgba(5, 4, 3, 0.76) 76%),
+    linear-gradient(180deg, rgba(5, 4, 3, 0.04), rgba(5, 4, 3, 0.48));
+}
+
+body.landing-home.landing-atelier-page .surface {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+body.landing-home.landing-atelier-page .site-header {
+  backdrop-filter: none;
+  background: rgba(10, 9, 7, 0.92);
+  border-bottom: 1px solid rgba(242, 225, 197, 0.08);
+}
+
+body.landing-home.landing-atelier-page .header-inner {
+  gap: 32px;
+  min-height: 96px;
+}
+
+body.landing-home.landing-atelier-page .brand-copy strong {
+  letter-spacing: 0.22em;
+}
+
+body.landing-home.landing-atelier-page .brand-copy span {
+  max-width: 28ch;
+  color: rgba(242, 225, 197, 0.64);
+}
+
+body.landing-home.landing-atelier-page .eyebrow,
+body.landing-home.landing-atelier-page .workspace-kicker,
+body.landing-home.landing-atelier-page .process-card span {
+  letter-spacing: 0.26em;
+  color: #e6c792;
+}
+
+body.landing-home.landing-atelier-page .site-nav {
+  gap: 24px;
+}
+
+body.landing-home.landing-atelier-page .site-nav a {
+  padding: 8px 0;
+  border-radius: 0;
+  color: rgba(242, 225, 197, 0.72);
+  background: transparent;
+  border-bottom: 1px solid transparent;
+}
+
+body.landing-home.landing-atelier-page .site-nav a:hover,
+body.landing-home.landing-atelier-page .site-nav a:focus-visible {
+  color: #fff4e6;
+  background: transparent;
+  border-bottom-color: rgba(242, 225, 197, 0.26);
+  transform: none;
+}
+
+body.landing-home.landing-atelier-page .button {
+  min-height: 56px;
+  padding: 0 24px;
+  border-radius: 14px;
+  box-shadow: none;
+}
+
+body.landing-home.landing-atelier-page .button:hover {
+  transform: none;
+}
+
+body.landing-home.landing-atelier-page .button-primary {
+  color: #0b0907;
+  background: linear-gradient(135deg, #f3e4c8, #e0b67d 60%, #c99058);
+}
+
+body.landing-home.landing-atelier-page .button-secondary {
+  background: transparent;
+  border-color: rgba(242, 225, 197, 0.16);
+}
+
+body.landing-home.landing-atelier-page .hero {
+  padding: 78px 0 40px;
+}
+
+body.landing-home.landing-atelier-page .hero-layout {
+  grid-template-columns: minmax(0, 0.82fr) minmax(420px, 1.18fr);
+  gap: 72px;
+  align-items: start;
+}
+
+body.landing-home.landing-atelier-page .hero h1,
+body.landing-home.landing-atelier-page .section-heading h2,
+body.landing-home.landing-atelier-page .story-copy h2,
+body.landing-home.landing-atelier-page .vision-copy h2,
+body.landing-home.landing-atelier-page .contact-copy h2,
+body.landing-home.landing-atelier-page .workspace-copy h2 {
+  letter-spacing: -0.06em;
+}
+
+body.landing-home.landing-atelier-page .hero h1 {
+  max-width: 10ch;
+}
+
+body.landing-home.landing-atelier-page .hero-text,
+body.landing-home.landing-atelier-page .section-heading p,
+body.landing-home.landing-atelier-page .story-copy p,
+body.landing-home.landing-atelier-page .vision-copy p,
+body.landing-home.landing-atelier-page .contact-copy p,
+body.landing-home.landing-atelier-page .workspace-copy p {
+  max-width: 44rem;
+}
+
+body.landing-home.landing-atelier-page .section-band {
+  background: transparent;
+  border-top: 1px solid rgba(242, 225, 197, 0.1);
+  border-bottom: 1px solid rgba(242, 225, 197, 0.1);
+}
+
+body.landing-home.landing-atelier-page .service-pills span,
+body.landing-home.landing-atelier-page .cv-pills span {
+  border-radius: 12px;
+  background: transparent;
+  border-color: rgba(242, 225, 197, 0.14);
+  color: #f6efe4;
+}
+
+body.landing-home.landing-atelier-page .hero-proof,
+body.landing-home.landing-atelier-page .process-card,
+body.landing-home.landing-atelier-page .offer-card,
+body.landing-home.landing-atelier-page .workspace-card,
+body.landing-home.landing-atelier-page .footer-card {
+  padding: 28px 0 0;
+  border-top: 1px solid rgba(242, 225, 197, 0.14);
+}
+
+body.landing-home.landing-atelier-page .hero-proof {
+  max-width: 40rem;
+}
+
+body.landing-home.landing-atelier-page .process-grid,
+body.landing-home.landing-atelier-page .offer-grid,
+body.landing-home.landing-atelier-page .workspace-grid,
+body.landing-home.landing-atelier-page .footer-grid {
+  gap: 34px;
+}
+
+body.landing-home.landing-atelier-page .process-card span {
+  min-width: 0;
+  min-height: auto;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+body.landing-home.landing-atelier-page .hero-main,
+body.landing-home.landing-atelier-page .story-image,
+body.landing-home.landing-atelier-page .offer-figure,
+body.landing-home.landing-atelier-page .vision-main,
+body.landing-home.landing-atelier-page .vision-side,
+body.landing-home.landing-atelier-page .workspace-figure,
+body.landing-home.landing-atelier-page .cv-portrait {
+  border: 1px solid rgba(242, 225, 197, 0.12);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: none;
+  background: #0d0b08;
+}
+
+body.landing-home.landing-atelier-page .hero-main {
+  position: relative;
+  top: auto;
+  right: auto;
+  width: 100%;
+  max-width: 780px;
+  margin-left: auto;
+  background: #0f0c09;
+}
+
+body.landing-home.landing-atelier-page .hero-accent-card,
+body.landing-home.landing-atelier-page .hero-tag {
+  display: none;
+}
+
+body.landing-home.landing-atelier-page .hero-visual {
+  display: grid;
+  justify-items: end;
+  min-height: auto;
+  padding-top: 8px;
+}
+
+body.landing-home.landing-atelier-page .orb {
+  display: none;
+}
+
+body.landing-home.landing-atelier-page .hero-main img,
+body.landing-home.landing-atelier-page .story-image img,
+body.landing-home.landing-atelier-page .offer-figure img,
+body.landing-home.landing-atelier-page .vision-main img,
+body.landing-home.landing-atelier-page .vision-side img,
+body.landing-home.landing-atelier-page .workspace-figure img,
+body.landing-home.landing-atelier-page .cv-portrait img {
+  transform: none !important;
+}
+
+body.landing-home.landing-atelier-page .offer-figure figcaption,
+body.landing-home.landing-atelier-page .vision-side figcaption {
+  background: rgba(10, 9, 7, 0.86);
+  border: 1px solid rgba(242, 225, 197, 0.12);
+  border-radius: 10px;
+  backdrop-filter: none;
+}
+
+body.landing-home.landing-atelier-page .contact-shell {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+body.landing-home.landing-atelier-page .contact-copy,
+body.landing-home.landing-atelier-page .contact-form-wrap {
+  padding: 0;
+  background: transparent;
+}
+
+body.landing-home.landing-atelier-page .contact-copy {
+  padding-right: 32px;
+}
+
+body.landing-home.landing-atelier-page .contact-form-wrap {
+  padding-top: 8px;
+}
+
+body.landing-home.landing-atelier-page .contact-notes div {
+  padding: 18px 0 0;
+  border: 0;
+  border-top: 1px solid rgba(242, 225, 197, 0.14);
+  border-radius: 0;
+  background: transparent;
+}
+
+body.landing-home.landing-atelier-page .contact-form input,
+body.landing-home.landing-atelier-page .contact-form textarea {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(242, 225, 197, 0.12);
+  border-radius: 10px;
+}
+
+body.landing-home.landing-atelier-page .footer-band {
+  grid-template-columns: minmax(0, 1fr);
+  padding: 0 0 26px;
+  margin-bottom: 32px;
+  background: transparent;
+  border-bottom: 1px solid rgba(242, 225, 197, 0.12);
+}
+
+body.landing-home.landing-atelier-page .footer-band-actions {
+  min-width: 0;
+  justify-items: start;
+}
+
+body.landing-home.landing-atelier-page .footer-card {
+  min-height: 0;
+}
+
+@media (max-width: 1080px) {
+  body.landing-home.landing-atelier-page .hero-layout,
+  body.landing-home.landing-atelier-page .split-layout,
+  body.landing-home.landing-atelier-page .vision-layout,
+  body.landing-home.landing-atelier-page .workspace-shell,
+  body.landing-home.landing-atelier-page .contact-shell,
+  body.landing-home.landing-atelier-page .footer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  body.landing-home.landing-atelier-page .hero-layout {
+    gap: 48px;
+  }
+
+  body.landing-home.landing-atelier-page .hero-visual {
+    justify-items: stretch;
+    padding-top: 0;
+  }
+
+  body.landing-home.landing-atelier-page .hero-main {
+    max-width: none;
+  }
+}
+
+@media (max-width: 760px) {
+  body.landing-home.landing-atelier-page .hero-main {
+    width: 100%;
+  }
+
+  body.landing-home.landing-atelier-page .hero-visual {
+    min-height: auto;
+  }
+
+  body.landing-home.landing-atelier-page .contact-copy {
+    padding-right: 0;
+  }
+}
