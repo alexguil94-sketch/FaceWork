@@ -111,6 +111,7 @@
       label: "Site vitrine",
       description: "Ideal pour un devis de creation de site premium avec acompte et mise en ligne.",
       payload: {
+        client_example_id: "business-studio",
         title: "Creation d'un site vitrine premium",
         discount_type: "none",
         discount_value: 0,
@@ -130,6 +131,7 @@
       label: "Communication mensuelle",
       description: "Modele pratique pour une mission de contenu, calendrier editorial et publication.",
       payload: {
+        client_example_id: "business-studio",
         title: "Accompagnement communication digitale mensuelle",
         discount_type: "percent",
         discount_value: 10,
@@ -148,6 +150,7 @@
       label: "Audit + atelier",
       description: "Exemple simple pour une mission courte de cadrage, conseil et feuille de route.",
       payload: {
+        client_example_id: "person-coach",
         title: "Audit digital et atelier de cadrage",
         discount_type: "none",
         discount_value: 0,
@@ -169,6 +172,7 @@
       label: "Mensualite envoyee",
       description: "Facture de prestation recurrente sans paiement encore recu.",
       payload: {
+        client_example_id: "business-studio",
         title: "Maintenance et communication mensuelle",
         status: "sent",
         due_in_days: 15,
@@ -189,6 +193,7 @@
       label: "Projet avec acompte",
       description: "Facture avec premier reglement deja enregistre et solde restant du.",
       payload: {
+        client_example_id: "business-studio",
         title: "Facture intermediaire - creation site vitrine",
         status: "sent",
         due_in_days: 7,
@@ -211,6 +216,7 @@
       label: "Atelier regle",
       description: "Exemple simple de facture totalement payee avec preuve de reglement.",
       payload: {
+        client_example_id: "person-coach",
         title: "Atelier de cadrage digital",
         status: "paid",
         due_in_days: 0,
@@ -490,7 +496,11 @@
           <strong>${escapeHtml(example.payload.title)}</strong>
           <p>${escapeHtml(example.description)}</p>
           <div class="crm-example-tags">${tags}</div>
-          <button class="btn crm-btn-quiet" type="button" data-quote-example="${escapeHtml(example.id)}">Appliquer cet exemple</button>
+          <div class="crm-example-actions">
+            <button class="btn crm-btn-quiet" type="button" data-quote-example="${escapeHtml(example.id)}">Appliquer</button>
+            <button class="btn crm-btn-quiet" type="button" data-quote-example-client="${escapeHtml(example.id)}">Client + exemple</button>
+            <button class="btn primary" type="button" data-quote-example-pdf="${escapeHtml(example.id)}">Client + PDF</button>
+          </div>
         </article>
       `;
     }).join("");
@@ -510,7 +520,11 @@
           <strong>${escapeHtml(example.payload.title)}</strong>
           <p>${escapeHtml(example.description)}</p>
           <div class="crm-example-tags">${tags}<span>Echeance: J+${escapeHtml(example.payload.due_in_days || 0)}</span><span>Paiements: ${escapeHtml(fmtMoney(paymentTotal, state.settings.currency))}</span></div>
-          <button class="btn crm-btn-quiet" type="button" data-invoice-example="${escapeHtml(example.id)}">Appliquer cet exemple</button>
+          <div class="crm-example-actions">
+            <button class="btn crm-btn-quiet" type="button" data-invoice-example="${escapeHtml(example.id)}">Appliquer</button>
+            <button class="btn crm-btn-quiet" type="button" data-invoice-example-client="${escapeHtml(example.id)}">Client + exemple</button>
+            <button class="btn primary" type="button" data-invoice-example-pdf="${escapeHtml(example.id)}">Client + PDF</button>
+          </div>
         </article>
       `;
     }).join("");
@@ -539,6 +553,31 @@
     form.querySelector("[name='display_name']")?.focus();
   }
 
+  function findClientFromExample(exampleId){
+    const example = CLIENT_EXAMPLES.find((entry)=> entry.id === String(exampleId || ""));
+    if(!example) return null;
+    const email = String(example.payload.email || "").trim().toLowerCase();
+    const display = slugify(example.payload.display_name || "");
+    const companyName = slugify(example.payload.company_name || "");
+    return state.clients.find((client)=> {
+      const clientEmail = String(client.email || "").trim().toLowerCase();
+      if(email && clientEmail === email) return true;
+      if(display && slugify(clientDisplayName(client)) === display) return true;
+      if(companyName && slugify(client.company_name || "") === companyName) return true;
+      return false;
+    }) || null;
+  }
+
+  async function ensureClientFromExample(exampleId){
+    const example = CLIENT_EXAMPLES.find((entry)=> entry.id === String(exampleId || ""));
+    if(!example) throw new Error("Exemple client introuvable.");
+    const existing = findClientFromExample(exampleId);
+    if(existing) return existing;
+    const saved = await repo.saveClient(example.payload);
+    state.clients = await repo.listClients();
+    return state.clients.find((client)=> client.id === saved.id) || saved;
+  }
+
   function applyQuoteExample(exampleId){
     const example = QUOTE_EXAMPLES.find((entry)=> entry.id === String(exampleId || ""));
     if(!example) return;
@@ -562,6 +601,43 @@
     toast("Devis", `${example.label} pre-rempli. Ajuste les champs si besoin.`);
   }
 
+  async function applyQuoteExampleWithClient(exampleId, options = {}){
+    const example = QUOTE_EXAMPLES.find((entry)=> entry.id === String(exampleId || ""));
+    if(!example) return null;
+    const client = await ensureClientFromExample(example.payload.client_example_id || "");
+    const current = collectQuoteFormData();
+    state.quoteForm = computeQuote({
+      ...current,
+      client_id: client.id,
+      client,
+      title: example.payload.title,
+      discount_type: example.payload.discount_type,
+      discount_value: example.payload.discount_value,
+      deposit_amount: example.payload.deposit_amount,
+      vat_rate: roundMoney(current.vat_rate ?? state.settings.default_vat_rate ?? 0),
+      payment_terms: example.payload.payment_terms,
+      notes: example.payload.notes,
+      accepted: false,
+      accepted_name: "",
+      accepted_signature: "",
+      accepted_at: "",
+      items: (example.payload.items || []).map((item, index)=> normalizeItem(item, index)),
+    });
+
+    if(!options?.generatePdf){
+      renderQuoteEditorPage();
+      toast("Devis", `${example.label} et client exemple pre-remplis.`);
+      return state.quoteForm;
+    }
+
+    const saved = await repo.saveQuote({ ...state.quoteForm, status: "draft" });
+    state.quoteForm = await generatePdf("quote", saved, { print: false });
+    state.quotes = await repo.listQuotes();
+    renderQuoteEditorPage();
+    toast("PDF", `Devis ${example.label.toLowerCase()} genere avec son client exemple.`);
+    return state.quoteForm;
+  }
+
   function applyInvoiceExample(exampleId){
     const example = INVOICE_EXAMPLES.find((entry)=> entry.id === String(exampleId || ""));
     if(!example) return;
@@ -583,6 +659,43 @@
     });
     renderInvoiceEditorPage();
     toast("Facture", `${example.label} pre-rempli. Ajuste les champs si besoin.`);
+  }
+
+  async function applyInvoiceExampleWithClient(exampleId, options = {}){
+    const example = INVOICE_EXAMPLES.find((entry)=> entry.id === String(exampleId || ""));
+    if(!example) return null;
+    const client = await ensureClientFromExample(example.payload.client_example_id || "");
+    const current = collectInvoiceFormData();
+    state.invoiceForm = computeInvoice({
+      ...current,
+      client_id: client.id,
+      client,
+      title: example.payload.title,
+      status: example.payload.status,
+      issue_date: current.issue_date || TODAY(),
+      due_date: addDays(current.issue_date || TODAY(), Number(example.payload.due_in_days || 0)),
+      discount_type: example.payload.discount_type,
+      discount_value: example.payload.discount_value,
+      deposit_amount: example.payload.deposit_amount,
+      vat_rate: roundMoney(current.vat_rate ?? state.settings.default_vat_rate ?? 0),
+      payment_terms: example.payload.payment_terms,
+      notes: example.payload.notes,
+      items: (example.payload.items || []).map((item, index)=> normalizeItem(item, index)),
+      payments: (example.payload.payments || []).map((payment, index)=> normalizePayment(payment, index)),
+    });
+
+    if(!options?.generatePdf){
+      renderInvoiceEditorPage();
+      toast("Facture", `${example.label} et client exemple pre-remplis.`);
+      return state.invoiceForm;
+    }
+
+    const saved = await repo.saveInvoice({ ...state.invoiceForm, status: state.invoiceForm.status || "draft" });
+    state.invoiceForm = await generatePdf("invoice", saved, { print: false });
+    state.invoices = await repo.listInvoices();
+    renderInvoiceEditorPage();
+    toast("PDF", `Facture ${example.label.toLowerCase()} generee avec son client exemple.`);
+    return state.invoiceForm;
   }
 
   function normalizeClient(input){
@@ -2712,6 +2825,12 @@
     root.querySelectorAll("[data-quote-example]").forEach((button)=> button.addEventListener("click", ()=>{
       applyQuoteExample(button.getAttribute("data-quote-example"));
     }));
+    root.querySelectorAll("[data-quote-example-client]").forEach((button)=> button.addEventListener("click", runAction("Devis", async ()=>{
+      await applyQuoteExampleWithClient(button.getAttribute("data-quote-example-client"));
+    })));
+    root.querySelectorAll("[data-quote-example-pdf]").forEach((button)=> button.addEventListener("click", runAction("PDF", async ()=>{
+      await applyQuoteExampleWithClient(button.getAttribute("data-quote-example-pdf"), { generatePdf: true });
+    })));
     $("#crmQuoteAddItem", root)?.addEventListener("click", ()=>{
       collectQuoteFormData();
       state.quoteForm.items.push(normalizeItem({ title: `Prestation ${state.quoteForm.items.length + 1}`, quantity: 1, unit_price: 0 }, state.quoteForm.items.length));
@@ -2929,6 +3048,12 @@
     root.querySelectorAll("[data-invoice-example]").forEach((button)=> button.addEventListener("click", ()=>{
       applyInvoiceExample(button.getAttribute("data-invoice-example"));
     }));
+    root.querySelectorAll("[data-invoice-example-client]").forEach((button)=> button.addEventListener("click", runAction("Facture", async ()=>{
+      await applyInvoiceExampleWithClient(button.getAttribute("data-invoice-example-client"));
+    })));
+    root.querySelectorAll("[data-invoice-example-pdf]").forEach((button)=> button.addEventListener("click", runAction("PDF", async ()=>{
+      await applyInvoiceExampleWithClient(button.getAttribute("data-invoice-example-pdf"), { generatePdf: true });
+    })));
     $("#crmInvoiceAddItem", root)?.addEventListener("click", ()=>{
       collectInvoiceFormData();
       state.invoiceForm.items.push(normalizeItem({ title: `Prestation ${state.invoiceForm.items.length + 1}`, quantity: 1, unit_price: 0 }, state.invoiceForm.items.length));

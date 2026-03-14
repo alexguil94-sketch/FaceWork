@@ -464,6 +464,12 @@ body.crm-body .appnav a.active{
   gap: 8px;
 }
 
+.crm-example-actions{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .crm-example-tags span,
 .crm-example-amount{
   display: inline-flex;
