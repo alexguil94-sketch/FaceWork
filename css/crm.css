@@ -186,7 +186,7 @@ body.crm-body .appnav a.active{
 
 .crm-hero h1,
 .crm-hero p{
-  max-width: 14ch;
+  max-width: 13ch;
 }
 
 .crm-hero p{
@@ -432,28 +432,28 @@ body.crm-body .appnav a.active{
   font: inherit;
 }
 
-.crm-field select,
-.crm-service-toolbar .input{
+body.crm-body .crm-field select,
+body.crm-body select.input{
   color-scheme: dark;
 }
 
-html[data-theme="light"] .crm-field select,
-html[data-theme="light"] .crm-service-toolbar .input{
+html[data-theme="light"] body.crm-body .crm-field select,
+html[data-theme="light"] body.crm-body select.input{
   color-scheme: light;
 }
 
-.crm-field select option,
-.crm-field select optgroup,
-.crm-service-toolbar .input option,
-.crm-service-toolbar .input optgroup{
+body.crm-body .crm-field select option,
+body.crm-body .crm-field select optgroup,
+body.crm-body select.input option,
+body.crm-body select.input optgroup{
   color: #f4f4f5;
   background: #111214;
 }
 
-html[data-theme="light"] .crm-field select option,
-html[data-theme="light"] .crm-field select optgroup,
-html[data-theme="light"] .crm-service-toolbar .input option,
-html[data-theme="light"] .crm-service-toolbar .input optgroup{
+html[data-theme="light"] body.crm-body .crm-field select option,
+html[data-theme="light"] body.crm-body .crm-field select optgroup,
+html[data-theme="light"] body.crm-body select.input option,
+html[data-theme="light"] body.crm-body select.input optgroup{
   color: #161616;
   background: #ffffff;
 }
@@ -832,7 +832,7 @@ html[data-theme="light"] .crm-service-toolbar .input optgroup{
   font-weight: 800;
 }
 
-@media (max-width: 1600px){
+@media (max-width: 1760px){
   .crm-split{
     grid-template-columns: 1fr;
   }
