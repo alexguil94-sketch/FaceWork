@@ -432,6 +432,52 @@ body.crm-body .appnav a.active{
   box-shadow: 0 0 0 3px rgba(255,255,255,.05);
 }
 
+.crm-example-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.crm-example-card{
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(255,255,255,.03);
+}
+
+.crm-example-card strong{
+  color: rgba(255,255,255,.96);
+  font-size: 16px;
+}
+
+.crm-example-card p{
+  margin: 0;
+  color: rgba(255,255,255,.62);
+  line-height: 1.55;
+}
+
+.crm-example-tags{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.crm-example-tags span,
+.crm-example-amount{
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.08);
+  color: rgba(255,255,255,.78);
+  font-size: 12px;
+  font-weight: 700;
+}
+
 .crm-split{
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(360px, .8fr);

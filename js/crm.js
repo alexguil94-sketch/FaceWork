@@ -8,7 +8,7 @@
   const sb = (window.fwSupabase?.enabled && window.fwSupabase?.client) ? window.fwSupabase.client : null;
   const STORAGE_BUCKET = String(window.FW_ENV?.SUPABASE_BUCKET || "facework").trim() || "facework";
   const PARAMS = new URLSearchParams(window.location.search);
-  const APP_COMPANY = String(getUser()?.company || window.fwSupabase?.companyDefault || "Entreprise").trim() || "Entreprise";
+  let APP_COMPANY = String(getUser()?.company || window.fwSupabase?.companyDefault || "Entreprise").trim() || "Entreprise";
   const DEFAULT_CRM_LOGO_URL = new URL("../assets/favicon_DS.png", window.location.href).href;
   const NOW = ()=> new Date().toISOString();
   const TODAY = ()=> new Date().toISOString().slice(0, 10);
@@ -60,6 +60,176 @@
     },
   };
 
+  const CLIENT_EXAMPLES = Object.freeze([
+    {
+      id: "business-studio",
+      label: "Entreprise creative",
+      description: "Studio ou agence qui commande un site, une landing page ou un accompagnement.",
+      payload: {
+        kind: "business",
+        display_name: "Studio Horizon",
+        first_name: "Claire",
+        last_name: "Durand",
+        company_name: "Studio Horizon",
+        email: "hello@studio-horizon.fr",
+        phone: "+33 1 80 00 00 00",
+        client_siret: "80123456700017",
+        address_line1: "48 avenue des Createurs",
+        address_line2: "Batiment B - Bureau 12",
+        postal_code: "69002",
+        city: "Lyon",
+        country: "France",
+        notes: "Contact principal : Claire Durand. Validation des devis sous 72 h.",
+      },
+    },
+    {
+      id: "person-coach",
+      label: "Independant",
+      description: "Coach, consultante ou freelance facturee en nom propre.",
+      payload: {
+        kind: "person",
+        display_name: "Marie-Madeleine Gautier",
+        first_name: "Marie-Madeleine",
+        last_name: "Gautier",
+        company_name: "",
+        email: "contact@marie-madeleine.fr",
+        phone: "+33 6 11 22 33 44",
+        client_siret: "",
+        address_line1: "12 rue des Creatifs",
+        address_line2: "",
+        postal_code: "75011",
+        city: "Paris",
+        country: "France",
+        notes: "Activite independante. Echanges rapides par email et WhatsApp.",
+      },
+    },
+  ]);
+
+  const QUOTE_EXAMPLES = Object.freeze([
+    {
+      id: "site-vitrine",
+      label: "Site vitrine",
+      description: "Ideal pour un devis de creation de site premium avec acompte et mise en ligne.",
+      payload: {
+        title: "Creation d'un site vitrine premium",
+        discount_type: "none",
+        discount_value: 0,
+        deposit_amount: 680,
+        payment_terms: "Acompte de 40% a la commande, solde a la mise en ligne.",
+        notes: "Delai estime : 4 semaines. Deux cycles de retours inclus. Formation de prise en main comprise.",
+        items: [
+          { title: "Audit et arborescence", description: "Analyse de l'existant, objectifs, structure des pages et contenus attendus.", quantity: 1, unit_price: 340 },
+          { title: "Design sur-mesure", description: "Direction artistique, maquette desktop/mobile et ajustements avant integration.", quantity: 1, unit_price: 890 },
+          { title: "Integration du site", description: "Developpement responsive, animations legeres, formulaire de contact et optimisations.", quantity: 1, unit_price: 1470 },
+          { title: "SEO de lancement", description: "Balises, vitesse, indexation et check technique avant mise en ligne.", quantity: 1, unit_price: 240 },
+        ],
+      },
+    },
+    {
+      id: "social-media",
+      label: "Communication mensuelle",
+      description: "Modele pratique pour une mission de contenu, calendrier editorial et publication.",
+      payload: {
+        title: "Accompagnement communication digitale mensuelle",
+        discount_type: "percent",
+        discount_value: 10,
+        deposit_amount: 0,
+        payment_terms: "Paiement a reception par virement bancaire, avant le 5 du mois suivant.",
+        notes: "Calendrier editorial valide en debut de mois. Fichiers sources fournis. Reporting simplifie inclus.",
+        items: [
+          { title: "Strategie editoriale", description: "Preparation du planning, angles de contenus et repartition des formats.", quantity: 1, unit_price: 220 },
+          { title: "Creation de 12 contenus", description: "Textes, visuels ou carrousels prets a publier sur Instagram, Facebook ou LinkedIn.", quantity: 1, unit_price: 540 },
+          { title: "Programmation et suivi", description: "Mise en ligne, ajustements et retour synthese sur la performance du mois.", quantity: 1, unit_price: 180 },
+        ],
+      },
+    },
+    {
+      id: "audit-coaching",
+      label: "Audit + atelier",
+      description: "Exemple simple pour une mission courte de cadrage, conseil et feuille de route.",
+      payload: {
+        title: "Audit digital et atelier de cadrage",
+        discount_type: "none",
+        discount_value: 0,
+        deposit_amount: 250,
+        payment_terms: "Acompte de 250 EUR a la reservation, solde a la livraison du plan d'action.",
+        notes: "Livrable remis sous 5 jours ouvres apres l'atelier. Priorites, quick wins et recommandations incluses.",
+        items: [
+          { title: "Audit complet", description: "Analyse du site, de la proposition de valeur, du parcours et des points de friction.", quantity: 1, unit_price: 420 },
+          { title: "Atelier de cadrage (3h)", description: "Session de travail, tri des priorites et clarification des actions a lancer.", quantity: 1, unit_price: 330 },
+          { title: "Feuille de route 30 jours", description: "Plan d'action concret avec priorites, messages cles et prochaines etapes.", quantity: 1, unit_price: 190 },
+        ],
+      },
+    },
+  ]);
+
+  const INVOICE_EXAMPLES = Object.freeze([
+    {
+      id: "monthly-service",
+      label: "Mensualite envoyee",
+      description: "Facture de prestation recurrente sans paiement encore recu.",
+      payload: {
+        title: "Maintenance et communication mensuelle",
+        status: "sent",
+        due_in_days: 15,
+        discount_type: "none",
+        discount_value: 0,
+        deposit_amount: 0,
+        payment_terms: "Paiement a reception par virement, au plus tard sous 15 jours.",
+        notes: "Prestation du mois en cours. Merci d'indiquer la reference de facture dans le libelle du virement.",
+        items: [
+          { title: "Maintenance technique", description: "Mises a jour, sauvegardes, surveillance et support prioritaire.", quantity: 1, unit_price: 260 },
+          { title: "Animation reseaux sociaux", description: "Preparation, design et programmation de 8 contenus mensuels.", quantity: 1, unit_price: 420 },
+        ],
+        payments: [],
+      },
+    },
+    {
+      id: "project-partial",
+      label: "Projet avec acompte",
+      description: "Facture avec premier reglement deja enregistre et solde restant du.",
+      payload: {
+        title: "Facture intermediaire - creation site vitrine",
+        status: "sent",
+        due_in_days: 7,
+        discount_type: "none",
+        discount_value: 0,
+        deposit_amount: 780,
+        payment_terms: "Acompte deja recu. Solde payable a reception par virement bancaire.",
+        notes: "Le solde correspond a la mise en ligne et aux derniers ajustements valides.",
+        items: [
+          { title: "Conception UX/UI", description: "Maquettes desktop/mobile et validation du parcours utilisateur.", quantity: 1, unit_price: 960 },
+          { title: "Developpement et integration", description: "Integration responsive, contenus, formulaires et optimisations.", quantity: 1, unit_price: 1240 },
+        ],
+        payments: [
+          { amount: 780, paid_at: TODAY(), method: "virement", reference: "ACOMPTE-SITE-2026", notes: "Acompte verse a la commande." },
+        ],
+      },
+    },
+    {
+      id: "workshop-paid",
+      label: "Atelier regle",
+      description: "Exemple simple de facture totalement payee avec preuve de reglement.",
+      payload: {
+        title: "Atelier de cadrage digital",
+        status: "paid",
+        due_in_days: 0,
+        discount_type: "none",
+        discount_value: 0,
+        deposit_amount: 0,
+        payment_terms: "Reglement a reception.",
+        notes: "Facture acquittee. Support de synthese envoye au client apres l'atelier.",
+        items: [
+          { title: "Animation atelier (3h)", description: "Session de cadrage, priorisation et recommandations actionnables.", quantity: 1, unit_price: 390 },
+          { title: "Compte rendu et plan d'action", description: "Restitution ecrite avec quick wins et prochaines etapes.", quantity: 1, unit_price: 160 },
+        ],
+        payments: [
+          { amount: 550, paid_at: TODAY(), method: "virement", reference: "REG-ATELIER-2026", notes: "Facture soldee." },
+        ],
+      },
+    },
+  ]);
+
   function toast(title, desc){
     window.fwToast?.(title, desc || "");
   }
@@ -80,7 +250,14 @@
       try{
         await fn(...args);
       }catch(error){
-        console.error("[CRM action]", error);
+        console.error("[CRM action]", {
+          label,
+          code: error?.code || "",
+          message: error?.message || String(error || ""),
+          details: error?.details || null,
+          hint: error?.hint || null,
+          error,
+        });
         toast(label, errorMessage(error));
       }
     };
@@ -95,7 +272,90 @@
     if(code === "PGRST116"){
       return "Aucune donnee CRM trouvee. Commence par remplir les parametres ou importer les exemples.";
     }
+    if(code === "P0001" || /^(forbidden|not_authenticated|profile_missing|invalid_company|quote_not_found|invoice_not_found)$/i.test(msg)){
+      if(/^forbidden$/i.test(msg)){
+        return "Le CRM Supabase est reserve aux admins. Verifie la colonne `profiles.role` pour cet utilisateur.";
+      }
+      if(/^not_authenticated$/i.test(msg)){
+        return "Session Supabase absente ou expiree. Reconnecte-toi puis recharge le CRM.";
+      }
+      if(/^profile_missing$/i.test(msg)){
+        return "Profil Supabase introuvable pour cet utilisateur. Reconnecte-toi pour resynchroniser le profil.";
+      }
+      if(/^invalid_company$/i.test(msg)){
+        return "L'entreprise du document ne correspond pas au profil Supabase courant.";
+      }
+      if(/^quote_not_found$/i.test(msg)){
+        return "Le devis cible est introuvable dans Supabase.";
+      }
+      if(/^invoice_not_found$/i.test(msg)){
+        return "La facture cible est introuvable dans Supabase.";
+      }
+    }
+    if(code === "22P02"){
+      return "Un identifiant CRM est invalide. Recharge la page puis reselectionne le client ou le document.";
+    }
+    if(code === "23503"){
+      return "Le client ou le document lie n'existe pas dans Supabase. Recharge les donnees puis reessaie.";
+    }
+    if(code === "42501" || /row-level security|permission denied/i.test(msg)){
+      return "Acces CRM refuse par Supabase. Verifie la session active et les policies RLS.";
+    }
     return msg || "Erreur CRM";
+  }
+
+  function currentAppCompany(){
+    return String(getUser()?.company || window.fwSupabase?.companyDefault || "Entreprise").trim() || "Entreprise";
+  }
+
+  function isAdminUser(user){
+    return String(user?.role || "").trim().toLowerCase() === "admin";
+  }
+
+  function authRedirectHref(){
+    const p = window.location.pathname || "";
+    const inSubdir =
+      p.includes("/app/") ||
+      p.includes("/guides/") ||
+      p.includes("/tutos/") ||
+      p.includes("/exercices/") ||
+      p.includes("/langages/");
+    return inSubdir ? "../login.html" : "login.html";
+  }
+
+  function adminFallbackHref(){
+    const p = window.location.pathname || "";
+    const inSubdir =
+      p.includes("/app/") ||
+      p.includes("/guides/") ||
+      p.includes("/tutos/") ||
+      p.includes("/exercices/") ||
+      p.includes("/langages/");
+    return inSubdir ? "../app/feed.html" : "app/feed.html";
+  }
+
+  function applyCompanyContext(){
+    APP_COMPANY = currentAppCompany();
+    DEFAULT_SETTINGS.company = APP_COMPANY;
+    state.settings.company = APP_COMPANY;
+  }
+
+  async function ensureCrmAccess(){
+    if(!sb){
+      applyCompanyContext();
+      return true;
+    }
+
+    const ok = await window.fwSupabase?.requireAuth?.({ redirectTo: authRedirectHref() });
+    if(!ok) return false;
+
+    applyCompanyContext();
+
+    if(!isAdminUser(getUser())){
+      window.location.href = adminFallbackHref();
+      return false;
+    }
+    return true;
   }
 
   function safeNumber(value){
@@ -204,6 +464,125 @@
       [client?.postal_code || "", client?.city || ""].filter(Boolean).join(" "),
       client?.country || "",
     ].filter(Boolean).join("\n");
+  }
+
+  function clientExampleCardsHtml(){
+    return CLIENT_EXAMPLES.map((example)=> `
+      <article class="crm-example-card">
+        <div class="crm-pill">${escapeHtml(example.label)}</div>
+        <strong>${escapeHtml(example.payload.display_name)}</strong>
+        <p>${escapeHtml(example.description)}</p>
+        <button class="btn crm-btn-quiet" type="button" data-client-example="${escapeHtml(example.id)}">Utiliser cet exemple</button>
+      </article>
+    `).join("");
+  }
+
+  function quoteExampleCardsHtml(){
+    return QUOTE_EXAMPLES.map((example)=> {
+      const subtotal = roundMoney((example.payload.items || []).reduce((sum, item)=> sum + roundMoney(item.quantity * item.unit_price), 0));
+      const tags = (example.payload.items || []).map((item)=> `<span>${escapeHtml(item.title)}</span>`).join("");
+      return `
+        <article class="crm-example-card">
+          <div class="crm-inline" style="justify-content:space-between">
+            <div class="crm-pill">${escapeHtml(example.label)}</div>
+            <div class="crm-example-amount">${escapeHtml(fmtMoney(subtotal, state.settings.currency))}</div>
+          </div>
+          <strong>${escapeHtml(example.payload.title)}</strong>
+          <p>${escapeHtml(example.description)}</p>
+          <div class="crm-example-tags">${tags}</div>
+          <button class="btn crm-btn-quiet" type="button" data-quote-example="${escapeHtml(example.id)}">Appliquer cet exemple</button>
+        </article>
+      `;
+    }).join("");
+  }
+
+  function invoiceExampleCardsHtml(){
+    return INVOICE_EXAMPLES.map((example)=> {
+      const subtotal = roundMoney((example.payload.items || []).reduce((sum, item)=> sum + roundMoney(item.quantity * item.unit_price), 0));
+      const paymentTotal = roundMoney((example.payload.payments || []).reduce((sum, payment)=> sum + roundMoney(payment.amount || 0), 0));
+      const tags = (example.payload.items || []).map((item)=> `<span>${escapeHtml(item.title)}</span>`).join("");
+      return `
+        <article class="crm-example-card">
+          <div class="crm-inline" style="justify-content:space-between">
+            <div class="crm-pill">${escapeHtml(example.label)}</div>
+            <div class="crm-example-amount">${escapeHtml(fmtMoney(subtotal, state.settings.currency))}</div>
+          </div>
+          <strong>${escapeHtml(example.payload.title)}</strong>
+          <p>${escapeHtml(example.description)}</p>
+          <div class="crm-example-tags">${tags}<span>Echeance: J+${escapeHtml(example.payload.due_in_days || 0)}</span><span>Paiements: ${escapeHtml(fmtMoney(paymentTotal, state.settings.currency))}</span></div>
+          <button class="btn crm-btn-quiet" type="button" data-invoice-example="${escapeHtml(example.id)}">Appliquer cet exemple</button>
+        </article>
+      `;
+    }).join("");
+  }
+
+  function setFieldValue(field, value){
+    if(!field) return;
+    if(field.type === "checkbox"){
+      field.checked = !!value;
+      return;
+    }
+    field.value = value == null ? "" : String(value);
+  }
+
+  function applyFormValues(form, values){
+    if(!form || !values || typeof values !== "object") return;
+    Object.entries(values).forEach(([name, value])=>{
+      setFieldValue(form.querySelector(`[name="${name}"]`), value);
+    });
+  }
+
+  function applyClientExample(form, exampleId){
+    const example = CLIENT_EXAMPLES.find((entry)=> entry.id === String(exampleId || ""));
+    if(!example || !form) return;
+    applyFormValues(form, example.payload);
+    form.querySelector("[name='display_name']")?.focus();
+  }
+
+  function applyQuoteExample(exampleId){
+    const example = QUOTE_EXAMPLES.find((entry)=> entry.id === String(exampleId || ""));
+    if(!example) return;
+    const current = collectQuoteFormData();
+    state.quoteForm = computeQuote({
+      ...current,
+      title: example.payload.title,
+      discount_type: example.payload.discount_type,
+      discount_value: example.payload.discount_value,
+      deposit_amount: example.payload.deposit_amount,
+      vat_rate: roundMoney(current.vat_rate ?? state.settings.default_vat_rate ?? 0),
+      payment_terms: example.payload.payment_terms,
+      notes: example.payload.notes,
+      accepted: false,
+      accepted_name: "",
+      accepted_signature: "",
+      accepted_at: "",
+      items: (example.payload.items || []).map((item, index)=> normalizeItem(item, index)),
+    });
+    renderQuoteEditorPage();
+    toast("Devis", `${example.label} pre-rempli. Ajuste les champs si besoin.`);
+  }
+
+  function applyInvoiceExample(exampleId){
+    const example = INVOICE_EXAMPLES.find((entry)=> entry.id === String(exampleId || ""));
+    if(!example) return;
+    const current = collectInvoiceFormData();
+    state.invoiceForm = computeInvoice({
+      ...current,
+      title: example.payload.title,
+      status: example.payload.status,
+      issue_date: current.issue_date || TODAY(),
+      due_date: addDays(current.issue_date || TODAY(), Number(example.payload.due_in_days || 0)),
+      discount_type: example.payload.discount_type,
+      discount_value: example.payload.discount_value,
+      deposit_amount: example.payload.deposit_amount,
+      vat_rate: roundMoney(current.vat_rate ?? state.settings.default_vat_rate ?? 0),
+      payment_terms: example.payload.payment_terms,
+      notes: example.payload.notes,
+      items: (example.payload.items || []).map((item, index)=> normalizeItem(item, index)),
+      payments: (example.payload.payments || []).map((payment, index)=> normalizePayment(payment, index)),
+    });
+    renderInvoiceEditorPage();
+    toast("Facture", `${example.label} pre-rempli. Ajuste les champs si besoin.`);
   }
 
   function normalizeClient(input){
@@ -1727,31 +2106,36 @@
           </div>
           <button class="btn crm-btn-quiet" type="button" data-close>Fermer</button>
         </div>
+        <section class="crm-form-section" style="margin-bottom:16px">
+          <h3>Exemples de fiches client</h3>
+          <p>Utilise un modele realiste puis ajuste simplement le nom, l'email, l'adresse ou les notes.</p>
+          <div class="crm-example-grid">${clientExampleCardsHtml()}</div>
+        </section>
         <form class="crm-form" id="crmClientForm">
           <div class="crm-grid cols-2">
             <div class="crm-field"><label>Type</label><select name="kind"><option value="business"${current.kind === "business" ? " selected" : ""}>Entreprise</option><option value="person"${current.kind === "person" ? " selected" : ""}>Particulier</option></select></div>
-            <div class="crm-field"><label>Nom affiche</label><input name="display_name" value="${escapeHtml(current.display_name)}" required/></div>
+            <div class="crm-field"><label>Nom affiche</label><input name="display_name" value="${escapeHtml(current.display_name)}" placeholder="Ex : Studio Horizon ou Marie-Madeleine Gautier" required/></div>
           </div>
           <div class="crm-grid cols-3">
-            <div class="crm-field"><label>Prenom</label><input name="first_name" value="${escapeHtml(current.first_name)}"/></div>
-            <div class="crm-field"><label>Nom</label><input name="last_name" value="${escapeHtml(current.last_name)}"/></div>
-            <div class="crm-field"><label>Entreprise</label><input name="company_name" value="${escapeHtml(current.company_name)}"/></div>
+            <div class="crm-field"><label>Prenom</label><input name="first_name" value="${escapeHtml(current.first_name)}" placeholder="Ex : Claire"/></div>
+            <div class="crm-field"><label>Nom</label><input name="last_name" value="${escapeHtml(current.last_name)}" placeholder="Ex : Durand"/></div>
+            <div class="crm-field"><label>Entreprise</label><input name="company_name" value="${escapeHtml(current.company_name)}" placeholder="Ex : Studio Horizon"/></div>
           </div>
           <div class="crm-grid cols-3">
-            <div class="crm-field"><label>Email</label><input name="email" type="email" value="${escapeHtml(current.email)}"/></div>
-            <div class="crm-field"><label>Telephone</label><input name="phone" value="${escapeHtml(current.phone)}"/></div>
-            <div class="crm-field"><label>SIRET client</label><input name="client_siret" value="${escapeHtml(current.client_siret)}"/></div>
+            <div class="crm-field"><label>Email</label><input name="email" type="email" value="${escapeHtml(current.email)}" placeholder="Ex : hello@studio-horizon.fr"/></div>
+            <div class="crm-field"><label>Telephone</label><input name="phone" value="${escapeHtml(current.phone)}" placeholder="Ex : +33 6 11 22 33 44"/></div>
+            <div class="crm-field"><label>SIRET client</label><input name="client_siret" value="${escapeHtml(current.client_siret)}" placeholder="Ex : 80123456700017"/></div>
           </div>
           <div class="crm-grid cols-2">
-            <div class="crm-field"><label>Adresse</label><input name="address_line1" value="${escapeHtml(current.address_line1)}"/></div>
-            <div class="crm-field"><label>Complement</label><input name="address_line2" value="${escapeHtml(current.address_line2)}"/></div>
+            <div class="crm-field"><label>Adresse</label><input name="address_line1" value="${escapeHtml(current.address_line1)}" placeholder="Ex : 48 avenue des Createurs"/></div>
+            <div class="crm-field"><label>Complement</label><input name="address_line2" value="${escapeHtml(current.address_line2)}" placeholder="Ex : Batiment B - Bureau 12"/></div>
           </div>
           <div class="crm-grid cols-3">
-            <div class="crm-field"><label>Code postal</label><input name="postal_code" value="${escapeHtml(current.postal_code)}"/></div>
-            <div class="crm-field"><label>Ville</label><input name="city" value="${escapeHtml(current.city)}"/></div>
-            <div class="crm-field"><label>Pays</label><input name="country" value="${escapeHtml(current.country)}"/></div>
+            <div class="crm-field"><label>Code postal</label><input name="postal_code" value="${escapeHtml(current.postal_code)}" placeholder="Ex : 69002"/></div>
+            <div class="crm-field"><label>Ville</label><input name="city" value="${escapeHtml(current.city)}" placeholder="Ex : Lyon"/></div>
+            <div class="crm-field"><label>Pays</label><input name="country" value="${escapeHtml(current.country)}" placeholder="France"/></div>
           </div>
-          <div class="crm-field"><label>Notes</label><textarea name="notes">${escapeHtml(current.notes)}</textarea></div>
+          <div class="crm-field"><label>Notes</label><textarea name="notes" placeholder="Ex : contact principal, delai de validation, infos de facturation, contraintes de planning">${escapeHtml(current.notes)}</textarea></div>
           <div class="crm-actions">
             <button class="btn primary" type="submit">Enregistrer</button>
             <button class="btn crm-btn-quiet" type="button" data-close>Annuler</button>
@@ -1764,6 +2148,9 @@
     overlay.addEventListener("click", (event)=>{
       if(event.target === overlay) overlay.remove();
     });
+    overlay.querySelectorAll("[data-client-example]").forEach((button)=> button.addEventListener("click", ()=>{
+      applyClientExample($("#crmClientForm", overlay), button.getAttribute("data-client-example"));
+    }));
     $("#crmClientForm", overlay)?.addEventListener("submit", async (event)=>{
       event.preventDefault();
       const form = new FormData(event.currentTarget);
@@ -2178,8 +2565,8 @@
           <button class="btn small crm-btn-quiet" type="button" data-remove-item="${index}">Retirer</button>
         </div>
         <div class="crm-item-grid">
-          <div class="crm-field"><label>Titre</label><input data-item="title" value="${escapeHtml(item.title)}"/></div>
-          <div class="crm-field"><label>Description</label><input data-item="description" value="${escapeHtml(item.description)}"/></div>
+          <div class="crm-field"><label>Titre</label><input data-item="title" value="${escapeHtml(item.title)}" placeholder="Ex : Creation page d'accueil sur-mesure"/></div>
+          <div class="crm-field"><label>Description</label><input data-item="description" value="${escapeHtml(item.description)}" placeholder="Ex : maquettage, integration responsive, ajustements et livraison"/></div>
           <div class="crm-field"><label>Quantite</label><input data-item="quantity" type="number" step="0.01" min="0" value="${escapeHtml(item.quantity)}"/></div>
           <div class="crm-field"><label>Prix unitaire</label><input data-item="unit_price" type="number" step="0.01" min="0" value="${escapeHtml(item.unit_price)}"/></div>
           <div class="crm-field"><label>Total ligne</label><input value="${escapeHtml(fmtMoney(item.line_total || 0, state.settings.currency))}" disabled/></div>
@@ -2254,11 +2641,17 @@
 
           <form class="crm-form" id="crmQuoteForm">
             <section class="crm-form-section">
+              <h2>Exemples prets a remplir</h2>
+              <p>Choisis un modele de devis, puis remplace seulement le client, les montants ou les notes si necessaire.</p>
+              <div class="crm-example-grid">${quoteExampleCardsHtml()}</div>
+            </section>
+
+            <section class="crm-form-section">
               <h2>Client et cadre</h2>
               <p>Selection rapide d'un client existant ou creation immediate depuis le devis.</p>
               <div class="crm-grid cols-2">
                 <div class="crm-field"><label>Client</label><select name="client_id"><option value="">Choisir un client</option>${clientOptionsHtml(quote.client_id)}</select></div>
-                <div class="crm-field"><label>Titre du devis</label><input name="title" value="${escapeHtml(quote.title)}" placeholder="Refonte site + accompagnement digital"/></div>
+                <div class="crm-field"><label>Titre du devis</label><input name="title" value="${escapeHtml(quote.title)}" placeholder="Ex : Creation site vitrine + accompagnement digital"/></div>
               </div>
               <div class="crm-actions">
                 <button class="btn crm-btn-quiet" type="button" id="crmQuoteNewClient">Creer un client</button>
@@ -2272,7 +2665,7 @@
               <div class="crm-grid cols-3">
                 <div class="crm-field"><label>Statut</label><select name="status"><option value="draft"${quote.status === "draft" ? " selected" : ""}>Brouillon</option><option value="sent"${quote.status === "sent" ? " selected" : ""}>Envoye</option><option value="pending"${quote.status === "pending" ? " selected" : ""}>En attente</option><option value="accepted"${quote.status === "accepted" ? " selected" : ""}>Accepte</option><option value="rejected"${quote.status === "rejected" ? " selected" : ""}>Refuse</option></select></div>
                 <div class="crm-field"><label>Remise</label><select name="discount_type"><option value="none"${quote.discount_type === "none" ? " selected" : ""}>Aucune</option><option value="percent"${quote.discount_type === "percent" ? " selected" : ""}>Pourcentage</option><option value="fixed"${quote.discount_type === "fixed" ? " selected" : ""}>Montant fixe</option></select></div>
-                <div class="crm-field"><label>Valeur remise</label><input name="discount_value" type="number" min="0" step="0.01" value="${escapeHtml(quote.discount_value)}"/></div>
+                <div class="crm-field"><label>Valeur remise</label><input name="discount_value" type="number" min="0" step="0.01" value="${escapeHtml(quote.discount_value)}" placeholder="Ex : 10 pour 10% ou 150 pour 150 EUR"/></div>
               </div>
             </section>
 
@@ -2288,12 +2681,12 @@
               <div class="crm-grid cols-3">
                 <div class="crm-field"><label>TVA (%)</label><input name="vat_rate" type="number" min="0" step="0.01" value="${escapeHtml(quote.vat_rate)}"/></div>
                 <div class="crm-field"><label>Acompte</label><input name="deposit_amount" type="number" min="0" step="0.01" value="${escapeHtml(quote.deposit_amount)}"/></div>
-                <div class="crm-field"><label>Conditions de paiement</label><input name="payment_terms" value="${escapeHtml(quote.payment_terms)}"/></div>
+                <div class="crm-field"><label>Conditions de paiement</label><input name="payment_terms" value="${escapeHtml(quote.payment_terms)}" placeholder="Ex : acompte de 40% a la commande, solde a la livraison"/></div>
               </div>
-              <div class="crm-field"><label>Notes</label><textarea name="notes">${escapeHtml(quote.notes)}</textarea></div>
+              <div class="crm-field"><label>Notes</label><textarea name="notes" placeholder="Ex : delai estime, nombre d'allers-retours inclus, livrables prevus, exclusions">${escapeHtml(quote.notes)}</textarea></div>
               <div class="crm-grid cols-3">
                 <div class="crm-field"><label><input name="accepted" type="checkbox"${quote.accepted ? " checked" : ""} style="width:auto;min-height:auto;margin-right:8px"/>Devis accepte</label></div>
-                <div class="crm-field"><label>Nom signataire</label><input name="accepted_name" value="${escapeHtml(quote.accepted_name)}"/></div>
+                <div class="crm-field"><label>Nom signataire</label><input name="accepted_name" value="${escapeHtml(quote.accepted_name)}" placeholder="Ex : Claire Durand"/></div>
                 <div class="crm-field"><label>Signature libre</label><input name="accepted_signature" value="${escapeHtml(quote.accepted_signature)}" placeholder="Nom, initiales ou signature texte"/></div>
               </div>
             </section>
@@ -2316,6 +2709,9 @@
     const form = $("#crmQuoteForm", root);
     form?.addEventListener("input", ()=> refreshQuotePanels());
     form?.addEventListener("change", ()=> refreshQuotePanels());
+    root.querySelectorAll("[data-quote-example]").forEach((button)=> button.addEventListener("click", ()=>{
+      applyQuoteExample(button.getAttribute("data-quote-example"));
+    }));
     $("#crmQuoteAddItem", root)?.addEventListener("click", ()=>{
       collectQuoteFormData();
       state.quoteForm.items.push(normalizeItem({ title: `Prestation ${state.quoteForm.items.length + 1}`, quantity: 1, unit_price: 0 }, state.quoteForm.items.length));
@@ -2383,11 +2779,11 @@
         <div class="crm-grid cols-3" style="width:100%">
           <div class="crm-field"><label>Montant</label><input data-payment="amount" type="number" min="0" step="0.01" value="${escapeHtml(payment.amount)}"/></div>
           <div class="crm-field"><label>Date</label><input data-payment="paid_at" type="date" value="${escapeHtml(payment.paid_at)}"/></div>
-          <div class="crm-field"><label>Mode</label><input data-payment="method" value="${escapeHtml(payment.method)}"/></div>
+          <div class="crm-field"><label>Mode</label><input data-payment="method" value="${escapeHtml(payment.method)}" placeholder="Ex : virement, carte, cheque"/></div>
         </div>
         <div class="crm-grid cols-2" style="width:100%">
-          <div class="crm-field"><label>Reference</label><input data-payment="reference" value="${escapeHtml(payment.reference)}"/></div>
-          <div class="crm-field"><label>Notes</label><input data-payment="notes" value="${escapeHtml(payment.notes)}"/></div>
+          <div class="crm-field"><label>Reference</label><input data-payment="reference" value="${escapeHtml(payment.reference)}" placeholder="Ex : VIR-CLIENT-2026-041"/></div>
+          <div class="crm-field"><label>Notes</label><input data-payment="notes" value="${escapeHtml(payment.notes)}" placeholder="Ex : acompte recu, solde facture, paiement en 2 fois"/></div>
         </div>
         <button class="btn small crm-btn-quiet" type="button" data-remove-payment="${index}">Retirer</button>
       </div>
@@ -2466,10 +2862,20 @@
 
           <form class="crm-form" id="crmInvoiceForm">
             <section class="crm-form-section">
+              <h2>Exemples prets a remplir</h2>
+              <p>Choisis un modele de facture avec echeance et paiements deja structures, puis ajuste seulement les donnees utiles.</p>
+              <div class="crm-example-grid">${invoiceExampleCardsHtml()}</div>
+            </section>
+
+            <section class="crm-form-section">
               <h2>Client et calendrier</h2>
               <div class="crm-grid cols-2">
                 <div class="crm-field"><label>Client</label><select name="client_id"><option value="">Choisir un client</option>${clientOptionsHtml(invoice.client_id)}</select></div>
-                <div class="crm-field"><label>Titre</label><input name="title" value="${escapeHtml(invoice.title)}" placeholder="Maintenance mensuelle, creation site, etc."/></div>
+                <div class="crm-field"><label>Titre</label><input name="title" value="${escapeHtml(invoice.title)}" placeholder="Ex : Maintenance mensuelle, creation site, atelier, etc."/></div>
+              </div>
+              <div class="crm-actions">
+                <button class="btn crm-btn-quiet" type="button" id="crmInvoiceNewClient">Creer un client</button>
+                <button class="btn crm-btn-quiet" type="button" id="crmInvoiceMarie">Client Marie-Madeleine Gautier</button>
               </div>
               <div class="crm-grid cols-4">
                 <div class="crm-field"><label>Numero</label><input value="${escapeHtml(invoice.number || "Automatique")}" disabled/></div>
@@ -2490,14 +2896,14 @@
               <h2>Paiements et reglements</h2>
               <div class="crm-grid cols-3">
                 <div class="crm-field"><label>Remise</label><select name="discount_type"><option value="none"${invoice.discount_type === "none" ? " selected" : ""}>Aucune</option><option value="percent"${invoice.discount_type === "percent" ? " selected" : ""}>Pourcentage</option><option value="fixed"${invoice.discount_type === "fixed" ? " selected" : ""}>Montant fixe</option></select></div>
-                <div class="crm-field"><label>Valeur remise</label><input name="discount_value" type="number" min="0" step="0.01" value="${escapeHtml(invoice.discount_value)}"/></div>
+                <div class="crm-field"><label>Valeur remise</label><input name="discount_value" type="number" min="0" step="0.01" value="${escapeHtml(invoice.discount_value)}" placeholder="Ex : 10 pour 10% ou 80 pour 80 EUR"/></div>
                 <div class="crm-field"><label>TVA (%)</label><input name="vat_rate" type="number" min="0" step="0.01" value="${escapeHtml(invoice.vat_rate)}"/></div>
               </div>
               <div class="crm-grid cols-2">
-                <div class="crm-field"><label>Acompte / acompte attendu</label><input name="deposit_amount" type="number" min="0" step="0.01" value="${escapeHtml(invoice.deposit_amount)}"/></div>
-                <div class="crm-field"><label>Conditions de paiement</label><input name="payment_terms" value="${escapeHtml(invoice.payment_terms)}"/></div>
+                <div class="crm-field"><label>Acompte / acompte attendu</label><input name="deposit_amount" type="number" min="0" step="0.01" value="${escapeHtml(invoice.deposit_amount)}" placeholder="Ex : 780 si un acompte est attendu ou deja verse"/></div>
+                <div class="crm-field"><label>Conditions de paiement</label><input name="payment_terms" value="${escapeHtml(invoice.payment_terms)}" placeholder="Ex : paiement a reception sous 15 jours par virement"/></div>
               </div>
-              <div class="crm-field"><label>Notes</label><textarea name="notes">${escapeHtml(invoice.notes)}</textarea></div>
+              <div class="crm-field"><label>Notes</label><textarea name="notes" placeholder="Ex : rappel de l'objet facture, details de livraison, reference a communiquer">${escapeHtml(invoice.notes)}</textarea></div>
               <div class="crm-payment-list" id="crmInvoicePayments">${paymentRowsHtml(invoice.payments)}</div>
               <div class="crm-actions"><button class="btn crm-btn-quiet" type="button" id="crmInvoiceAddPayment">Ajouter un paiement</button></div>
             </section>
@@ -2520,6 +2926,9 @@
     const form = $("#crmInvoiceForm", root);
     form?.addEventListener("input", ()=> refreshInvoicePanels());
     form?.addEventListener("change", ()=> refreshInvoicePanels());
+    root.querySelectorAll("[data-invoice-example]").forEach((button)=> button.addEventListener("click", ()=>{
+      applyInvoiceExample(button.getAttribute("data-invoice-example"));
+    }));
     $("#crmInvoiceAddItem", root)?.addEventListener("click", ()=>{
       collectInvoiceFormData();
       state.invoiceForm.items.push(normalizeItem({ title: `Prestation ${state.invoiceForm.items.length + 1}`, quantity: 1, unit_price: 0 }, state.invoiceForm.items.length));
@@ -2545,6 +2954,20 @@
       state.invoiceForm.payments = state.invoiceForm.payments.filter((_, paymentIndex)=> paymentIndex !== index);
       renderInvoiceEditorPage();
     }));
+    $("#crmInvoiceNewClient", root)?.addEventListener("click", ()=>{
+      openClientModal(null, async (savedClient)=>{
+        state.clients = await repo.listClients();
+        state.invoiceForm.client_id = savedClient.id;
+        state.invoiceForm.client = savedClient;
+        renderInvoiceEditorPage();
+      });
+    });
+    $("#crmInvoiceMarie", root)?.addEventListener("click", async ()=>{
+      const marie = await ensureMarieClient();
+      state.invoiceForm.client_id = marie.id;
+      state.invoiceForm.client = marie;
+      renderInvoiceEditorPage();
+    });
     $("#crmInvoiceSaveDraft", root)?.addEventListener("click", runAction("Facture", async ()=>{
       const saved = await repo.saveInvoice({ ...collectInvoiceFormData(), status: state.invoiceForm.status || "draft" });
       state.invoiceForm = saved;
@@ -2728,6 +3151,9 @@
     if(!doc.client_id){
       throw new Error(kind === "quote" ? "Selectionne d'abord un client pour le devis." : "Selectionne d'abord un client pour la facture.");
     }
+    if(!state.clients.some((client)=> client.id === doc.client_id)){
+      throw new Error("Le client selectionne est introuvable dans les donnees Supabase chargees. Recharge la page puis reessaie.");
+    }
     if(!(doc.items || []).length){
       throw new Error("Ajoute au moins une ligne de prestation.");
     }
@@ -2739,6 +3165,9 @@
   async function initPage(){
     setLoading("Chargement du CRM...");
     try{
+      const accessOk = await ensureCrmAccess();
+      if(!accessOk) return;
+
       if(page === "dashboard"){
         await loadBaseCollections();
         renderDashboardPage();
@@ -2804,16 +3233,23 @@
 
   const originalSaveQuote = repo.saveQuote.bind(repo);
   repo.saveQuote = async function patchedSaveQuote(payload){
+    const accessOk = await ensureCrmAccess();
+    if(!accessOk){
+      throw new Error("Acces CRM indisponible. Recharge la page et reconnecte-toi si besoin.");
+    }
     ensureDocumentReady(payload, "quote");
     return originalSaveQuote(payload);
   };
 
   const originalSaveInvoice = repo.saveInvoice.bind(repo);
   repo.saveInvoice = async function patchedSaveInvoice(payload){
+    const accessOk = await ensureCrmAccess();
+    if(!accessOk){
+      throw new Error("Acces CRM indisponible. Recharge la page et reconnecte-toi si besoin.");
+    }
     ensureDocumentReady(payload, "invoice");
     return originalSaveInvoice(payload);
   };
 
   initPage();
 })();
-
