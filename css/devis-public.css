@@ -40,7 +40,7 @@ body.landing-home.quote-page .quote-hero-board {
 
 body.landing-home.quote-page .hero h1,
 body.landing-home.quote-page .section-heading h2 {
-  font-size: clamp(2.4rem, 5vw, 4rem);
+  font-size: clamp(2.2rem, 4.4vw, 3.35rem);
   line-height: 1.03;
   letter-spacing: -0.035em;
 }
@@ -60,7 +60,7 @@ body.landing-home.quote-page .contact-stage-copy h2,
 body.landing-home.quote-page .quote-anchor-head h2 {
   margin: 8px 0 0;
   font-family: var(--landing-display);
-  font-size: clamp(1.85rem, 3.6vw, 2.6rem);
+  font-size: clamp(1.55rem, 2.7vw, 2.1rem);
   line-height: 1.08;
   letter-spacing: -0.03em;
 }
@@ -92,9 +92,16 @@ body.landing-home.quote-page .quote-anchor-card {
   padding: 18px 18px 20px;
   border-radius: 24px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  background:
-    linear-gradient(180deg, rgba(14, 21, 38, 0.95), rgba(6, 10, 20, 0.98)),
-    radial-gradient(circle at top left, rgba(42, 182, 255, 0.1), rgba(42, 182, 255, 0) 44%);
+  background: linear-gradient(
+      180deg,
+      rgba(14, 21, 38, 0.95),
+      rgba(6, 10, 20, 0.98)
+    ),
+    radial-gradient(
+      circle at top left,
+      rgba(42, 182, 255, 0.1),
+      rgba(42, 182, 255, 0) 44%
+    );
 }
 
 body.landing-home.quote-page .quote-anchor-card span {
@@ -288,18 +295,26 @@ body.landing-home.quote-page .service-category-caret::after {
   transform: translate(-28%, -50%) rotate(-45deg);
 }
 
-body.landing-home.quote-page .service-category-toggle:hover .service-category-caret,
-body.landing-home.quote-page .service-category-toggle:focus-visible .service-category-caret,
+body.landing-home.quote-page
+  .service-category-toggle:hover
+  .service-category-caret,
+body.landing-home.quote-page
+  .service-category-toggle:focus-visible
+  .service-category-caret,
 body.landing-home.quote-page .service-category.is-open .service-category-caret {
   border-color: rgba(129, 235, 255, 0.34);
   background: rgba(255, 255, 255, 0.08);
 }
 
-body.landing-home.quote-page .service-category.is-open .service-category-caret::before {
+body.landing-home.quote-page
+  .service-category.is-open
+  .service-category-caret::before {
   transform: translate(-72%, -50%) rotate(-45deg);
 }
 
-body.landing-home.quote-page .service-category.is-open .service-category-caret::after {
+body.landing-home.quote-page
+  .service-category.is-open
+  .service-category-caret::after {
   transform: translate(-28%, -50%) rotate(45deg);
 }
 
@@ -333,9 +348,16 @@ body.landing-home.quote-page .service-card {
   padding: 20px;
   border-radius: 24px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  background:
-    linear-gradient(180deg, rgba(10, 17, 31, 0.94), rgba(5, 8, 16, 0.98)),
-    radial-gradient(circle at top left, rgba(42, 182, 255, 0.08), rgba(42, 182, 255, 0) 42%);
+  background: linear-gradient(
+      180deg,
+      rgba(10, 17, 31, 0.94),
+      rgba(5, 8, 16, 0.98)
+    ),
+    radial-gradient(
+      circle at top left,
+      rgba(42, 182, 255, 0.08),
+      rgba(42, 182, 255, 0) 42%
+    );
   transition:
     transform 180ms ease,
     border-color 180ms ease,
@@ -346,9 +368,16 @@ body.landing-home.quote-page .service-card {
 body.landing-home.quote-page .service-card.is-selected {
   border-color: rgba(129, 235, 255, 0.44);
   box-shadow: 0 24px 60px rgba(42, 182, 255, 0.14);
-  background:
-    linear-gradient(180deg, rgba(13, 22, 42, 0.98), rgba(6, 10, 19, 1)),
-    radial-gradient(circle at top left, rgba(42, 182, 255, 0.16), rgba(42, 182, 255, 0) 42%);
+  background: linear-gradient(
+      180deg,
+      rgba(13, 22, 42, 0.98),
+      rgba(6, 10, 19, 1)
+    ),
+    radial-gradient(
+      circle at top left,
+      rgba(42, 182, 255, 0.16),
+      rgba(42, 182, 255, 0) 42%
+    );
 }
 
 body.landing-home.quote-page .service-card:hover {
@@ -430,7 +459,12 @@ body.landing-home.quote-page .service-toggle:focus-visible {
 body.landing-home.quote-page .service-card.is-selected .service-toggle {
   color: #07111e;
   border-color: transparent;
-  background: linear-gradient(135deg, var(--landing-cyan), #ffffff 44%, var(--landing-gold));
+  background: linear-gradient(
+    135deg,
+    var(--landing-cyan),
+    #ffffff 44%,
+    var(--landing-gold)
+  );
 }
 
 body.landing-home.quote-page .service-price-row {
@@ -519,7 +553,10 @@ body.landing-home.quote-page .service-card:not(.is-selected) .service-quantity {
   opacity: 0.58;
 }
 
-body.landing-home.quote-page .service-card:not(.is-selected) .service-quantity input,
+body.landing-home.quote-page
+  .service-card:not(.is-selected)
+  .service-quantity
+  input,
 body.landing-home.quote-page .service-card:not(.is-selected) .service-stepper {
   pointer-events: none;
 }
@@ -705,8 +742,11 @@ body.landing-home.quote-page .quote-document-preview {
   padding: 20px 22px;
   border-radius: 24px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  background:
-    radial-gradient(circle at top left, rgba(42, 182, 255, 0.14), rgba(42, 182, 255, 0) 34%),
+  background: radial-gradient(
+      circle at top left,
+      rgba(42, 182, 255, 0.14),
+      rgba(42, 182, 255, 0) 34%
+    ),
     linear-gradient(180deg, rgba(12, 19, 33, 0.94), rgba(6, 9, 17, 0.98));
 }
 
@@ -720,6 +760,12 @@ body.landing-home.quote-page .quote-document-preview-stats {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+}
+
+body.landing-home.quote-page .quote-document-preview-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 body.landing-home.quote-page .quote-document-preview-pill {
@@ -742,9 +788,16 @@ body.landing-home.quote-page .quote-document {
   border-radius: 28px;
   margin-top: 18px;
   padding: 28px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(245, 248, 253, 0.99)),
-    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(244, 248, 255, 0.96));
+  background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.98),
+      rgba(245, 248, 253, 0.99)
+    ),
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.96),
+      rgba(244, 248, 255, 0.96)
+    );
   color: #121827;
   box-shadow: 0 26px 64px rgba(0, 0, 0, 0.22);
 }
@@ -938,8 +991,11 @@ body.landing-home.quote-page .quote-preview-modal[hidden] {
 body.landing-home.quote-page .quote-preview-backdrop {
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(circle at center, rgba(42, 182, 255, 0.12), rgba(4, 7, 14, 0.92) 58%),
+  background: radial-gradient(
+      circle at center,
+      rgba(42, 182, 255, 0.12),
+      rgba(4, 7, 14, 0.92) 58%
+    ),
     rgba(2, 4, 10, 0.9);
   backdrop-filter: blur(12px);
 }
@@ -954,8 +1010,11 @@ body.landing-home.quote-page .quote-preview-dialog {
   padding: 22px;
   border-radius: 32px;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  background:
-    radial-gradient(circle at top left, rgba(42, 182, 255, 0.12), rgba(42, 182, 255, 0) 30%),
+  background: radial-gradient(
+      circle at top left,
+      rgba(42, 182, 255, 0.12),
+      rgba(42, 182, 255, 0) 30%
+    ),
     linear-gradient(180deg, rgba(7, 11, 20, 0.96), rgba(5, 7, 13, 0.98));
   box-shadow: 0 40px 120px rgba(0, 0, 0, 0.5);
 }
@@ -1116,7 +1175,7 @@ body.landing-home.quote-page .quote-request-full {
 @media (max-width: 760px) {
   body.landing-home.quote-page .hero h1,
   body.landing-home.quote-page .section-heading h2 {
-    font-size: clamp(2rem, 8vw, 3rem);
+    font-size: clamp(1.85rem, 7vw, 2.65rem);
   }
 
   body.landing-home.quote-page .quote-hero-board h2,
@@ -1126,7 +1185,7 @@ body.landing-home.quote-page .quote-request-full {
   body.landing-home.quote-page .quote-document-head h2,
   body.landing-home.quote-page .contact-stage-copy h2,
   body.landing-home.quote-page .quote-anchor-head h2 {
-    font-size: clamp(1.7rem, 7vw, 2.25rem);
+    font-size: clamp(1.45rem, 5.6vw, 1.95rem);
   }
 
   body.landing-home.quote-page .quote-hero-board,
@@ -1150,7 +1209,8 @@ body.landing-home.quote-page .quote-request-full {
   body.landing-home.quote-page .quote-selection-line,
   body.landing-home.quote-page .quote-doc-top,
   body.landing-home.quote-page .quote-preview-head,
-  body.landing-home.quote-page .quote-preview-actions {
+  body.landing-home.quote-page .quote-preview-actions,
+  body.landing-home.quote-page .quote-document-preview-actions {
     flex-direction: column;
   }
 
