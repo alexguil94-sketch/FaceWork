@@ -1578,7 +1578,9 @@ body.landing-home.landing-atelier-page .workspace-copy h2 {
 }
 
 body.landing-home.landing-atelier-page .hero h1 {
-  max-width: 10ch;
+  max-width: 11ch;
+  font-size: clamp(2.7rem, 5.2vw, 4.75rem);
+  line-height: 0.95;
 }
 
 body.landing-home.landing-atelier-page .section-heading h2,
@@ -1587,13 +1589,13 @@ body.landing-home.landing-atelier-page .vision-copy h2,
 body.landing-home.landing-atelier-page .contact-copy h2,
 body.landing-home.landing-atelier-page .workspace-copy h2,
 body.landing-home.landing-atelier-page .cv-copy h2 {
-  font-size: clamp(2.2rem, 4.8vw, 4rem);
-  line-height: 0.98;
+  font-size: clamp(1.95rem, 3.2vw, 3rem);
+  line-height: 1.01;
 }
 
 body.landing-home.landing-atelier-page .footer-band-copy h2 {
-  font-size: clamp(2rem, 4vw, 3rem);
-  line-height: 1;
+  font-size: clamp(1.7rem, 2.7vw, 2.35rem);
+  line-height: 1.02;
 }
 
 body.landing-home.landing-atelier-page .hero-text,
@@ -1783,6 +1785,20 @@ body.landing-home.landing-atelier-page .footer-card {
 }
 
 @media (max-width: 760px) {
+  body.landing-home.landing-atelier-page .hero h1 {
+    max-width: 10.5ch;
+    font-size: clamp(2.15rem, 11vw, 3.2rem);
+  }
+
+  body.landing-home.landing-atelier-page .section-heading h2,
+  body.landing-home.landing-atelier-page .story-copy h2,
+  body.landing-home.landing-atelier-page .vision-copy h2,
+  body.landing-home.landing-atelier-page .contact-copy h2,
+  body.landing-home.landing-atelier-page .workspace-copy h2,
+  body.landing-home.landing-atelier-page .cv-copy h2 {
+    font-size: clamp(1.6rem, 8vw, 2.2rem);
+  }
+
   body.landing-home.landing-atelier-page .hero-main {
     width: 100%;
   }
