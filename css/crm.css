@@ -35,6 +35,16 @@ body.crm-body .appnav a.active{
   border-color: rgba(255,255,255,.16);
 }
 
+body.crm-body .input{
+  background: rgba(10,10,12,.82);
+  border-color: rgba(255,255,255,.12);
+  color: rgba(255,255,255,.94);
+}
+
+body.crm-body .input:focus{
+  border-color: rgba(255,255,255,.26);
+}
+
 .crm-page{
   padding: 28px 0 48px;
 }
@@ -473,8 +483,8 @@ html[data-theme="light"] body.crm-body select.input optgroup{
 
 .crm-example-grid{
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
 }
 
 .crm-example-card{
@@ -484,6 +494,7 @@ html[data-theme="light"] body.crm-body select.input optgroup{
   border-radius: 18px;
   border: 1px solid rgba(255,255,255,.08);
   background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.035));
+  min-height: 100%;
 }
 
 .crm-example-card strong{
@@ -580,6 +591,22 @@ html[data-theme="light"] body.crm-body select.input optgroup{
   border: 1px solid rgba(255,255,255,.08);
   background: linear-gradient(180deg, rgba(18,18,21,.96), rgba(11,11,13,.92));
   box-shadow: 0 18px 40px rgba(0,0,0,.26);
+}
+
+.crm-summary .crm-doc-preview{
+  padding: 24px;
+}
+
+.crm-summary .crm-doc-grid{
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.crm-summary .crm-doc-brand strong{
+  font-size: 26px;
+}
+
+.crm-summary .crm-doc-block{
+  min-width: 0;
 }
 
 .crm-totals{
@@ -842,6 +869,20 @@ html[data-theme="light"] body.crm-body select.input optgroup{
   }
 }
 
+@media (max-width: 1920px){
+  body[data-crm-page="quote-editor"] .crm-split,
+  body[data-crm-page="invoice-editor"] .crm-split{
+    grid-template-columns: 1fr;
+  }
+
+  body[data-crm-page="quote-editor"] .crm-summary,
+  body[data-crm-page="invoice-editor"] .crm-summary{
+    position: static;
+    grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
 @media (max-width: 1120px){
   .crm-shell,
   .crm-grid.cols-4,
@@ -854,6 +895,11 @@ html[data-theme="light"] body.crm-body select.input optgroup{
   .crm-summary,
   .crm-sidebar{
     position: static;
+  }
+
+  body[data-crm-page="quote-editor"] .crm-summary,
+  body[data-crm-page="invoice-editor"] .crm-summary{
+    grid-template-columns: 1fr;
   }
 
   .crm-bars{
