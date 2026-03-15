@@ -315,6 +315,8 @@
     // Pretty URLs: /page and /page.html are equivalent on Netlify
     s = s.replace(/\.html$/, "");
 
+    if(s === "/landing-atelier") s = "/";
+
     if(s === "") s = "/";
     return s;
   }
@@ -349,11 +351,11 @@
   }
 
   function landingAtelierHref(){
-    return `${relPrefix()}landing-atelier.html`;
+    return relPrefix() || "./";
   }
 
   function ensureLandingShortcut(){
-    if(currentPath === "/landing-atelier") return;
+    if(currentPath === "/") return;
 
     const href = landingAtelierHref();
     const title = "Retour vers Digitalexis-Studio";
@@ -501,7 +503,7 @@
 
     // Global shortcuts (some pages don't show these in the top nav)
     // Keep landing page clean: only show extra links inside the app header.
-    if(currentPath !== "/landing-atelier"){
+    if(currentPath !== "/"){
       addSideLink("Retour studio", landingAtelierHref());
     }
     if(isAppHeader){

@@ -28,6 +28,18 @@
   force = true
 
 [[redirects]]
+  from = "/landing-atelier"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/landing-atelier.html"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/app"
   to = "/app/feed.html"
   status = 302
