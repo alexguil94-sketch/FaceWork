@@ -1714,6 +1714,16 @@ body.landing-home.landing-atelier-page .vision-side figcaption {
   backdrop-filter: none;
 }
 
+body.landing-home.landing-atelier-page .vision-side--poster {
+  width: min(100%, 430px);
+  aspect-ratio: 2 / 3;
+}
+
+body.landing-home.landing-atelier-page .vision-side--poster img {
+  object-fit: contain;
+  background: #0d0b08;
+}
+
 body.landing-home.landing-atelier-page .contact-shell {
   border: 0;
   border-radius: 0;
