@@ -331,6 +331,9 @@
     if(code === "42702"){
       return "Une fonction CRM de Supabase doit etre corrigee. Applique le patch `supabase/crm_patch_recalculate_totals.sql` puis relance la generation du PDF.";
     }
+    if(code === "54001" || /stack depth limit exceeded/i.test(msg)){
+      return "Le trigger des factures boucle cote Supabase. Applique le patch `supabase/crm_patch_recalculate_totals.sql` puis relance la generation du PDF.";
+    }
     if(code === "42P01" || /crm_/i.test(msg) && /does not exist|relation/i.test(msg)){
       return "Applique d'abord le fichier supabase/crm.sql dans Supabase SQL Editor.";
     }
@@ -2004,28 +2007,42 @@
     const margin = 42;
     const width = pdf.internal.pageSize.getWidth();
     const accent = String(settings.primary_color || "#111111").trim() || "#111111";
+    const headerTop = 36;
+    const logoSize = 58;
+    const metaX = width - margin - 180;
+    const metaTop = headerTop + 6;
+    const metaGap = 16;
+    let logoDataUrl = "";
 
     pdf.setFillColor(accent);
     pdf.rect(0, 0, width, 18, "F");
 
     try{
-      const logo = await resolveLogoDataUrl();
-      if(logo){
-        pdf.addImage(logo, "PNG", margin, 36, 72, 72, undefined, "FAST");
+      logoDataUrl = await resolveLogoDataUrl();
+      if(logoDataUrl){
+        pdf.addImage(logoDataUrl, "PNG", margin, headerTop, logoSize, logoSize, undefined, "FAST");
       }
     }catch(error){
       console.warn("[CRM] logo skipped", error);
     }
 
+    const titleX = logoDataUrl ? margin + logoSize + 16 : margin;
+    const titleY = headerTop + 18;
+    const headerBottom = Math.max(
+      logoDataUrl ? headerTop + logoSize : headerTop,
+      titleY + 8,
+      metaTop + (metaGap * 2)
+    );
+
     pdf.setTextColor(20, 20, 20);
     pdf.setFont("helvetica", "bold");
     pdf.setFontSize(24);
-    pdf.text(kind === "quote" ? "DEVIS" : "FACTURE", margin, 54);
+    pdf.text(kind === "quote" ? "DEVIS" : "FACTURE", titleX, titleY);
     pdf.setFontSize(10);
     pdf.setFont("helvetica", "normal");
-    pdf.text(`Numero : ${doc.number || "Automatique"}`, width - margin - 180, 42);
-    pdf.text(`Date : ${fmtDate(doc.issue_date)}`, width - margin - 180, 58);
-    pdf.text(`${kind === "quote" ? "Validite" : "Echeance"} : ${fmtDate(kind === "quote" ? doc.valid_until : doc.due_date)}`, width - margin - 180, 74);
+    pdf.text(`Numero : ${doc.number || "Automatique"}`, metaX, metaTop);
+    pdf.text(`Date : ${fmtDate(doc.issue_date)}`, metaX, metaTop + metaGap);
+    pdf.text(`${kind === "quote" ? "Validite" : "Echeance"} : ${fmtDate(kind === "quote" ? doc.valid_until : doc.due_date)}`, metaX, metaTop + (metaGap * 2));
 
     const companyLines = [
       settings.trade_name || settings.legal_name || APP_COMPANY,
@@ -2050,15 +2067,20 @@
       client?.client_siret ? `SIRET : ${client.client_siret}` : "",
     ].filter(Boolean);
 
+    const infoTop = headerBottom + 32;
+    const infoLinesTop = infoTop + 18;
+    const infoLineGap = 14;
+    const infoBottom = infoLinesTop + (Math.max(companyLines.length, clientLines.length, 1) * infoLineGap);
+
     pdf.setFont("helvetica", "bold");
-    pdf.text("Votre entreprise", margin, 140);
-    pdf.text("Client", width / 2 + 10, 140);
+    pdf.text("Votre entreprise", margin, infoTop);
+    pdf.text("Client", width / 2 + 10, infoTop);
     pdf.setFont("helvetica", "normal");
-    companyLines.forEach((line, index)=> pdf.text(line, margin, 158 + (index * 14)));
-    clientLines.forEach((line, index)=> pdf.text(line, width / 2 + 10, 158 + (index * 14)));
+    companyLines.forEach((line, index)=> pdf.text(line, margin, infoLinesTop + (index * infoLineGap)));
+    clientLines.forEach((line, index)=> pdf.text(line, width / 2 + 10, infoLinesTop + (index * infoLineGap)));
 
     pdf.autoTable({
-      startY: 276,
+      startY: infoBottom + 28,
       margin: { left: margin, right: margin },
       head: [["Prestation", "Quantite", "Prix unitaire", "Total"]],
       body: (doc.items || []).map((item)=> ([

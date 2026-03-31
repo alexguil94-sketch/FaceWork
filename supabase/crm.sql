@@ -824,8 +824,10 @@ end;
 $$;
 
 drop trigger if exists crm_invoices_after_header on public.crm_invoices;
+-- `crm_recalculate_invoice()` updates `status` itself, so tracking `status`
+-- here would recursively re-enter the same recalculation trigger.
 create trigger crm_invoices_after_header
-after insert or update of discount_type, discount_value, vat_rate, due_date, status on public.crm_invoices
+after insert or update of discount_type, discount_value, vat_rate, due_date on public.crm_invoices
 for each row execute function public.crm_invoices_after_header_change();
 
 -- -------------------------------------------------------------------

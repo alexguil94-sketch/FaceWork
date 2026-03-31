@@ -1,4 +1,4 @@
--- FaceWork CRM - patch for ambiguous total variables in Supabase
+-- FaceWork CRM - patch for ambiguous total variables and invoice trigger recursion in Supabase
 -- Run this in Supabase SQL Editor on the project `livucppvekqyfswehasz`.
 -- Safe to run multiple times.
 
@@ -118,3 +118,10 @@ begin
   where id = _invoice_id;
 end;
 $$;
+
+drop trigger if exists crm_invoices_after_header on public.crm_invoices;
+-- `crm_recalculate_invoice()` updates `status` itself, so tracking `status`
+-- here would recursively re-enter the same recalculation trigger.
+create trigger crm_invoices_after_header
+after insert or update of discount_type, discount_value, vat_rate, due_date on public.crm_invoices
+for each row execute function public.crm_invoices_after_header_change();
