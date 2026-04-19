@@ -53,6 +53,18 @@
   force = true
 
 [[redirects]]
+  from = "/devis-en-ligne.html"
+  to = "/atelier-devis.html"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/devis-en-ligne"
+  to = "/atelier-devis.html"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/landing-atelier"
   to = "/"
   status = 301

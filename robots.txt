@@ -2,8 +2,15 @@ User-agent: *
 Allow: /
 Disallow: /app/
 Disallow: /login.html
-Disallow: /signup.html
 Disallow: /inscription.html
 Disallow: /index.html
+Disallow: /cv-alexis.html
+Disallow: /devis-en-ligne.html
+Disallow: /ancienne-accueil.html
+Disallow: /confirm.html
+Disallow: /guides/
+Disallow: /tutos/
+Disallow: /exercices/
+Disallow: /langages/
 
 Sitemap: https://www.digitalexis-studio.org/sitemap.xml
