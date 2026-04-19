@@ -868,7 +868,7 @@
       el.focus();
     }
 
-    function setAttachBar({ kind, text } = {}){
+    function setAttachBar({ kind, text, preview } = {}){
       const k = String(kind || "file");
       const t = String(text || "");
       attach && attach.classList.toggle("hidden", !t);
@@ -876,10 +876,19 @@
         attachBadge.textContent = k === "gif" ? "🎞️ GIF" : (k === "image" ? "🖼️ Image" : "📎 Fichier");
       }
       label && (label.textContent = t || "Aucun fichier");
+      const previewEl = $("#chatAttachPreview", root);
+      const imgEl = $("#chatAttachImg", root);
+      if(previewEl && imgEl){
+        const show = !!preview;
+        previewEl.classList.toggle("hidden", !show);
+        previewEl.setAttribute("aria-hidden", show ? "false" : "true");
+        imgEl.src = show ? preview : "";
+      }
     }
 
     function clearAttachment(){
       try{ if(fileInput) fileInput.value = ""; }catch(e){ /* ignore */ }
+      if(form.__previewUrl){ URL.revokeObjectURL(form.__previewUrl); form.__previewUrl = null; }
       form.__selectedFile = null;
       form.__selectedUrl = null;
       setAttachBar({ kind: "file", text: "" });
@@ -888,6 +897,7 @@
 
     function setFile(file){
       const f = file || null;
+      if(form.__previewUrl){ URL.revokeObjectURL(form.__previewUrl); form.__previewUrl = null; }
       form.__selectedFile = f;
       form.__selectedUrl = null;
       if(!f && fileInput) fileInput.value = "";
@@ -895,7 +905,11 @@
         setAttachBar({ kind: "file", text: "" });
         return;
       }
-      setAttachBar({ kind: "file", text: `${f.name} • ${fmtBytes(f.size)}` });
+      const ext = (f.name.split(".").pop() || "").toLowerCase();
+      const isImg = ["png","jpg","jpeg","gif","webp","svg","bmp","avif"].includes(ext) || f.type.startsWith("image/");
+      let previewUrl = null;
+      if(isImg){ previewUrl = URL.createObjectURL(f); form.__previewUrl = previewUrl; }
+      setAttachBar({ kind: isImg ? "image" : "file", text: `${f.name} • ${fmtBytes(f.size)}`, preview: previewUrl });
     }
 
     function setUrl(url){
@@ -1104,6 +1118,22 @@
       });
     });
 
+    // Paste image from clipboard (Ctrl+V)
+    function onPaste(e){
+      const items = e.clipboardData?.items;
+      if(!items) return;
+      for(const item of items){
+        if(item.type.startsWith("image/")){
+          e.preventDefault();
+          const file = item.getAsFile();
+          if(file) setFile(file);
+          break;
+        }
+      }
+    }
+    form && form.addEventListener("paste", onPaste);
+    input && input.addEventListener("paste", onPaste);
+
     form.__fileUiBound = true;
   }
 
@@ -1114,15 +1144,57 @@
     const attach = $("#chatAttach", root);
     const attachBadge = $("#chatAttachBadge", root);
     const label = $("#chatAttachLabel", root);
+    const previewEl = $("#chatAttachPreview", root);
+    const imgEl = $("#chatAttachImg", root);
     try{ if(fileInput) fileInput.value = ""; }catch(e){ /* ignore */ }
     if(form){
+      if(form.__previewUrl){ URL.revokeObjectURL(form.__previewUrl); form.__previewUrl = null; }
       form.__selectedFile = null;
       form.__selectedUrl = null;
     }
     attach && attach.classList.add("hidden");
     attachBadge && (attachBadge.textContent = "📎 Fichier");
     label && (label.textContent = "Aucun fichier");
+    previewEl && previewEl.classList.add("hidden");
+    imgEl && (imgEl.src = "");
     form && form.classList.remove("dragover");
+  }
+
+  // ---------- LIGHTBOX image viewer (Discord-style)
+  function openChatLightbox({ src, name } = {}){
+    const s = String(src || "");
+    if(!s) return;
+    const existing = document.getElementById("fwLightbox");
+    if(existing) existing.remove();
+
+    const lb = document.createElement("div");
+    lb.id = "fwLightbox";
+    lb.className = "fw-lightbox";
+    lb.setAttribute("role", "dialog");
+    lb.setAttribute("aria-modal", "true");
+    lb.setAttribute("aria-label", "Aperçu image");
+    lb.innerHTML = `
+      <button class="fw-lightbox-close" aria-label="Fermer" id="fwLbClose">✕</button>
+      <img class="fw-lightbox-img" src="${escapeHtml(s)}" alt="${escapeHtml(name || "Image")}" id="fwLbImg"/>
+      <div class="fw-lightbox-name">${escapeHtml(name || "")}</div>
+      <button class="fw-lightbox-dl" id="fwLbDl" title="Télécharger">Télécharger ↓</button>
+    `;
+    document.body.appendChild(lb);
+
+    function closeLb(){ lb.remove(); document.removeEventListener("keydown", onKey); }
+    lb.addEventListener("click", (e)=>{ if(e.target === lb) closeLb(); });
+    document.getElementById("fwLbClose")?.addEventListener("click", closeLb);
+    document.getElementById("fwLbDl")?.addEventListener("click", ()=>{
+      const a = document.createElement("a");
+      a.href = s;
+      a.download = name || "image";
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.click();
+    });
+    function onKey(e){ if(e.key === "Escape") closeLb(); }
+    document.addEventListener("keydown", onKey);
+    document.getElementById("fwLbClose")?.focus();
   }
 
   // ---------- VISIO (WebRTC + Supabase Realtime signalling)
@@ -3384,6 +3456,8 @@
         const m = msgs[i];
         if(!m) return;
         if(m.fileData?.dataUrl){
+          const isImg = isProbablyImageAttachment({ fileName: m.fileName, fileUrl: m.fileUrl, fileDataUrl: m.fileData.dataUrl });
+          if(isImg){ openChatLightbox({ src: m.fileData.dataUrl, name: m.fileName }); return; }
           const ok = await openDataUrl(m.fileData.dataUrl);
           if(!ok) window.fwToast?.("Fichier","Impossible d’ouvrir ce fichier.");
           return;
@@ -3806,6 +3880,12 @@
         if(!btn) return;
         const fileUrl = btn.getAttribute("data-file-url") || "";
         const fileName = btn.getAttribute("data-file-name") || "";
+        const imgEl = btn.querySelector(".media-img");
+        if(imgEl){
+          const src = imgEl.src || fileUrl;
+          openChatLightbox({ src, name: fileName });
+          return;
+        }
         await openFileFromPost({ fileUrl, fileName });
       });
 
@@ -4168,6 +4248,8 @@
         const m = msgs[i];
         if(!m) return;
         if(m.fileData?.dataUrl){
+          const isImg = isProbablyImageAttachment({ fileName: m.fileName, fileUrl: m.fileUrl, fileDataUrl: m.fileData.dataUrl });
+          if(isImg){ openChatLightbox({ src: m.fileData.dataUrl, name: m.fileName }); return; }
           const ok = await openDataUrl(m.fileData.dataUrl);
           if(!ok) window.fwToast?.("Fichier","Impossible d’ouvrir ce fichier.");
           return;
@@ -4466,6 +4548,12 @@
         if(!btn) return;
         const fileUrl = btn.getAttribute("data-file-url") || "";
         const fileName = btn.getAttribute("data-file-name") || "";
+        const imgEl = btn.querySelector(".media-img");
+        if(imgEl){
+          const src = imgEl.src || fileUrl;
+          openChatLightbox({ src, name: fileName });
+          return;
+        }
         await openFileFromPost({ fileUrl, fileName });
       });
 
@@ -8775,11 +8863,14 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
         <div class="chat-messages" id="chatMsgs"></div>
 
         <div class="chat-attach hidden" id="chatAttach" aria-live="polite">
+          <div class="chat-attach-preview hidden" id="chatAttachPreview" aria-hidden="true">
+            <img class="chat-attach-img" id="chatAttachImg" alt="Aperçu"/>
+          </div>
           <div class="chat-attach-left">
             <span class="badge" id="chatAttachBadge">📎 Fichier</span>
             <div class="chat-attach-label truncate" id="chatAttachLabel">Aucun fichier</div>
           </div>
-          <button class="btn small ghost" type="button" data-chat-attach-clear>Retirer</button>
+          <button class="btn small ghost" type="button" aria-label="Retirer le fichier" data-chat-attach-clear>✕</button>
         </div>
 
         <form class="chat-composer" id="chatForm" autocomplete="off">
