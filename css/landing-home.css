@@ -1712,7 +1712,8 @@ body.landing-home.landing-atelier-page .brand-copy span {
 body.landing-home.landing-atelier-page .eyebrow,
 body.landing-home.landing-atelier-page .workspace-kicker,
 body.landing-home.landing-atelier-page .process-card span {
-  letter-spacing: 0.26em;
+  font-size: 0.68rem;
+  letter-spacing: 0.3em;
   color: #e6c792;
 }
 
@@ -1737,14 +1738,20 @@ body.landing-home.landing-atelier-page .site-nav a:focus-visible {
 }
 
 body.landing-home.landing-atelier-page .button {
-  min-height: 56px;
-  padding: 0 24px;
-  border-radius: 14px;
+  min-height: 48px;
+  padding: 0 22px;
+  border-radius: 10px;
+  font-size: 0.875rem;
   box-shadow: none;
 }
 
 body.landing-home.landing-atelier-page .button:hover {
   transform: none;
+}
+
+body.landing-home.landing-atelier-page .cta-row {
+  margin-top: 24px;
+  gap: 10px;
 }
 
 body.landing-home.landing-atelier-page .button-primary {
@@ -1758,13 +1765,13 @@ body.landing-home.landing-atelier-page .button-secondary {
 }
 
 body.landing-home.landing-atelier-page .hero {
-  padding: 78px 0 40px;
+  padding: 64px 0 32px;
 }
 
 body.landing-home.landing-atelier-page .hero-layout {
-  grid-template-columns: minmax(0, 0.82fr) minmax(420px, 1.18fr);
-  gap: 72px;
-  align-items: start;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr);
+  gap: 56px;
+  align-items: center;
 }
 
 body.landing-home.landing-atelier-page .hero h1,
@@ -1774,13 +1781,13 @@ body.landing-home.landing-atelier-page .vision-copy h2,
 body.landing-home.landing-atelier-page .contact-copy h2,
 body.landing-home.landing-atelier-page .workspace-copy h2 {
   font-weight: 800;
-  letter-spacing: -0.05em;
+  letter-spacing: -0.04em;
 }
 
 body.landing-home.landing-atelier-page .hero h1 {
-  max-width: 11ch;
-  font-size: clamp(2.7rem, 5.2vw, 4.75rem);
-  line-height: 0.95;
+  font-size: clamp(1.85rem, 2.8vw, 3.1rem);
+  line-height: 1.1;
+  margin-top: 14px;
 }
 
 body.landing-home.landing-atelier-page .section-heading h2,
@@ -1789,13 +1796,13 @@ body.landing-home.landing-atelier-page .vision-copy h2,
 body.landing-home.landing-atelier-page .contact-copy h2,
 body.landing-home.landing-atelier-page .workspace-copy h2,
 body.landing-home.landing-atelier-page .cv-copy h2 {
-  font-size: clamp(1.72rem, 2.7vw, 2.55rem);
-  line-height: 1.01;
+  font-size: clamp(1.55rem, 2.4vw, 2.2rem);
+  line-height: 1.08;
 }
 
 body.landing-home.landing-atelier-page .footer-band-copy h2 {
-  font-size: clamp(1.55rem, 2.3vw, 2.05rem);
-  line-height: 1.02;
+  font-size: clamp(1.4rem, 2vw, 1.85rem);
+  line-height: 1.1;
 }
 
 body.landing-home.landing-atelier-page .hero-text,
@@ -1804,6 +1811,7 @@ body.landing-home.landing-atelier-page .story-copy p,
 body.landing-home.landing-atelier-page .vision-copy p,
 body.landing-home.landing-atelier-page .contact-copy p,
 body.landing-home.landing-atelier-page .workspace-copy p {
+  font-size: 0.95rem;
   max-width: 44rem;
 }
 
@@ -1815,10 +1823,19 @@ body.landing-home.landing-atelier-page .section-band {
 
 body.landing-home.landing-atelier-page .service-pills span,
 body.landing-home.landing-atelier-page .cv-pills span {
-  border-radius: 12px;
+  min-height: 34px;
+  padding: 0 14px;
+  border-radius: 8px;
   background: transparent;
   border-color: rgba(242, 225, 197, 0.14);
   color: #f6efe4;
+  font-size: 0.8rem;
+  letter-spacing: 0.01em;
+}
+
+body.landing-home.landing-atelier-page .service-pills {
+  margin-top: 20px;
+  gap: 8px;
 }
 
 body.landing-home.landing-atelier-page .hero-proof,
@@ -1832,6 +1849,22 @@ body.landing-home.landing-atelier-page .footer-card {
 
 body.landing-home.landing-atelier-page .hero-proof {
   max-width: 40rem;
+  margin-top: 22px;
+  font-size: 0.875rem;
+}
+
+body.landing-home.landing-atelier-page .hero-proof strong {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(242, 225, 197, 0.72);
+}
+
+body.landing-home.landing-atelier-page .hero-proof p {
+  margin-top: 8px;
+  line-height: 1.65;
+  color: rgba(242, 225, 197, 0.56);
 }
 
 body.landing-home.landing-atelier-page .process-grid,
@@ -2003,8 +2036,8 @@ body.landing-home.landing-atelier-page .footer-card {
 
 @media (max-width: 760px) {
   body.landing-home.landing-atelier-page .hero h1 {
-    max-width: 10.5ch;
-    font-size: clamp(2.15rem, 11vw, 3.2rem);
+    font-size: clamp(1.6rem, 8vw, 2.4rem);
+    line-height: 1.12;
   }
 
   body.landing-home.landing-atelier-page .section-heading h2,
@@ -2013,13 +2046,13 @@ body.landing-home.landing-atelier-page .footer-card {
   body.landing-home.landing-atelier-page .contact-copy h2,
   body.landing-home.landing-atelier-page .workspace-copy h2,
   body.landing-home.landing-atelier-page .cv-copy h2 {
-    font-size: clamp(1.42rem, 7vw, 1.9rem);
+    font-size: clamp(1.3rem, 6vw, 1.75rem);
   }
 
   body.landing-home.landing-atelier-page .process-card h3,
   body.landing-home.landing-atelier-page .offer-card h3,
   body.landing-home.landing-atelier-page .workspace-card h3 {
-    font-size: 1.12rem;
+    font-size: 1.05rem;
   }
 
   body.landing-home.landing-atelier-page .hero-main {
