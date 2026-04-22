@@ -219,6 +219,10 @@ body.landing-home .site-nav a:focus-visible {
   transform: translateY(-1px);
 }
 
+body.landing-home .site-nav .nav-cta-primary {
+  display: none;
+}
+
 body.landing-home .header-actions {
   display: flex;
   align-items: center;
@@ -1437,6 +1441,14 @@ body.landing-home .ai-fab {
   body.landing-home .offer-figure {
     grid-column: span 2;
   }
+
+  body.landing-home .split-layout .story-image {
+    order: 2;
+  }
+
+  body.landing-home .split-layout .story-copy {
+    order: 1;
+  }
 }
 
 @media (max-width: 760px) {
@@ -1467,10 +1479,19 @@ body.landing-home .ai-fab {
     padding: 12px 0;
   }
 
+  body.landing-home .site-nav .nav-cta-primary {
+    display: block;
+    margin-top: 8px;
+    padding: 12px 20px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--landing-cyan), #ffffff 44%, var(--landing-gold));
+    color: #07111e;
+    font-weight: 700;
+    text-align: center;
+  }
+
   body.landing-home .header-actions {
-    grid-column: 1 / -1;
-    justify-content: flex-start;
-    flex-wrap: wrap;
+    display: none;
   }
 
   body.landing-home .hero {
@@ -1627,7 +1648,17 @@ body.landing-home .ai-fab {
 
   body.landing-home .section,
   body.landing-home .section-contact {
-    padding: 78px 0;
+    padding: 60px 0;
+  }
+
+  body.landing-home .footer-card {
+    padding: 18px 20px 20px;
+  }
+
+  body.landing-home .process-card,
+  body.landing-home .offer-card,
+  body.landing-home .workspace-card {
+    padding: 18px;
   }
 }
 
@@ -2065,5 +2096,158 @@ body.landing-home.landing-atelier-page .footer-card {
 
   body.landing-home.landing-atelier-page .contact-copy {
     padding-right: 0;
+  }
+}
+
+/* ============================================================
+   Service pages + Devis page shared overrides
+   (.landing-service = seo, vitrine, web-entreprise pages)
+   (.landing-devis = atelier-devis page)
+   ============================================================ */
+
+body.landing-home.landing-service,
+body.landing-home.landing-devis {
+  --landing-display: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --landing-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+body.landing-home.landing-service .hero,
+body.landing-home.landing-devis .hero {
+  padding: 60px 0 28px;
+}
+
+body.landing-home.landing-service .hero-layout,
+body.landing-home.landing-devis .hero-layout {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 52px;
+  align-items: center;
+}
+
+body.landing-home.landing-service .hero h1,
+body.landing-home.landing-devis .hero h1 {
+  font-size: clamp(1.9rem, 2.9vw, 3.2rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+  margin-top: 14px;
+}
+
+body.landing-home.landing-service .section-heading h2,
+body.landing-home.landing-service .story-copy h2,
+body.landing-home.landing-service .vision-copy h2,
+body.landing-home.landing-service .contact-copy h2,
+body.landing-home.landing-service .workspace-copy h2,
+body.landing-home.landing-devis .section-heading h2,
+body.landing-home.landing-devis .story-copy h2,
+body.landing-home.landing-devis .vision-copy h2,
+body.landing-home.landing-devis .contact-copy h2,
+body.landing-home.landing-devis .workspace-copy h2 {
+  font-size: clamp(1.6rem, 2.5vw, 2.35rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+}
+
+body.landing-home.landing-service .hero-text,
+body.landing-home.landing-service .section-heading p,
+body.landing-home.landing-service .story-copy p,
+body.landing-home.landing-service .vision-copy p,
+body.landing-home.landing-service .contact-copy p,
+body.landing-home.landing-devis .hero-text,
+body.landing-home.landing-devis .section-heading p,
+body.landing-home.landing-devis .story-copy p,
+body.landing-home.landing-devis .vision-copy p,
+body.landing-home.landing-devis .contact-copy p {
+  font-size: 0.95rem;
+  line-height: 1.72;
+  margin-top: 16px;
+}
+
+body.landing-home.landing-service .button,
+body.landing-home.landing-devis .button {
+  min-height: 48px;
+  padding: 0 22px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+body.landing-home.landing-service .cta-row,
+body.landing-home.landing-devis .cta-row {
+  margin-top: 24px;
+  gap: 10px;
+}
+
+body.landing-home.landing-service .service-pills span,
+body.landing-home.landing-devis .service-pills span {
+  min-height: 34px;
+  padding: 0 14px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border-radius: 8px;
+}
+
+body.landing-home.landing-service .service-pills,
+body.landing-home.landing-devis .service-pills {
+  margin-top: 20px;
+  gap: 8px;
+}
+
+body.landing-home.landing-service .process-card h3,
+body.landing-home.landing-service .offer-card h3,
+body.landing-home.landing-service .workspace-card h3,
+body.landing-home.landing-devis .process-card h3,
+body.landing-home.landing-devis .offer-card h3,
+body.landing-home.landing-devis .workspace-card h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+}
+
+body.landing-home.landing-service .faq-item h3,
+body.landing-home.landing-devis .faq-item h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+body.landing-home.landing-service .footer-band-copy h2,
+body.landing-home.landing-devis .footer-band-copy h2 {
+  font-size: clamp(1.45rem, 2.2vw, 1.9rem);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+}
+
+body.landing-home.landing-service .eyebrow,
+body.landing-home.landing-devis .eyebrow {
+  font-size: 0.68rem;
+  letter-spacing: 0.3em;
+}
+
+@media (max-width: 1080px) {
+  body.landing-home.landing-service .hero-layout,
+  body.landing-home.landing-devis .hero-layout {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+}
+
+@media (max-width: 760px) {
+  body.landing-home.landing-service .hero h1,
+  body.landing-home.landing-devis .hero h1 {
+    font-size: clamp(1.65rem, 8vw, 2.5rem);
+    line-height: 1.12;
+  }
+
+  body.landing-home.landing-service .section-heading h2,
+  body.landing-home.landing-service .story-copy h2,
+  body.landing-home.landing-service .vision-copy h2,
+  body.landing-home.landing-service .contact-copy h2,
+  body.landing-home.landing-devis .section-heading h2,
+  body.landing-home.landing-devis .story-copy h2,
+  body.landing-home.landing-devis .vision-copy h2,
+  body.landing-home.landing-devis .contact-copy h2 {
+    font-size: clamp(1.35rem, 6.5vw, 1.85rem);
   }
 }
