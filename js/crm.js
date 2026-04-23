@@ -117,14 +117,14 @@
         title: "Creation d'un site vitrine premium",
         discount_type: "none",
         discount_value: 0,
-        deposit_amount: 680,
+        deposit_amount: 340,
         payment_terms: "Acompte de 40% a la commande, solde a la mise en ligne.",
         notes: "Delai estime : 4 semaines. Deux cycles de retours inclus. Formation de prise en main comprise.",
         items: [
-          { title: "Audit et arborescence", description: "Analyse de l'existant, objectifs, structure des pages et contenus attendus.", quantity: 1, unit_price: 340 },
-          { title: "Design sur-mesure", description: "Direction artistique, maquette desktop/mobile et ajustements avant integration.", quantity: 1, unit_price: 890 },
-          { title: "Integration du site", description: "Developpement responsive, animations legeres, formulaire de contact et optimisations.", quantity: 1, unit_price: 1470 },
-          { title: "SEO de lancement", description: "Balises, vitesse, indexation et check technique avant mise en ligne.", quantity: 1, unit_price: 240 },
+          { title: "Audit et arborescence", description: "Analyse de l'existant, objectifs, structure des pages et contenus attendus.", quantity: 1, unit_price: 170 },
+          { title: "Design sur-mesure", description: "Direction artistique, maquette desktop/mobile et ajustements avant integration.", quantity: 1, unit_price: 445 },
+          { title: "Integration du site", description: "Developpement responsive, animations legeres, formulaire de contact et optimisations.", quantity: 1, unit_price: 735 },
+          { title: "SEO de lancement", description: "Balises, vitesse, indexation et check technique avant mise en ligne.", quantity: 1, unit_price: 120 },
         ],
       },
     },
@@ -141,9 +141,9 @@
         payment_terms: "Paiement a reception par virement bancaire, avant le 5 du mois suivant.",
         notes: "Calendrier editorial valide en debut de mois. Fichiers sources fournis. Reporting simplifie inclus.",
         items: [
-          { title: "Strategie editoriale", description: "Preparation du planning, angles de contenus et repartition des formats.", quantity: 1, unit_price: 220 },
-          { title: "Creation de 12 contenus", description: "Textes, visuels ou carrousels prets a publier sur Instagram, Facebook ou LinkedIn.", quantity: 1, unit_price: 540 },
-          { title: "Programmation et suivi", description: "Mise en ligne, ajustements et retour synthese sur la performance du mois.", quantity: 1, unit_price: 180 },
+          { title: "Strategie editoriale", description: "Preparation du planning, angles de contenus et repartition des formats.", quantity: 1, unit_price: 110 },
+          { title: "Creation de 12 contenus", description: "Textes, visuels ou carrousels prets a publier sur Instagram, Facebook ou LinkedIn.", quantity: 1, unit_price: 270 },
+          { title: "Programmation et suivi", description: "Mise en ligne, ajustements et retour synthese sur la performance du mois.", quantity: 1, unit_price: 90 },
         ],
       },
     },
@@ -156,13 +156,13 @@
         title: "Audit digital et atelier de cadrage",
         discount_type: "none",
         discount_value: 0,
-        deposit_amount: 250,
-        payment_terms: "Acompte de 250 EUR a la reservation, solde a la livraison du plan d'action.",
+        deposit_amount: 125,
+        payment_terms: "Acompte de 125 EUR a la reservation, solde a la livraison du plan d'action.",
         notes: "Livrable remis sous 5 jours ouvres apres l'atelier. Priorites, quick wins et recommandations incluses.",
         items: [
-          { title: "Audit complet", description: "Analyse du site, de la proposition de valeur, du parcours et des points de friction.", quantity: 1, unit_price: 420 },
-          { title: "Atelier de cadrage (3h)", description: "Session de travail, tri des priorites et clarification des actions a lancer.", quantity: 1, unit_price: 330 },
-          { title: "Feuille de route 30 jours", description: "Plan d'action concret avec priorites, messages cles et prochaines etapes.", quantity: 1, unit_price: 190 },
+          { title: "Audit complet", description: "Analyse du site, de la proposition de valeur, du parcours et des points de friction.", quantity: 1, unit_price: 210 },
+          { title: "Atelier de cadrage (3h)", description: "Session de travail, tri des priorites et clarification des actions a lancer.", quantity: 1, unit_price: 165 },
+          { title: "Feuille de route 30 jours", description: "Plan d'action concret avec priorites, messages cles et prochaines etapes.", quantity: 1, unit_price: 95 },
         ],
       },
     },
@@ -184,8 +184,8 @@
         payment_terms: "Paiement a reception par virement, au plus tard sous 15 jours.",
         notes: "Prestation du mois en cours. Merci d'indiquer la reference de facture dans le libelle du virement.",
         items: [
-          { title: "Maintenance technique", description: "Mises a jour, sauvegardes, surveillance et support prioritaire.", quantity: 1, unit_price: 260 },
-          { title: "Animation reseaux sociaux", description: "Preparation, design et programmation de 8 contenus mensuels.", quantity: 1, unit_price: 420 },
+          { title: "Maintenance technique", description: "Mises a jour, sauvegardes, surveillance et support prioritaire.", quantity: 1, unit_price: 130 },
+          { title: "Animation reseaux sociaux", description: "Preparation, design et programmation de 8 contenus mensuels.", quantity: 1, unit_price: 210 },
         ],
         payments: [],
       },
@@ -201,15 +201,15 @@
         due_in_days: 7,
         discount_type: "none",
         discount_value: 0,
-        deposit_amount: 780,
+        deposit_amount: 390,
         payment_terms: "Acompte deja recu. Solde payable a reception par virement bancaire.",
         notes: "Le solde correspond a la mise en ligne et aux derniers ajustements valides.",
         items: [
-          { title: "Conception UX/UI", description: "Maquettes desktop/mobile et validation du parcours utilisateur.", quantity: 1, unit_price: 960 },
-          { title: "Developpement et integration", description: "Integration responsive, contenus, formulaires et optimisations.", quantity: 1, unit_price: 1240 },
+          { title: "Conception UX/UI", description: "Maquettes desktop/mobile et validation du parcours utilisateur.", quantity: 1, unit_price: 480 },
+          { title: "Developpement et integration", description: "Integration responsive, contenus, formulaires et optimisations.", quantity: 1, unit_price: 620 },
         ],
         payments: [
-          { amount: 780, paid_at: TODAY(), method: "virement", reference: "ACOMPTE-SITE-2026", notes: "Acompte verse a la commande." },
+          { amount: 390, paid_at: TODAY(), method: "virement", reference: "ACOMPTE-SITE-2026", notes: "Acompte verse a la commande." },
         ],
       },
     },
@@ -228,36 +228,36 @@
         payment_terms: "Reglement a reception.",
         notes: "Facture acquittee. Support de synthese envoye au client apres l'atelier.",
         items: [
-          { title: "Animation atelier (3h)", description: "Session de cadrage, priorisation et recommandations actionnables.", quantity: 1, unit_price: 390 },
-          { title: "Compte rendu et plan d'action", description: "Restitution ecrite avec quick wins et prochaines etapes.", quantity: 1, unit_price: 160 },
+          { title: "Animation atelier (3h)", description: "Session de cadrage, priorisation et recommandations actionnables.", quantity: 1, unit_price: 195 },
+          { title: "Compte rendu et plan d'action", description: "Restitution ecrite avec quick wins et prochaines etapes.", quantity: 1, unit_price: 80 },
         ],
         payments: [
-          { amount: 550, paid_at: TODAY(), method: "virement", reference: "REG-ATELIER-2026", notes: "Facture soldee." },
+          { amount: 275, paid_at: TODAY(), method: "virement", reference: "REG-ATELIER-2026", notes: "Facture soldee." },
         ],
       },
     },
   ]);
 
   const SERVICE_PRESETS = Object.freeze([
-    { id: "audit-digital", category: "strategie", label: "Audit digital complet", title: "Audit digital complet", description: "Analyse du positionnement, du site, du parcours et des points de friction prioritaires.", quantity: 1, unit_price: 420 },
-    { id: "atelier-cadrage", category: "strategie", label: "Atelier de cadrage (3h)", title: "Atelier de cadrage (3h)", description: "Session de travail, tri des priorites, clarification des objectifs et plan d'action.", quantity: 1, unit_price: 330 },
-    { id: "feuille-route", category: "strategie", label: "Feuille de route 30 jours", title: "Feuille de route 30 jours", description: "Plan d'action concret avec quick wins, messages cles et prochaines etapes.", quantity: 1, unit_price: 190 },
-    { id: "landing-page", category: "web", label: "Landing page sur-mesure", title: "Creation landing page sur-mesure", description: "Conception, copywriting de base, integration responsive et formulaire de conversion.", quantity: 1, unit_price: 690 },
-    { id: "site-vitrine-5p", category: "web", label: "Site vitrine 5 pages", title: "Creation site vitrine 5 pages", description: "Arborescence, maquettes, integration responsive, optimisations et mise en ligne.", quantity: 1, unit_price: 1490 },
-    { id: "refonte-ui", category: "web", label: "Refonte UX/UI", title: "Refonte UX/UI", description: "Refonte de l'experience utilisateur, maquettes desktop/mobile et ajustements design.", quantity: 1, unit_price: 890 },
-    { id: "seo-technique", category: "web", label: "SEO technique", title: "Optimisation SEO technique", description: "Balises, structure, vitesse, schema et correctifs techniques avant indexation.", quantity: 1, unit_price: 260 },
-    { id: "copywriting-page", category: "contenu", label: "Copywriting page de vente", title: "Copywriting page de vente", description: "Redaction persuasive orientee conversion avec structure, sections et CTA.", quantity: 1, unit_price: 240 },
-    { id: "newsletter", category: "contenu", label: "Newsletter mensuelle", title: "Conception newsletter mensuelle", description: "Angle editorial, redaction, mise en forme et integration dans l'outil d'envoi.", quantity: 1, unit_price: 180 },
-    { id: "shooting-photo", category: "contenu", label: "Shooting photo marque", title: "Shooting photo marque", description: "Prise de vues marque personnelle ou produits avec selection et livraison optimisees web.", quantity: 1, unit_price: 480 },
-    { id: "montage-reel", category: "contenu", label: "Montage reel / video courte", title: "Montage reel / video courte", description: "Montage, sous-titres, rythme, habillage et export vertical pret a publier.", quantity: 1, unit_price: 220 },
-    { id: "pack-posts", category: "social", label: "Pack 10 posts reseaux", title: "Creation de 10 posts reseaux sociaux", description: "Visuels et textes prets a publier, adaptes a Instagram, Facebook ou LinkedIn.", quantity: 1, unit_price: 420 },
-    { id: "pack-carrousels", category: "social", label: "4 carrousels premium", title: "Creation de 4 carrousels premium", description: "Concept, structure, design slide par slide et declinaisons de publication.", quantity: 1, unit_price: 360 },
-    { id: "programmation-sociale", category: "social", label: "Programmation mensuelle", title: "Programmation et suivi mensuel", description: "Mise en ligne, planning, verification et retour synthetique sur les contenus programmes.", quantity: 1, unit_price: 180 },
-    { id: "identite-visuelle", category: "branding", label: "Identite visuelle mini-pack", title: "Creation identite visuelle mini-pack", description: "Palette, typo, logo secondaire, univers visuel et mini-guide d'utilisation.", quantity: 1, unit_price: 520 },
-    { id: "templates-canva", category: "branding", label: "Kit templates Canva", title: "Creation kit templates Canva", description: "Series de templates modifies facilement pour stories, posts et annonces.", quantity: 1, unit_price: 210 },
-    { id: "automation-email", category: "automation", label: "Tunnel email automatise", title: "Creation tunnel email automatise", description: "Scenario de bienvenue, sequence de relance, segmentation et automatisations de base.", quantity: 1, unit_price: 390 },
-    { id: "maintenance", category: "suivi", label: "Maintenance mensuelle", title: "Maintenance technique mensuelle", description: "Mises a jour, sauvegardes, supervision et support prioritaire.", quantity: 1, unit_price: 260 },
-    { id: "formation", category: "suivi", label: "Formation prise en main (2h)", title: "Formation prise en main (2h)", description: "Session de transfert pour gerer le site, les contenus ou les outils CRM/social media.", quantity: 1, unit_price: 180 },
+    { id: "audit-digital", category: "strategie", label: "Audit digital complet", title: "Audit digital complet", description: "Analyse du positionnement, du site, du parcours et des points de friction prioritaires.", quantity: 1, unit_price: 210 },
+    { id: "atelier-cadrage", category: "strategie", label: "Atelier de cadrage (3h)", title: "Atelier de cadrage (3h)", description: "Session de travail, tri des priorites, clarification des objectifs et plan d'action.", quantity: 1, unit_price: 165 },
+    { id: "feuille-route", category: "strategie", label: "Feuille de route 30 jours", title: "Feuille de route 30 jours", description: "Plan d'action concret avec quick wins, messages cles et prochaines etapes.", quantity: 1, unit_price: 95 },
+    { id: "landing-page", category: "web", label: "Landing page sur-mesure", title: "Creation landing page sur-mesure", description: "Conception, copywriting de base, integration responsive et formulaire de conversion.", quantity: 1, unit_price: 345 },
+    { id: "site-vitrine-5p", category: "web", label: "Site vitrine 5 pages", title: "Creation site vitrine 5 pages", description: "Arborescence, maquettes, integration responsive, optimisations et mise en ligne.", quantity: 1, unit_price: 745 },
+    { id: "refonte-ui", category: "web", label: "Refonte UX/UI", title: "Refonte UX/UI", description: "Refonte de l'experience utilisateur, maquettes desktop/mobile et ajustements design.", quantity: 1, unit_price: 445 },
+    { id: "seo-technique", category: "web", label: "SEO technique", title: "Optimisation SEO technique", description: "Balises, structure, vitesse, schema et correctifs techniques avant indexation.", quantity: 1, unit_price: 130 },
+    { id: "copywriting-page", category: "contenu", label: "Copywriting page de vente", title: "Copywriting page de vente", description: "Redaction persuasive orientee conversion avec structure, sections et CTA.", quantity: 1, unit_price: 120 },
+    { id: "newsletter", category: "contenu", label: "Newsletter mensuelle", title: "Conception newsletter mensuelle", description: "Angle editorial, redaction, mise en forme et integration dans l'outil d'envoi.", quantity: 1, unit_price: 90 },
+    { id: "shooting-photo", category: "contenu", label: "Shooting photo marque", title: "Shooting photo marque", description: "Prise de vues marque personnelle ou produits avec selection et livraison optimisees web.", quantity: 1, unit_price: 240 },
+    { id: "montage-reel", category: "contenu", label: "Montage reel / video courte", title: "Montage reel / video courte", description: "Montage, sous-titres, rythme, habillage et export vertical pret a publier.", quantity: 1, unit_price: 110 },
+    { id: "pack-posts", category: "social", label: "Pack 10 posts reseaux", title: "Creation de 10 posts reseaux sociaux", description: "Visuels et textes prets a publier, adaptes a Instagram, Facebook ou LinkedIn.", quantity: 1, unit_price: 210 },
+    { id: "pack-carrousels", category: "social", label: "4 carrousels premium", title: "Creation de 4 carrousels premium", description: "Concept, structure, design slide par slide et declinaisons de publication.", quantity: 1, unit_price: 180 },
+    { id: "programmation-sociale", category: "social", label: "Programmation mensuelle", title: "Programmation et suivi mensuel", description: "Mise en ligne, planning, verification et retour synthetique sur les contenus programmes.", quantity: 1, unit_price: 90 },
+    { id: "identite-visuelle", category: "branding", label: "Identite visuelle mini-pack", title: "Creation identite visuelle mini-pack", description: "Palette, typo, logo secondaire, univers visuel et mini-guide d'utilisation.", quantity: 1, unit_price: 260 },
+    { id: "templates-canva", category: "branding", label: "Kit templates Canva", title: "Creation kit templates Canva", description: "Series de templates modifies facilement pour stories, posts et annonces.", quantity: 1, unit_price: 105 },
+    { id: "automation-email", category: "automation", label: "Tunnel email automatise", title: "Creation tunnel email automatise", description: "Scenario de bienvenue, sequence de relance, segmentation et automatisations de base.", quantity: 1, unit_price: 195 },
+    { id: "maintenance", category: "suivi", label: "Maintenance mensuelle", title: "Maintenance technique mensuelle", description: "Mises a jour, sauvegardes, supervision et support prioritaire.", quantity: 1, unit_price: 130 },
+    { id: "formation", category: "suivi", label: "Formation prise en main (2h)", title: "Formation prise en main (2h)", description: "Session de transfert pour gerer le site, les contenus ou les outils CRM/social media.", quantity: 1, unit_price: 90 },
   ]);
 
   const SERVICE_CATEGORY_LABELS = Object.freeze({
@@ -1358,12 +1358,12 @@
         notes: "Prevoir une session de passation et une mini-formation.",
         discount_type: "percent",
         discount_value: 5,
-        deposit_amount: 450,
+        deposit_amount: 225,
         vat_rate: 0,
         items: [
-          { title: "Audit digital initial", description: "Analyse du site actuel, positionnement et recommandations.", quantity: 1, unit_price: 280 },
-          { title: "Creation du site vitrine", description: "Maquettage, developpement, responsive et optimisations.", quantity: 1, unit_price: 1200 },
-          { title: "Pack communication sociale", description: "Calendrier editorial et templates de publication.", quantity: 1, unit_price: 320 },
+          { title: "Audit digital initial", description: "Analyse du site actuel, positionnement et recommandations.", quantity: 1, unit_price: 140 },
+          { title: "Creation du site vitrine", description: "Maquettage, developpement, responsive et optimisations.", quantity: 1, unit_price: 600 },
+          { title: "Pack communication sociale", description: "Calendrier editorial et templates de publication.", quantity: 1, unit_price: 160 },
         ],
       });
       saveInvoice({
@@ -1376,11 +1376,11 @@
         notes: "Facture recurrente exemple.",
         vat_rate: 0,
         items: [
-          { title: "Maintenance technique", description: "Mises a jour, sauvegardes et monitoring.", quantity: 1, unit_price: 240 },
-          { title: "Production de contenus", description: "Conception de 4 publications premium.", quantity: 1, unit_price: 310 },
+          { title: "Maintenance technique", description: "Mises a jour, sauvegardes et monitoring.", quantity: 1, unit_price: 120 },
+          { title: "Production de contenus", description: "Conception de 4 publications premium.", quantity: 1, unit_price: 155 },
         ],
         payments: [
-          { amount: 200, paid_at: addDays(TODAY(), -5), method: "virement", reference: "VIR-STH-2026", notes: "Acompte deja recu." },
+          { amount: 100, paid_at: addDays(TODAY(), -5), method: "virement", reference: "VIR-STH-2026", notes: "Acompte deja recu." },
         ],
       });
       return { ok: true, message: "seeded" };
@@ -3200,7 +3200,7 @@
                 <div class="crm-field"><label>TVA (%)</label><input name="vat_rate" type="number" min="0" step="0.01" value="${escapeHtml(invoice.vat_rate)}"/></div>
               </div>
               <div class="crm-grid cols-2">
-                <div class="crm-field"><label>Acompte / acompte attendu</label><input name="deposit_amount" type="number" min="0" step="0.01" value="${escapeHtml(invoice.deposit_amount)}" placeholder="Ex : 780 si un acompte est attendu ou deja verse"/></div>
+                <div class="crm-field"><label>Acompte / acompte attendu</label><input name="deposit_amount" type="number" min="0" step="0.01" value="${escapeHtml(invoice.deposit_amount)}" placeholder="Ex : 390 si un acompte est attendu ou deja verse"/></div>
                 <div class="crm-field"><label>Conditions de paiement</label><input name="payment_terms" value="${escapeHtml(invoice.payment_terms)}" placeholder="Ex : paiement a reception sous 15 jours par virement"/></div>
               </div>
               <div class="crm-field"><label>Notes</label><textarea name="notes" placeholder="Ex : rappel de l'objet facture, details de livraison, reference a communiquer">${escapeHtml(invoice.notes)}</textarea></div>
