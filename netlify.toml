@@ -61,11 +61,13 @@
   from = "/monde-different"
   to = "/monde-different/accueil.html"
   status = 302
+  force = true
 
 [[redirects]]
   from = "/monde-different/"
   to = "/monde-different/accueil.html"
   status = 302
+  force = true
 
 [[redirects]]
   from = "/devis-en-ligne.html"
