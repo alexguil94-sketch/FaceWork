@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Légalisation du cannabis — Monde Différent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="pages.css" />
+</head>
+<body>
+
+  <button class="back-to-top" id="backToTop" aria-label="Retour en haut">↑</button>
+  <button class="theme-toggle" id="themeToggle" aria-label="Changer de thème">🌙</button>
+
+  <nav class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a href="accueil.html" class="nav-logo">
+        <span class="logo-icon">🌱</span>
+        <span>Monde <strong>Différent</strong></span>
+      </a>
+      <button class="nav-burger" id="navBurger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li class="nav-theme-item"><a href="accueil.html">Accueil</a></li>
+        <li class="nav-theme-item"><a href="index.html">🌿 Écologie</a></li>
+        <li class="nav-theme-item"><a href="moches.html">🥕 Anti-Gaspi</a></li>
+        <li class="nav-theme-item active"><a href="cannabis.html">🍃 Cannabis</a></li>
+        <li class="nav-theme-item"><a href="feminisme.html">⚡ Égalité</a></li>
+        <li class="nav-theme-item"><a href="racisme.html">✊ Antiracisme</a></li>
+        <li class="nav-theme-item"><a href="immigration.html">🌍 Immigration</a></li>
+        <li><a href="#agir" class="nav-cta">Agir</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- ═══ HERO ═══ -->
+    <section class="page-hero page-hero--cannabis" id="hero">
+      <div class="container">
+        <div class="page-hero-inner">
+          <div class="page-hero-content">
+            <div class="tag tag-page fade-up">🍃 Légalisation · Santé publique · Justice sociale</div>
+            <h1 class="fade-up delay-1">
+              Et si on parlait<br>
+              <span class="page-accent--cannabis">vraiment du cannabis ?</span>
+            </h1>
+            <p class="hero-desc fade-up delay-2">
+              La France est championne d'Europe de la consommation de cannabis — et championne de la répression.
+              50 ans de politique prohibitionniste n'ont pas réduit l'usage. Ils ont juste
+              enrichi le marché noir, saturé les tribunaux et criminalisé des centaines de milliers de personnes.
+              D'autres modèles existent. Cette page les présente.
+            </p>
+            <div class="hero-actions fade-up delay-3">
+              <a href="#realite" class="btn btn-page-primary">Les chiffres</a>
+              <a href="#modeles" class="btn btn-outline">Les modèles qui marchent</a>
+            </div>
+          </div>
+          <div class="page-hero-visual fade-up delay-2">
+            <div class="big-quote">
+              <span class="bq-mark">"</span>
+              <p>La définition de la folie, c'est de faire toujours la même chose en espérant des résultats différents. La guerre à la drogue dure depuis 50 ans — les résultats n'ont pas changé.</p>
+              <cite>— João Goulão, architecte de la politique de dépénalisation du Portugal</cite>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="page-hero-deco" aria-hidden="true"></div>
+    </section>
+
+    <!-- ═══ LA RÉALITÉ ═══ -->
+    <section class="section" id="realite">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">La réalité en chiffres</div>
+          <h2>La prohibition a échoué —<br>les données le prouvent</h2>
+          <p class="section-lead">
+            La France interdit le cannabis depuis 1970. En 54 ans, la consommation n'a pas baissé —
+            elle a augmenté. Voici ce que les chiffres officiels nous disent.
+          </p>
+        </div>
+
+        <div class="ic-grid">
+
+          <div class="ic-card ic-cannabis fade-up delay-1">
+            <div class="ic-tag">🇫🇷 Consommation</div>
+            <div class="ic-number cannabis-number">5 millions</div>
+            <div class="ic-label">de consommateurs réguliers de cannabis en France</div>
+            <div class="ic-detail">La France est le pays d'Europe avec le <strong>taux de consommation le plus élevé chez les 15–34 ans</strong>. Malgré une des législations les plus répressives du continent. La prohibition n'a pas dissuadé — elle a juste rendu le marché plus opaque. <span class="ic-source-inline">(OFDT 2023)</span></div>
+          </div>
+
+          <div class="ic-card ic-cannabis fade-up delay-2">
+            <div class="ic-tag">💰 Marché noir</div>
+            <div class="ic-number cannabis-number">1,2 Md€</div>
+            <div class="ic-label">de chiffre d'affaires annuel du marché noir du cannabis en France</div>
+            <div class="ic-detail">1,2 milliard d'euros qui échappent entièrement à l'État, sans contrôle de qualité, sans prévention, sans limite d'âge — et qui financent des réseaux criminels organisés. <strong>La prohibition subventionne le crime.</strong> <span class="ic-source-inline">(OFDT / Rapport Sénat 2021)</span></div>
+          </div>
+
+          <div class="ic-card ic-cannabis fade-up delay-3">
+            <div class="ic-tag">👮 Répression</div>
+            <div class="ic-number cannabis-number">180 000</div>
+            <div class="ic-label">interpellations par an pour usage simple de cannabis en France</div>
+            <div class="ic-detail">Soit <strong>une arrestation toutes les 3 minutes</strong>. Le cannabis représente 85 % de toutes les affaires de stupéfiants. Une part massive du temps judiciaire et policier absorbée par la gestion d'un marché que la loi ne parvient pas à supprimer. <span class="ic-source-inline">(Ministère de l'Intérieur 2023)</span></div>
+          </div>
+
+          <div class="ic-card ic-cannabis fade-up delay-1">
+            <div class="ic-tag">⚖️ Inégalités</div>
+            <div class="ic-number cannabis-number">6×</div>
+            <div class="ic-label">plus de risque d'être interpellé pour cannabis si on est perçu comme racisé</div>
+            <div class="ic-detail">Les contrôles et interpellations pour cannabis sont massivement concentrés sur les personnes racisées et les quartiers populaires — pas parce qu'ils consomment plus, mais parce qu'ils sont <strong>plus surveillés</strong>. La prohibition renforce les inégalités raciales. <span class="ic-source-inline">(Défenseur des droits)</span></div>
+          </div>
+
+          <div class="ic-card ic-cannabis fade-up delay-2">
+            <div class="ic-tag">💸 Potentiel fiscal</div>
+            <div class="ic-number cannabis-number">2,3 Md€</div>
+            <div class="ic-label">de recettes fiscales potentielles par an si la France légalisait</div>
+            <div class="ic-detail">La mission d'information parlementaire de 2021 chiffre à <strong>2,3 milliards d'euros</strong> les recettes fiscales annuelles possibles : TVA, taxes spécifiques, impôt sur les sociétés. De quoi financer massivement la prévention et le soin. <span class="ic-source-inline">(Mission parlementaire 2021)</span></div>
+          </div>
+
+          <div class="ic-card ic-cannabis fade-up delay-3">
+            <div class="ic-tag">🌍 Europe</div>
+            <div class="ic-number cannabis-number">+30 pays</div>
+            <div class="ic-label">ont légalisé ou dépénalisé le cannabis dans le monde depuis 2012</div>
+            <div class="ic-detail">Canada, Allemagne, Uruguay, Pays-Bas, Malte, Luxembourg, 24 États américains, Portugal (dépénalisation complète)… <strong>La tendance mondiale est claire</strong>. La France est en retard d'un débat qu'elle refuse d'avoir sérieusement. <span class="ic-source-inline">(EMCDDA 2024)</span></div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ POURQUOI LA PROHIBITION ÉCHOUE ═══ -->
+    <section class="section section-alt" id="echec">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">Comprendre</div>
+          <h2>50 ans de guerre à la drogue :<br>le bilan est là</h2>
+          <p class="section-lead">En 1970, la loi française interdit le cannabis. En 2024, la France a le taux de consommation chez les jeunes le plus élevé d'Europe. La question n'est plus "est-ce que ça marche ?" — c'est clairement non. La question c'est : qu'est-ce qu'on fait maintenant ?</p>
+        </div>
+
+        <div class="cards-grid cards-grid-3">
+          <article class="card fade-up delay-1">
+            <div class="card-icon">🚫</div>
+            <h3>La prohibition ne réduit pas la consommation</h3>
+            <p>Les données de l'OFDT le montrent année après année : la consommation de cannabis en France a progressé depuis 1970, malgré (ou à cause de) la répression. Aux Pays-Bas, où la vente est tolérée depuis les années 70, la consommation est <strong>inférieure à la moyenne européenne</strong>.</p>
+            <div class="card-stat-bar"><strong>Pays-Bas</strong> : tolérance depuis 1972 → consommation sous la moyenne EU. <strong>France</strong> : répression totale → consommation au-dessus de la moyenne EU <span>(EMCDDA)</span></div>
+          </article>
+
+          <article class="card fade-up delay-2">
+            <div class="card-icon">🏚️</div>
+            <h3>Elle enrichit les réseaux criminels</h3>
+            <p>Interdire le cannabis ne le fait pas disparaître — ça crée un marché parallèle sans aucune régulation. Prix fixés par les dealers, pas de contrôle de qualité, pas d'âge minimum, pas de traçabilité. <strong>Le crime organisé prospère là où l'État abdique.</strong></p>
+            <div class="card-stat-bar"><strong>1,2 Md€</strong> enrichissent les réseaux criminels chaque année en France plutôt que les caisses de l'État</div>
+          </article>
+
+          <article class="card fade-up delay-3">
+            <div class="card-icon">⚕️</div>
+            <h3>Elle nuit à la santé publique</h3>
+            <p>Quand le cannabis est illégal, les consommateurs ne peuvent pas savoir ce qu'ils consomment. Taux de THC inconnu, produits coupés (paraffine, pesticides, médicaments). <strong>La légalisation avec contrôle de qualité protège mieux la santé</strong> que la prohibition qui laisse le marché à des inconnus.</p>
+            <div class="card-stat-bar">Le taux moyen de THC sur le marché noir français a <strong>triplé</strong> en 20 ans, augmentant les risques <span>(OFDT)</span></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ MODÈLES INTERNATIONAUX ═══ -->
+    <section class="section" id="modeles">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">Ce qui existe déjà</div>
+          <h2>Les pays qui ont osé —<br>et ce qu'on peut apprendre</h2>
+          <p class="section-lead">La légalisation n'est pas une utopie. Elle est une réalité dans de nombreux pays. Voici leurs expériences — avec les résultats concrets.</p>
+        </div>
+
+        <div class="country-grid">
+
+          <div class="country-card fade-up delay-1">
+            <div class="country-flag">🇵🇹</div>
+            <div class="country-name">Portugal — Dépénalisation totale</div>
+            <div class="country-year">Depuis 2001</div>
+            <p>En 2001, le Portugal a dépénalisé <em>toutes</em> les drogues — pas seulement le cannabis. L'usage n'est plus un délit pénal mais un problème de santé. Les consommateurs sont orientés vers des commissions de soin plutôt que vers les tribunaux.</p>
+            <div class="country-results">
+              <div class="cr-item cr-good">↓ 75 % de décès liés aux drogues</div>
+              <div class="cr-item cr-good">↓ Taux VIH parmi les usagers de drogues : de 52 % à 7 %</div>
+              <div class="cr-item cr-good">↑ Accès aux soins massivement augmenté</div>
+              <div class="cr-item cr-neutral">≈ Consommation stable, pas d'explosion</div>
+            </div>
+          </div>
+
+          <div class="country-card fade-up delay-2">
+            <div class="country-flag">🇨🇦</div>
+            <div class="country-name">Canada — Légalisation totale et réglementée</div>
+            <div class="country-year">Depuis octobre 2018</div>
+            <p>Le Canada a légalisé le cannabis récréatif avec un cadre strict : âge minimum 18–21 ans selon les provinces, vente uniquement en magasins agréés, emballage neutre sans marketing, taxes dédiées à la prévention.</p>
+            <div class="country-results">
+              <div class="cr-item cr-good">4 Mds CAD de recettes fiscales en 5 ans</div>
+              <div class="cr-item cr-good">↓ Marché noir réduit de 40 % en valeur</div>
+              <div class="cr-item cr-good">Réhabilitation des condamnés pour usage simple</div>
+              <div class="cr-item cr-neutral">Consommation chez les adultes stable ou en légère hausse</div>
+            </div>
+          </div>
+
+          <div class="country-card fade-up delay-3">
+            <div class="country-flag">🇩🇪</div>
+            <div class="country-name">Allemagne — Légalisation partielle</div>
+            <div class="country-year">Depuis avril 2024</div>
+            <p>L'Allemagne a légalisé la possession jusqu'à 25g et la culture personnelle (3 plants max). Les "clubs cannabis" (associations à but non lucratif) peuvent produire et distribuer à leurs membres adultes, sans vente commerciale au lancement.</p>
+            <div class="country-results">
+              <div class="cr-item cr-good">Fin des poursuites pour usage simple</div>
+              <div class="cr-item cr-good">Amnistie pour les condamnations passées légères</div>
+              <div class="cr-item cr-neutral">Modèle hybride — commerce régulé à venir en phase 2</div>
+              <div class="cr-item cr-neutral">Premiers retours : forte demande, marché noir persistant</div>
+            </div>
+          </div>
+
+          <div class="country-card fade-up delay-1">
+            <div class="country-flag">🇺🇾</div>
+            <div class="country-name">Uruguay — Premier pays au monde</div>
+            <div class="country-year">Depuis 2013</div>
+            <p>L'Uruguay est le premier pays à avoir légalisé le cannabis récréatif au niveau national, sous contrôle d'État. Vente uniquement en pharmacies agréées, prix fixé par l'État pour concurrencer le marché noir.</p>
+            <div class="country-results">
+              <div class="cr-item cr-good">Prix bas = marché noir marginalisé</div>
+              <div class="cr-item cr-good">Qualité et dosage contrôlés</div>
+              <div class="cr-item cr-good">Baisse des arrestations liées au cannabis</div>
+              <div class="cr-item cr-neutral">Accès limité pour les touristes — modèle pour résidents</div>
+            </div>
+          </div>
+
+          <div class="country-card fade-up delay-2">
+            <div class="country-flag">🇳🇱</div>
+            <div class="country-name">Pays-Bas — La tolérance pragmatique</div>
+            <div class="country-year">Depuis les années 1970</div>
+            <p>Les coffee shops néerlandais opèrent dans un cadre de "tolérance" depuis 50 ans : vente autorisée en petite quantité dans des établissements agréés. Pas de publicité, pas de vente aux mineurs, pas d'autres drogues.</p>
+            <div class="country-results">
+              <div class="cr-item cr-good">Consommation parmi les plus basses d'Europe</div>
+              <div class="cr-item cr-good">Séparation effective des marchés doux / durs</div>
+              <div class="cr-item cr-neutral">Paradoxe légal : vente tolérée, production illégale</div>
+              <div class="cr-item cr-good">Modèle de réduction des risques reconnu mondialement</div>
+            </div>
+          </div>
+
+          <div class="country-card fade-up delay-3">
+            <div class="country-flag">🇺🇸</div>
+            <div class="country-name">États-Unis — 24 États légalisés</div>
+            <div class="country-year">Depuis 2012 (Colorado, Washington)</div>
+            <p>24 États américains ont légalisé le cannabis récréatif, dont la Californie, New York, Colorado, Illinois. Chaque État gère son propre marché avec taxes, licence, contrôle qualité et âge minimum.</p>
+            <div class="country-results">
+              <div class="cr-item cr-good">+15 Mds $ de recettes fiscales en 2023 (tous États)</div>
+              <div class="cr-item cr-good">+400 000 emplois créés dans le secteur légal</div>
+              <div class="cr-item cr-good">Programmes de réhabilitation pour anciens condamnés</div>
+              <div class="cr-item cr-neutral">Marché noir encore présent dans certains États</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ LES ARGUMENTS ═══ -->
+    <section class="section section-alt" id="arguments">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">Les arguments</div>
+          <h2>Pourquoi la légalisation<br>est une politique de santé publique</h2>
+          <p class="section-lead">La légalisation n'est pas un encouragement à consommer. C'est le choix de reprendre le contrôle sur quelque chose qui existe déjà — et de le gérer mieux.</p>
+        </div>
+
+        <div class="arg-layout">
+          <div class="arg-col">
+            <h3 class="arg-col-title arg-for">✅ Arguments pour la légalisation</h3>
+
+            <div class="arg-item fade-up delay-1">
+              <div class="arg-icon">💊</div>
+              <div>
+                <h4>Contrôle de la qualité et réduction des risques</h4>
+                <p>Dans un marché légal, le taux de THC est connu et contrôlé. Les produits de coupe dangereux (paraffine, pesticides, médicaments) disparaissent. Les usagers savent ce qu'ils consomment. C'est objectivement plus sûr.</p>
+              </div>
+            </div>
+
+            <div class="arg-item fade-up delay-2">
+              <div class="arg-icon">🔞</div>
+              <div>
+                <h4>Age minimum effectif — protection des mineurs réelle</h4>
+                <p>Un dealer de rue ne vérifie pas l'âge. Un magasin agréé, oui. La légalisation avec âge minimum est <strong>plus protectrice pour les adolescents</strong> que la prohibition, qui leur donne accès sans aucun filtre.</p>
+              </div>
+            </div>
+
+            <div class="arg-item fade-up delay-3">
+              <div class="arg-icon">💰</div>
+              <div>
+                <h4>2,3 milliards d'euros pour financer la prévention</h4>
+                <p>Des recettes fiscales fléchées vers la prévention, l'éducation, le soin aux personnes dépendantes et la recherche médicale. Au lieu que cet argent aille aux réseaux criminels, il finance des politiques de santé publique.</p>
+              </div>
+            </div>
+
+            <div class="arg-item fade-up delay-1">
+              <div class="arg-icon">⚖️</div>
+              <div>
+                <h4>Fin d'une justice à deux vitesses</h4>
+                <p>Aujourd'hui, les interpellations pour cannabis frappent massivement les pauvres et les racisés. Un cadre blanc dans son appartement consomme sans risque ; un jeune de banlieue risque sa liberté. La légalisation met fin à cette hypocrisie.</p>
+              </div>
+            </div>
+
+            <div class="arg-item fade-up delay-2">
+              <div class="arg-icon">👮</div>
+              <div>
+                <h4>Libérer la police et la justice pour l'essentiel</h4>
+                <p>180 000 interpellations par an pour usage simple. Des milliers d'heures de police, de parquet, de tribunal. Légaliser libère ces ressources pour des crimes réels — agressions, fraudes, violences — qui aujourd'hui manquent de traitement.</p>
+              </div>
+            </div>
+
+            <div class="arg-item fade-up delay-3">
+              <div class="arg-icon">🏥</div>
+              <div>
+                <h4>Recherche médicale et usage thérapeutique</h4>
+                <p>Le cannabis thérapeutique est reconnu dans des dizaines de pays pour la douleur chronique, les nausées chimio, certaines épilepsies, la SEP. La France a lancé une expérimentation en 2021 — mais la prohibition bloque encore la recherche à grande échelle.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="arg-col">
+            <h3 class="arg-col-title arg-against">⚠️ Les objections — et les réponses</h3>
+
+            <div class="arg-item arg-item--objection fade-up delay-1">
+              <div class="arg-icon">❓</div>
+              <div>
+                <h4>"La légalisation va augmenter la consommation"</h4>
+                <p class="arg-objection-text">Les données du Canada, du Colorado et du Portugal ne montrent pas d'explosion de la consommation après la légalisation. Chez les adolescents canadiens, la consommation a même <strong>légèrement baissé</strong> après 2018 — l'accès contrôlé et la prévention fonctionnent mieux que l'interdit.</p>
+              </div>
+            </div>
+
+            <div class="arg-item arg-item--objection fade-up delay-2">
+              <div class="arg-icon">❓</div>
+              <div>
+                <h4>"C'est une drogue dangereuse, on ne peut pas l'autoriser"</h4>
+                <p class="arg-objection-text">Le tabac tue 75 000 personnes par an en France. L'alcool en tue 41 000. Les deux sont légaux, taxés, vendus partout. Le cannabis, consommé avec modération par des adultes informés, présente des risques significativement inférieurs. <strong>Le critère de dangerosité s'applique mal quand les drogues légales sont bien plus mortelles.</strong></p>
+              </div>
+            </div>
+
+            <div class="arg-item arg-item--objection fade-up delay-3">
+              <div class="arg-icon">❓</div>
+              <div>
+                <h4>"La légalisation envoie un mauvais signal"</h4>
+                <p class="arg-objection-text">Le signal actuel, c'est que l'État interdit et laisse faire. La légalisation avec cadre strict envoie le message inverse : "On prend ça au sérieux, on régule, on protège, on informe." C'est un signal de responsabilité, pas de permissivité.</p>
+              </div>
+            </div>
+
+            <div class="arg-item arg-item--objection fade-up delay-1">
+              <div class="arg-icon">❓</div>
+              <div>
+                <h4>"Ça mène aux drogues dures" (théorie du gateway)</h4>
+                <p class="arg-objection-text">La théorie du "gateway drug" est réfutée par la recherche scientifique. La grande majorité des consommateurs de cannabis n'utilisent pas d'autres drogues. Le vrai gateway, c'est le marché noir — où le dealer vend tout. <strong>Séparer les marchés protège mieux.</strong></p>
+              </div>
+            </div>
+
+            <div class="arg-item arg-item--objection fade-up delay-2">
+              <div class="arg-icon">❓</div>
+              <div>
+                <h4>"Les conventions internationales l'interdisent"</h4>
+                <p class="arg-objection-text">L'Uruguay (2013), le Canada (2018) et l'Allemagne (2024) ont légalisé malgré les conventions onusiennes, sans conséquences majeures. Ces conventions évoluent. L'ONU elle-même a reclassé le cannabis en 2020, reconnaissant ses usages médicaux légitimes.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ CE QUE POURRAIT ÊTRE UN MODÈLE FRANÇAIS ═══ -->
+    <section class="section section-dark" id="modele-fr">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label" style="color:var(--lime)">Un monde différent est possible</div>
+          <h2>À quoi pourrait ressembler<br>une légalisation à la française ?</h2>
+          <p class="section-lead" style="color:rgba(255,255,255,.75)">
+            Ni les Pays-Bas ni le Canada ne sont identiques à la France. Mais on peut s'en inspirer
+            pour construire un modèle adapté à notre contexte, nos valeurs et nos besoins.
+          </p>
+        </div>
+
+        <div class="fr-model-grid">
+
+          <div class="fr-model-card fade-up delay-1">
+            <div class="frm-num">01</div>
+            <h3>Un monopole public ou semi-public</h3>
+            <p>Plutôt que de laisser le marché aux multinationales (risque de marlboro-isation), la France pourrait confier la production et la distribution à un opérateur public — comme la Seita pour le tabac autrefois — ou à des coopératives agricoles régionales. Les profits reviennent à l'État, pas aux actionnaires.</p>
+            <div class="frm-tag">Modèle : Uruguay + coopératives</div>
+          </div>
+
+          <div class="fr-model-card fade-up delay-2">
+            <div class="frm-num">02</div>
+            <h3>Vente uniquement en pharmacies ou points agréés</h3>
+            <p>Pas de vente en supermarché, pas de publicité, pas de marketing séduisant. Un cadre sobre, médical, sans glamourisation. Le pharmacien peut informer sur les risques, les dosages, les contre-indications. C'est plus cohérent avec l'approche de santé publique.</p>
+            <div class="frm-tag">Modèle : pharmacies uruguayennes</div>
+          </div>
+
+          <div class="fr-model-card fade-up delay-3">
+            <div class="frm-num">03</div>
+            <h3>Âge minimum à 21 ans, emballage neutre</h3>
+            <p>21 ans (pas 18) pour protéger un cerveau encore en développement. Emballage neutre, sobre, informatif — comme pour les paquets de cigarettes. Zéro publicité, zéro marketing sur les réseaux sociaux. Les recettes de taxes fléchées à 100 % vers la prévention et le soin.</p>
+            <div class="frm-tag">Modèle : Canada + anti-tabac</div>
+          </div>
+
+          <div class="fr-model-card fade-up delay-1">
+            <div class="frm-num">04</div>
+            <h3>Amnistie et réhabilitation des condamnés</h3>
+            <p>Légaliser sans effacer les condamnations passées, c'est hypocrite. Les personnes emprisonnées ou fichées pour usage simple doivent bénéficier d'une amnistie automatique. Leurs casiers judiciaires effacés. C'est une question de justice élémentaire.</p>
+            <div class="frm-tag">Modèle : Illinois, New York</div>
+          </div>
+
+          <div class="fr-model-card fade-up delay-2">
+            <div class="frm-num">05</div>
+            <h3>Cannabis clubs associatifs pour la culture personnelle</h3>
+            <p>Permettre à des associations à but non lucratif (sur le modèle allemand ou espagnol) de cultiver et distribuer à leurs membres adultes. Pas de commerce, pas de profit — juste de la transparence et du contrôle pour ceux qui souhaitent cultiver eux-mêmes.</p>
+            <div class="frm-tag">Modèle : Allemagne 2024</div>
+          </div>
+
+          <div class="fr-model-card fade-up delay-3">
+            <div class="frm-num">06</div>
+            <h3>2,3 milliards fléchés vers la santé</h3>
+            <p>Les recettes fiscales iraient à : la prévention dans les collèges et lycées, les centres de soins pour addiction, la recherche sur les usages médicaux, le renforcement des structures psychiatriques. L'argent de la légalisation finance le soin, pas les caisses générales.</p>
+            <div class="frm-tag">Principe : taxation utile</div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ IMPACT PROJETÉ ═══ -->
+    <section class="section" id="impact">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">Projections — si la France légalisait</div>
+          <h2>Ce que ça pourrait<br>changer concrètement</h2>
+          <p class="section-lead">Chiffres issus du rapport de la mission d'information parlementaire (2021) et des retours d'expérience canadiens et américains.</p>
+        </div>
+
+        <div class="cards-grid cards-grid-4">
+          <div class="kpi-card fade-up delay-1">
+            <div class="kpi-icon">💰</div>
+            <div class="kpi-value" data-target="2300">0</div>
+            <div class="kpi-unit">M€ / an</div>
+            <div class="kpi-label">de recettes fiscales potentielles pour l'État</div>
+          </div>
+          <div class="kpi-card fade-up delay-2">
+            <div class="kpi-icon">👮</div>
+            <div class="kpi-value" data-target="180000">0</div>
+            <div class="kpi-unit">interpellations</div>
+            <div class="kpi-label">évitées chaque année pour usage simple</div>
+          </div>
+          <div class="kpi-card fade-up delay-3">
+            <div class="kpi-icon">💼</div>
+            <div class="kpi-value" data-target="80000">0</div>
+            <div class="kpi-unit">emplois</div>
+            <div class="kpi-label">créés dans le secteur légal (production, vente, prévention)</div>
+          </div>
+          <div class="kpi-card fade-up delay-4">
+            <div class="kpi-icon">🏥</div>
+            <div class="kpi-value" data-target="40">0</div>
+            <div class="kpi-unit">% de moins</div>
+            <div class="kpi-label">de part du marché noir estimée après 5 ans (retour Canada)</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ NOTA BENE SANTÉ ═══ -->
+    <section class="section section-alt" id="sante">
+      <div class="container">
+        <div class="safety-block fade-up" style="border-color: #16a34a;">
+          <div class="safety-icon">🩺</div>
+          <div class="safety-content">
+            <h3>Ce que la légalisation ne veut pas dire</h3>
+            <p>Légaliser n'est pas encourager. Ce n'est pas dire que le cannabis est sans risque. Ce n'est pas une invitation à consommer. C'est reconnaître que la réalité existe déjà — et choisir de la gérer mieux.</p>
+            <div class="safety-grid">
+              <div class="safety-ok">
+                <div class="safety-label safety-green">✅ Ce que la légalisation change</div>
+                <ul>
+                  <li>Contrôle de la qualité des produits</li>
+                  <li>Age minimum effectivement respecté</li>
+                  <li>Fin de la criminalisation des usagers</li>
+                  <li>Recettes fiscales pour la prévention</li>
+                  <li>Possibilité de parler ouvertement, sans honte</li>
+                  <li>Recherche médicale débloquée</li>
+                </ul>
+              </div>
+              <div class="safety-no">
+                <div class="safety-label safety-red">🚫 Ce que la légalisation ne fait pas</div>
+                <ul>
+                  <li>Elle ne supprime pas les risques liés à la consommation</li>
+                  <li>Elle ne convient pas à tout le monde (fragilités psychologiques)</li>
+                  <li>Elle ne résout pas les problèmes d'addiction grave</li>
+                  <li>Elle n'autorise pas la consommation en public, au volant, au travail</li>
+                  <li>Elle ne supprime pas les obligations de prévention</li>
+                </ul>
+              </div>
+            </div>
+            <p class="safety-note-text">Un cadre légal bien conçu doit <strong>réduire les risques, pas les nier</strong>. La prévention reste absolument nécessaire, et mieux financée grâce aux recettes fiscales.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ CTA ═══ -->
+    <section class="section section-cta" id="agir">
+      <div class="container">
+        <div class="cta-box fade-up" style="background: linear-gradient(135deg, #052e16 0%, #15803d 100%);">
+          <div class="cta-content">
+            <div class="tag tag-white">🍃 S'informer et débattre</div>
+            <h2>La légalisation du cannabis mérite un vrai débat public — basé sur des faits, pas des peurs</h2>
+            <p>Plusieurs organisations sérieuses travaillent sur ce sujet avec rigueur et sans idéologie. S'informer, c'est la première étape.</p>
+            <div class="cta-actions">
+              <a href="https://www.ofdt.fr" target="_blank" rel="noopener" class="btn btn-lime">OFDT — Observatoire des drogues</a>
+              <a href="https://www.emcdda.europa.eu" target="_blank" rel="noopener" class="btn btn-white">EMCDDA — Europe</a>
+              <a href="racisme.html" class="btn btn-outline-white">→ Cannabis et justice raciale</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-grid fade-up delay-2">
+          <div class="action-card">
+            <div class="action-num">01</div>
+            <h4>Lire les rapports officiels</h4>
+            <p>Le rapport de la mission d'information parlementaire de 2021 est disponible en ligne. 400 pages de données, d'auditions et de propositions concrètes — rédigées par des élus de tous bords.</p>
+          </div>
+          <div class="action-card">
+            <div class="action-num">02</div>
+            <h4>Interpeller les représentants locaux</h4>
+            <p>Demandez à vos élus locaux et nationaux leur position sur la légalisation — et pourquoi. Exigez qu'ils s'appuient sur des données, pas sur des postures électorales.</p>
+          </div>
+          <div class="action-card">
+            <div class="action-num">03</div>
+            <h4>Distinguer usage, dépendance et trafic</h4>
+            <p>Ce sont trois réalités très différentes qui appellent trois réponses différentes. Un usager adulte occasionnel, une personne dépendante et un trafiquant ne méritent pas le même traitement.</p>
+          </div>
+          <div class="action-card">
+            <div class="action-num">04</div>
+            <h4>Soutenir la recherche médicale</h4>
+            <p>Le cannabis thérapeutique peut aider des milliers de malades. Soutenir l'expérimentation française, exiger son extension — c'est une position accessible à tous, au-delà du débat sur la récréation.</p>
+          </div>
+        </div>
+
+        <div class="loop-back fade-up delay-3">
+          <div class="loop-back-inner">
+            <span class="loop-icon">🔄</span>
+            <div>
+              <strong>Tout est lié</strong>
+              <p>Cannabis et <strong>racisme</strong> (les interpellations sont racialement biaisées), cannabis et <strong>santé publique</strong>, cannabis et <strong>économie</strong> — ce débat traverse toutes les pages de ce site. Un monde différent, c'est aussi un monde où les politiques publiques s'appuient sur les faits.</p>
+            </div>
+            <a href="index.html" class="btn btn-primary">Retour à l'écologie →</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-logo">
+        <span>🌱</span>
+        <span>Monde <strong>Différent</strong></span>
+      </div>
+      <nav class="footer-links" aria-label="Navigation thèmes">
+        <a href="index.html">Écologie</a>
+        <a href="moches.html">Les Moches</a>
+        <a href="cannabis.html">Cannabis</a>
+        <a href="feminisme.html">Égalité</a>
+        <a href="racisme.html">Antiracisme</a>
+        <a href="immigration.html">Immigration</a>
+      </nav>
+      <p class="footer-copy">© 2026 · Un monde différent est possible</p>
+    </div>
+  </footer>
+
+  <script src="pages.js"></script>
+  <script>
+    function animateCounter(el, target, duration = 1600) {
+      const startTime = performance.now();
+      const step = (now) => {
+        const progress = Math.min((now - startTime) / duration, 1);
+        const eased    = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.floor(eased * target).toLocaleString('fr-FR');
+        if (progress < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }
+    const kpiObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          animateCounter(entry.target, parseInt(entry.target.dataset.target, 10));
+          kpiObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.4 });
+    document.querySelectorAll('.kpi-value').forEach(el => kpiObserver.observe(el));
+  </script>
+</body>
+</html>

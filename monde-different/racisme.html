@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Antiracisme — Monde Différent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="pages.css" />
+</head>
+<body>
+
+  <button class="back-to-top" id="backToTop" aria-label="Retour en haut">↑</button>
+  <button class="theme-toggle" id="themeToggle" aria-label="Changer de thème">🌙</button>
+
+  <nav class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a href="accueil.html" class="nav-logo">
+        <span class="logo-icon">🌱</span>
+        <span>Monde <strong>Différent</strong></span>
+      </a>
+      <button class="nav-burger" id="navBurger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li class="nav-theme-item"><a href="accueil.html">Accueil</a></li>
+        <li class="nav-theme-item"><a href="index.html">🌿 Écologie</a></li>
+        <li class="nav-theme-item"><a href="moches.html">🥕 Anti-Gaspi</a></li>
+        <li class="nav-theme-item"><a href="cannabis.html">🍃 Cannabis</a></li>
+        <li class="nav-theme-item"><a href="feminisme.html">⚡ Égalité</a></li>
+        <li class="nav-theme-item active"><a href="racisme.html">✊ Antiracisme</a></li>
+        <li class="nav-theme-item"><a href="immigration.html">🌍 Immigration</a></li>
+        <li><a href="#agir" class="nav-cta">Agir</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- HERO -->
+    <section class="page-hero page-hero--red" id="hero">
+      <div class="container">
+        <div class="page-hero-inner">
+          <div class="page-hero-content">
+            <div class="tag tag-page fade-up">✊ Antiracisme · Égalité</div>
+            <h1 class="fade-up delay-1">
+              Un monde où ton nom<br>
+              <span class="page-accent">n'est pas un obstacle</span>
+            </h1>
+            <p class="hero-desc fade-up delay-2">
+              En France, avoir un prénom "étranger" réduit tes chances d'obtenir un entretien.
+              Être perçu comme noir ou arabe multiplie les contrôles de police. Ces inégalités
+              ne sont pas des impressions — elles sont mesurées. Et elles peuvent changer.
+            </p>
+            <div class="hero-actions fade-up delay-3">
+              <a href="#realite" class="btn btn-page-primary">Voir les chiffres</a>
+              <a href="#monde-different" class="btn btn-outline">Ce monde différent</a>
+            </div>
+          </div>
+          <div class="page-hero-visual fade-up delay-2">
+            <div class="big-quote">
+              <span class="bq-mark">"</span>
+              <p>Ne pas être raciste ne suffit plus. Il faut être antiraciste — agir activement contre les discriminations.</p>
+              <cite>— Ibram X. Kendi</cite>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="page-hero-deco" aria-hidden="true"></div>
+    </section>
+
+    <!-- CHIFFRES -->
+    <section class="section" id="realite">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">La réalité en chiffres</div>
+          <h2>Des discriminations mesurées,<br>pas imaginées</h2>
+          <p class="section-lead">Ce ne sont pas des perceptions ou des anecdotes. Ce sont des résultats d'études scientifiques, de rapports officiels, de tests rigoureux.</p>
+        </div>
+
+        <div class="ic-grid">
+          <div class="ic-card ic-page fade-up delay-1">
+            <div class="ic-tag">💼 Emploi</div>
+            <div class="ic-number" style="color:#dc2626">−33 %</div>
+            <div class="ic-label">de chances d'être rappelé avec un prénom d'Afrique du Nord</div>
+            <div class="ic-detail">L'étude INED (2015, répliquée en 2020) a envoyé des CV identiques avec des prénoms différents. Résultat : un candidat s'appelant "Yanis Benamar" a <strong>33 % de chances en moins</strong> d'obtenir un entretien qu'un "Pierre Martin". À diplôme et expérience égaux.</div>
+          </div>
+
+          <div class="ic-card ic-page fade-up delay-2">
+            <div class="ic-tag">👮 Police</div>
+            <div class="ic-number" style="color:#dc2626">6×</div>
+            <div class="ic-label">plus de risque d'être contrôlé si perçu comme noir ou arabe</div>
+            <div class="ic-detail">Le rapport du Défenseur des droits (2017) a documenté que les jeunes hommes perçus comme noirs ou arabes sont <strong>6 fois plus susceptibles</strong> d'être contrôlés par la police. Ce n'est pas de la prudence — c'est du profilage racial.</div>
+          </div>
+
+          <div class="ic-card ic-page fade-up delay-3">
+            <div class="ic-tag">🏠 Logement</div>
+            <div class="ic-number" style="color:#dc2626">−25 %</div>
+            <div class="ic-label">de réponses positives pour un logement avec un nom étranger</div>
+            <div class="ic-detail">Des tests de discrimination dans le logement montrent qu'un candidat avec un nom d'origine africaine reçoit <strong>25 % de réponses en moins</strong> pour les mêmes annonces. À revenus et dossier identiques. <span class="ic-source-inline">(SOS Racisme, rapport 2022)</span></div>
+          </div>
+
+          <div class="ic-card ic-page fade-up delay-1">
+            <div class="ic-tag">📚 Éducation</div>
+            <div class="ic-number" style="color:#dc2626">2×</div>
+            <div class="ic-label">plus de risque de décrochage scolaire dans les quartiers prioritaires</div>
+            <div class="ic-detail">Les élèves des REP (Réseau Éducation Prioritaire), qui concentrent les familles les plus précaires et les plus touchées par les discriminations, ont <strong>deux fois plus de risques</strong> de décrochage — malgré des enseignants souvent plus impliqués. <span class="ic-source-inline">(MEN 2023)</span></div>
+          </div>
+
+          <div class="ic-card ic-page fade-up delay-2">
+            <div class="ic-tag">🌿 Racisme environnemental</div>
+            <div class="ic-number" style="color:#dc2626">3×</div>
+            <div class="ic-label">plus d'exposition à la pollution pour les quartiers à majorité racisée</div>
+            <div class="ic-detail">Aux États-Unis, en Europe et en France, les zones industrielles polluantes, les décharges et les autoroutes sont <strong>surreprésentées dans les quartiers</strong> à forte population immigrée ou racisée. La question écologique est aussi une question de justice raciale.</div>
+          </div>
+
+          <div class="ic-card ic-page fade-up delay-3">
+            <div class="ic-tag">📊 Global</div>
+            <div class="ic-number" style="color:#dc2626">50 000</div>
+            <div class="ic-label">actes racistes enregistrés en France en 2023</div>
+            <div class="ic-detail">Selon le Ministère de l'Intérieur, les actes racistes, antisémites et antimusulmans ont augmenté de <strong>32 % en un an</strong>. Ces chiffres représentent les actes <em>signalés</em> — la réalité est estimée 10 à 20 fois supérieure. <span class="ic-source-inline">(CNCDH 2023)</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- COMPRENDRE LE RACISME SYSTÉMIQUE -->
+    <section class="section section-alt" id="comprendre">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">Comprendre</div>
+          <h2>Le racisme n'est pas<br>que dans les têtes</h2>
+          <p class="section-lead">Le racisme individuel (insultes, agressions) est visible. Mais le racisme systémique — celui qui s'est construit dans les lois, les institutions, les habitudes — est plus difficile à voir, et plus difficile à combattre.</p>
+        </div>
+
+        <div class="cards-grid cards-grid-3">
+          <article class="card fade-up delay-1">
+            <div class="card-icon">🏛️</div>
+            <h3>Le racisme institutionnel</h3>
+            <p>Des lois et des pratiques qui, sans mentionner la race, produisent des effets discriminatoires. Le contrôle au faciès n'est pas interdit en France. Les "quotas implicites" dans certaines entreprises ne sont pas sanctionnés.</p>
+            <div class="card-stat-bar"><strong>1 plainte sur 5</strong> pour discrimination raciale aboutit à une condamnation <span>(Défenseur des droits 2022)</span></div>
+          </article>
+
+          <article class="card fade-up delay-2">
+            <div class="card-icon">🧬</div>
+            <h3>La race : une construction sociale</h3>
+            <p>Biologiquement, la race humaine n'existe pas — nous partageons 99,9 % de notre ADN. Mais socialement, la race <em>existe</em> parce qu'on fait exister ses effets. La nier ne suffit pas à en effacer les conséquences.</p>
+            <div class="card-stat-bar"><strong>"Daltonisme racial"</strong> : dire "je ne vois pas la couleur" ne protège pas des discriminations inconscientes</div>
+          </article>
+
+          <article class="card fade-up delay-3">
+            <div class="card-icon">📖</div>
+            <h3>L'histoire qu'on n'enseigne pas</h3>
+            <p>La colonisation, l'esclavage, la traite — ces pages de l'histoire ont des conséquences directes sur les inégalités d'aujourd'hui. Les comprendre n'est pas une honte, c'est une responsabilité.</p>
+            <div class="card-stat-bar"><strong>12 millions</strong> d'Africains ont été réduits en esclavage par les puissances européennes entre le XVe et le XIXe siècle</div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- UN MONDE DIFFÉRENT -->
+    <section class="section section-dark" id="monde-different">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label" style="color:var(--lime)">Un monde différent est possible</div>
+          <h2>Des sociétés qui ont<br>avancé sur ce chemin</h2>
+          <p class="section-lead" style="color:rgba(255,255,255,.75)">Ce n'est jamais parfait, jamais fini — mais ces exemples montrent que la direction est possible.</p>
+        </div>
+
+        <div class="diff-grid">
+          <div class="diff-card fade-up delay-1">
+            <div class="diff-icon">🇿🇦</div>
+            <h3>Afrique du Sud — la Commission Vérité et Réconciliation</h3>
+            <p>Après l'apartheid, l'Afrique du Sud a choisi de regarder son passé en face plutôt que de l'ignorer. Imparfaite, cette démarche a posé les bases d'une société qui reconnaît ses crimes pour tenter de les dépasser.</p>
+          </div>
+          <div class="diff-card fade-up delay-2">
+            <div class="diff-icon">🇩🇪</div>
+            <h3>Allemagne — tests de discrimination obligatoires</h3>
+            <p>L'Allemagne a institutionnalisé les "tests de situation" dans l'emploi et le logement. Les entreprises discriminantes sont sanctionnées, les résultats publiés. La transparence change les comportements.</p>
+          </div>
+          <div class="diff-card fade-up delay-3">
+            <div class="diff-icon">🏫</div>
+            <h3>Des écoles qui enseignent l'antiracisme</h3>
+            <p>Dans plusieurs pays scandinaves, l'éducation aux droits humains, à l'histoire coloniale et aux mécanismes de discrimination est obligatoire. Des enfants mieux informés deviennent des adultes moins discriminants.</p>
+          </div>
+          <div class="diff-card fade-up delay-1">
+            <div class="diff-icon">🌿</div>
+            <h3>Justice raciale et justice climatique</h3>
+            <p>Les communautés racisées et les pays du Sud Global subissent le plus durement la crise climatique — alors qu'ils l'ont le moins causée. Un mouvement écologique juste doit être antiraciste. Ce sont les mêmes luttes.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AGIR -->
+    <section class="section section-cta" id="agir">
+      <div class="container">
+        <div class="cta-box fade-up" style="background: linear-gradient(135deg, #7f1d1d 0%, #dc2626 100%);">
+          <div class="cta-content">
+            <div class="tag tag-white">✊ Passer à l'action</div>
+            <h2>L'antiracisme n'est pas une posture — c'est une pratique quotidienne</h2>
+            <p>Réagir, s'informer, soutenir, interpeller — chaque niveau d'engagement compte.</p>
+            <div class="cta-actions">
+              <a href="https://www.licra.org" target="_blank" rel="noopener" class="btn btn-lime">LICRA</a>
+              <a href="https://www.sos-racisme.org" target="_blank" rel="noopener" class="btn btn-white">SOS Racisme</a>
+              <a href="feminisme.html" class="btn btn-outline-white">→ Page Égalité</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-grid fade-up delay-2">
+          <div class="action-card">
+            <div class="action-num">01</div>
+            <h4>Réagir quand on est témoin</h4>
+            <p>Un commentaire raciste dans une réunion, une blague "de mauvais goût" — le silence vaut approbation. Interpeller calmement mais fermement, même dans son cercle proche, change les normes sociales.</p>
+          </div>
+          <div class="action-card">
+            <div class="action-num">02</div>
+            <h4>Diversifier ses sources d'information</h4>
+            <p>Lire des auteurs racisés, suivre des médias portés par des minorités, regarder des films qui ne réduisent pas les personnages noirs ou arabes à des stéréotypes. Ce qu'on consomme façonne ce qu'on pense.</p>
+          </div>
+          <div class="action-card">
+            <div class="action-num">03</div>
+            <h4>Signaler les discriminations</h4>
+            <p>En France, le Défenseur des droits est gratuit et accessible à tous. Toute discrimination à l'emploi, au logement ou dans les services publics peut être signalée et documentée.</p>
+          </div>
+          <div class="action-card">
+            <div class="action-num">04</div>
+            <h4>Soutenir les économies locales racisées</h4>
+            <p>Favoriser les commerces, artisans et prestataires issus de communautés discriminées est un acte économique antiraciste concret — qui redistribue du pouvoir là où il manque.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-logo">
+        <span>🌱</span>
+        <span>Monde <strong>Différent</strong></span>
+      </div>
+      <nav class="footer-links" aria-label="Navigation thèmes">
+        <a href="index.html">Écologie</a>
+        <a href="feminisme.html">Égalité</a>
+        <a href="racisme.html">Antiracisme</a>
+        <a href="immigration.html">Immigration</a>
+      </nav>
+      <p class="footer-copy">© 2026 · Un monde différent est possible</p>
+    </div>
+  </footer>
+
+  <script src="pages.js"></script>
+</body>
+</html>

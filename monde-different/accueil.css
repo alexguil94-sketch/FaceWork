@@ -1,0 +1,469 @@
+/* ═══════════════════════════════════════════════════
+   accueil.css — Styles spécifiques à la page d'accueil
+═══════════════════════════════════════════════════ */
+
+/* ── HERO MANIFESTE ── */
+.hero-manifeste {
+  background: linear-gradient(135deg, #0a1a0f 0%, #1a3626 50%, #0f2b1e 100%);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 120px 0 90px;
+  position: relative;
+  overflow: hidden;
+  color: #fff;
+}
+
+.hm-inner {
+  display: grid;
+  grid-template-columns: 1.1fr .9fr;
+  gap: 64px;
+  align-items: center;
+}
+
+.hm-pretitle {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--lime);
+  margin-bottom: 18px;
+}
+
+.hm-title {
+  font-size: clamp(52px, 8vw, 100px);
+  font-weight: 900;
+  line-height: .92;
+  letter-spacing: -4px;
+  color: #fff;
+  margin: 0 0 28px;
+}
+
+.hm-accent { color: var(--lime); }
+
+.hm-lead {
+  font-size: 18px;
+  line-height: 1.65;
+  color: rgba(255,255,255,.75);
+  max-width: 520px;
+  margin-bottom: 36px;
+}
+
+.hm-actions {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.hm-actions .btn-outline {
+  border-color: rgba(255,255,255,.35);
+  color: #fff;
+}
+.hm-actions .btn-outline:hover { background: rgba(255,255,255,.1); }
+
+/* Manifeste box */
+.hm-manifeste-box {
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: var(--radius-lg);
+  padding: 36px 32px;
+}
+
+.manifeste-titre {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--lime);
+  margin-bottom: 22px;
+}
+
+.manifeste-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 14px;
+}
+
+.manifeste-list li {
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(255,255,255,.85);
+  line-height: 1.5;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.manifeste-list li:last-child { border-bottom: none; padding-bottom: 0; }
+
+.manifeste-list li span { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+
+/* Scroll hint */
+.hm-scroll-hint {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,.35);
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  animation: hm-bounce 2.4s ease-in-out infinite;
+}
+
+@keyframes hm-bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%       { transform: translateX(-50%) translateY(8px); }
+}
+
+/* ── MISSION ── */
+.mission-layout {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 64px;
+  align-items: start;
+}
+
+.mission-left h2 { margin: 12px 0 20px; }
+
+.mission-left p {
+  font-size: 15px;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.mission-values { display: grid; gap: 16px; }
+
+.mv-val {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.mv-val:hover { transform: translateX(6px); box-shadow: var(--shadow); }
+
+.mv-icon {
+  font-size: 22px;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  background: rgba(27,77,62,.07);
+  border-radius: 10px;
+}
+
+.mv-val strong {
+  display: block;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--green-dark);
+  margin-bottom: 5px;
+}
+
+[data-theme="dark"] .mv-val strong { color: var(--text); }
+
+.mv-val p {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ── ÉCOLOGIE POLITIQUE ── */
+.ep-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.ep-card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 32px 28px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.ep-card:hover { transform: translateY(-6px); box-shadow: var(--shadow); }
+
+.ep-icon { font-size: 40px; margin-bottom: 16px; line-height: 1; }
+
+.ep-card h3 {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--green-dark);
+  margin-bottom: 12px;
+  line-height: 1.3;
+}
+
+[data-theme="dark"] .ep-card h3 { color: var(--text); }
+
+.ep-card p {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+
+.ep-exemples { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.ep-exemples span {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 12px;
+  background: rgba(27,77,62,.08);
+  color: var(--green-dark);
+  border-radius: 999px;
+  border: 1px solid rgba(27,77,62,.15);
+}
+
+[data-theme="dark"] .ep-exemples span {
+  background: rgba(111,191,115,.12);
+  color: var(--green-light);
+  border-color: rgba(111,191,115,.2);
+}
+
+/* ── IC CARDS ECO (section impact économique) ── */
+.ic-card.ic-eco {
+  background: var(--surface);
+  border-top: 4px solid var(--green);
+}
+
+.ic-card.ic-eco .ic-number { color: var(--green-dark); }
+[data-theme="dark"] .ic-card.ic-eco .ic-number { color: var(--green-light); }
+
+/* Eco summary */
+.eco-summary {
+  margin-top: 48px;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--green);
+  box-shadow: 0 8px 28px rgba(27,77,62,.1);
+  overflow: hidden;
+}
+
+.eco-sum-inner {
+  display: flex;
+  gap: 28px;
+  padding: 32px 36px;
+  align-items: center;
+}
+
+.eco-sum-icon { font-size: 48px; flex-shrink: 0; line-height: 1; }
+
+.eco-sum-inner strong {
+  display: block;
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--green-dark);
+  margin-bottom: 10px;
+  line-height: 1.3;
+}
+
+[data-theme="dark"] .eco-sum-inner strong { color: var(--text); }
+
+.eco-sum-inner p {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* ── HUMANITAIRE ── */
+.hum-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.hum-card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  border: 1px solid var(--border);
+  border-top: 4px solid var(--green);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.hum-card:hover { transform: translateY(-6px); box-shadow: var(--shadow); }
+
+.hum-stat {
+  font-size: clamp(30px, 4vw, 48px);
+  font-weight: 900;
+  color: var(--green-dark);
+  letter-spacing: -2px;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+[data-theme="dark"] .hum-stat { color: var(--green-light); }
+
+.hum-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
+
+.hum-card p {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.65;
+}
+
+/* ── HUB DES PAGES ── */
+.hub-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.hub-card {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: var(--radius-lg);
+  padding: 22px 20px;
+  text-decoration: none;
+  color: inherit;
+  transition: background var(--transition), transform var(--transition), border-color var(--transition);
+}
+
+.hub-card:hover {
+  background: rgba(255,255,255,.12);
+  transform: translateY(-4px);
+  border-color: rgba(200,227,48,.35);
+}
+
+.hub-emoji { font-size: 36px; flex-shrink: 0; line-height: 1; }
+
+.hub-content { flex: 1; min-width: 0; }
+
+.hub-cat {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--lime);
+  margin-bottom: 4px;
+}
+
+.hub-content h3 {
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+
+.hub-content p {
+  font-size: 12px;
+  color: rgba(255,255,255,.6);
+  line-height: 1.5;
+  margin-bottom: 10px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.hub-stats { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.hub-stats span {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  background: rgba(200,227,48,.1);
+  color: var(--lime);
+  border-radius: 999px;
+  border: 1px solid rgba(200,227,48,.2);
+  white-space: nowrap;
+}
+
+.hub-arrow {
+  font-size: 18px;
+  color: rgba(255,255,255,.25);
+  flex-shrink: 0;
+  transition: color var(--transition), transform var(--transition);
+}
+
+.hub-card:hover .hub-arrow { color: var(--lime); transform: translateX(4px); }
+
+/* ── FINAL MANIFESTE ── */
+.final-manifeste {
+  margin-top: 48px;
+  padding: 56px 48px;
+  background: linear-gradient(135deg, #0a1a0f 0%, #1a3626 100%);
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
+
+.fm-content blockquote {
+  font-size: clamp(17px, 2.5vw, 23px);
+  font-weight: 600;
+  color: rgba(255,255,255,.88);
+  font-style: italic;
+  line-height: 1.65;
+  margin: 0 auto 20px;
+  max-width: 720px;
+}
+
+.fm-content cite {
+  display: block;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 700;
+  color: var(--lime);
+  margin-bottom: 24px;
+}
+
+.fm-note {
+  font-size: 13px;
+  color: rgba(255,255,255,.4);
+  max-width: 500px;
+  margin: 0 auto;
+  line-height: 1.65;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1100px) {
+  .hub-grid { grid-template-columns: repeat(2, 1fr); }
+  .ep-grid  { grid-template-columns: repeat(2, 1fr); }
+  .hum-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 900px) {
+  .hm-inner          { grid-template-columns: 1fr; }
+  .hm-manifeste-box  { display: none; }
+  .mission-layout    { grid-template-columns: 1fr; gap: 40px; }
+  .ep-grid           { grid-template-columns: 1fr; }
+  .hum-grid          { grid-template-columns: 1fr; }
+  .hub-grid          { grid-template-columns: 1fr; }
+  .eco-sum-inner     { flex-direction: column; gap: 16px; text-align: center; }
+}
+
+@media (max-width: 620px) {
+  .hero-manifeste  { padding: 100px 0 64px; }
+  .hm-title        { letter-spacing: -2px; }
+  .final-manifeste { padding: 36px 24px; }
+  .hub-grid        { grid-template-columns: 1fr; }
+  .hub-card        { flex-direction: row; }
+}

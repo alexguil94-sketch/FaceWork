@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Monde Différent — Un projet citoyen pour l'Aube</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="pages.css" />
+  <link rel="stylesheet" href="accueil.css" />
+</head>
+<body>
+
+  <button class="back-to-top" id="backToTop" aria-label="Retour en haut">↑</button>
+  <button class="theme-toggle" id="themeToggle" aria-label="Changer de thème">🌙</button>
+
+  <nav class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a href="accueil.html" class="nav-logo">
+        <span class="logo-icon">🌱</span>
+        <span>Monde <strong>Différent</strong></span>
+      </a>
+      <button class="nav-burger" id="navBurger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li class="nav-theme-item active"><a href="accueil.html">Accueil</a></li>
+        <li class="nav-theme-item"><a href="index.html">🌿 Écologie</a></li>
+        <li class="nav-theme-item"><a href="moches.html">🥕 Anti-Gaspi</a></li>
+        <li class="nav-theme-item"><a href="cannabis.html">🍃 Cannabis</a></li>
+        <li class="nav-theme-item"><a href="feminisme.html">⚡ Égalité</a></li>
+        <li class="nav-theme-item"><a href="racisme.html">✊ Antiracisme</a></li>
+        <li class="nav-theme-item"><a href="immigration.html">🌍 Immigration</a></li>
+        <li><a href="#contact" class="nav-cta">Nous rejoindre</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- ═══ HERO MANIFESTE ═══ -->
+    <section class="hero-manifeste" id="hero">
+      <div class="container">
+        <div class="hm-inner">
+          <div class="hm-content">
+            <div class="hm-pretitle fade-up">🌱 Projet citoyen · Aube (10) · 2026</div>
+            <h1 class="hm-title fade-up delay-1">
+              Un monde<br>
+              <span class="hm-accent">différent</span><br>
+              est possible.
+            </h1>
+            <p class="hm-lead fade-up delay-2">
+              Ce n'est pas un slogan. C'est une conviction bâtie sur des faits,
+              des exemples concrets, des solutions qui existent déjà ailleurs.
+              Ce site est un espace pour penser, argumenter et agir —
+              depuis l'Aube, pour changer les choses.
+            </p>
+            <div class="hm-actions fade-up delay-3">
+              <a href="#mission" class="btn btn-lime">Découvrir la mission</a>
+              <a href="#pages" class="btn btn-outline">Explorer les thèmes</a>
+            </div>
+          </div>
+          <div class="hm-manifeste-box fade-up delay-2">
+            <div class="manifeste-inner">
+              <div class="manifeste-titre">Notre conviction</div>
+              <ul class="manifeste-list">
+                <li><span>🌍</span> L'urgence écologique est aussi une urgence sociale</li>
+                <li><span>⚖️</span> La justice et l'écologie ne sont pas opposées — elles se renforcent</li>
+                <li><span>💡</span> Les solutions existent. Ce qui manque, c'est la volonté politique</li>
+                <li><span>🤝</span> Le changement vient d'en bas, du local, du concret</li>
+                <li><span>📢</span> S'informer, argumenter, convaincre — c'est déjà agir</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="hm-scroll-hint" aria-hidden="true">
+        <span>↓ Défiler pour découvrir</span>
+      </div>
+    </section>
+
+    <!-- ═══ QUI SOMMES-NOUS ═══ -->
+    <section class="section" id="mission">
+      <div class="container">
+        <div class="mission-layout">
+          <div class="mission-left fade-up">
+            <div class="section-label">Notre mission</div>
+            <h2>Ce site est un outil<br>de conviction citoyenne</h2>
+            <p>
+              <strong>Monde Différent</strong> est un espace numérique citoyen né dans l'Aube.
+              Il ne défend pas un parti politique. Il défend des idées — étayées par
+              des données, illustrées par des exemples réels, applicables ici et maintenant.
+            </p>
+            <p style="margin-top:16px">
+              Chaque page de ce site explore un sujet que le débat public traite trop
+              souvent avec des clichés plutôt que des faits : les déchets, le gaspillage
+              alimentaire, l'égalité femmes-hommes, le racisme, l'immigration, le cannabis.
+              Des sujets complexes, traités sérieusement.
+            </p>
+            <p style="margin-top:16px">
+              L'objectif n'est pas de convaincre à tout prix — c'est de montrer
+              qu'<strong>un autre monde est possible</strong>, qu'il existe déjà ailleurs,
+              et qu'on peut le construire ici.
+            </p>
+          </div>
+          <div class="mission-right">
+            <div class="mission-values">
+              <div class="mv-val fade-up delay-1">
+                <div class="mv-icon">📊</div>
+                <div>
+                  <strong>Des faits, pas des opinions</strong>
+                  <p>Chaque argument est sourcé : ADEME, INSEE, OFDT, OCDE, UNHCR. On cite nos sources. On distingue les données des projections.</p>
+                </div>
+              </div>
+              <div class="mv-val fade-up delay-2">
+                <div class="mv-icon">🏡</div>
+                <div>
+                  <strong>Du local au global</strong>
+                  <p>Les problèmes sont mondiaux mais les solutions commencent ici — dans l'Aube, dans nos communes, dans nos quartiers.</p>
+                </div>
+              </div>
+              <div class="mv-val fade-up delay-3">
+                <div class="mv-icon">🔗</div>
+                <div>
+                  <strong>Tout est lié</strong>
+                  <p>Écologie, justice sociale, économie locale, droits humains — ces combats ne sont pas séparés. Ils se nourrissent mutuellement.</p>
+                </div>
+              </div>
+              <div class="mv-val fade-up delay-1">
+                <div class="mv-icon">🚀</div>
+                <div>
+                  <strong>Des solutions concrètes</strong>
+                  <p>Pas de catastrophisme sans issue. Pour chaque problème exposé, nous présentons des modèles qui fonctionnent ailleurs et peuvent s'adapter ici.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ L'ÉCOLOGIE POLITIQUE ═══ -->
+    <section class="section section-alt" id="ecologie-politique">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">L'écologie politique</div>
+          <h2>Ce n'est pas sauver les pandas —<br>c'est repenser l'économie</h2>
+          <p class="section-lead">
+            L'écologie politique, ce n'est pas une sensibilité douce réservée aux amateurs de nature.
+            C'est une vision radicale de la transformation économique, sociale et démocratique
+            de nos sociétés. Voici pourquoi ça change tout.
+          </p>
+        </div>
+
+        <div class="ep-grid">
+          <div class="ep-card fade-up delay-1">
+            <div class="ep-icon">🔄</div>
+            <h3>Changer le modèle, pas juste les ampoules</h3>
+            <p>
+              L'écologie politique part d'un constat : notre modèle économique actuel
+              est fondé sur l'extraction infinie de ressources finies. Ça ne peut pas durer.
+              La question n'est pas "comment être moins mauvais" — c'est "comment construire
+              quelque chose qui peut vraiment durer".
+            </p>
+            <div class="ep-exemples">
+              <span>Économie circulaire</span>
+              <span>Sobriété choisie</span>
+              <span>Relocalisation</span>
+            </div>
+          </div>
+
+          <div class="ep-card fade-up delay-2">
+            <div class="ep-icon">⚖️</div>
+            <h3>Écologie et justice sociale : même combat</h3>
+            <p>
+              Les plus touchés par la pollution, le dérèglement climatique et la dégradation
+              de l'environnement sont les plus pauvres — en France et dans le monde.
+              Une écologie sans justice sociale n'est qu'un luxe de riches.
+              Une justice sociale sans écologie s'effondre sur elle-même.
+            </p>
+            <div class="ep-exemples">
+              <span>Justice environnementale</span>
+              <span>Transition juste</span>
+              <span>Droits humains</span>
+            </div>
+          </div>
+
+          <div class="ep-card fade-up delay-3">
+            <div class="ep-icon">🏛️</div>
+            <h3>Un projet politique, pas une posture</h3>
+            <p>
+              L'écologie politique, c'est des propositions concrètes :
+              planification de la transition énergétique, réforme de l'agriculture,
+              réduction des inégalités, relocalisation industrielle, démocratie participative.
+              Des politiques qui se votent, se financent, se mesurent.
+            </p>
+            <div class="ep-exemples">
+              <span>Planification</span>
+              <span>Fiscalité verte</span>
+              <span>Démocratie locale</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ IMPACT ÉCONOMIQUE ═══ -->
+    <section class="section" id="economie">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">Ce que ça rapporte</div>
+          <h2>L'écologie est<br>rentable — vraiment</h2>
+          <p class="section-lead">
+            Le discours dominant présente l'écologie comme un coût. Les données disent
+            exactement le contraire. Voici les chiffres.
+          </p>
+        </div>
+
+        <div class="ic-grid">
+
+          <div class="ic-card ic-eco fade-up delay-1">
+            <div class="ic-tag">💼 Emploi</div>
+            <div class="ic-number">900 000</div>
+            <div class="ic-label">emplois verts potentiels en France d'ici 2030</div>
+            <div class="ic-detail">
+              Rénovation thermique, énergies renouvelables, agriculture biologique,
+              mobilités douces, économie circulaire — l'ADEME estime à 900 000 les
+              <strong>emplois non délocalisables</strong> créables dans la décennie.
+              Des emplois de territoire, dans l'Aube comme partout.
+              <span class="ic-source-inline">(ADEME 2022)</span>
+            </div>
+          </div>
+
+          <div class="ic-card ic-eco fade-up delay-2">
+            <div class="ic-tag">🏥 Santé</div>
+            <div class="ic-number">109 Md€</div>
+            <div class="ic-label">coût annuel de la pollution atmosphérique pour la France</div>
+            <div class="ic-detail">
+              Soins médicaux, hospitalisations, pertes de productivité, décès prématurés :
+              la pollution coûte <strong>109 milliards d'euros par an</strong> à la société française.
+              Chaque euro investi dans la qualité de l'air rapporte entre 9 et 30 euros
+              en économies de santé.
+              <span class="ic-source-inline">(Santé Publique France / OCDE)</span>
+            </div>
+          </div>
+
+          <div class="ic-card ic-eco fade-up delay-3">
+            <div class="ic-tag">⚡ Énergie</div>
+            <div class="ic-number">50 Md€</div>
+            <div class="ic-label">d'importations d'énergies fossiles évitées par an grâce à la transition</div>
+            <div class="ic-detail">
+              La France importe pour 50 milliards d'euros de pétrole, gaz et charbon chaque année.
+              Argent qui quitte l'économie nationale. La transition énergétique, c'est
+              <strong>50 milliards qui restent en France</strong> — investis dans des emplois locaux,
+              des infrastructures, de la souveraineté.
+              <span class="ic-source-inline">(RTE / Ministère de l'Énergie 2023)</span>
+            </div>
+          </div>
+
+          <div class="ic-card ic-eco fade-up delay-1">
+            <div class="ic-tag">🏗️ Rénovation</div>
+            <div class="ic-number">×3</div>
+            <div class="ic-label">de retour économique pour chaque euro investi dans la rénovation thermique</div>
+            <div class="ic-detail">
+              Rénover les 7 millions de passoires thermiques françaises coûte de l'argent.
+              Mais ça en crée <strong>3 fois plus</strong> : factures réduites pour les ménages,
+              emplois dans le BTP, fiscalité locale, baisse des aides énergie.
+              Un investissement, pas une dépense.
+              <span class="ic-source-inline">(France Stratégie 2023)</span>
+            </div>
+          </div>
+
+          <div class="ic-card ic-eco fade-up delay-2">
+            <div class="ic-tag">🌾 Agriculture</div>
+            <div class="ic-number">15 Md€</div>
+            <div class="ic-label">d'économies sur les pesticides et engrais chimiques par an si on bascule en bio</div>
+            <div class="ic-detail">
+              L'agriculture biologique et agroécologique réduit massivement les intrants chimiques
+              importés. Les agriculteurs gagnent en indépendance, les sols se regenerèrent,
+              l'eau est moins polluée. <strong>Moins de dépendance aux marchés mondiaux,
+              plus de résilience locale.</strong>
+              <span class="ic-source-inline">(INRAE 2022)</span>
+            </div>
+          </div>
+
+          <div class="ic-card ic-eco fade-up delay-3">
+            <div class="ic-tag">🌡️ Inaction</div>
+            <div class="ic-number">×6</div>
+            <div class="ic-label">c'est le coût de l'inaction vs l'investissement dans l'adaptation climatique</div>
+            <div class="ic-detail">
+              La Banque Mondiale le documente : chaque euro non investi aujourd'hui
+              dans l'adaptation au changement climatique coûtera
+              <strong>6 euros en réparation demain</strong> — inondations, sécheresses,
+              destructions d'infrastructures, crises alimentaires.
+              Agir maintenant est la décision économique rationnelle.
+              <span class="ic-source-inline">(Banque Mondiale 2022)</span>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="eco-summary fade-up">
+          <div class="eco-sum-inner">
+            <div class="eco-sum-icon">💡</div>
+            <div>
+              <strong>En résumé : la transition écologique n'est pas un luxe idéologique — c'est le choix économique le plus rationnel.</strong>
+              <p>Ce qui est irrationnel, c'est de continuer à subventionner les énergies fossiles (16 Mds€/an en France), à payer la pollution en soins de santé, et à remettre à demain des investissements qui coûteront 6 fois plus cher dans 10 ans.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ IMPACT HUMANITAIRE ═══ -->
+    <section class="section section-alt" id="humanitaire">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">Ce que ça protège</div>
+          <h2>L'écologie protège<br>des vies humaines</h2>
+          <p class="section-lead">
+            Au-delà des chiffres économiques, l'écologie politique est une politique
+            de santé publique, de justice sociale et de dignité humaine.
+            Voici ce qui est en jeu.
+          </p>
+        </div>
+
+        <div class="hum-grid">
+
+          <div class="hum-card fade-up delay-1">
+            <div class="hum-stat">48 000</div>
+            <div class="hum-label">morts prématurées par an en France liées à la pollution de l'air</div>
+            <p>C'est 130 personnes par jour qui meurent prématurément à cause d'un air pollué par les voitures, les usines et le chauffage au fioul. <strong>Plus que les accidents de la route. Plus que l'alcool.</strong> Et c'est évitable.</p>
+          </div>
+
+          <div class="hum-card fade-up delay-2">
+            <div class="hum-stat">7 millions</div>
+            <div class="hum-label">de ménages en précarité énergétique en France</div>
+            <p>7 millions de familles qui ont froid l'hiver, qui ne peuvent pas payer leur facture d'énergie, qui vivent dans des logements humides et mal isolés. <strong>La rénovation thermique est une politique sociale</strong> autant qu'écologique.</p>
+          </div>
+
+          <div class="hum-card fade-up delay-3">
+            <div class="hum-stat">216 millions</div>
+            <div class="hum-label">de personnes qui seront forcées de migrer à cause du climat d'ici 2050</div>
+            <p>Le dérèglement climatique est déjà la première cause de déplacement forcé dans le monde. Les pays riches, premiers émetteurs historiques, accueillent les moins de réfugiés. <strong>La justice climatique est inséparable de la justice migratoire.</strong></p>
+          </div>
+
+          <div class="hum-card fade-up delay-1">
+            <div class="hum-stat">1/3</div>
+            <div class="hum-label">de la nourriture mondiale gaspillée pendant qu'1 milliard de personnes ont faim</div>
+            <p>Le système alimentaire mondial produit assez pour nourrir tout le monde. Ce qui manque, ce n'est pas la nourriture — c'est une répartition juste. <strong>Lutter contre le gaspillage alimentaire est un acte de solidarité globale.</strong></p>
+          </div>
+
+          <div class="hum-card fade-up delay-2">
+            <div class="hum-stat">80 %</div>
+            <div class="hum-label">des personnes déplacées par les catastrophes climatiques sont des femmes</div>
+            <p>Les crises écologiques frappent plus fort les femmes — moins d'accès aux ressources, plus de charge de soin, plus d'exposition aux violences en période de chaos. <strong>L'éco-féminisme n'est pas une mode — c'est une réalité documentée.</strong></p>
+          </div>
+
+          <div class="hum-card fade-up delay-3">
+            <div class="hum-stat">3×</div>
+            <div class="hum-label">plus d'exposition aux polluants industriels pour les quartiers populaires et racisés</div>
+            <p>Les usines, décharges et autoroutes sont massivement situées près des quartiers les plus pauvres et les plus racisés. <strong>La pollution n'est pas démocratique — elle suit les inégalités sociales.</strong> L'écologie politique s'attaque aux deux.</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ HUB DES PAGES ═══ -->
+    <section class="section section-dark" id="pages">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label" style="color:var(--lime)">Explorer les thèmes</div>
+          <h2>6 sujets, 6 angles,<br>une même conviction</h2>
+          <p class="section-lead" style="color:rgba(255,255,255,.75)">
+            Chaque page explore un domaine avec des données, des exemples internationaux
+            et des propositions concrètes. Tout est lié.
+          </p>
+        </div>
+
+        <div class="hub-grid">
+
+          <a href="index.html" class="hub-card fade-up delay-1">
+            <div class="hub-emoji">🌿</div>
+            <div class="hub-content">
+              <div class="hub-cat">Environnement local</div>
+              <h3>Écologie & Déchets — Aube</h3>
+              <p>Les déchets dans l'Aube, l'assistant de tri IA, la carte des 22 points de collecte, les chiffres locaux. Le projet ÉcoloLab Déchets Aube.</p>
+              <div class="hub-stats">
+                <span>22 points de collecte</span>
+                <span>66 857 t OMR/an</span>
+              </div>
+            </div>
+            <div class="hub-arrow">→</div>
+          </a>
+
+          <a href="moches.html" class="hub-card fade-up delay-2">
+            <div class="hub-emoji">🥕</div>
+            <div class="hub-content">
+              <div class="hub-cat">Projet local</div>
+              <h3>Les Moches de l'Aube</h3>
+              <p>Connecter les agriculteurs aubois aux habitants pour valoriser les fruits et légumes hors-calibre. Anti-gaspi, circuits courts, pouvoir d'achat.</p>
+              <div class="hub-stats">
+                <span>9,7 Mt gaspillées/an</span>
+                <span>350+ producteurs</span>
+              </div>
+            </div>
+            <div class="hub-arrow">→</div>
+          </a>
+
+          <a href="cannabis.html" class="hub-card fade-up delay-3">
+            <div class="hub-emoji">🍃</div>
+            <div class="hub-content">
+              <div class="hub-cat">Politique publique</div>
+              <h3>Légalisation du cannabis</h3>
+              <p>50 ans de prohibition ont échoué. Les données, les modèles internationaux (Canada, Portugal, Allemagne) et ce que pourrait être un cadre français.</p>
+              <div class="hub-stats">
+                <span>2,3 Md€ potentiels</span>
+                <span>180 000 arrestations/an</span>
+              </div>
+            </div>
+            <div class="hub-arrow">→</div>
+          </a>
+
+          <a href="feminisme.html" class="hub-card fade-up delay-1">
+            <div class="hub-emoji">⚡</div>
+            <div class="hub-content">
+              <div class="hub-cat">Justice de genre</div>
+              <h3>Féminisme & Égalité</h3>
+              <p>−16,8 % d'écart salarial, 213 000 victimes de violences, 71 % du travail domestique porté par les femmes. Ce qui bloque et ce qui est possible.</p>
+              <div class="hub-stats">
+                <span>−16,8 % salaire</span>
+                <span>213 000 victimes/an</span>
+              </div>
+            </div>
+            <div class="hub-arrow">→</div>
+          </a>
+
+          <a href="racisme.html" class="hub-card fade-up delay-2">
+            <div class="hub-emoji">✊</div>
+            <div class="hub-content">
+              <div class="hub-cat">Justice raciale</div>
+              <h3>Antiracisme</h3>
+              <p>−33 % de chances d'entretien avec un prénom maghrébin, 6× plus de contrôles policiers. Le racisme systémique, documenté et chiffré.</p>
+              <div class="hub-stats">
+                <span>−33 % entretiens</span>
+                <span>50 000 actes/an</span>
+              </div>
+            </div>
+            <div class="hub-arrow">→</div>
+          </a>
+
+          <a href="immigration.html" class="hub-card fade-up delay-3">
+            <div class="hub-emoji">🌍</div>
+            <div class="hub-content">
+              <div class="hub-cat">Solidarité internationale</div>
+              <h3>Immigration & Solidarité</h3>
+              <p>117 millions de déplacés dans le monde, 0,5 % accueillis en France. Les vrais chiffres, le lien avec le climat, les politiques qui fonctionnent.</p>
+              <div class="hub-stats">
+                <span>117 M déplacés</span>
+                <span>216 M réfugiés climat 2050</span>
+              </div>
+            </div>
+            <div class="hub-arrow">→</div>
+          </a>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ CE QU'ON PEUT FAIRE ═══ -->
+    <section class="section" id="agir">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">Passer à l'action</div>
+          <h2>Changer le monde<br>commence ici</h2>
+          <p class="section-lead">Pas besoin d'attendre des élections ou des dirigeants. Le changement commence par des actes locaux, des conversations, des projets concrets.</p>
+        </div>
+
+        <div class="action-grid" style="grid-template-columns: repeat(3,1fr)">
+          <div class="action-card fade-up delay-1">
+            <div class="action-num">01</div>
+            <h4>S'informer et partager</h4>
+            <p>Lire les sources primaires, pas juste les titres. Partager des analyses factuelles plutôt que des indignations. L'information de qualité est le premier outil du changement.</p>
+          </div>
+          <div class="action-card fade-up delay-2">
+            <div class="action-num">02</div>
+            <h4>S'engager localement</h4>
+            <p>Association de quartier, conseil municipal de jeunes, groupe citoyen, marché local, collectif d'habitants — le changement se construit d'abord à l'échelle où on peut agir directement.</p>
+          </div>
+          <div class="action-card fade-up delay-3">
+            <div class="action-num">03</div>
+            <h4>Voter et interpeller les élus</h4>
+            <p>Les élections locales (communes, départements, régions) ont un impact direct sur la qualité de vie, les transports, les déchets, le logement. Et entre les élections, interpeller les élus sur leurs engagements.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ CONTACT ═══ -->
+    <section class="section section-cta" id="contact">
+      <div class="container">
+        <div class="cta-box fade-up">
+          <div class="cta-content">
+            <div class="tag tag-white">🌱 Nous rejoindre</div>
+            <h2>Un monde différent se construit ensemble — commençons dans l'Aube</h2>
+            <p>
+              Ce projet est ouvert. Si tu veux contribuer, débattre, proposer un thème,
+              rejoindre le projet ou simplement échanger — contacte-nous.
+            </p>
+            <div class="cta-actions">
+              <a href="mailto:alexis.guillotin10@gmail.com" class="btn btn-lime">
+                ✉️ Écrire un message
+              </a>
+              <a href="index.html" class="btn btn-white">
+                🌿 Voir le projet Aube
+              </a>
+              <a href="moches.html" class="btn btn-outline-white">
+                🥕 Les Moches de l'Aube
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="final-manifeste fade-up delay-2">
+          <div class="fm-content">
+            <blockquote>
+              "Un autre monde est non seulement possible, il est en route.
+               Par un jour calme, j'arrive à l'entendre respirer."
+            </blockquote>
+            <cite>— Arundhati Roy, écrivaine et militante indienne</cite>
+            <p class="fm-note">
+              Ce site est un projet citoyen indépendant né dans l'Aube en 2026.
+              Il n'est affilié à aucun parti. Il défend des idées fondées sur des faits.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-logo">
+        <span>🌱</span>
+        <span>Monde <strong>Différent</strong></span>
+      </div>
+      <nav class="footer-links" aria-label="Navigation">
+        <a href="accueil.html">Accueil</a>
+        <a href="index.html">Écologie</a>
+        <a href="moches.html">Anti-Gaspi</a>
+        <a href="cannabis.html">Cannabis</a>
+        <a href="feminisme.html">Égalité</a>
+        <a href="racisme.html">Antiracisme</a>
+        <a href="immigration.html">Immigration</a>
+      </nav>
+      <p class="footer-copy">© 2026 · Monde Différent · Projet citoyen · Aube (10)</p>
+    </div>
+  </footer>
+
+  <script src="pages.js"></script>
+</body>
+</html>

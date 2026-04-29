@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Immigration — Monde Différent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="pages.css" />
+</head>
+<body>
+
+  <button class="back-to-top" id="backToTop" aria-label="Retour en haut">↑</button>
+  <button class="theme-toggle" id="themeToggle" aria-label="Changer de thème">🌙</button>
+
+  <nav class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a href="accueil.html" class="nav-logo">
+        <span class="logo-icon">🌱</span>
+        <span>Monde <strong>Différent</strong></span>
+      </a>
+      <button class="nav-burger" id="navBurger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li class="nav-theme-item"><a href="accueil.html">Accueil</a></li>
+        <li class="nav-theme-item"><a href="index.html">🌿 Écologie</a></li>
+        <li class="nav-theme-item"><a href="moches.html">🥕 Anti-Gaspi</a></li>
+        <li class="nav-theme-item"><a href="cannabis.html">🍃 Cannabis</a></li>
+        <li class="nav-theme-item"><a href="feminisme.html">⚡ Égalité</a></li>
+        <li class="nav-theme-item"><a href="racisme.html">✊ Antiracisme</a></li>
+        <li class="nav-theme-item active"><a href="immigration.html">🌍 Immigration</a></li>
+        <li><a href="#agir" class="nav-cta">Agir</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- HERO -->
+    <section class="page-hero page-hero--blue" id="hero">
+      <div class="container">
+        <div class="page-hero-inner">
+          <div class="page-hero-content">
+            <div class="tag tag-page fade-up">🌍 Immigration · Solidarité</div>
+            <h1 class="fade-up delay-1">
+              Personne ne quitte<br>
+              <span class="page-accent">sa maison par plaisir</span>
+            </h1>
+            <p class="hero-desc fade-up delay-2">
+              On migrate par nécessité : guerres, persécutions, pauvreté, changement climatique.
+              La France accueille moins de 0,5 % des réfugiés mondiaux — et pourtant le débat
+              public laisse croire qu'elle est "submergée". Les faits disent autre chose.
+            </p>
+            <div class="hero-actions fade-up delay-3">
+              <a href="#realite" class="btn btn-page-primary">Les vrais chiffres</a>
+              <a href="#monde-different" class="btn btn-outline">Ce monde différent</a>
+            </div>
+          </div>
+          <div class="page-hero-visual fade-up delay-2">
+            <div class="big-quote">
+              <span class="bq-mark">"</span>
+              <p>On ne choisit pas d'être réfugié comme on choisit d'être médecin ou architecte. On le devient parce qu'on n'a plus le choix.</p>
+              <cite>— Haut-Commissariat des Nations Unies pour les réfugiés</cite>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="page-hero-deco" aria-hidden="true"></div>
+    </section>
+
+    <!-- CHIFFRES -->
+    <section class="section" id="realite">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">Les vrais chiffres</div>
+          <h2>Ce que les données révèlent<br>derrière le débat</h2>
+          <p class="section-lead">Le sujet migratoire est saturé d'approximations et de peurs. Voici ce que les chiffres officiels disent réellement.</p>
+        </div>
+
+        <div class="ic-grid">
+          <div class="ic-card ic-page fade-up delay-1">
+            <div class="ic-tag">🌍 Monde</div>
+            <div class="ic-number" style="color:#1d4ed8">117 M</div>
+            <div class="ic-label">de personnes déplacées dans le monde en 2024 — un record historique</div>
+            <div class="ic-detail">Sur ces 117 millions, <strong>62 % sont déplacés à l'intérieur de leur propre pays</strong>. Seulement 13 % ont demandé l'asile en Europe. La majorité des réfugiés sont accueillis par des pays à faibles revenus comme l'Ouganda, la Colombie ou le Bangladesh. <span class="ic-source-inline">(UNHCR 2024)</span></div>
+          </div>
+
+          <div class="ic-card ic-page fade-up delay-2">
+            <div class="ic-tag">🇫🇷 France</div>
+            <div class="ic-number" style="color:#1d4ed8">0,5 %</div>
+            <div class="ic-label">des réfugiés mondiaux sont accueillis en France</div>
+            <div class="ic-detail">En 2023, la France a accordé la protection à <strong>54 000 personnes</strong>. L'Ouganda en accueille 1,6 million. L'Iran, 3,4 millions. Le discours sur l'"invasion" ne résiste pas aux chiffres. <span class="ic-source-inline">(OFPRA 2023)</span></div>
+          </div>
+
+          <div class="ic-card ic-page fade-up delay-3">
+            <div class="ic-tag">💸 Économie</div>
+            <div class="ic-number" style="color:#1d4ed8">+0,5 %</div>
+            <div class="ic-label">de croissance du PIB en moyenne grâce à l'immigration</div>
+            <div class="ic-detail">L'OCDE le confirme : les immigrés <strong>contribuent plus en impôts et cotisations qu'ils ne coûtent en prestations</strong>. Ils occupent des postes essentiels dans la santé, l'agriculture, le bâtiment et les services — souvent refusés par les natifs. <span class="ic-source-inline">(OCDE 2022)</span></div>
+          </div>
+
+          <div class="ic-card ic-page fade-up delay-1">
+            <div class="ic-tag">🌡️ Climat</div>
+            <div class="ic-number" style="color:#1d4ed8">216 M</div>
+            <div class="ic-label">de réfugiés climatiques attendus d'ici 2050</div>
+            <div class="ic-detail">La Banque Mondiale estime que d'ici 2050, <strong>216 millions de personnes</strong> seront contraintes à migrer à cause de la montée des eaux, des sécheresses et des vagues de chaleur — principalement en Afrique subsaharienne, en Asie du Sud et en Amérique latine. Ces pays ont le moins contribué au changement climatique. <span class="ic-source-inline">(Banque Mondiale 2022)</span></div>
+          </div>
+
+          <div class="ic-card ic-page fade-up delay-2">
+            <div class="ic-tag">⚠️ Coût humain</div>
+            <div class="ic-number" style="color:#1d4ed8">+28 000</div>
+            <div class="ic-label">morts en Méditerranée depuis 2014</div>
+            <div class="ic-detail">L'Organisation Internationale pour les Migrations recense <strong>plus de 28 000 décès</strong> en Méditerranée depuis 2014 — femmes, enfants, hommes qui cherchaient une vie meilleure. Chaque durcissement des frontières déplace les routes vers des chemins encore plus dangereux. <span class="ic-source-inline">(OIM 2024)</span></div>
+          </div>
+
+          <div class="ic-card ic-page fade-up delay-3">
+            <div class="ic-tag">🏥 Société</div>
+            <div class="ic-number" style="color:#1d4ed8">1/3</div>
+            <div class="ic-label">des médecins hospitaliers en France sont issus de l'immigration</div>
+            <div class="ic-detail">Sans les médecins, infirmières, aides-soignants et agents d'entretien issus de l'immigration, <strong>l'hôpital public français s'effondrerait</strong>. L'immigration n'est pas un fardeau — c'est une contribution vitale, que la société reconnaît mal. <span class="ic-source-inline">(DREES 2023)</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- COMPRENDRE -->
+    <section class="section section-alt" id="comprendre">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">Comprendre</div>
+          <h2>Pourquoi on part,<br>pourquoi on arrive</h2>
+          <p class="section-lead">Derrière chaque migration, il y a une histoire humaine. Derrière le débat politique, il y a des causes qu'on ne peut pas ignorer.</p>
+        </div>
+
+        <div class="cards-grid cards-grid-3">
+          <article class="card fade-up delay-1">
+            <div class="card-icon">🔥</div>
+            <h3>Le changement climatique déplace des millions de personnes</h3>
+            <p>Les sécheresses détruisent les récoltes. Les inondations chassent les familles. Les cyclones détruisent des villages entiers. Le lien entre crise climatique et migrations est direct, documenté, et va s'amplifier massivement dans les décennies à venir.</p>
+            <div class="card-stat-bar"><strong>Les pays les plus touchés</strong> ont émis moins de 1 % des gaz à effet de serre historiques</div>
+          </article>
+
+          <article class="card fade-up delay-2">
+            <div class="card-icon">🏭</div>
+            <h3>Les inégalités économiques mondiales</h3>
+            <p>Le PIB par habitant en France est 30 fois supérieur à celui du Niger ou du Mali. Ces inégalités sont en partie le produit de siècles de colonisation et d'un commerce mondial qui continue à avantager les pays riches. Fermer les frontières ne résout pas ces déséquilibres.</p>
+            <div class="card-stat-bar"><strong>Les 10 pays</strong> les plus pauvres du monde ont tous été colonisés par des puissances européennes</div>
+          </article>
+
+          <article class="card fade-up delay-3">
+            <div class="card-icon">⚖️</div>
+            <h3>Le droit d'asile — une obligation internationale</h3>
+            <p>La Convention de Genève de 1951 oblige les États signataires à accueillir les personnes fuyant les persécutions. Ce n'est pas une faveur — c'est un droit humain fondamental que la France a signé et s'est engagée à respecter.</p>
+            <div class="card-stat-bar"><strong>70 % des demandes d'asile</strong> déboutées concernent des personnes venant de pays en guerre ou sous dictature</div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- UN MONDE DIFFÉRENT -->
+    <section class="section section-dark" id="monde-different">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label" style="color:var(--lime)">Un monde différent est possible</div>
+          <h2>Des politiques migratoires<br>plus justes existent</h2>
+          <p class="section-lead" style="color:rgba(255,255,255,.75)">D'autres approches sont possibles. Certains pays les ont déjà expérimentées avec succès.</p>
+        </div>
+
+        <div class="diff-grid">
+          <div class="diff-card fade-up delay-1">
+            <div class="diff-icon">🇨🇦</div>
+            <h3>Canada — immigration choisie et accueil structuré</h3>
+            <p>Le Canada accueille 400 000 immigrants par an avec un système transparent de points, des programmes d'intégration linguistique et professionnelle financés par l'État. Résultat : une société multiculturelle, un taux de chômage parmi les immigrants similaire à celui des natifs.</p>
+          </div>
+          <div class="diff-card fade-up delay-2">
+            <div class="diff-icon">🌊</div>
+            <h3>Voies légales pour éviter les drames en mer</h3>
+            <p>Plusieurs associations et gouvernements plaident pour des visas humanitaires permettant aux réfugiés d'arriver légalement, sans risquer leur vie. Quand les portes légales se ferment, les routes dangereuses s'ouvrent. La logique est simple.</p>
+          </div>
+          <div class="diff-card fade-up delay-3">
+            <div class="diff-icon">🌿</div>
+            <h3>Reconnaître le statut de réfugié climatique</h3>
+            <p>La Convention de Genève ne reconnaît pas encore le déplacement climatique comme motif d'asile. Face à 216 millions de personnes potentiellement déplacées d'ici 2050, créer un droit international du réfugié climatique est une nécessité urgente.</p>
+          </div>
+          <div class="diff-card fade-up delay-1">
+            <div class="diff-icon">🤝</div>
+            <h3>Investir dans les pays d'origine</h3>
+            <p>La vraie solution à long terme est de rendre les pays d'origine vivables : financer les transitions écologiques, soutenir les agricultures locales, annuler les dettes injustes. Un monde plus juste produit moins de migrants contraints.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AGIR -->
+    <section class="section section-cta" id="agir">
+      <div class="container">
+        <div class="cta-box fade-up" style="background: linear-gradient(135deg, #1e3a5f 0%, #1d4ed8 100%);">
+          <div class="cta-content">
+            <div class="tag tag-white">🌍 Passer à l'action</div>
+            <h2>La solidarité avec les personnes exilées commence par des gestes concrets</h2>
+            <p>Informer, accueillir, défendre les droits — à chaque échelle, des actions sont possibles.</p>
+            <div class="cta-actions">
+              <a href="https://www.lacimade.org" target="_blank" rel="noopener" class="btn btn-lime">La Cimade</a>
+              <a href="https://www.secourscatholique.org" target="_blank" rel="noopener" class="btn btn-white">Secours Catholique</a>
+              <a href="racisme.html" class="btn btn-outline-white">→ Page Antiracisme</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-grid fade-up delay-2">
+          <div class="action-card">
+            <div class="action-num">01</div>
+            <h4>S'informer avec des sources sérieuses</h4>
+            <p>UNHCR, OFPRA, OCDE, Cimade — les données fiables sur l'immigration existent. Les consulter permet de ne pas se laisser emporter par des chiffres inexacts qui circulent dans le débat public.</p>
+          </div>
+          <div class="action-card">
+            <div class="action-num">02</div>
+            <h4>Soutenir les associations d'accueil</h4>
+            <p>Des dizaines d'associations aident les personnes exilées à accéder à l'hébergement, au droit, à la santé et à la formation. Un don, du bénévolat ou de la visibilité compte réellement.</p>
+          </div>
+          <div class="action-card">
+            <div class="action-num">03</div>
+            <h4>Parler de la crise climatique comme cause migratoire</h4>
+            <p>Relier les deux sujets — migration et écologie — dans les conversations, c'est montrer que ce sont les mêmes injustices, vécues par les mêmes personnes les moins responsables.</p>
+          </div>
+          <div class="action-card">
+            <div class="action-num">04</div>
+            <h4>Exiger des politiques d'intégration réelles</h4>
+            <p>L'accueil sans intégration crée des frustrations des deux côtés. Exiger des pouvoirs publics des moyens pour l'apprentissage du français, la reconnaissance des diplômes étrangers et l'accès au marché du travail.</p>
+          </div>
+        </div>
+
+        <!-- Lien retour vers écologie -->
+        <div class="loop-back fade-up delay-3">
+          <div class="loop-back-inner">
+            <span class="loop-icon">🔄</span>
+            <div>
+              <strong>Tout est lié</strong>
+              <p>Écologie, égalité, antiracisme, immigration — ces quatre thèmes partagent la même conviction : <strong>un monde plus juste est possible</strong>, et il se construit par des actions concrètes, à toutes les échelles.</p>
+            </div>
+            <a href="index.html" class="btn btn-primary">Retour à l'écologie →</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-logo">
+        <span>🌱</span>
+        <span>Monde <strong>Différent</strong></span>
+      </div>
+      <nav class="footer-links" aria-label="Navigation thèmes">
+        <a href="index.html">Écologie</a>
+        <a href="feminisme.html">Égalité</a>
+        <a href="racisme.html">Antiracisme</a>
+        <a href="immigration.html">Immigration</a>
+      </nav>
+      <p class="footer-copy">© 2026 · Un monde différent est possible</p>
+    </div>
+  </footer>
+
+  <script src="pages.js"></script>
+</body>
+</html>

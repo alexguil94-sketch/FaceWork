@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Les Moches de l'Aube — Monde Différent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="pages.css" />
+</head>
+<body>
+
+  <button class="back-to-top" id="backToTop" aria-label="Retour en haut">↑</button>
+  <button class="theme-toggle" id="themeToggle" aria-label="Changer de thème">🌙</button>
+
+  <nav class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a href="accueil.html" class="nav-logo">
+        <span class="logo-icon">🌱</span>
+        <span>Monde <strong>Différent</strong></span>
+      </a>
+      <button class="nav-burger" id="navBurger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li class="nav-theme-item"><a href="accueil.html">Accueil</a></li>
+        <li class="nav-theme-item"><a href="index.html">🌿 Écologie</a></li>
+        <li class="nav-theme-item active"><a href="moches.html">🥕 Anti-Gaspi</a></li>
+        <li class="nav-theme-item"><a href="cannabis.html">🍃 Cannabis</a></li>
+        <li class="nav-theme-item"><a href="feminisme.html">⚡ Égalité</a></li>
+        <li class="nav-theme-item"><a href="racisme.html">✊ Antiracisme</a></li>
+        <li class="nav-theme-item"><a href="immigration.html">🌍 Immigration</a></li>
+        <li><a href="#agir" class="nav-cta">Agir</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- ═══ HERO ═══ -->
+    <section class="page-hero page-hero--moche" id="hero">
+      <div class="container">
+        <div class="page-hero-inner">
+          <div class="page-hero-content">
+            <div class="tag tag-page fade-up">🥕 Anti-gaspi · Circuits courts · Aube</div>
+            <h1 class="fade-up delay-1">
+              Les Moches<br>
+              <span class="page-accent--moche">de l'Aube</span>
+            </h1>
+            <p class="moche-slogan fade-up delay-2">Moins beaux, mais tout aussi bons.</p>
+            <p class="hero-desc fade-up delay-2">
+              Une initiative locale pour connecter les agriculteurs aubois à leurs habitants —
+              et donner une seconde vie aux fruits et légumes trop petits, trop grands, tordus
+              ou en surplus. Parce que la beauté d'un légume ne dit rien de sa valeur nutritive.
+            </p>
+            <div class="hero-actions fade-up delay-3">
+              <a href="#comment" class="btn btn-page-primary">Comment ça marche</a>
+              <a href="#paniers" class="btn btn-outline">Voir les paniers</a>
+            </div>
+          </div>
+          <div class="page-hero-visual fade-up delay-2">
+            <div class="moche-hero-visual">
+              <div class="moche-veggie-grid">
+                <div class="mv-item">🥕<span>Trop tordue</span></div>
+                <div class="mv-item">🍅<span>Trop petite</span></div>
+                <div class="mv-item">🥦<span>En surplus</span></div>
+                <div class="mv-item">🍎<span>Trop grosse</span></div>
+                <div class="mv-item">🥔<span>Hors calibre</span></div>
+                <div class="mv-item mv-accent">✅<span>Parfaitement<br>comestible</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="page-hero-deco" aria-hidden="true"></div>
+    </section>
+
+    <!-- ═══ GASPILLAGE EN CHIFFRES ═══ -->
+    <section class="section" id="chiffres">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">Le problème en chiffres</div>
+          <h2>Le gaspillage alimentaire :<br>une catastrophe silencieuse</h2>
+          <p class="section-lead">
+            En France, on jette chaque année des millions de tonnes de nourriture encore bonne —
+            dont une grande partie directement à la ferme, avant même d'atteindre les étals.
+          </p>
+        </div>
+
+        <div class="ic-grid">
+          <div class="ic-card ic-moche fade-up delay-1">
+            <div class="ic-tag">🗑️ France</div>
+            <div class="ic-number moche-number">9,7 Mt</div>
+            <div class="ic-label">de déchets alimentaires produits en France chaque année</div>
+            <div class="ic-detail">Soit <strong>150 kg par habitant et par an</strong>. Le gaspillage alimentaire représente environ 2 % du PIB français et émet autant de CO₂ que toute l'industrie du transport aérien national. <span class="ic-source-inline">(ADEME 2023)</span></div>
+          </div>
+
+          <div class="ic-card ic-moche fade-up delay-2">
+            <div class="ic-tag">🥗 Comestible</div>
+            <div class="ic-number moche-number">3,8 Mt</div>
+            <div class="ic-label">encore comestibles parmi ces déchets alimentaires</div>
+            <div class="ic-detail">3,8 millions de tonnes de nourriture saine, nutritive, consommable — jetées à la poubelle. À l'échelle planétaire, <strong>1/3 de toute la nourriture produite</strong> est gaspillée. De quoi nourrir 2 milliards de personnes supplémentaires. <span class="ic-source-inline">(ADEME 2023 · FAO)</span></div>
+          </div>
+
+          <div class="ic-card ic-moche fade-up delay-3">
+            <div class="ic-tag">🚜 À la ferme</div>
+            <div class="ic-number moche-number">~20 %</div>
+            <div class="ic-label">des récoltes agricoles jetées avant même d'arriver en rayon</div>
+            <div class="ic-detail">Les grandes surfaces imposent des normes strictes de calibre, de couleur et de forme. Un poireau trop courbé, une carotte fourchue, une pomme trop petite — <strong>refusés, jetés ou broyés</strong>. Le producteur perd du revenu. La planète perd des ressources. <span class="ic-source-inline">(Rapport Sénat 2021)</span></div>
+          </div>
+
+          <div class="ic-card ic-moche fade-up delay-1">
+            <div class="ic-tag">🌍 CO₂</div>
+            <div class="ic-number moche-number">8 %</div>
+            <div class="ic-label">des émissions mondiales de gaz à effet de serre viennent du gaspillage alimentaire</div>
+            <div class="ic-detail">Produire de la nourriture consomme de l'eau, de l'énergie, des terres agricoles. Quand on la jette, on gaspille tout ça <em>en plus</em>. Si le gaspillage alimentaire était un pays, il serait le <strong>3ème émetteur mondial de CO₂</strong> après les États-Unis et la Chine. <span class="ic-source-inline">(FAO)</span></div>
+          </div>
+
+          <div class="ic-card ic-moche fade-up delay-2">
+            <div class="ic-tag">🌾 Local — Aube</div>
+            <div class="ic-number moche-number">350+</div>
+            <div class="ic-label">producteurs engagés dans la vente directe dans l'Aube et la Haute-Marne</div>
+            <div class="ic-detail">La Chambre d'agriculture recense plus de 350 producteurs hors viticulture pratiquant déjà la vente directe dans le territoire. <strong>Un réseau local existe déjà</strong> — il manque un outil numérique pour connecter les surplus aux habitants. <span class="ic-source-inline">(Chambre d'agriculture Aube)</span></div>
+          </div>
+
+          <div class="ic-card ic-moche fade-up delay-3">
+            <div class="ic-tag">💸 Pouvoir d'achat</div>
+            <div class="ic-number moche-number">−40 %</div>
+            <div class="ic-label">de réduction possible sur le prix des fruits et légumes locaux</div>
+            <div class="ic-detail">Un producteur qui ne peut pas vendre ses produits hors-calibre préfère les vendre à prix très réduit plutôt que de les jeter. Pour l'habitant, c'est <strong>manger local, de saison et de qualité pour bien moins cher</strong> qu'en grande surface. Tout le monde gagne.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ COMMENT ÇA MARCHE ═══ -->
+    <section class="section section-alt" id="comment">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">Fonctionnement</div>
+          <h2>Simple, local,<br>concret</h2>
+          <p class="section-lead">Trois étapes suffisent pour connecter un producteur aubois à un habitant qui veut manger local sans se ruiner.</p>
+        </div>
+
+        <div class="steps-grid">
+          <div class="step-card fade-up delay-1">
+            <div class="step-num">1</div>
+            <div class="step-icon">🌾</div>
+            <h3>Le producteur déclare son surplus</h3>
+            <p>Via le site ou par téléphone, le producteur indique ce qu'il a de disponible :</p>
+            <ul class="step-list">
+              <li>Type de produit et variété</li>
+              <li>Quantité disponible</li>
+              <li>Prix demandé</li>
+              <li>Lieu et date limite de retrait</li>
+              <li>Photo rapide du lot (facultatif)</li>
+            </ul>
+            <div class="step-example">
+              <strong>Exemple :</strong><br>
+              "40 kg de carottes tordues — 1 €/kg — retrait vendredi à la ferme de Crespy-le-Neuf"
+            </div>
+          </div>
+
+          <div class="step-card fade-up delay-2">
+            <div class="step-num">2</div>
+            <div class="step-icon">📱</div>
+            <h3>L'habitant réserve un panier</h3>
+            <p>En ligne ou par téléphone, l'habitant choisit son panier selon ses besoins et son budget. Il reçoit une confirmation avec les détails de retrait.</p>
+            <ul class="step-list">
+              <li>Paniers anti-gaspi à partir de 2 €</li>
+              <li>Produits locaux, de saison, frais</li>
+              <li>Retrait à la ferme ou point relais</li>
+              <li>Tarifs solidaires pour les précaires</li>
+            </ul>
+            <div class="step-example">
+              <strong>Résultat :</strong><br>
+              "Panier famille 8 kg — carottes, pommes, poireaux — 10 € — retrait mercredi à Troyes"
+            </div>
+          </div>
+
+          <div class="step-card fade-up delay-3">
+            <div class="step-num">3</div>
+            <div class="step-icon">🤝</div>
+            <h3>Tout le monde gagne</h3>
+            <p>C'est là la force du projet : la chaîne de valeur est gagnante à chaque maillon.</p>
+            <ul class="step-list">
+              <li><strong>Producteur</strong> — récupère un revenu sur ce qu'il aurait jeté</li>
+              <li><strong>Habitant</strong> — mange local, frais et de saison à prix réduit</li>
+              <li><strong>Planète</strong> — kilos de nourriture sauvés, CO₂ évité</li>
+              <li><strong>Territoire</strong> — lien ville-campagne renforcé</li>
+            </ul>
+            <div class="step-example">
+              <strong>Impact :</strong><br>
+              Zéro gâchis, zéro intermédiaire, maximum de valeur locale
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ PANIERS ═══ -->
+    <section class="section" id="paniers">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">Les paniers</div>
+          <h2>Un format pour<br>chaque besoin</h2>
+          <p class="section-lead">Des paniers accessibles à tous les budgets — du solo étudiant à l'association ou au restaurant engagé.</p>
+        </div>
+
+        <div class="paniers-grid">
+          <div class="panier-card fade-up delay-1">
+            <div class="panier-emoji">🥕</div>
+            <div class="panier-name">Petit panier moche</div>
+            <div class="panier-weight">3 à 4 kg</div>
+            <div class="panier-price">5 €</div>
+            <p class="panier-desc">Idéal pour une personne seule. Assortiment de légumes du moment, hors-calibre mais frais et savoureux.</p>
+            <div class="panier-tag">Solo · Étudiant</div>
+          </div>
+
+          <div class="panier-card panier-featured fade-up delay-2">
+            <div class="panier-badge">⭐ Le plus choisi</div>
+            <div class="panier-emoji">🧺</div>
+            <div class="panier-name">Panier famille</div>
+            <div class="panier-weight">7 à 10 kg</div>
+            <div class="panier-price">10 €</div>
+            <p class="panier-desc">Pour 3 à 4 personnes. Légumes et fruits variés de saison. La meilleure façon de manger local toute la semaine.</p>
+            <div class="panier-tag">Famille · Usage courant</div>
+          </div>
+
+          <div class="panier-card fade-up delay-3">
+            <div class="panier-emoji">🍲</div>
+            <div class="panier-name">Panier soupe</div>
+            <div class="panier-weight">5 à 6 kg</div>
+            <div class="panier-price">4 €</div>
+            <p class="panier-desc">Légumes visuellement abîmés mais parfaits pour cuisiner : potages, ratatouilles, gratins. Rien à jeter.</p>
+            <div class="panier-tag">Cuisine · Anti-gaspi</div>
+          </div>
+
+          <div class="panier-card panier-solidaire fade-up delay-1">
+            <div class="panier-emoji">❤️</div>
+            <div class="panier-name">Panier solidaire</div>
+            <div class="panier-weight">3 à 4 kg</div>
+            <div class="panier-price">2 à 3 €</div>
+            <p class="panier-desc">Réservé aux étudiants, bénéficiaires du RSA et familles précaires. Sur présentation d'un justificatif. Dignité garantie.</p>
+            <div class="panier-tag">Solidarité · Sur justificatif</div>
+          </div>
+
+          <div class="panier-card fade-up delay-2">
+            <div class="panier-emoji">🏪</div>
+            <div class="panier-name">Panier resto / asso</div>
+            <div class="panier-weight">20 kg et +</div>
+            <div class="panier-price">Prix au kilo</div>
+            <p class="panier-desc">Pour les restaurants engagés, cantines, associations et collectivités qui veulent s'approvisionner en local anti-gaspi à grande échelle.</p>
+            <div class="panier-tag">Professionnel · Gros volume</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ 3 MODÈLES ═══ -->
+    <section class="section section-alt" id="modeles">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">Organisation</div>
+          <h2>3 modèles pour<br>démarrer</h2>
+          <p class="section-lead">Chaque modèle a ses avantages selon les ressources disponibles. On peut commencer par A et évoluer vers C.</p>
+        </div>
+
+        <div class="modeles-grid">
+          <div class="modele-card fade-up delay-1">
+            <div class="modele-label modele-a">Modèle A</div>
+            <div class="modele-icon">🚜</div>
+            <h3>Retrait à la ferme</h3>
+            <p>Le producteur garde la main. Les habitants commandent en ligne, puis viennent récupérer directement chez lui.</p>
+            <div class="modele-pros-cons">
+              <div class="pros">
+                <div class="pc-label">✅ Avantages</div>
+                <ul>
+                  <li>Simple à lancer dès le mois 1</li>
+                  <li>Pas de local, pas de transport à gérer</li>
+                  <li>Amène les citadins à la ferme</li>
+                  <li>Lien direct producteur-consommateur</li>
+                </ul>
+              </div>
+              <div class="cons">
+                <div class="pc-label">⚠️ Limite</div>
+                <ul>
+                  <li>Il faut pouvoir se déplacer en zone rurale</li>
+                </ul>
+              </div>
+            </div>
+            <div class="modele-badge">Idéal pour démarrer</div>
+          </div>
+
+          <div class="modele-card fade-up delay-2">
+            <div class="modele-label modele-b">Modèle B</div>
+            <div class="modele-icon">📍</div>
+            <h3>Point de collecte en ville</h3>
+            <p>Un point de retrait fixe à Troyes ou dans une commune — maison de quartier, local associatif, marché — ouvert 2h par semaine.</p>
+            <div class="modele-pros-cons">
+              <div class="pros">
+                <div class="pc-label">✅ Avantages</div>
+                <ul>
+                  <li>Accessible à tous (sans voiture)</li>
+                  <li>Plus visible, plus communiqué</li>
+                  <li>Crée un rendez-vous de quartier</li>
+                  <li>Idéal pour les familles urbaines</li>
+                </ul>
+              </div>
+              <div class="cons">
+                <div class="pc-label">⚠️ Limite</div>
+                <ul>
+                  <li>Nécessite d'organiser la logistique de transport depuis les fermes</li>
+                </ul>
+              </div>
+            </div>
+            <div class="modele-badge modele-badge--b">Idéal pour la visibilité</div>
+          </div>
+
+          <div class="modele-card modele-card--star fade-up delay-3">
+            <div class="modele-label modele-c">Modèle C ⭐</div>
+            <div class="modele-icon">🎪</div>
+            <h3>Marché mensuel des Moches</h3>
+            <p>Une fois par mois, un petit marché anti-gaspi avec les producteurs locaux. Les produits déclassés vendus à prix réduit, en direct.</p>
+            <div class="modele-pros-cons">
+              <div class="pros">
+                <div class="pc-label">✅ Avantages</div>
+                <ul>
+                  <li>Visible, humain, médiatisable</li>
+                  <li>Crée un événement local</li>
+                  <li>Facile à inviter élus, presse, associations</li>
+                  <li>Peut intégrer ateliers soupe, dégustation, conférences</li>
+                </ul>
+              </div>
+              <div class="cons">
+                <div class="pc-label">⚠️ Limite</div>
+                <ul>
+                  <li>Une seule fois par mois au départ — puis à intensifier</li>
+                </ul>
+              </div>
+            </div>
+            <div class="modele-badge modele-badge--c">Meilleur pour lancer politiquement</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ PLATEFORME NUMÉRIQUE ═══ -->
+    <section class="section section-dark" id="plateforme">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label" style="color:var(--lime)">La valeur ajoutée numérique</div>
+          <h2>Une plateforme simple<br>qui rend l'invisible visible</h2>
+          <p class="section-lead" style="color:rgba(255,255,255,.75)">
+            Grâce au numérique, on connecte ce qui est dispersé : les surplus, les producteurs,
+            les habitants, les associations. Ce qui était perdu devient une ressource.
+          </p>
+        </div>
+
+        <div class="platform-grid">
+          <div class="platform-feature fade-up delay-1">
+            <div class="pf-icon">🗺️</div>
+            <h4>Carte des producteurs</h4>
+            <p>Chaque producteur participant apparaît sur une carte interactive. Localisation, produits disponibles, jours de retrait — tout d'un coup d'œil.</p>
+          </div>
+          <div class="platform-feature fade-up delay-2">
+            <div class="pf-icon">📦</div>
+            <h4>Stock en temps réel</h4>
+            <p>"40 kg de carottes disponibles cette semaine" — les habitants voient les surplus du moment et peuvent réserver avant que ça parte.</p>
+          </div>
+          <div class="platform-feature fade-up delay-3">
+            <div class="pf-icon">🌾</div>
+            <h4>Formulaire producteur</h4>
+            <p>Aussi simple qu'un SMS. Type de produit, quantité, prix, date. En 2 minutes, un agriculteur publie son surplus et commence à vendre.</p>
+          </div>
+          <div class="platform-feature fade-up delay-1">
+            <div class="pf-icon">🛒</div>
+            <h4>Réservation de paniers</h4>
+            <p>L'habitant choisit son panier, indique ses disponibilités, reçoit une confirmation. Pas d'appli à télécharger — tout fonctionne depuis le navigateur.</p>
+          </div>
+          <div class="platform-feature fade-up delay-2">
+            <div class="pf-icon">🤖</div>
+            <h4>Recettes IA anti-gaspi</h4>
+            <p>L'habitant indique ce qu'il a dans son panier — carottes, courgettes, poireaux — et reçoit des recettes générées par l'IA adaptées à ses ingrédients. Zéro gâchis garanti.</p>
+          </div>
+          <div class="platform-feature fade-up delay-3">
+            <div class="pf-icon">📊</div>
+            <h4>Compteur d'impact</h4>
+            <p>En temps réel : kilos sauvés, paniers vendus, producteurs aidés, CO₂ évité. Des chiffres concrets qui rendent visible l'impact du projet.</p>
+          </div>
+          <div class="platform-feature fade-up delay-1">
+            <div class="pf-icon">📱</div>
+            <h4>Affiches QR Code</h4>
+            <p>Des affiches générées automatiquement avec QR code à coller dans les mairies, marchés, commerces et bibliothèques. Accessible à ceux qui n'ont pas d'ordinateur.</p>
+          </div>
+          <div class="platform-feature fade-up delay-2">
+            <div class="pf-icon">🔔</div>
+            <h4>Alertes surplus</h4>
+            <p>Les habitants s'abonnent à des alertes par email ou SMS : "Un producteur de Sainte-Savine propose 30 kg de tomates cerise à 0,80 €/kg — disponible jusqu'à jeudi."</p>
+          </div>
+        </div>
+
+        <div class="platform-quote fade-up">
+          <span class="bq-mark" style="font-size:48px">"</span>
+          <p>Grâce au numérique, on rend visible ce qui est habituellement invisible : les surplus, les produits moches, les pertes agricoles. Et on leur donne une seconde vie.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ NOTE SANITAIRE ═══ -->
+    <section class="section" id="sanitaire">
+      <div class="container">
+        <div class="safety-block fade-up">
+          <div class="safety-icon">⚕️</div>
+          <div class="safety-content">
+            <h3>Cadre sanitaire : on fait les choses correctement</h3>
+            <p>Le projet ne vend que des produits sains et consommables. Les règles d'hygiène alimentaire s'appliquent pleinement. Pour démarrer sereinement, on commence par les produits les plus simples à gérer.</p>
+            <div class="safety-grid">
+              <div class="safety-ok">
+                <div class="safety-label safety-green">✅ On commence avec</div>
+                <ul>
+                  <li>Fruits et légumes frais (carottes, pommes, courgettes, tomates…)</li>
+                  <li>Pommes de terre, courges, oignons, ail</li>
+                  <li>Produits secs (lentilles, haricots, céréales)</li>
+                  <li>Bocaux et conserves déjà conformes produits par le producteur</li>
+                  <li>Pommes, poires, prunes — fruits de saison</li>
+                </ul>
+              </div>
+              <div class="safety-no">
+                <div class="safety-label safety-red">🚫 On évite au lancement</div>
+                <ul>
+                  <li>Viande, poisson, charcuterie</li>
+                  <li>Produits laitiers et fromages</li>
+                  <li>Plats préparés et transformés non déclarés</li>
+                  <li>Œufs en vrac non tracés</li>
+                  <li>Produits nécessitant une chaîne du froid rigoureuse</li>
+                </ul>
+              </div>
+            </div>
+            <p class="safety-note-text">En limitant le périmètre initial, on <strong>évite les galères administratives</strong> et on peut lancer rapidement, proprement, avec des bases solides.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ COMPTEUR IMPACT ═══ -->
+    <section class="section section-alt" id="impact">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">Impact projeté — si on lance</div>
+          <h2>Ce que ça pourrait<br>changer en un an</h2>
+          <p class="section-lead">Projections basées sur des initiatives similaires en France (Phénix, Disco Soupe, marchés anti-gaspi).</p>
+        </div>
+        <div class="cards-grid cards-grid-4">
+          <div class="kpi-card fade-up delay-1">
+            <div class="kpi-icon">⚖️</div>
+            <div class="kpi-value" data-target="12000">0</div>
+            <div class="kpi-unit">kg sauvés</div>
+            <div class="kpi-label">de nourriture évitée à la benne la 1ère année</div>
+          </div>
+          <div class="kpi-card fade-up delay-2">
+            <div class="kpi-icon">🧺</div>
+            <div class="kpi-value" data-target="850">0</div>
+            <div class="kpi-unit">paniers distribués</div>
+            <div class="kpi-label">à des habitants de l'Aube</div>
+          </div>
+          <div class="kpi-card fade-up delay-3">
+            <div class="kpi-icon">🌾</div>
+            <div class="kpi-value" data-target="28">0</div>
+            <div class="kpi-unit">producteurs</div>
+            <div class="kpi-label">agriculteurs locaux partenaires</div>
+          </div>
+          <div class="kpi-card fade-up delay-4">
+            <div class="kpi-icon">🌍</div>
+            <div class="kpi-value" data-target="6">0</div>
+            <div class="kpi-unit">t CO₂ évitées</div>
+            <div class="kpi-label">grâce à la nourriture sauvée</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ PLAN DE LANCEMENT ═══ -->
+    <section class="section" id="lancement">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">Plan d'action</div>
+          <h2>3 mois pour<br>lancer le projet</h2>
+          <p class="section-lead">Un plan réaliste, progressif, qui ne demande pas de gros moyens pour démarrer.</p>
+        </div>
+
+        <div class="timeline">
+          <div class="timeline-item fade-up delay-1">
+            <div class="timeline-num" style="background:#d97706">1</div>
+            <div class="timeline-body">
+              <h3>Mois 1 — Préparation</h3>
+              <p>Poser les bases du projet sans se précipiter.</p>
+              <ul class="tl-checklist">
+                <li>Contacter 5 à 10 producteurs de l'Aube (circuits courts existants)</li>
+                <li>Prendre contact avec la Chambre d'agriculture de l'Aube</li>
+                <li>Créer le site web "Les Moches de l'Aube"</li>
+                <li>Préparer une affiche avec QR code pour mairies et commerces</li>
+                <li>Identifier un lieu de retrait (maison de quartier, local associatif)</li>
+                <li>Vérifier le cadre juridique et sanitaire applicable</li>
+              </ul>
+              <span class="timeline-status active">À faire</span>
+            </div>
+          </div>
+
+          <div class="timeline-item fade-up delay-2">
+            <div class="timeline-num" style="background:#059669">2</div>
+            <div class="timeline-body">
+              <h3>Mois 2 — Test &amp; apprentissage</h3>
+              <p>Lancer petit, observer, ajuster.</p>
+              <ul class="tl-checklist">
+                <li>1 distribution par semaine avec 2 ou 3 producteurs partenaires</li>
+                <li>Des paniers simples : légumes du moment, prix unique</li>
+                <li>Prendre des photos, filmer, raconter</li>
+                <li>Mesurer les kilos sauvés, compter les paniers distribués</li>
+                <li>Recueillir les retours des producteurs et des habitants</li>
+              </ul>
+              <span class="timeline-status">Objectif</span>
+            </div>
+          </div>
+
+          <div class="timeline-item fade-up delay-3">
+            <div class="timeline-num done" style="background:#1B4D3E">3</div>
+            <div class="timeline-body">
+              <h3>Mois 3 — Visibilité &amp; extension</h3>
+              <p>Rendre le projet public, inviter, étendre.</p>
+              <ul class="tl-checklist">
+                <li>Publier les résultats : kilos sauvés, paniers, producteurs aidés</li>
+                <li>Organiser le premier "Marché des Moches" à Troyes</li>
+                <li>Inviter les élus, associations locales, presse auboise</li>
+                <li>Ajouter atelier soupe anti-gaspi + stand ÉcoloLab</li>
+                <li>Proposer une extension à d'autres communes de l'Aube</li>
+              </ul>
+              <span class="timeline-status done">Ambition</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ CTA ═══ -->
+    <section class="section section-cta" id="agir">
+      <div class="container">
+        <div class="cta-box fade-up" style="background: linear-gradient(135deg, #78350f 0%, #d97706 100%);">
+          <div class="cta-content">
+            <div class="tag tag-white">🥕 Rejoindre le projet</div>
+            <h2>Les Moches de l'Aube : une solution locale pour transformer les pertes agricoles en pouvoir d'achat</h2>
+            <p>Un revenu complémentaire pour les producteurs. Des légumes locaux pas chers pour les habitants. Une action écologique concrète. Vous êtes producteur, habitant, élu ou association ?</p>
+            <div class="cta-actions">
+              <a href="mailto:alexis.guillotin10@gmail.com?subject=Les Moches de l'Aube — je veux participer" class="btn btn-lime">Je veux participer</a>
+              <a href="index.html" class="btn btn-white">← Retour à l'écologie</a>
+              <a href="racisme.html" class="btn btn-outline-white">→ Antiracisme</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="moche-final fade-up delay-2">
+          <div class="mf-left">
+            <div class="mf-big">🥕 🍅 🥦 🍎</div>
+            <h3>Ce qu'on croit moche<br>nourrit autant que le reste.</h3>
+            <p>Un monde différent, c'est aussi un monde où on ne jette plus la nourriture parce qu'elle ne ressemble pas à ce qu'une grande surface veut bien acheter.</p>
+          </div>
+          <div class="mf-right">
+            <div class="mf-stat"><strong>9,7 Mt</strong><span>de déchets alimentaires / an en France</span></div>
+            <div class="mf-stat"><strong>3,8 Mt</strong><span>encore comestibles</span></div>
+            <div class="mf-stat"><strong>350+</strong><span>producteurs locaux dans l'Aube</span></div>
+            <div class="mf-stat mf-stat--accent"><strong>0 raison</strong><span>de continuer à jeter</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-logo">
+        <span>🌱</span>
+        <span>Monde <strong>Différent</strong></span>
+      </div>
+      <nav class="footer-links" aria-label="Navigation thèmes">
+        <a href="index.html">Écologie</a>
+        <a href="moches.html">Les Moches</a>
+        <a href="feminisme.html">Égalité</a>
+        <a href="racisme.html">Antiracisme</a>
+        <a href="immigration.html">Immigration</a>
+      </nav>
+      <p class="footer-copy">© 2026 · Un monde différent est possible</p>
+    </div>
+  </footer>
+
+  <script src="pages.js"></script>
+  <script>
+    // Compteur KPI spécifique à cette page
+    function animateCounter(el, target, duration = 1600) {
+      const startTime = performance.now();
+      const step = (now) => {
+        const progress = Math.min((now - startTime) / duration, 1);
+        const eased    = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.floor(eased * target).toLocaleString('fr-FR');
+        if (progress < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }
+    const kpiObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          animateCounter(entry.target, parseInt(entry.target.dataset.target, 10));
+          kpiObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.4 });
+    document.querySelectorAll('.kpi-value').forEach(el => kpiObserver.observe(el));
+  </script>
+</body>
+</html>

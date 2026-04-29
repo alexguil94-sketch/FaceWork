@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ÉcoloLab Déchets Aube — Solution numérique locale</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="pages.css" />
+  <!-- Leaflet.js — carte OpenStreetMap (open source, sans clé API) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- Leaflet.markercluster — regroupement automatique des marqueurs -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+</head>
+<body>
+
+  <!-- BOUTON RETOUR EN HAUT -->
+  <button class="back-to-top" id="backToTop" aria-label="Retour en haut">↑</button>
+
+  <!-- BOUTON MODE SOMBRE -->
+  <button class="theme-toggle" id="themeToggle" aria-label="Changer de thème">🌙</button>
+
+  <!-- ═══════════════════════════════════════
+       NAVBAR
+  ═══════════════════════════════════════ -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a href="accueil.html" class="nav-logo">
+        <span class="logo-icon">🌱</span>
+        <span>Monde <strong>Différent</strong></span>
+      </a>
+
+      <button class="nav-burger" id="navBurger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+
+      <ul class="nav-links" id="navLinks">
+        <li class="nav-theme-item"><a href="accueil.html">Accueil</a></li>
+        <li class="nav-theme-item active"><a href="index.html">🌿 Écologie</a></li>
+        <li class="nav-theme-item"><a href="moches.html">🥕 Anti-Gaspi</a></li>
+        <li class="nav-theme-item"><a href="cannabis.html">🍃 Cannabis</a></li>
+        <li class="nav-theme-item"><a href="feminisme.html">⚡ Égalité</a></li>
+        <li class="nav-theme-item"><a href="racisme.html">✊ Antiracisme</a></li>
+        <li class="nav-theme-item"><a href="immigration.html">🌍 Immigration</a></li>
+        <li><a href="#contact" class="nav-cta">Agir</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- ═══════════════════════════════════════
+         1. HERO
+    ═══════════════════════════════════════ -->
+    <section class="hero" id="hero">
+      <div class="container">
+        <div class="hero-inner">
+          <div class="hero-content">
+            <div class="tag tag-green fade-up">🌿 Projet local · Aube (10) · IA responsable</div>
+            <h1 class="fade-up delay-1">
+              ÉcoloLab<br>
+              <span class="text-accent">Déchets Aube</span>
+            </h1>
+            <p class="hero-desc fade-up delay-2">
+              Une solution numérique locale pour mieux trier, moins jeter et accompagner
+              les habitants de l'Aube vers une gestion plus écologique des déchets.
+            </p>
+            <div class="hero-actions fade-up delay-3">
+              <a href="#solution" class="btn btn-primary">Découvrir le projet</a>
+              <a href="#assistant" class="btn btn-outline">Tester l'assistant de tri</a>
+            </div>
+          </div>
+
+          <!-- Bloc statistiques -->
+          <div class="hero-stats fade-up delay-2">
+            <div class="stats-label">Contexte local — données 2024</div>
+            <div class="stats-grid">
+              <div class="stat-card">
+                <strong>66 857</strong>
+                <span>tonnes d'ordures ménagères résiduelles</span>
+              </div>
+              <div class="stat-card">
+                <strong>214,7 kg</strong>
+                <span>par habitant et par an</span>
+              </div>
+              <div class="stat-card accent">
+                <strong>~50 %</strong>
+                <span>de déchets encore mal orientés dans la poubelle noire</span>
+              </div>
+              <div class="stat-card">
+                <strong>14 203 t</strong>
+                <span>de déchets verts et biodéchets traités</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-bg-deco" aria-hidden="true"></div>
+    </section>
+
+    <!-- ═══════════════════════════════════════
+         2. PROBLÈME
+    ═══════════════════════════════════════ -->
+    <section class="section section-alt" id="probleme">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">Pourquoi agir maintenant ?</div>
+          <h2>Les déchets dans l'Aube :<br>un enjeu local concret</h2>
+          <p class="section-lead">
+            La situation n'est pas une fatalité. Avec les bons outils et la bonne information,
+            chaque habitant peut faire une vraie différence.
+          </p>
+        </div>
+
+        <div class="cards-grid cards-grid-4">
+          <article class="card fade-up delay-1">
+            <div class="card-icon">🗑️</div>
+            <h3>Trop de déchets valorisables dans la poubelle noire</h3>
+            <p>Près de 50 % de ce qui finit en ordures ménagères pourrait être trié, composté ou recyclé — et pris en charge gratuitement par les filières REP.</p>
+            <div class="card-stat-bar"><strong>130 €</strong> la tonne pour incinérer ce qui aurait pu être recyclé sans coût</div>
+          </article>
+          <article class="card fade-up delay-2">
+            <div class="card-icon">❓</div>
+            <h3>Des consignes difficiles à retenir</h3>
+            <p>Les règles varient selon les communes et les matières. Sans outil simple, les erreurs sont fréquentes — et coûteuses pour tout le monde.</p>
+            <div class="card-stat-bar"><strong>43 %</strong> des Français ont déjà mal trié par manque d'information <span>(ADEME 2023)</span></div>
+          </article>
+          <article class="card fade-up delay-3">
+            <div class="card-icon">🌱</div>
+            <h3>Les biodéchets, un levier sous-utilisé</h3>
+            <p>Les épluchures, restes alimentaires et déchets de jardin représentent jusqu'à 30 % de la poubelle noire — alors qu'ils pourraient nourrir le sol.</p>
+            <div class="card-stat-bar"><strong>~7 000 t CO₂</strong> évitables chaque année si les biodéchets aubois étaient tous compostés</div>
+          </article>
+          <article class="card fade-up delay-4">
+            <div class="card-icon">🔍</div>
+            <h3>Une information éparpillée</h3>
+            <p>Consignes, calendriers et points de collecte dispersés entre de multiples sites, PDF et documents locaux — personne ne sait où chercher.</p>
+            <div class="card-stat-bar"><strong>+75 000 h</strong> perdues chaque année par les habitants de l'Aube à chercher la bonne consigne</div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════
+         3. SOLUTION
+    ═══════════════════════════════════════ -->
+    <section class="section" id="solution">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">La solution</div>
+          <h2>Une plateforme locale,<br>simple et intelligente</h2>
+          <p class="section-lead">
+            Toutes les informations au même endroit, avec un assistant IA pour répondre aux
+            questions du quotidien et des outils adaptés au territoire aubois.
+          </p>
+        </div>
+
+        <div class="cards-grid cards-grid-3">
+          <article class="card card-feature fade-up delay-1">
+            <div class="card-icon">🤖</div>
+            <h3>Assistant IA de tri</h3>
+            <p>Tapez un objet, obtenez immédiatement où le jeter et comment réduire son impact.</p>
+            <div class="card-badge">Disponible ci-dessous</div>
+          </article>
+          <article class="card card-feature fade-up delay-2">
+            <div class="card-icon">📍</div>
+            <h3>Carte des points de collecte</h3>
+            <p>Trouvez en un clic la déchèterie, la borne à verre ou le point textile le plus proche.</p>
+          </article>
+          <article class="card card-feature fade-up delay-3">
+            <div class="card-icon">🌿</div>
+            <h3>Guide biodéchets &amp; compostage</h3>
+            <p>Tutoriels pratiques, conseils de saison et localisation des composteurs collectifs.</p>
+          </article>
+          <article class="card card-feature fade-up delay-1">
+            <div class="card-icon">📅</div>
+            <h3>Calendrier de collecte</h3>
+            <p>Consultez les jours de passage selon votre commune, avec rappels optionnels.</p>
+          </article>
+          <article class="card card-feature fade-up delay-2">
+            <div class="card-icon">⚠️</div>
+            <h3>Signalement citoyen</h3>
+            <p>Signalez un dépôt sauvage, un bac abîmé ou un point de collecte saturé.</p>
+          </article>
+          <article class="card card-feature fade-up delay-3">
+            <div class="card-icon">🏆</div>
+            <h3>Défis citoyens mensuels</h3>
+            <p>Un défi par mois pour engager les habitants : zéro plastique, semaine compost, etc.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════
+         4. ASSISTANT DE TRI (interactif)
+    ═══════════════════════════════════════ -->
+    <section class="section section-dark" id="assistant">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label" style="color:var(--lime)">Assistant de tri</div>
+          <h2>Où jeter cet objet ?</h2>
+          <p class="section-lead" style="color:rgba(255,255,255,.72)">
+            Tapez le nom d'un objet ou choisissez une catégorie.
+            L'assistant vous indique immédiatement quoi faire.
+          </p>
+        </div>
+
+        <!-- Recherche -->
+        <div class="assistant-box fade-up delay-1">
+          <div class="assistant-search">
+            <label for="searchInput" class="sr-only">Rechercher un objet</label>
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="Ex : bouteille en verre, piles, carton…"
+              autocomplete="off"
+              aria-label="Rechercher un objet à trier"
+            />
+            <button id="searchBtn" class="btn btn-primary" aria-label="Rechercher">Chercher</button>
+          </div>
+
+          <!-- Boutons rapides -->
+          <div class="quick-btns" role="group" aria-label="Catégories rapides">
+            <button class="quick-btn" data-query="verre">🫙 Verre</button>
+            <button class="quick-btn" data-query="biodéchets">🥕 Biodéchets</button>
+            <button class="quick-btn" data-query="textile">👕 Textile</button>
+            <button class="quick-btn" data-query="électronique">💻 Électronique</button>
+            <button class="quick-btn" data-query="déchèterie">🏭 Déchèterie</button>
+            <button class="quick-btn" data-query="bac jaune">♻️ Bac jaune</button>
+          </div>
+
+          <!-- Résultat -->
+          <div class="assistant-result" id="assistantResult" aria-live="polite">
+            <div class="result-placeholder">
+              <span>🔍</span>
+              <p>Commencez par taper un objet ou choisissez une catégorie ci-dessus.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════
+         5. CARTE INTERACTIVE — Leaflet.js + OpenStreetMap
+    ═══════════════════════════════════════ -->
+    <section class="section section-map-full" id="carte">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">Carte interactive — Aube (10)</div>
+          <h2>Points de collecte<br>dans le département</h2>
+          <p class="section-lead">
+            Déchèteries, bornes à verre, composteurs, points textile et piles.
+            Cliquez sur un marqueur pour voir les détails.
+          </p>
+        </div>
+      </div>
+
+      <!-- Barre de contrôle carte -->
+      <div class="map-controls-bar fade-up delay-1">
+        <div class="map-controls-inner">
+          <!-- Filtres type -->
+          <div class="map-filters" role="group" aria-label="Filtrer par type">
+            <button class="map-filter-btn active" data-type="all">
+              <span class="mfb-dot" style="background:#1B4D3E"></span>Tous
+              <span class="mfb-count" id="count-all">22</span>
+            </button>
+            <button class="map-filter-btn" data-type="decheterie">
+              <span class="mfb-dot" style="background:#c0392b"></span>Déchèteries
+              <span class="mfb-count" id="count-decheterie">8</span>
+            </button>
+            <button class="map-filter-btn" data-type="verre">
+              <span class="mfb-dot" style="background:#2980b9"></span>Verre
+              <span class="mfb-count" id="count-verre">5</span>
+            </button>
+            <button class="map-filter-btn" data-type="compost">
+              <span class="mfb-dot" style="background:#27ae60"></span>Compost
+              <span class="mfb-count" id="count-compost">3</span>
+            </button>
+            <button class="map-filter-btn" data-type="textile">
+              <span class="mfb-dot" style="background:#8e44ad"></span>Textile
+              <span class="mfb-count" id="count-textile">3</span>
+            </button>
+            <button class="map-filter-btn" data-type="piles">
+              <span class="mfb-dot" style="background:#e67e22"></span>Piles
+              <span class="mfb-count" id="count-piles">3</span>
+            </button>
+          </div>
+
+          <!-- Recherche commune -->
+          <div class="map-search-wrap">
+            <input type="text" id="mapSearchInput" placeholder="🔍 Filtrer par commune…" aria-label="Filtrer par commune" />
+          </div>
+
+          <!-- Bouton géolocalisation -->
+          <button class="map-locate-btn" id="mapLocateBtn" title="Me localiser">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg>
+            Ma position
+          </button>
+        </div>
+      </div>
+
+      <!-- Layout carte + sidebar -->
+      <div class="map-layout-wrap">
+
+        <!-- Sidebar liste -->
+        <aside class="map-sidebar" id="mapSidebar" aria-label="Liste des points de collecte">
+          <div class="sidebar-header">
+            <span id="sidebarCount">21 points</span>
+            <button class="sidebar-close" id="sidebarClose" aria-label="Fermer la liste">×</button>
+          </div>
+          <ul class="sidebar-list" id="sidebarList" aria-label="Points de collecte"></ul>
+        </aside>
+
+        <!-- Carte Leaflet -->
+        <div class="map-container-outer">
+          <div id="map" aria-label="Carte des points de collecte dans l'Aube"></div>
+          <!-- Bouton toggle sidebar -->
+          <button class="sidebar-toggle-btn" id="sidebarToggle" aria-label="Afficher la liste">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            Liste
+          </button>
+        </div>
+      </div>
+
+      <!-- Note technique -->
+      <div class="container">
+        <p class="map-tech-note">
+          🗺️ Carte <strong>OpenStreetMap</strong> via <strong>Leaflet.js</strong> · Regroupement automatique des marqueurs · Données géolocalisées sur le département de l'Aube (10)
+        </p>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════
+         6. TABLEAU DE BORD
+    ═══════════════════════════════════════ -->
+    <section class="section" id="dashboard">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">Tableau de bord</div>
+          <h2>Nos indicateurs locaux</h2>
+          <p class="section-lead">
+            Données fictives pour la maquette.
+            <!-- TODO: Connecter à Supabase ou Firebase pour des données réelles -->
+          </p>
+        </div>
+
+        <div class="cards-grid cards-grid-4">
+          <div class="kpi-card fade-up delay-1">
+            <div class="kpi-icon">♻️</div>
+            <div class="kpi-value" data-target="4280">0</div>
+            <div class="kpi-unit">kg</div>
+            <div class="kpi-label">Déchets évités ce mois</div>
+          </div>
+          <div class="kpi-card fade-up delay-2">
+            <div class="kpi-icon">🌿</div>
+            <div class="kpi-value" data-target="37">0</div>
+            <div class="kpi-unit">installés</div>
+            <div class="kpi-label">Composteurs collectifs</div>
+          </div>
+          <div class="kpi-card fade-up delay-3">
+            <div class="kpi-icon">⚠️</div>
+            <div class="kpi-value" data-target="128">0</div>
+            <div class="kpi-unit">traités</div>
+            <div class="kpi-label">Signalements citoyens</div>
+          </div>
+          <div class="kpi-card fade-up delay-4">
+            <div class="kpi-icon">🏆</div>
+            <div class="kpi-value" data-target="512">0</div>
+            <div class="kpi-unit">participants</div>
+            <div class="kpi-label">Défis citoyens terminés</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════
+         7. IMPACT CHIFFRÉ
+    ═══════════════════════════════════════ -->
+    <section class="section section-alt" id="chiffres">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">Économie &amp; Écologie — chiffres concrets</div>
+          <h2>Ce que ça change,<br>vraiment</h2>
+          <p class="section-lead">
+            Des projections basées sur les données ADEME, SMTVD Aube et les retours d'expérience
+            des collectivités ayant déployé des outils numériques similaires.
+          </p>
+        </div>
+
+        <div class="ic-grid">
+
+          <div class="ic-card ic-eco fade-up delay-1">
+            <div class="ic-tag">💰 Économique</div>
+            <div class="ic-number">8,7 M€</div>
+            <div class="ic-label">coût annuel du traitement des ordures ménagères dans l'Aube</div>
+            <div class="ic-detail">À 130 €/tonne × 66 857 tonnes. Chaque pourcentage de déchets mieux triés représente <strong>87 000 € économisés</strong> sur la facture collective.</div>
+          </div>
+
+          <div class="ic-card ic-green fade-up delay-2">
+            <div class="ic-tag">🌍 Écologique</div>
+            <div class="ic-number">~33 000 t</div>
+            <div class="ic-label">de déchets potentiellement valorisables encore mal orientés chaque année</div>
+            <div class="ic-detail">L'équivalent de <strong>3 300 camions-bennes</strong> de matières recyclables ou compostables qui finissent à l'incinérateur faute d'information.</div>
+          </div>
+
+          <div class="ic-card ic-green fade-up delay-3">
+            <div class="ic-tag">🌍 Écologique</div>
+            <div class="ic-number">7 100 t CO₂</div>
+            <div class="ic-label">évitées par an si tous les biodéchets aubois étaient compostés</div>
+            <div class="ic-detail">Équivalent à <strong>retirer 3 700 voitures de la route</strong> pendant un an. Le compostage transforme un déchet en ressource agricole locale.</div>
+          </div>
+
+          <div class="ic-card ic-eco fade-up delay-1">
+            <div class="ic-tag">💰 Économique</div>
+            <div class="ic-number">870 000 €</div>
+            <div class="ic-label">économisés sur la facture collective si 10 % des habitants trient mieux</div>
+            <div class="ic-detail">10 % des foyers aubois améliorant leur tri = <strong>6 700 tonnes</strong> de déchets détournés de l'incinérateur, à 130 €/tonne économisés.</div>
+          </div>
+
+          <div class="ic-card ic-green fade-up delay-2">
+            <div class="ic-tag">🌍 Écologique</div>
+            <div class="ic-number">200 kg CO₂</div>
+            <div class="ic-label">économisés par habitant qui trie correctement chaque année</div>
+            <div class="ic-detail">L'équivalent de <strong>1 000 km de voiture évités</strong>. Recyclage du verre, de l'aluminium et du papier combinés, par foyer et par an.</div>
+          </div>
+
+          <div class="ic-card ic-eco fade-up delay-3">
+            <div class="ic-tag">💰 Économique</div>
+            <div class="ic-number">1 200 €/t</div>
+            <div class="ic-label">coût moyen de nettoyage d'un dépôt sauvage pour une commune</div>
+            <div class="ic-detail">Signaler et prévenir les dépôts sauvages via l'application citoyenne permet aux communes de <strong>cibler les interventions</strong> avant que la situation empire.</div>
+          </div>
+
+        </div>
+
+        <div class="ic-source fade-up">
+          Sources : ADEME Bilan national 2022–2023 · SMTVD Aube · Rapport CGDD déchets ménagers 2024 · Retours d'expériences collectivités numériques (ADEME 2022)
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════
+         8. IMPACT
+    ═══════════════════════════════════════ -->
+    <section class="section" id="impact">
+      <div class="container">
+        <div class="impact-inner">
+          <div class="impact-left fade-up">
+            <div class="section-label">Impact politique &amp; citoyen</div>
+            <h2>Un projet utile aux habitants<br>et aux collectivités</h2>
+            <p>
+              ÉcoloLab Déchets Aube n'est pas un projet techno pour la techno.
+              C'est un outil concret au service d'un territoire — avec des bénéfices
+              mesurables pour les finances locales, l'environnement et la qualité de vie.
+            </p>
+            <a href="#contact" class="btn btn-primary" style="margin-top:28px">Présenter le projet</a>
+          </div>
+          <div class="impact-right">
+            <ul class="impact-list">
+              <li class="fade-up delay-1">
+                <span class="impact-check">✓</span>
+                <div>
+                  <strong>Alléger la facture des collectivités</strong>
+                  <p>Chaque tonne détournée de l'incinérateur économise 130 € à la collectivité. Un meilleur tri de 10 % des foyers représente <strong>870 000 € économisés par an</strong> dans l'Aube — sans investissement lourd.</p>
+                </div>
+              </li>
+              <li class="fade-up delay-2">
+                <span class="impact-check">✓</span>
+                <div>
+                  <strong>Réduire les émissions de CO₂ localement</strong>
+                  <p>Un habitant qui trie correctement économise 200 kg de CO₂ par an. À l'échelle du département, généraliser le bon tri et le compostage pourrait éviter <strong>plus de 10 000 tonnes de CO₂/an</strong> — l'équivalent de 5 000 voitures retirées de la route.</p>
+                </div>
+              </li>
+              <li class="fade-up delay-3">
+                <span class="impact-check">✓</span>
+                <div>
+                  <strong>Cibler les investissements publics</strong>
+                  <p>Nettoyer un dépôt sauvage coûte en moyenne 1 200 €/tonne. Les signalements citoyens géolocalisés permettent aux communes d'<strong>intervenir avant que la situation s'aggrave</strong>, évitant des coûts de remédiation élevés.</p>
+                </div>
+              </li>
+              <li class="fade-up delay-4">
+                <span class="impact-check">✓</span>
+                <div>
+                  <strong>Augmenter le taux de recyclage</strong>
+                  <p>Les collectivités ayant déployé des outils numériques de tri ont augmenté leur taux de recyclage de <strong>15 à 25 % en 3 ans</strong> (ADEME, 2022). L'information accessible est le premier levier d'action.</p>
+                </div>
+              </li>
+              <li class="fade-up delay-1">
+                <span class="impact-check">✓</span>
+                <div>
+                  <strong>Un service public disponible 24h/24, sans coût marginal</strong>
+                  <p>L'assistant IA répond à des milliers de questions par jour sans standard téléphonique supplémentaire. Un <strong>gain de temps réel</strong> pour les agents municipaux et les habitants.</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════
+         8. FEUILLE DE ROUTE
+    ═══════════════════════════════════════ -->
+    <section class="section" id="roadmap">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">Feuille de route</div>
+          <h2>4 étapes pour un projet solide</h2>
+          <p class="section-lead">Une progression réaliste, étape par étape.</p>
+        </div>
+
+        <div class="timeline">
+          <div class="timeline-item fade-up delay-1">
+            <div class="timeline-num done">✓</div>
+            <div class="timeline-body">
+              <h3>Prototype web local</h3>
+              <p>Page de démonstration complète : assistant de tri IA, carte interactive, dashboard de suivi et formulaire de contact.</p>
+              <span class="timeline-status done">Réalisé</span>
+            </div>
+          </div>
+          <div class="timeline-item fade-up delay-2">
+            <div class="timeline-num">2</div>
+            <div class="timeline-body">
+              <h3>Base de données des consignes</h3>
+              <p>Référencer toutes les consignes de tri spécifiques à l'Aube, en partenariat avec les éco-organismes locaux et le SMTVD.</p>
+              <span class="timeline-status active">En cours</span>
+            </div>
+          </div>
+          <div class="timeline-item fade-up delay-3">
+            <div class="timeline-num done">✓</div>
+            <div class="timeline-body">
+              <h3>Carte interactive des points de collecte</h3>
+              <p>22 points géolocalisés dans l'Aube (déchèteries, bornes à verre, composteurs, textile, piles) via OpenStreetMap + Leaflet.</p>
+              <span class="timeline-status done">Réalisé</span>
+            </div>
+          </div>
+          <div class="timeline-item fade-up delay-4">
+            <div class="timeline-num">4</div>
+            <div class="timeline-body">
+              <h3>Partenariats locaux</h3>
+              <p>Collaboration avec les communes, l'ADEME, les associations et les collectivités du territoire aubois pour enrichir les données.</p>
+              <span class="timeline-status">Objectif</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════
+         9. APPEL À L'ACTION + CONTACT
+    ═══════════════════════════════════════ -->
+    <section class="section section-cta" id="contact">
+      <div class="container">
+        <div class="cta-box fade-up">
+          <div class="cta-content">
+            <div class="tag tag-white">🚀 Appel à l'action</div>
+            <h2>Construisons ensemble une gestion des déchets plus intelligente dans l'Aube</h2>
+            <p>
+              Ce projet est une proposition concrète. Je suis disponible pour le présenter
+              à votre groupe local, votre mairie ou votre collectivité.
+            </p>
+            <div class="cta-actions">
+              <a href="#form" class="btn btn-lime">Présenter le projet</a>
+              <a href="mailto:alexis.guillotin10@gmail.com" class="btn btn-white">Me contacter</a>
+              <a href="#assistant" class="btn btn-outline-white">Voir la démonstration</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Formulaire de contact -->
+        <div class="contact-form-wrap fade-up delay-2" id="form">
+          <h3>Envoyer un message</h3>
+          <p class="form-note">Formulaire de démonstration — pourra être connecté à un vrai service ultérieurement.</p>
+          <form id="contactForm" novalidate>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="fname">Prénom &amp; Nom</label>
+                <input type="text" id="fname" name="name" placeholder="Marie Dupont" required />
+              </div>
+              <div class="form-group">
+                <label for="femail">Email</label>
+                <input type="email" id="femail" name="email" placeholder="marie@exemple.fr" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="fmsg">Message</label>
+              <textarea id="fmsg" name="message" rows="4" placeholder="Je voudrais en savoir plus sur le projet…" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Envoyer le message</button>
+          </form>
+          <div class="form-success" id="formSuccess" hidden>
+            ✅ Merci, votre message a bien été préparé. Cette démonstration pourra être connectée plus tard à un vrai service.
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-logo">
+        <span>♻️</span>
+        <span>ÉcoloLab <strong>Déchets Aube</strong></span>
+      </div>
+      <nav class="footer-links" aria-label="Liens secondaires">
+        <a href="#probleme">Problème</a>
+        <a href="#solution">Solution</a>
+        <a href="#assistant">Assistant</a>
+        <a href="#carte">Carte</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <p class="footer-copy">© 2026 · Projet proposé par Alexis · Numérique &amp; IA responsable</p>
+    </div>
+  </footer>
+
+  <!-- Leaflet JS (avant script.js) -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
