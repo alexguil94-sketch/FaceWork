@@ -248,14 +248,15 @@ ul, ol { list-style: none; }
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 2px;
 }
 .nav-links a {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
-  padding: 8px 14px;
+  padding: 7px 10px;
   border-radius: 999px;
   color: var(--text-muted);
+  white-space: nowrap;
   transition: color var(--transition), background var(--transition);
 }
 .nav-links a:hover { color: var(--green-dark); background: rgba(27,77,62,.07); }
@@ -1220,7 +1221,7 @@ ul, ol { list-style: none; }
   .ic-grid { grid-template-columns: repeat(2,1fr); }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
   .nav-burger { display: flex; }
   .nav-links {
     display: none;
@@ -1236,9 +1237,8 @@ ul, ol { list-style: none; }
   }
   [data-theme="dark"] .nav-links { background: #141d18; }
   .nav-links.open { display: flex; }
-  .nav-links a { border-radius: 0; width: 100%; padding: 12px 24px; }
+  .nav-links a { border-radius: 0; width: 100%; padding: 12px 24px; font-size: 14px; }
   .navbar { position: relative; }
-  /* La navbar n'est plus sticky sur tablette → la barre de contrôle part du haut */
   .map-controls-bar { position: static; margin-top: 24px; }
 
   .hero-inner { grid-template-columns: 1fr; }
