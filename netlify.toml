@@ -58,6 +58,12 @@
   force = true
 
 [[redirects]]
+  from = "/monde-different/index.html"
+  to = "/monde-different/traitement-dechets.html"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/monde-different"
   to = "/monde-different/accueil.html"
   status = 302
