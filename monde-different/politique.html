@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Politique & Actualités — Monde Différent · Aube</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="pages.css" />
+</head>
+<body>
+
+  <button class="back-to-top" id="backToTop" aria-label="Retour en haut">↑</button>
+  <button class="theme-toggle" id="themeToggle" aria-label="Changer de thème">🌙</button>
+
+  <nav class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a href="accueil.html" class="nav-logo">
+        <span class="logo-icon">🌱</span>
+        <span>Monde <strong>Différent</strong></span>
+      </a>
+      <button class="nav-burger" id="navBurger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li class="nav-theme-item"><a href="accueil.html">Accueil</a></li>
+        <li class="nav-theme-item"><a href="traitement-dechets.html">♻️ Déchets</a></li>
+        <li class="nav-theme-item"><a href="moches.html">🥕 Antigaspi</a></li>
+        <li class="nav-theme-item"><a href="cannabis.html">🍃 Cannabis</a></li>
+        <li class="nav-theme-item"><a href="feminisme.html">⚡ Égalité</a></li>
+        <li class="nav-theme-item"><a href="racisme.html">✊ Antiracisme</a></li>
+        <li class="nav-theme-item"><a href="immigration.html">🌍 Immigration</a></li>
+        <li class="nav-theme-item active"><a href="politique.html">🏛️ Politique</a></li>
+        <li><a href="#contact" class="nav-cta">Agir</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- ═══ HERO ═══ -->
+    <section class="hero" id="hero">
+      <div class="container">
+        <div class="hero-inner">
+          <div class="hero-content">
+            <div class="tag tag-green fade-up">🏛️ Démocratie · Engagement citoyen · Aube (10)</div>
+            <h1 class="fade-up delay-1">
+              Politique &amp;<br>
+              <span class="text-accent">Actualités</span>
+            </h1>
+            <p class="hero-desc fade-up delay-2">
+              La démocratie traverse une crise profonde. L'abstention bat des records,
+              la défiance envers les institutions s'installe. Ce site croit que le
+              politique peut changer les choses — à condition que les citoyens s'en emparent.
+            </p>
+            <div class="hero-actions fade-up delay-3">
+              <a href="#enjeux" class="btn btn-primary">Les grands enjeux</a>
+              <a href="#agir" class="btn btn-outline">Comment s'engager</a>
+            </div>
+          </div>
+
+          <div class="hero-stats fade-up delay-2">
+            <div class="stats-label">Démocratie française — données 2024–2025</div>
+            <div class="stats-grid">
+              <div class="stat-card accent">
+                <strong>57 %</strong>
+                <span>d'abstention au 1er tour des législatives 2022</span>
+              </div>
+              <div class="stat-card">
+                <strong>20 %</strong>
+                <span>de confiance dans les partis politiques (CEVIPOF 2024)</span>
+              </div>
+              <div class="stat-card">
+                <strong>12 M</strong>
+                <span>de personnes non inscrites sur les listes électorales</span>
+              </div>
+              <div class="stat-card">
+                <strong>77 %</strong>
+                <span>des Français estiment que les politiques ne s'occupent pas d'eux</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-bg-deco" aria-hidden="true"></div>
+    </section>
+
+    <!-- ═══ PROBLÈME — Crise démocratique ═══ -->
+    <section class="section section-alt" id="crise">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">Le constat</div>
+          <h2>Pourquoi la démocratie<br>décroche ?</h2>
+          <p class="section-lead">
+            L'abstention n'est pas de l'indifférence — c'est souvent une réponse rationnelle
+            à un sentiment d'impuissance. Comprendre la crise, c'est déjà commencer à la surmonter.
+          </p>
+        </div>
+
+        <div class="cards-grid cards-grid-4">
+          <article class="card fade-up delay-1">
+            <div class="card-icon">🗳️</div>
+            <h3>Abstention record</h3>
+            <p>57 % au 1er tour des législatives 2022, jusqu'à 75 % pour certaines élections locales. Quand une majorité ne vote pas, le résultat ne représente qu'une minorité des citoyens.</p>
+            <div class="card-stat-bar"><strong>1 Français sur 3</strong> de moins de 35 ans ne vote jamais</div>
+          </article>
+          <article class="card fade-up delay-2">
+            <div class="card-icon">💼</div>
+            <h3>Inégalités de représentation</h3>
+            <p>Les cadres supérieurs sont 3× surreprésentés à l'Assemblée nationale. Les ouvriers, 10× sous-représentés. La politique reste l'affaire de ceux qui ont déjà du pouvoir social.</p>
+            <div class="card-stat-bar"><strong>3 %</strong> d'ouvriers et d'employés parmi les députés pour 52 % de la population active</div>
+          </article>
+          <article class="card fade-up delay-3">
+            <div class="card-icon">📰</div>
+            <h3>Désinformation et bruit médiatique</h3>
+            <p>La multiplication des sources rend la vérification difficile. Les réseaux sociaux amplifient les discours les plus extrêmes. S'informer rigoureusement est devenu un acte politique en soi.</p>
+            <div class="card-stat-bar"><strong>42 %</strong> des Français ont du mal à distinguer information vérifiée et rumeur (CLEMI 2024)</div>
+          </article>
+          <article class="card fade-up delay-4">
+            <div class="card-icon">⏳</div>
+            <h3>Urgences non saisies</h3>
+            <p>Changement climatique, inégalités croissantes, crise du logement — les urgences s'accumulent sans que les décisions politiques ne soient à la hauteur de l'enjeu.</p>
+            <div class="card-stat-bar"><strong>68 %</strong> des Français jugent l'action climatique du gouvernement insuffisante (IPSOS 2024)</div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ GRANDS ENJEUX 2026 ═══ -->
+    <section class="section" id="enjeux">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">Actualités 2026</div>
+          <h2>Les débats qui<br>comptent vraiment</h2>
+          <p class="section-lead">
+            Ces sujets structurent le débat public en France. Pour chacun, des faits,
+            des positions et des arguments — pas des slogans.
+          </p>
+        </div>
+
+        <div class="cards-grid cards-grid-3">
+          <article class="card card-feature fade-up delay-1">
+            <div class="card-icon">🌿</div>
+            <h3>Transition écologique</h3>
+            <p>Planification écologique, rénovation thermique, transport ferroviaire, sortie des énergies fossiles. La France a pris des engagements — leur mise en œuvre est le vrai sujet.</p>
+            <div class="card-badge"><a href="traitement-dechets.html" style="color:inherit">→ Voir la page Déchets Aube</a></div>
+          </article>
+          <article class="card card-feature fade-up delay-2">
+            <div class="card-icon">⚖️</div>
+            <h3>Justice sociale &amp; pouvoir d'achat</h3>
+            <p>Partage de la valeur, fiscalité des grandes fortunes, SMIC, retraites. La question n'est pas de savoir s'il y a de l'argent — mais de savoir qui en bénéficie.</p>
+            <div class="card-badge">10 % des ménages détiennent 54 % du patrimoine en France</div>
+          </article>
+          <article class="card card-feature fade-up delay-3">
+            <div class="card-icon">🏥</div>
+            <h3>Santé publique</h3>
+            <p>Déserts médicaux, sous-financement de l'hôpital public, santé mentale. 11 % des Français n'ont pas de médecin traitant — un record depuis 20 ans.</p>
+            <div class="card-badge">6 millions de Français sans médecin traitant (2024)</div>
+          </article>
+          <article class="card card-feature fade-up delay-1">
+            <div class="card-icon">🏠</div>
+            <h3>Logement</h3>
+            <p>Crise du logement dans les grandes villes, loyers en hausse, encadrement des prix. 4 millions de personnes sont mal logées ou sans logis en France (Fondation Abbé Pierre).</p>
+            <div class="card-badge">+28 % de loyers en 10 ans dans les grandes agglomérations</div>
+          </article>
+          <article class="card card-feature fade-up delay-2">
+            <div class="card-icon">🎓</div>
+            <h3>Éducation &amp; égalité des chances</h3>
+            <p>La France est l'un des pays de l'OCDE où l'origine sociale pèse le plus dans les résultats scolaires. Les inégalités se creusent dès le primaire.</p>
+            <div class="card-badge">L'origine sociale explique 22 % des écarts de résultats scolaires (PISA 2022)</div>
+          </article>
+          <article class="card card-feature fade-up delay-3">
+            <div class="card-icon">🔒</div>
+            <h3>Libertés publiques &amp; IA</h3>
+            <p>Surveillance de masse, reconnaissance faciale, données personnelles, IA et emploi. Les décisions prises aujourd'hui détermineront les libertés de demain.</p>
+            <div class="card-badge">La France, 1ère nation à utiliser la vidéosurveillance algorithmique aux JO 2024</div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ CHIFFRES CLÉS ═══ -->
+    <section class="section section-alt" id="chiffres">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label">Arguments &amp; données</div>
+          <h2>Ce que disent<br>vraiment les chiffres</h2>
+          <p class="section-lead">
+            Contre les idées reçues, les faits. Sourcés, vérifiables, sans distorsion.
+          </p>
+        </div>
+
+        <div class="ic-grid">
+
+          <div class="ic-card ic-eco fade-up delay-1">
+            <div class="ic-tag">💰 Fiscal</div>
+            <div class="ic-number">26 Md€</div>
+            <div class="ic-label">de niches fiscales accordées aux grandes entreprises chaque année en France</div>
+            <div class="ic-detail">Soit davantage que le budget de l'éducation nationale. Ce chiffre, issu des documents budgétaires de l'État, est rarement mis en avant dans le débat public.</div>
+          </div>
+
+          <div class="ic-card ic-green fade-up delay-2">
+            <div class="ic-tag">🌍 Climat</div>
+            <div class="ic-number">−40 %</div>
+            <div class="ic-label">d'émissions de CO₂ nécessaires d'ici 2030 pour respecter l'Accord de Paris</div>
+            <div class="ic-detail">La France est en retard sur ses objectifs climatiques. Sans politique ambitieuse, les engagements pris resteront lettre morte — avec des conséquences concrètes pour les générations suivantes.</div>
+          </div>
+
+          <div class="ic-card ic-eco fade-up delay-3">
+            <div class="ic-tag">⚖️ Inégalités</div>
+            <div class="ic-number">× 100</div>
+            <div class="ic-label">d'écart de revenus entre un PDG du CAC 40 et un salarié médian de son entreprise</div>
+            <div class="ic-detail">En 1980, cet écart était de ×15. En 40 ans, les inégalités au sommet ont explosé — sans que cela ne se traduise par des gains de productivité plus élevés.</div>
+          </div>
+
+          <div class="ic-card ic-green fade-up delay-1">
+            <div class="ic-tag">🏥 Santé</div>
+            <div class="ic-number">−14 %</div>
+            <div class="ic-label">de lits d'hôpitaux en France depuis 2000, malgré une population vieillissante</div>
+            <div class="ic-detail">La France a supprimé plus de 100 000 lits hospitaliers en 25 ans. Ce choix gestionnaire a fragilisé la résilience du système de soins — la crise COVID l'a rendu visible.</div>
+          </div>
+
+          <div class="ic-card ic-eco fade-up delay-2">
+            <div class="ic-tag">🎓 Éducation</div>
+            <div class="ic-number">6× plus</div>
+            <div class="ic-label">de chances d'être cadre pour un enfant de cadre que pour un enfant d'ouvrier</div>
+            <div class="ic-detail">La méritocratie est un idéal, pas encore une réalité. Les études sociologiques montrent que l'école française reproduit les inégalités plutôt qu'elle ne les corrige.</div>
+          </div>
+
+          <div class="ic-card ic-green fade-up delay-3">
+            <div class="ic-tag">🗳️ Démocratie</div>
+            <div class="ic-number">+28 pts</div>
+            <div class="ic-label">d'abstention en plus chez les moins de 35 ans par rapport aux 65 ans et plus</div>
+            <div class="ic-detail">Ce n'est pas du désintérêt — c'est du découragement. Les jeunes suivent davantage l'actualité politique que leurs aînés au même âge, mais font moins confiance au système électoral.</div>
+          </div>
+
+        </div>
+
+        <div class="ic-source fade-up">
+          Sources : CEVIPOF · INSEE · Fondation Abbé Pierre · OCDE · Cour des Comptes · IPSOS · Ministère de la Santé · Rapport Haut-Commissariat au Plan 2024
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ L'AUBE POLITIQUE ═══ -->
+    <section class="section section-dark" id="aube">
+      <div class="container">
+        <div class="section-header fade-up">
+          <div class="section-label" style="color:var(--lime)">Politique locale</div>
+          <h2>L'Aube (10) —<br>les enjeux du territoire</h2>
+          <p class="section-lead" style="color:rgba(255,255,255,.75)">
+            Le changement commence localement. Comprendre les enjeux politiques
+            de l'Aube, c'est savoir où agir concrètement.
+          </p>
+        </div>
+
+        <div class="cards-grid cards-grid-3">
+          <article class="card fade-up delay-1" style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.12)">
+            <div class="card-icon">🏙️</div>
+            <h3 style="color:#fff">Troyes Champagne Métropole</h3>
+            <p style="color:rgba(255,255,255,.75)">Avec 170 000 habitants, la métropole troyenne concentre les principaux enjeux du département : logement, transports, emploi industriel et transition écologique.</p>
+            <div class="card-stat-bar" style="background:rgba(255,255,255,.1);color:rgba(255,255,255,.85)"><strong>17</strong> communes membres · chef-lieu de l'Aube</div>
+          </article>
+          <article class="card fade-up delay-2" style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.12)">
+            <div class="card-icon">🚂</div>
+            <h3 style="color:#fff">Désenclavement &amp; transports</h3>
+            <p style="color:rgba(255,255,255,.75)">L'Aube souffre d'un manque de connexions ferroviaires. Les trajets vers Paris, Reims ou Dijon restent longs et coûteux, freinant l'attractivité du territoire pour les jeunes actifs.</p>
+            <div class="card-stat-bar" style="background:rgba(255,255,255,.1);color:rgba(255,255,255,.85)"><strong>+25 min</strong> de trajet moyen pour accéder à un pôle d'emploi sans voiture</div>
+          </article>
+          <article class="card fade-up delay-3" style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.12)">
+            <div class="card-icon">🏭</div>
+            <h3 style="color:#fff">Reconversion industrielle</h3>
+            <p style="color:rgba(255,255,255,.75)">L'industrie auboise (textile, agroalimentaire, mécanique) est en mutation. La question de l'emploi local, du maintien des savoir-faire et de la transition vers des filières durables est centrale.</p>
+            <div class="card-stat-bar" style="background:rgba(255,255,255,.1);color:rgba(255,255,255,.85)"><strong>18 %</strong> des emplois dans l'industrie — au-dessus de la moyenne nationale</div>
+          </article>
+          <article class="card fade-up delay-1" style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.12)">
+            <div class="card-icon">🌾</div>
+            <h3 style="color:#fff">Agriculture &amp; rural</h3>
+            <p style="color:rgba(255,255,255,.75)">L'Aube est un département majoritairement rural avec une agriculture importante (céréales, viticulture en Côte des Bar). Les enjeux d'eau, de pesticides et de renouvellement générationnel y sont prégnants.</p>
+            <div class="card-stat-bar" style="background:rgba(255,255,255,.1);color:rgba(255,255,255,.85)"><strong>62 %</strong> du territoire aubois est agricole</div>
+          </article>
+          <article class="card fade-up delay-2" style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.12)">
+            <div class="card-icon">🏥</div>
+            <h3 style="color:#fff">Déserts médicaux</h3>
+            <p style="color:rgba(255,255,255,.75)">Plusieurs zones rurales de l'Aube sont classées en désert médical. L'accès aux soins est inégal selon qu'on habite Troyes ou un village de la Forêt d'Orient.</p>
+            <div class="card-stat-bar" style="background:rgba(255,255,255,.1);color:rgba(255,255,255,.85)"><strong>34 %</strong> du territoire aubois en zone sous-dotée en médecins</div>
+          </article>
+          <article class="card fade-up delay-3" style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.12)">
+            <div class="card-icon">🗳️</div>
+            <h3 style="color:#fff">Participation électorale</h3>
+            <p style="color:rgba(255,255,255,.75)">L'Aube est dans la moyenne nationale pour l'abstention. Les élections municipales et départementales ont un impact direct sur le quotidien : services publics, routes, collèges, culture.</p>
+            <div class="card-stat-bar" style="background:rgba(255,255,255,.1);color:rgba(255,255,255,.85)"><strong>3 niveaux</strong> d'élus locaux : communes, département, région</div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ COMMENT S'ENGAGER ═══ -->
+    <section class="section" id="agir">
+      <div class="container">
+        <div class="impact-inner">
+          <div class="impact-left fade-up">
+            <div class="section-label">Passer à l'action</div>
+            <h2>S'engager politiquement —<br>concrètement</h2>
+            <p>
+              L'engagement politique ne se limite pas à voter tous les 5 ans.
+              Il y a mille façons d'agir, à tous les niveaux,
+              avec l'énergie qu'on peut y consacrer.
+            </p>
+            <a href="#contact" class="btn btn-primary" style="margin-top:28px">Nous rejoindre</a>
+          </div>
+          <div class="impact-right">
+            <ul class="impact-list">
+              <li class="fade-up delay-1">
+                <span class="impact-check">✓</span>
+                <div>
+                  <strong>Voter à chaque élection</strong>
+                  <p>Présidentielle, législatives, municipales, départementales, régionales, européennes. Chaque vote compte — et l'abstention choisit aussi un résultat. <strong>S'inscrire sur les listes électorales</strong> est la première étape.</p>
+                </div>
+              </li>
+              <li class="fade-up delay-2">
+                <span class="impact-check">✓</span>
+                <div>
+                  <strong>Interpeller les élus locaux</strong>
+                  <p>Vos conseillers municipaux, votre maire, votre conseiller départemental sont accessibles. Une lettre, un email, une présence en conseil municipal — les élus locaux répondent davantage qu'on ne le croit.</p>
+                </div>
+              </li>
+              <li class="fade-up delay-3">
+                <span class="impact-check">✓</span>
+                <div>
+                  <strong>Rejoindre une association ou un collectif</strong>
+                  <p>Associations de quartier, groupes écologistes locaux, syndicats, comités de parents d'élèves, clubs sportifs — l'engagement associatif est la forme la plus efficace de contre-pouvoir local.</p>
+                </div>
+              </li>
+              <li class="fade-up delay-4">
+                <span class="impact-check">✓</span>
+                <div>
+                  <strong>S'informer et partager rigoureusement</strong>
+                  <p>Lire des sources primaires (rapports officiels, études, textes de loi). Vérifier avant de partager. Recommander des sources fiables à son entourage. <strong>L'information de qualité est un bien commun.</strong></p>
+                </div>
+              </li>
+              <li class="fade-up delay-1">
+                <span class="impact-check">✓</span>
+                <div>
+                  <strong>Participer aux consultations publiques</strong>
+                  <p>Enquêtes publiques, concertations sur les PLU, commissions de dialogue — les citoyens ont un droit de parole formalisé sur les projets qui les concernent. Ce droit est peu utilisé, ce qui lui donne plus de poids.</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ CTA + CONTACT ═══ -->
+    <section class="section section-cta" id="contact">
+      <div class="container">
+        <div class="cta-box fade-up">
+          <div class="cta-content">
+            <div class="tag tag-white">🏛️ Engagement citoyen</div>
+            <h2>La politique, c'est aussi notre affaire — commençons dans l'Aube</h2>
+            <p>
+              Ce projet est ouvert. Si tu veux contribuer, proposer un sujet d'actualité,
+              signaler une erreur dans nos données ou simplement échanger — contacte-nous.
+            </p>
+            <div class="cta-actions">
+              <a href="#form" class="btn btn-lime">Écrire un message</a>
+              <a href="accueil.html" class="btn btn-white">← Retour à l'accueil</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="contact-form-wrap fade-up delay-2" id="form">
+          <h3>Envoyer un message</h3>
+          <p class="form-note">Formulaire de démonstration — connecté à un vrai service prochainement.</p>
+          <form id="contactForm" novalidate>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="fname">Prénom &amp; Nom</label>
+                <input type="text" id="fname" name="name" placeholder="Marie Dupont" required />
+              </div>
+              <div class="form-group">
+                <label for="femail">Email</label>
+                <input type="email" id="femail" name="email" placeholder="marie@exemple.fr" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="fmsg">Message</label>
+              <textarea id="fmsg" name="message" rows="4" placeholder="Je voudrais contribuer au projet, signaler une actualité…" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Envoyer le message</button>
+          </form>
+          <div class="form-success" id="formSuccess" hidden>
+            ✅ Merci, votre message a bien été reçu !
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-logo">
+        <span>🌱</span>
+        <span>Monde <strong>Différent</strong></span>
+      </div>
+      <nav class="footer-links" aria-label="Navigation thèmes">
+        <a href="accueil.html">Accueil</a>
+        <a href="traitement-dechets.html">Déchets</a>
+        <a href="moches.html">Antigaspi</a>
+        <a href="cannabis.html">Cannabis</a>
+        <a href="feminisme.html">Égalité</a>
+        <a href="racisme.html">Antiracisme</a>
+        <a href="immigration.html">Immigration</a>
+        <a href="politique.html">Politique</a>
+      </nav>
+      <p class="footer-copy">© 2026 · Un monde différent est possible</p>
+    </div>
+  </footer>
+
+  <script src="pages.js"></script>
+  <script>
+    const contactForm = document.getElementById('contactForm');
+    const formSuccess = document.getElementById('formSuccess');
+    contactForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name  = contactForm.name.value.trim();
+      const email = contactForm.email.value.trim();
+      const msg   = contactForm.message.value.trim();
+      if (!name || !email || !msg) { alert('Merci de remplir tous les champs.'); return; }
+      contactForm.style.opacity = '0.5';
+      contactForm.style.pointerEvents = 'none';
+      setTimeout(() => { contactForm.hidden = true; formSuccess.hidden = false; }, 800);
+    });
+  </script>
+</body>
+</html>
