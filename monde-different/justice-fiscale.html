@@ -227,6 +227,62 @@
               </div>
             </div>
             <div class="jf-sim-compare" id="simCompare"></div>
+
+            <!-- Comparaison Bernard Arnault -->
+            <div class="jf-arnault-block" id="arnaultBlock">
+              <div class="jf-arnault-header">
+                <span class="jf-arnault-icon">🏆</span>
+                <div>
+                  <div class="jf-arnault-title">Pendant ce temps — Bernard Arnault</div>
+                  <div class="jf-arnault-sub">L'homme le plus riche de France (et souvent du monde)</div>
+                </div>
+              </div>
+
+              <div class="jf-arnault-grid">
+                <div class="jf-arnault-col">
+                  <div class="jf-arnault-col-label">Toi</div>
+                  <div class="jf-arnault-col-taux" id="arnTauxToi">—</div>
+                  <div class="jf-arnault-col-detail">taux moyen IR<br>sur tes revenus</div>
+                </div>
+                <div class="jf-arnault-col jf-arnault-col--mid">
+                  <div class="jf-arnault-col-label">B. Arnault (rémunération LVMH)</div>
+                  <div class="jf-arnault-col-taux jf-arnault-col-taux--gold">~30 %</div>
+                  <div class="jf-arnault-col-detail">sur 17,2 M€ déclarés en 2023<br>(flat tax dividendes)</div>
+                </div>
+                <div class="jf-arnault-col jf-arnault-col--shocking">
+                  <div class="jf-arnault-col-label">B. Arnault (fortune réelle)</div>
+                  <div class="jf-arnault-col-taux jf-arnault-col-taux--red">~0,009 %</div>
+                  <div class="jf-arnault-col-detail">sa fortune a augmenté de<br><strong>+57 Md€ en 2023</strong> — non imposés</div>
+                </div>
+              </div>
+
+              <div class="jf-arnault-fact">
+                <div class="jf-arnault-fact-row">
+                  <span class="jf-af-label">Fortune totale (Forbes 2024)</span>
+                  <span class="jf-af-val">~210 milliards €</span>
+                </div>
+                <div class="jf-arnault-fact-row">
+                  <span class="jf-af-label">Rémunération officielle LVMH 2023</span>
+                  <span class="jf-af-val">17,2 millions €</span>
+                </div>
+                <div class="jf-arnault-fact-row">
+                  <span class="jf-af-label">Impôt estimé sur cette rémunération</span>
+                  <span class="jf-af-val">~5,2 millions €</span>
+                </div>
+                <div class="jf-arnault-fact-row">
+                  <span class="jf-af-label">Gain de fortune 2023 (Forbes)</span>
+                  <span class="jf-af-val jf-af-val--shock">+57 milliards €</span>
+                </div>
+                <div class="jf-arnault-fact-row jf-arnault-fact-row--key">
+                  <span class="jf-af-label">Impôt sur ce gain de fortune</span>
+                  <span class="jf-af-val jf-af-val--zero">0 €</span>
+                </div>
+              </div>
+
+              <div class="jf-arnault-note" id="arnaultNote"></div>
+              <p class="jf-arnault-disclaimer">Sources : Rapport annuel LVMH 2023 (rémunération) · Forbes Billionaires 2024 (fortune) · Zucman &amp; Saez (taux effectifs) · Les plus-values latentes ne sont pas imposables en France.</p>
+            </div>
+
             <p class="jf-sim-disclaimer">Simulation indicative — barème progressif 2024, hors CSG/CRDS et cotisations sociales. Pour une déclaration officielle, rendez-vous sur impots.gouv.fr.</p>
           </div>
         </div>
@@ -515,6 +571,55 @@
         }
       }
       document.getElementById('simCompare').innerHTML = compareHTML;
+
+      // ── Comparaison Bernard Arnault ──
+      const tauxPct = (taux * 100).toFixed(1);
+      document.getElementById('arnTauxToi').textContent = tauxPct + ' %';
+
+      // Note personnalisée selon le taux de l'utilisateur
+      const BA_REMUN = 17200000;
+      const BA_IR    = 5160000;
+      const BA_TAUX  = 0.30;
+      const BA_GAIN  = 57000000000;
+      const BA_TAUX_REEL = BA_IR / (BA_GAIN + BA_REMUN);
+
+      let noteHTML = '';
+      if (taux > BA_TAUX) {
+        const ecart = ((taux - BA_TAUX) * 100).toFixed(1);
+        noteHTML = `<div class="jf-arnault-note-box jf-arnault-note--alert">
+          Tu paies <strong>${ecart} points de plus</strong> que Bernard Arnault sur sa rémunération déclarée —
+          alors que ta capacité contributive est sans commune mesure avec la sienne.
+          Le système fiscal français favorise structurellement le capital sur le travail.
+        </div>`;
+      } else if (taux <= BA_TAUX && taux > 0.15) {
+        noteHTML = `<div class="jf-arnault-note-box jf-arnault-note--neutral">
+          Ton taux IR est proche de celui de Bernard Arnault sur sa rémunération officielle.
+          Mais sa fortune a progressé de <strong>57 milliards en 2023</strong>, sans impôt supplémentaire.
+          Les plus-values latentes — la vraie richesse des milliardaires — ne sont pas imposées.
+        </div>`;
+      } else {
+        noteHTML = `<div class="jf-arnault-note-box jf-arnault-note--neutral">
+          Sur sa rémunération déclarée, Arnault paie ~30 % (flat tax dividendes).
+          Mais si on inclut l'enrichissement réel (+57 Md€ de fortune en 2023),
+          son taux effectif tombe à <strong>moins de 0,01 %</strong> — grâce aux plus-values latentes non imposées.
+        </div>`;
+      }
+
+      // Calcul de ce que Arnault paierait s'il était imposé au même taux que l'utilisateur
+      if (taux > 0) {
+        const irArnaultSiTauxToi = Math.round((BA_GAIN + BA_REMUN) * taux);
+        const gainSupplementaire = irArnaultSiTauxToi - BA_IR;
+        if (gainSupplementaire > 0) {
+          noteHTML += `<div class="jf-arnault-note-box jf-arnault-note--highlight" style="margin-top:10px">
+            💡 Si Bernard Arnault était imposé à <strong>ton taux (${tauxPct} %)</strong> sur l'ensemble de ses
+            gains 2023, il paierait <strong>${new Intl.NumberFormat('fr-FR').format(irArnaultSiTauxToi)} €</strong>
+            — soit <strong>${new Intl.NumberFormat('fr-FR').format(gainSupplementaire)} € de plus</strong>
+            qu'aujourd'hui. De quoi financer des hôpitaux, des écoles, des routes.
+          </div>`;
+        }
+      }
+
+      document.getElementById('arnaultNote').innerHTML = noteHTML;
       document.getElementById('simResult').style.display = 'block';
     });
 
