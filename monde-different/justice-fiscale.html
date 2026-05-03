@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Justice Fiscale — Monde Différent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="pages.css" />
+  <link rel="stylesheet" href="justice-fiscale.css" />
+</head>
+<body class="justice-page">
+
+  <button class="back-to-top" id="backToTop" aria-label="Retour en haut">↑</button>
+
+  <nav class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a href="accueil.html" class="nav-logo">
+        <span class="logo-icon">🌱</span>
+        <span>Monde <strong>Différent</strong></span>
+      </a>
+      <button class="nav-burger" id="navBurger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li class="nav-theme-item"><a href="accueil.html">Accueil</a></li>
+        <li class="nav-theme-item"><a href="traitement-dechets.html">♻️ Déchets</a></li>
+        <li class="nav-theme-item"><a href="moches.html">🥕 Antigaspi</a></li>
+        <li class="nav-theme-item"><a href="cannabis.html">🍃 Cannabis</a></li>
+        <li class="nav-theme-item"><a href="feminisme.html">⚡ Égalité</a></li>
+        <li class="nav-theme-item"><a href="racisme.html">✊ Antiracisme</a></li>
+        <li class="nav-theme-item"><a href="immigration.html">🌍 Immigration</a></li>
+        <li class="nav-theme-item"><a href="politique.html">🏛️ Politique</a></li>
+        <li class="nav-theme-item active"><a href="justice-fiscale.html">⚖️ Justice</a></li>
+        <li><a href="#propositions" class="nav-cta">Agir</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- ═══ HERO ═══ -->
+    <section class="jf-hero" id="hero">
+      <div class="jf-container">
+        <div class="jf-hero-inner">
+          <div class="jf-hero-content">
+            <div class="jf-label jf-fade">⚖️ Justice fiscale · Inégalités</div>
+            <h1 class="jf-fade jf-delay-1">
+              L'impôt qui<br>
+              <span class="jf-accent">protège les riches</span>
+            </h1>
+            <p class="jf-hero-desc jf-fade jf-delay-2">
+              En France, un salarié au SMIC paye proportionnellement plus d'impôts qu'un
+              milliardaire. Ce n'est pas un accident — c'est le résultat de décennies de
+              choix politiques qui ont allégé la fiscalité du capital et alourdi celle
+              du travail. Les chiffres sont là, ils sont vérifiables.
+            </p>
+            <div class="jf-hero-actions jf-fade jf-delay-3">
+              <a href="#chiffres" class="jf-btn jf-btn-primary">Voir les chiffres</a>
+              <a href="#simulateur" class="jf-btn jf-btn-ghost">Mon impôt</a>
+            </div>
+          </div>
+          <div class="jf-hero-visual jf-fade jf-delay-2">
+            <div class="jf-hero-stat-big">
+              <div class="jf-hsb-number">80 Md€</div>
+              <div class="jf-hsb-label">perdus chaque année en fraude fiscale des entreprises</div>
+              <div class="jf-hsb-sub">soit 4 fois le budget de l'éducation nationale</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="jf-hero-deco" aria-hidden="true"></div>
+    </section>
+
+    <!-- ═══ CHIFFRES CLÉS ═══ -->
+    <section class="jf-section" id="chiffres">
+      <div class="jf-container">
+        <div class="jf-section-head jf-fade">
+          <div class="jf-label">La réalité en chiffres</div>
+          <h2>Des inégalités fiscales<br>documentées</h2>
+          <p class="jf-section-lead">Ces données proviennent de rapports officiels, de l'INSEE, de l'OCDE et de chercheurs reconnus comme Gabriel Zucman ou Thomas Piketty.</p>
+        </div>
+
+        <div class="jf-stats-grid">
+          <div class="jf-stat-card jf-fade jf-delay-1">
+            <div class="jf-stat-tag">🏆 Taux effectif</div>
+            <div class="jf-stat-number">26 %</div>
+            <div class="jf-stat-label">taux effectif d'imposition des 1 % les plus riches</div>
+            <div class="jf-stat-detail">Contre <strong>48 % pour les classes moyennes</strong> (revenus 2 000–4 000 €/mois) quand on additionne IR, CSG, cotisations. Le capital (dividendes, plus-values) est taxé à taux fixe (PFU 30 %), quand le travail supporte un taux marginal de 70 %+. <span class="jf-source">(Zucman & Saez, 2019 — données France)</span></div>
+          </div>
+
+          <div class="jf-stat-card jf-fade jf-delay-2">
+            <div class="jf-stat-tag">🏭 Fraude patronale</div>
+            <div class="jf-stat-number">80 Md€</div>
+            <div class="jf-stat-label">de fraude fiscale des entreprises chaque année</div>
+            <div class="jf-stat-detail">Selon le Syndicat Solidaires Finances Publiques, la fraude fiscale des entreprises représente entre <strong>60 et 80 milliards d'euros par an</strong> en France. Optimisation via prix de transfert, paradis fiscaux, holdings. Les contrôles fiscaux récupèrent environ 14 Md€ — soit 17 % du total. <span class="jf-source">(DGFiP 2023)</span></div>
+          </div>
+
+          <div class="jf-stat-card jf-fade jf-delay-3">
+            <div class="jf-stat-tag">💰 Patrimoine</div>
+            <div class="jf-stat-number">50 %</div>
+            <div class="jf-stat-label">du patrimoine national détenu par les 10 % les plus riches</div>
+            <div class="jf-stat-detail">En France, les 10 % les plus riches possèdent <strong>50 % du patrimoine total</strong>. Les 50 % les moins riches en possèdent moins de 5 %. Cette concentration s'est accélérée depuis 2008 — la crise financière a enrichi les détenteurs d'actifs. <span class="jf-source">(INSEE Références 2023)</span></div>
+          </div>
+
+          <div class="jf-stat-card jf-fade jf-delay-1">
+            <div class="jf-stat-tag">🎁 Niches fiscales</div>
+            <div class="jf-stat-number">100 Md€</div>
+            <div class="jf-stat-label">de dépenses fiscales (niches) accordées chaque année</div>
+            <div class="jf-stat-detail">L'État renonce à <strong>plus de 100 milliards d'euros</strong> par an via 474 niches fiscales recensées. La moitié bénéficie aux entreprises et aux ménages aisés. Moins de 20 % sont évaluées comme efficaces. Ce manque à gagner pèse sur les services publics. <span class="jf-source">(PLF 2024, annexe Voies et Moyens)</span></div>
+          </div>
+
+          <div class="jf-stat-card jf-fade jf-delay-2">
+            <div class="jf-stat-tag">🌍 Paradis fiscaux</div>
+            <div class="jf-stat-number">37 %</div>
+            <div class="jf-stat-label">des profits des multinationales françaises logés dans des paradis fiscaux</div>
+            <div class="jf-stat-detail">Près de <strong>37 % des profits déclarés</strong> par les multinationales françaises le sont dans des pays à très faible fiscalité (Irlande, Luxembourg, Pays-Bas, Bermudes…). Ce n'est pas illégal — mais c'est de l'optimisation agressive qui prive les États de ressources. <span class="jf-source">(Tørsløv, Wier, Zucman — NBER 2022)</span></div>
+          </div>
+
+          <div class="jf-stat-card jf-fade jf-delay-3">
+            <div class="jf-stat-tag">📉 ISF supprimé</div>
+            <div class="jf-stat-number">3,5 Md€</div>
+            <div class="jf-stat-label">perdus chaque année depuis la suppression de l'ISF en 2018</div>
+            <div class="jf-stat-detail">La transformation de l'ISF en IFI (limité à l'immobilier) a fait perdre <strong>3,5 milliards d'euros par an</strong> de recettes fiscales. Les partisans de la suppression promettaient un retour de capitaux — qui n'a pas été observé à la hauteur promise. <span class="jf-source">(Comité d'évaluation des réformes, 2023)</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ EXPLICATION 3 COLONNES ═══ -->
+    <section class="jf-section jf-section-dark" id="comprendre">
+      <div class="jf-container">
+        <div class="jf-section-head jf-fade">
+          <div class="jf-label">Comprendre le système</div>
+          <h2>Trois régimes fiscaux,<br>trois vitesses</h2>
+          <p class="jf-section-lead">Le système fiscal français traite très différemment les revenus du travail, ceux du capital et la fiscalité des grandes entreprises. Ce n'est pas une loi naturelle — c'est une construction politique.</p>
+        </div>
+
+        <div class="jf-three-cols">
+          <div class="jf-col-card jf-fade jf-delay-1">
+            <div class="jf-col-icon">👷</div>
+            <h3>Le travail</h3>
+            <p>Les salariés paient l'impôt sur le revenu (barème progressif jusqu'à 45 %), la CSG (9,2 %), la CRDS (0,5 %) et les cotisations sociales. Au total, un cadre moyen peut être taxé à plus de 50 % sur sa tranche haute.</p>
+            <div class="jf-col-highlight">
+              <strong>Taux marginal effectif</strong> pour un cadre à 5 000 €/mois : ~52 %
+            </div>
+          </div>
+
+          <div class="jf-col-card jf-fade jf-delay-2">
+            <div class="jf-col-icon">📈</div>
+            <h3>Le capital</h3>
+            <p>Les revenus du capital (dividendes, plus-values, intérêts) sont soumis au Prélèvement Forfaitaire Unique (PFU) de 30 % depuis 2018 — flat tax créée par le gouvernement Macron. Plus le patrimoine est grand, plus ce taux est avantageux par rapport au barème progressif.</p>
+            <div class="jf-col-highlight">
+              <strong>Taux effectif</strong> d'un rentier millionnaire : ~26 %
+            </div>
+          </div>
+
+          <div class="jf-col-card jf-fade jf-delay-3">
+            <div class="jf-col-icon">🏢</div>
+            <h3>Les grandes entreprises</h3>
+            <p>Le taux légal de l'IS est de 25 %. Mais les grandes entreprises (CAC 40) paient en moyenne 14–16 % grâce aux crédits d'impôt (CIR, CICE…), aux prix de transfert et aux déficits reportables. Les PME, sans ces outils, paient souvent plus.</p>
+            <div class="jf-col-highlight">
+              <strong>IS effectif</strong> des entreprises du CAC 40 : ~14 %
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ SIMULATEUR FISCAL ═══ -->
+    <section class="jf-section" id="simulateur">
+      <div class="jf-container">
+        <div class="jf-section-head jf-fade">
+          <div class="jf-label">Simulateur</div>
+          <h2>Combien paies-tu<br>vraiment ?</h2>
+          <p class="jf-section-lead">Ce simulateur calcule ton impôt sur le revenu selon le barème progressif 2024 (revenus 2023). Il ne remplace pas une déclaration officielle — mais il montre la logique du système.</p>
+        </div>
+
+        <div class="jf-sim-wrap jf-fade jf-delay-1">
+          <div class="jf-sim-form">
+            <div class="jf-sim-field">
+              <label for="simRevenu">Revenu net imposable annuel (€)</label>
+              <input type="number" id="simRevenu" placeholder="Ex : 28 000" min="0" max="10000000" />
+            </div>
+            <div class="jf-sim-field">
+              <label for="simParts">Nombre de parts fiscales</label>
+              <select id="simParts">
+                <option value="1">1 part (célibataire sans enfant)</option>
+                <option value="1.5">1,5 part (célibataire 1 enfant / couple sans enfant)</option>
+                <option value="2" selected>2 parts (couple sans enfant)</option>
+                <option value="2.5">2,5 parts (couple + 1 enfant)</option>
+                <option value="3">3 parts (couple + 2 enfants)</option>
+                <option value="4">4 parts (couple + 3 enfants)</option>
+              </select>
+            </div>
+            <div class="jf-sim-field">
+              <label for="simType">Type de revenus</label>
+              <select id="simType">
+                <option value="travail">Travail (salaires, retraites)</option>
+                <option value="capital">Capital (dividendes, plus-values)</option>
+                <option value="mixte">Mixte (travail + capital)</option>
+              </select>
+            </div>
+            <button class="jf-btn jf-btn-primary jf-sim-btn" id="simCalculer">Calculer mon impôt</button>
+          </div>
+
+          <div class="jf-sim-result" id="simResult" style="display:none">
+            <div class="jf-sim-res-head">Résultat estimé</div>
+            <div class="jf-sim-res-main">
+              <div class="jf-sim-res-item">
+                <span class="jf-sim-res-label">Impôt sur le revenu</span>
+                <span class="jf-sim-res-val" id="resIR">—</span>
+              </div>
+              <div class="jf-sim-res-item">
+                <span class="jf-sim-res-label">Taux moyen d'imposition</span>
+                <span class="jf-sim-res-val" id="resTaux">—</span>
+              </div>
+              <div class="jf-sim-res-item">
+                <span class="jf-sim-res-label">Taux marginal</span>
+                <span class="jf-sim-res-val" id="resMarginal">—</span>
+              </div>
+              <div class="jf-sim-res-item jf-sim-res-item--highlight">
+                <span class="jf-sim-res-label">Revenu net après IR</span>
+                <span class="jf-sim-res-val" id="resNet">—</span>
+              </div>
+            </div>
+            <div class="jf-sim-compare" id="simCompare"></div>
+            <p class="jf-sim-disclaimer">Simulation indicative — barème progressif 2024, hors CSG/CRDS et cotisations sociales. Pour une déclaration officielle, rendez-vous sur impots.gouv.fr.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ FRAUDE PATRONALE ═══ -->
+    <section class="jf-section jf-section-red" id="fraude">
+      <div class="jf-container">
+        <div class="jf-section-head jf-fade">
+          <div class="jf-label" style="color:#f0c040">La fraude fiscale</div>
+          <h2 style="color:#fff">Ce qu'on ne nomme<br>presque jamais</h2>
+          <p class="jf-section-lead" style="color:rgba(255,255,255,.7)">La fraude sociale des chômeurs ou des allocataires fait régulièrement la une. La fraude fiscale des grandes entreprises — 5 à 10 fois supérieure — est presque absente du débat public.</p>
+        </div>
+
+        <div class="jf-fraude-compare jf-fade jf-delay-1">
+          <div class="jf-fraude-item jf-fraude-item--small">
+            <div class="jf-fraude-label">Fraude aux prestations sociales</div>
+            <div class="jf-fraude-bar" style="width:12%"></div>
+            <div class="jf-fraude-amount">~4 Md€/an</div>
+            <div class="jf-fraude-sub">Très médiatisée — contrôles renforcés, sanctions immédiates</div>
+          </div>
+          <div class="jf-fraude-item jf-fraude-item--big">
+            <div class="jf-fraude-label">Fraude fiscale des entreprises</div>
+            <div class="jf-fraude-bar jf-fraude-bar--red" style="width:100%"></div>
+            <div class="jf-fraude-amount">~80 Md€/an</div>
+            <div class="jf-fraude-sub">Peu médiatisée — 14 Md€ récupérés, pas de prison ferme pour les dirigeants</div>
+          </div>
+        </div>
+
+        <div class="jf-fraude-cards jf-fade jf-delay-2">
+          <div class="jf-fraude-card">
+            <div class="jf-fraude-card-icon">🏦</div>
+            <h4>Prix de transfert</h4>
+            <p>Une filiale française vend ses produits à sa filiale irlandaise à prix cassé pour déclarer ses bénéfices là-bas (IS à 12,5 % au lieu de 25 %). Pratique courante, légale, peu sanctionnée.</p>
+          </div>
+          <div class="jf-fraude-card">
+            <div class="jf-fraude-card-icon">🏝️</div>
+            <h4>Paradis fiscaux</h4>
+            <p>Luxembourg, Bermudes, Îles Caïmans — des filiales "boîtes aux lettres" y domicilient les profits. 37 % des bénéfices des multinationales françaises y transitent.</p>
+          </div>
+          <div class="jf-fraude-card">
+            <div class="jf-fraude-card-icon">📋</div>
+            <h4>Déficits artificiels</h4>
+            <p>Des redevances sur les marques ou brevets gonflées, des intérêts de prêts intra-groupe — autant de mécanismes pour créer des charges déductibles et réduire le bénéfice imposable.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ AIDES AUX ENTREPRISES ═══ -->
+    <section class="jf-section" id="aides">
+      <div class="jf-container">
+        <div class="jf-section-head jf-fade">
+          <div class="jf-label">Le coût caché</div>
+          <h2>200 milliards d'euros<br>d'aides aux entreprises</h2>
+          <p class="jf-section-lead">Chaque année, l'État français verse ou renonce à plus de 200 milliards d'euros au profit des entreprises. Sans évaluation systématique de leur efficacité.</p>
+        </div>
+
+        <div class="jf-aides-list jf-fade jf-delay-1">
+          <div class="jf-aide-item">
+            <div class="jf-aide-montant">20 Md€</div>
+            <div class="jf-aide-info">
+              <h4>Crédit d'Impôt Recherche (CIR)</h4>
+              <p>La France a le CIR le plus généreux de l'OCDE. Mais plusieurs évaluations (Cour des Comptes, OCDE) montrent qu'il profite surtout aux grands groupes, qui l'utilisent pour des activités peu innovantes.</p>
+            </div>
+          </div>
+          <div class="jf-aide-item">
+            <div class="jf-aide-montant">70 Md€</div>
+            <div class="jf-aide-info">
+              <h4>Exonérations de cotisations sociales</h4>
+              <p>Allègements Fillon, réductions sur les bas salaires, apprentissage… Au total, l'État compense 70 Md€ de cotisations patronales. L'effet sur l'emploi est réel mais concentré sur les emplois peu qualifiés — pas sur la compétitivité industrielle.</p>
+            </div>
+          </div>
+          <div class="jf-aide-item">
+            <div class="jf-aide-montant">8 Md€</div>
+            <div class="jf-aide-info">
+              <h4>Niches IS : déficits reportables</h4>
+              <p>Les grandes entreprises peuvent reporter indéfiniment leurs déficits passés sur leurs bénéfices futurs. Ce mécanisme bénéficie exclusivement aux groupes ayant les reins suffisamment solides pour survivre à leurs pertes.</p>
+            </div>
+          </div>
+          <div class="jf-aide-item">
+            <div class="jf-aide-montant">3,5 Md€</div>
+            <div class="jf-aide-info">
+              <h4>Flat tax (PFU) — cadeau aux actionnaires</h4>
+              <p>La création du PFU à 30 % en 2018 a aligné la fiscalité des dividendes sur celle d'un ouvrier au taux marginal de 30 % — là où les actionnaires les plus riches payaient avant bien plus via le barème progressif.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ PROPOSITIONS ═══ -->
+    <section class="jf-section jf-section-dark" id="propositions">
+      <div class="jf-container">
+        <div class="jf-section-head jf-fade">
+          <div class="jf-label">Ce qu'on peut faire</div>
+          <h2>7 propositions<br>concrètes</h2>
+          <p class="jf-section-lead" style="color:rgba(255,255,255,.65)">Ces mesures sont débattues par des économistes, défendues par des mouvements citoyens, appliquées dans d'autres pays. Elles ne sont pas utopiques — elles sont des choix politiques.</p>
+        </div>
+
+        <div class="jf-props-grid">
+          <div class="jf-prop-card jf-fade jf-delay-1">
+            <div class="jf-prop-num">01</div>
+            <h4>Rétablir l'ISF vert</h4>
+            <p>Réintroduire un impôt sur la fortune, élargi aux actifs financiers, avec une décote pour les investissements dans la transition écologique. Rendement estimé : 10–15 Md€/an.</p>
+            <div class="jf-prop-tag">Redistribution</div>
+          </div>
+
+          <div class="jf-prop-card jf-fade jf-delay-2">
+            <div class="jf-prop-num">02</div>
+            <h4>Supprimer la flat tax</h4>
+            <p>Réintégrer les revenus du capital dans le barème progressif de l'IR. Les revenus du capital seraient taxés comme les revenus du travail — principe d'équité horizontale. Rendement : 3–5 Md€/an.</p>
+            <div class="jf-prop-tag">Équité</div>
+          </div>
+
+          <div class="jf-prop-card jf-fade jf-delay-3">
+            <div class="jf-prop-num">03</div>
+            <h4>Conditionner les aides aux entreprises</h4>
+            <p>Toute aide publique (CIR, exonérations) conditionnée à : pas de licenciements l'année suivante, pas de versement de dividendes supérieurs aux salaires médians, siège fiscal en France.</p>
+            <div class="jf-prop-tag">Conditionnalité</div>
+          </div>
+
+          <div class="jf-prop-card jf-fade jf-delay-1">
+            <div class="jf-prop-num">04</div>
+            <h4>Taxe mondiale sur les milliardaires</h4>
+            <p>La proposition de Gabriel Zucman pour le G20 : une taxe minimale de 2 % sur les patrimoines supérieurs à 1 milliard d'euros. Rendement mondial estimé : 250 Md$/an. La France peut montrer l'exemple.</p>
+            <div class="jf-prop-tag">International</div>
+          </div>
+
+          <div class="jf-prop-card jf-fade jf-delay-2">
+            <div class="jf-prop-num">05</div>
+            <h4>Renforcer les contrôles fiscaux</h4>
+            <p>La DGFiP a perdu 30 % de ses effectifs en 15 ans. Recruter 5 000 agents spécialisés dans la fraude des grandes entreprises permettrait de récupérer 10 Md€ supplémentaires par an — l'investissement se rembourse.</p>
+            <div class="jf-prop-tag">Contrôle</div>
+          </div>
+
+          <div class="jf-prop-card jf-fade jf-delay-3">
+            <div class="jf-prop-num">06</div>
+            <h4>Transparence fiscale obligatoire</h4>
+            <p>Publier les résultats fiscaux de toutes les entreprises de +50 salariés, pays par pays. Ce reporting public existe déjà en Norvège — les entreprises n'ont pas quitté le pays. La transparence change les comportements.</p>
+            <div class="jf-prop-tag">Transparence</div>
+          </div>
+
+          <div class="jf-prop-card jf-fade jf-delay-1">
+            <div class="jf-prop-num">07</div>
+            <h4>Réviser les niches fiscales</h4>
+            <p>Évaluer systématiquement les 474 niches fiscales (100 Md€/an) et supprimer celles sans effet démontré. La Cour des Comptes le demande depuis 2010. Ces 20 % inefficaces représentent environ 20 Md€ de marges de manœuvre.</p>
+            <div class="jf-prop-tag">Efficacité</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ CONCLUSION ═══ -->
+    <section class="jf-section jf-section-conclusion" id="conclusion">
+      <div class="jf-container">
+        <div class="jf-conclusion-inner jf-fade">
+          <div class="jf-label" style="color:var(--jf-gold)">Un monde différent est possible</div>
+          <h2>L'impôt est un choix politique,<br>pas une loi naturelle</h2>
+          <p>Chaque règle fiscale a été écrite par des humains, sous l'influence de lobbys, de rapports de force, de majorités politiques. Elle peut être réécrite. La justice fiscale n'est pas un rêve — c'est la norme dans plusieurs démocraties qui ne s'en portent pas plus mal. Ce sont des choix. Et les choix appartiennent aux citoyens.</p>
+          <div class="jf-conclusion-actions">
+            <a href="https://www.oxfamfrance.org" target="_blank" rel="noopener" class="jf-btn jf-btn-gold">Oxfam France</a>
+            <a href="https://www.attac.org" target="_blank" rel="noopener" class="jf-btn jf-btn-ghost">Attac</a>
+            <a href="politique.html" class="jf-btn jf-btn-ghost">→ Page Politique</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ SOURCES ═══ -->
+    <section class="jf-section jf-section-sources" id="sources">
+      <div class="jf-container">
+        <div class="jf-sources-head jf-fade">
+          <div class="jf-label">Sources & références</div>
+          <h3>Toutes les données sont vérifiables</h3>
+        </div>
+        <ul class="jf-sources-list jf-fade jf-delay-1">
+          <li>Zucman G. & Saez E. — <em>The Triumph of Injustice</em>, Norton, 2019 — taux effectifs d'imposition par décile de patrimoine</li>
+          <li>Tørsløv, Wier, Zucman — <em>Missing Profits of Nations</em>, NBER Working Paper 24701, 2022 — profits dans les paradis fiscaux</li>
+          <li>INSEE — <em>Les inégalités de patrimoine en France</em>, INSEE Références 2023</li>
+          <li>Solidaires Finances Publiques — Rapport annuel sur la fraude fiscale, 2023</li>
+          <li>Direction Générale des Finances Publiques (DGFiP) — Rapport d'activité 2023</li>
+          <li>Projet de Loi de Finances 2024 — Annexe Voies et Moyens, tome II (dépenses fiscales)</li>
+          <li>Cour des Comptes — <em>Les dépenses fiscales</em>, rapport thématique 2023</li>
+          <li>Comité d'évaluation des réformes de la fiscalité du capital — Rapport 2023 (France Stratégie)</li>
+          <li>OCDE — <em>Tax Policy Reforms 2023</em>, OCDE Publishing</li>
+          <li>Défenseur des droits — <em>Rapport annuel d'activité</em> 2022</li>
+        </ul>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-logo">
+        <span>🌱</span>
+        <span>Monde <strong>Différent</strong></span>
+      </div>
+      <nav class="footer-links" aria-label="Navigation thèmes">
+        <a href="traitement-dechets.html">Déchets Aube</a>
+        <a href="moches.html">Antigaspi</a>
+        <a href="cannabis.html">Cannabis</a>
+        <a href="feminisme.html">Égalité</a>
+        <a href="racisme.html">Antiracisme</a>
+        <a href="immigration.html">Immigration</a>
+        <a href="politique.html">Politique</a>
+        <a href="justice-fiscale.html">Justice fiscale</a>
+      </nav>
+      <p class="footer-copy">© 2026 · Un monde différent est possible</p>
+    </div>
+  </footer>
+
+  <script src="pages.js"></script>
+  <script>
+    // ── Simulateur fiscal IR 2024 (barème revenus 2023) ──
+    const BAREME = [
+      { min: 0,      max: 11294,  taux: 0    },
+      { min: 11294,  max: 28797,  taux: 0.11 },
+      { min: 28797,  max: 82341,  taux: 0.30 },
+      { min: 82341,  max: 177106, taux: 0.41 },
+      { min: 177106, max: Infinity, taux: 0.45 }
+    ];
+    const PFU = 0.30;
+
+    function calcIR(revenuNet, parts, typeRev) {
+      if (typeRev === 'capital') {
+        const ir = revenuNet * PFU;
+        return { ir, taux: PFU, marginal: PFU };
+      }
+
+      const quotient = revenuNet / parts;
+      let ir = 0;
+      let marginal = 0;
+      for (const tranche of BAREME) {
+        if (quotient <= tranche.min) break;
+        const base = Math.min(quotient, tranche.max) - tranche.min;
+        ir += base * tranche.taux;
+        if (quotient > tranche.min) marginal = tranche.taux;
+      }
+      ir *= parts;
+
+      if (typeRev === 'mixte') {
+        const irMixte = ir * 0.7 + revenuNet * 0.3 * PFU;
+        return { ir: irMixte, taux: irMixte / revenuNet, marginal };
+      }
+
+      return { ir, taux: ir / revenuNet, marginal };
+    }
+
+    function fmt(n) {
+      return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n);
+    }
+    function pct(n) { return (n * 100).toFixed(1) + ' %'; }
+
+    document.getElementById('simCalculer').addEventListener('click', function () {
+      const revenu = parseFloat(document.getElementById('simRevenu').value);
+      const parts  = parseFloat(document.getElementById('simParts').value);
+      const type   = document.getElementById('simType').value;
+
+      if (!revenu || revenu <= 0) {
+        document.getElementById('simResult').style.display = 'none';
+        return;
+      }
+
+      const { ir, taux, marginal } = calcIR(revenu, parts, type);
+      const net = revenu - ir;
+
+      document.getElementById('resIR').textContent       = fmt(ir);
+      document.getElementById('resTaux').textContent     = pct(taux);
+      document.getElementById('resMarginal').textContent = pct(marginal);
+      document.getElementById('resNet').textContent      = fmt(net);
+
+      let compareHTML = '';
+      if (type === 'travail' && revenu > 50000) {
+        const { ir: irCap } = calcIR(revenu, parts, 'capital');
+        const diff = ir - irCap;
+        if (diff > 0) {
+          compareHTML = `<div class="jf-sim-compare-box">
+            <span class="jf-sim-compare-icon">⚖️</span>
+            Avec les mêmes revenus déclarés en <strong>capital (flat tax)</strong>, tu paierais
+            <strong>${fmt(irCap)}</strong> — soit <strong>${fmt(diff)} de moins</strong>.
+            C'est l'inégalité travail/capital en chiffres réels.
+          </div>`;
+        }
+      }
+      document.getElementById('simCompare').innerHTML = compareHTML;
+      document.getElementById('simResult').style.display = 'block';
+    });
+
+    // ── Animations scroll (IntersectionObserver) ──
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.jf-fade').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
