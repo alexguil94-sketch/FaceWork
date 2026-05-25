@@ -614,8 +614,9 @@
     const actsRows = (inv.acts || []).map(function (act) {
       return '<tr><td>' + escapeHtml(act.name) + '</td><td>' + escapeHtml(act.code) + '</td><td style="text-align:right">' + Number(act.amount).toFixed(2).replace(".", ",") + ' €</td></tr>';
     }).join("");
+    const ifdAmtPreview = typeof inv.ifdAmount !== 'undefined' ? inv.ifdAmount : IFD_AMOUNT;
     const ifdRow = inv.ifd
-      ? '<tr><td>' + escapeHtml(IFD_LABEL) + '</td><td>IFD</td><td style="text-align:right">' + IFD_AMOUNT.toFixed(2).replace(".", ",") + ' €</td></tr>'
+      ? '<tr><td>' + escapeHtml(IFD_LABEL) + '</td><td>IFD</td><td style="text-align:right">' + ifdAmtPreview.toFixed(2).replace(".", ",") + ' €</td></tr>'
       : '';
     const notesSection = inv.notes
       ? '<div class="invoice-footer" style="margin-bottom:10px">Note : ' + escapeHtml(inv.notes) + '</div>'
@@ -646,8 +647,9 @@
     const actsRows = (inv.acts || []).map(function (act) {
       return '<tr><td>' + escapeHtml(act.name) + '</td><td>' + escapeHtml(act.code) + '</td><td style="text-align:right">' + Number(act.amount).toFixed(2).replace(".", ",") + ' €</td></tr>';
     }).join("");
+    const ifdAmtPrintW = typeof inv.ifdAmount !== 'undefined' ? inv.ifdAmount : IFD_AMOUNT;
     const ifdRow = inv.ifd
-      ? '<tr><td>' + escapeHtml(IFD_LABEL) + '</td><td>IFD</td><td style="text-align:right">' + IFD_AMOUNT.toFixed(2).replace(".", ",") + ' €</td></tr>'
+      ? '<tr><td>' + escapeHtml(IFD_LABEL) + '</td><td>IFD</td><td style="text-align:right">' + ifdAmtPrintW.toFixed(2).replace(".", ",") + ' €</td></tr>'
       : '';
     const notesSection = inv.notes
       ? '<p class="ftr" style="margin-bottom:12px">Note : ' + escapeHtml(inv.notes) + '</p>'
@@ -699,6 +701,7 @@
       sector: visit.sector,
       acts: [{ serviceId: svc.id, name: svc.name, code: svc.code, amount: svc.amount }],
       ifd: true,
+      ifdAmount: IFD_AMOUNT,
       notes: "",
       visitTime: visit.time,
       total: svc.amount + IFD_AMOUNT,
@@ -808,10 +811,16 @@
       const sel = row.querySelector(".act-select");
       if (sel && sel.value) {
         const svc = serviceById(sel.value);
-        total += svc ? svc.amount : 0;
+        const amountInput = row.querySelector(".act-amount");
+        const enteredAmount = parseFloat(amountInput ? amountInput.value : "");
+        total += Number.isFinite(enteredAmount) ? Math.max(0, enteredAmount) : (svc ? svc.amount : 0);
       }
     });
-    if (ifdCheckbox.checked) total += IFD_AMOUNT;
+    if (ifdCheckbox.checked) {
+      const ifdField = document.getElementById("ifdAmount");
+      const enteredIfd = parseFloat(ifdField ? ifdField.value : "");
+      total += Number.isFinite(enteredIfd) ? Math.max(0, enteredIfd) : IFD_AMOUNT;
+    }
     liveTotalEl.textContent = total.toFixed(2).replace(".", ",") + " \u20ac";
     return total;
   }
@@ -826,16 +835,17 @@
       }).join("") +
       '</select>' +
       '<span class="act-code"></span>' +
-      '<span class="act-amount"></span>' +
+      '<input type="number" class="act-amount" step="0.01" min="0" aria-label="Montant de l’acte"/> ' +
       '<button class="act-remove" type="button" aria-label="Supprimer cet acte">\u00d7</button>';
 
     function refreshRow() {
       const svc = serviceById(row.querySelector(".act-select").value);
       row.querySelector(".act-code").textContent = svc ? svc.code : "";
-      row.querySelector(".act-amount").textContent = svc ? svc.amount.toFixed(2).replace(".", ",") + " \u20ac" : "";
+      row.querySelector(".act-amount").value = svc ? svc.amount.toFixed(2) : "";
       updateLiveTotal();
     }
     row.querySelector(".act-select").addEventListener("change", refreshRow);
+    row.querySelector(".act-amount").addEventListener("input", updateLiveTotal);
     row.querySelector(".act-remove").addEventListener("click", function () {
       row.remove();
       updateLiveTotal();
@@ -882,6 +892,9 @@
 
   ifdCheckbox.addEventListener("change", updateLiveTotal);
 
+  const ifdAmountInput = document.getElementById("ifdAmount");
+  if (ifdAmountInput) ifdAmountInput.addEventListener("input", updateLiveTotal);
+
   newInvoiceForm.addEventListener("submit", function (event) {
     event.preventDefault();
     const initials = invoicePatientSelect.value;
@@ -897,14 +910,21 @@
     const acts = [];
     actRows.forEach(function (row) {
       const sel = row.querySelector(".act-select");
+      const amtInput = row.querySelector(".act-amount");
       if (sel && sel.value) {
         const svc = serviceById(sel.value);
-        if (svc) acts.push({ serviceId: svc.id, name: svc.name, code: svc.code, amount: svc.amount });
+        if (svc) {
+          const customAmount = parseFloat(amtInput ? amtInput.value : "");
+          acts.push({ serviceId: svc.id, name: svc.name, code: svc.code, amount: Number.isFinite(customAmount) ? Math.max(0, customAmount) : svc.amount });
+        }
       }
     });
 
+    const ifdAmtEl2 = document.getElementById("ifdAmount");
+    const enteredIfd = parseFloat(ifdAmtEl2 ? ifdAmtEl2.value : "");
+    const ifdAmt = Number.isFinite(enteredIfd) ? Math.max(0, enteredIfd) : IFD_AMOUNT;
     const actsTotal = acts.reduce(function (sum, a) { return sum + a.amount; }, 0);
-    const total = actsTotal + (ifdCheckbox.checked ? IFD_AMOUNT : 0);
+    const total = actsTotal + (ifdCheckbox.checked ? ifdAmt : 0);
 
     invoiceCounter += 1;
     const id = "SC-" + new Date().getFullYear() + "-" + String(invoiceCounter).padStart(3, "0");
@@ -915,6 +935,7 @@
       sector: sector,
       acts: acts,
       ifd: ifdCheckbox.checked,
+      ifdAmount: ifdCheckbox.checked ? ifdAmt : 0,
       notes: notes,
       visitTime: "",
       total: total,
@@ -931,5 +952,117 @@
     else invoiceDialog?.setAttribute("open", "");
     showToast("Facture " + id + " cr\u00e9\u00e9e pour " + initials + ".", "Facture g\u00e9n\u00e9r\u00e9e");
   });
+
+  function downloadInvoicePDF(inv) {
+    if (!window.jspdf) { showToast("Bibliothèque PDF non chargée. Vérifiez votre connexion.", "Erreur"); return; }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+    const date = new Intl.DateTimeFormat('fr-FR').format(new Date(inv.date + 'T12:00:00'));
+    const cG = [9, 106, 97];
+    const cM = [100, 123, 120];
+    const cD = [23, 50, 47];
+    const cL = [221, 232, 226];
+    const cB = [239, 245, 241];
+    const L = 18, R = 192, W = R - L;
+    let y = 22;
+
+    // Practice
+    doc.setFontSize(18); doc.setFont('helvetica', 'bold'); doc.setTextColor(...cG);
+    doc.text('Léa Martin', L, y);
+    doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(...cM);
+    doc.text('Infirmière Diplomée d’État · Libérale', L, y + 6);
+    doc.text('17, rue de la République · 69003 Lyon', L, y + 11);
+    doc.text('RPPS : 12345678901 · SIRET : 898 765 432 00012', L, y + 16);
+
+    // Invoice ref
+    doc.setFontSize(15); doc.setFont('helvetica', 'bold'); doc.setTextColor(...cG);
+    doc.text('FACTURE ' + inv.id, R, y, { align: 'right' });
+    doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(...cM);
+    doc.text('Émise le ' + date, R, y + 7, { align: 'right' });
+
+    // Separator
+    y += 24;
+    doc.setDrawColor(...cG); doc.setLineWidth(0.8); doc.line(L, y, R, y);
+    y += 8;
+
+    // Patient box
+    doc.setFillColor(...cB); doc.roundedRect(L, y, W, 22, 3, 3, 'F');
+    const col2 = [L + 6, L + 62, L + 116];
+    doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(...cM);
+    doc.text('PATIENT', col2[0], y + 7);
+    doc.text('SECTEUR', col2[1], y + 7);
+    if (inv.visitTime) doc.text('DATE DE SOIN', col2[2], y + 7);
+    doc.setFontSize(11); doc.setFont('helvetica', 'bold'); doc.setTextColor(...cD);
+    doc.text(inv.patient, col2[0], y + 15);
+    doc.text(inv.sector, col2[1], y + 15);
+    if (inv.visitTime) doc.text(date + ' · ' + inv.visitTime, col2[2], y + 15);
+    y += 30;
+
+    // Table header
+    doc.setFillColor(...cB); doc.rect(L, y, W, 9, 'F');
+    doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(...cM);
+    doc.text('ACTE EFFECTUÉ', L + 4, y + 6);
+    doc.text('CODE', L + 122, y + 6);
+    doc.text('MONTANT', R - 2, y + 6, { align: 'right' });
+    y += 13;
+
+    // Acts
+    const ifdAmtPdf = typeof inv.ifdAmount !== 'undefined' ? inv.ifdAmount : IFD_AMOUNT;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(11); doc.setTextColor(...cD);
+    for (const act of (inv.acts || [])) {
+      doc.text(String(act.name), L + 4, y);
+      doc.text(String(act.code), L + 122, y);
+      doc.text(Number(act.amount).toFixed(2).replace('.', ',') + ' €', R - 2, y, { align: 'right' });
+      y += 3;
+      doc.setDrawColor(...cL); doc.setLineWidth(0.25); doc.line(L, y, R, y);
+      y += 7;
+    }
+
+    // IFD
+    if (inv.ifd) {
+      doc.text(IFD_LABEL, L + 4, y);
+      doc.text('IFD', L + 122, y);
+      doc.text(ifdAmtPdf.toFixed(2).replace('.', ',') + ' €', R - 2, y, { align: 'right' });
+      y += 3;
+      doc.setDrawColor(...cL); doc.line(L, y, R, y);
+      y += 7;
+    }
+
+    // Total
+    y += 2;
+    doc.setDrawColor(...cG); doc.setLineWidth(0.7); doc.line(L, y, R, y);
+    y += 8;
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.setTextColor(...cG);
+    doc.text('Total honoraires', L + 4, y);
+    doc.text(inv.total.toFixed(2).replace('.', ',') + ' €', R - 2, y, { align: 'right' });
+    y += 12;
+
+    // Notes
+    if (inv.notes) {
+      doc.setFont('helvetica', 'italic'); doc.setFontSize(9); doc.setTextColor(...cM);
+      doc.text('Note : ' + inv.notes, L + 4, y);
+      y += 8;
+    }
+
+    // Footer
+    y += 2;
+    doc.setDrawColor(...cL); doc.setLineWidth(0.3); doc.line(L, y, R, y);
+    y += 6;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(...cM);
+    doc.text('Prise en charge Assurance Maladie : 60 % · Mutuelle : selon contrat', L + 4, y);
+    y += 5;
+    doc.text('Règlement par virement ou chèque à l’ordre de Léa Martin', L + 4, y);
+    y += 5;
+    doc.text('Merci de rappeler le N° de facture ' + inv.id + ' lors du règlement.', L + 4, y);
+
+    doc.save('Facture-' + inv.id + '.pdf');
+  }
+
+  const downloadPdfBtn = document.querySelector("[data-download-pdf]");
+  if (downloadPdfBtn) {
+    downloadPdfBtn.addEventListener("click", function () {
+      if (currentInvoice) downloadInvoicePDF(currentInvoice);
+    });
+  }
 
 }());

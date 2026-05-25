@@ -1702,10 +1702,29 @@ html[data-theme="dark"] .care-tag.bilan {
 }
 
 .act-amount {
+  width: 100%;
+  padding: 7px 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-soft);
+  color: var(--primary);
+  font: inherit;
   font-weight: 700;
   font-size: 13px;
-  color: var(--primary);
   text-align: right;
+  outline: 0;
+  transition: border-color .16s ease, box-shadow .16s ease;
+  -moz-appearance: textfield;
+}
+
+.act-amount::-webkit-outer-spin-button,
+.act-amount::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
+.act-amount:focus {
+  border-color: var(--mint);
+  box-shadow: 0 0 0 3px rgba(87, 182, 154, .13);
 }
 
 .act-remove {
@@ -1757,6 +1776,24 @@ html[data-theme="dark"] .care-tag.bilan {
   height: 16px;
   accent-color: var(--primary);
   cursor: pointer;
+  flex-shrink: 0;
+}
+
+.ifd-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ifd-right .act-amount {
+  width: 72px;
+  flex-shrink: 0;
+}
+
+.ifd-currency {
+  color: var(--muted);
+  font-size: 12px;
   flex-shrink: 0;
 }
 
