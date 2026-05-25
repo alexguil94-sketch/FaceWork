@@ -285,10 +285,16 @@
             <h1>Patients</h1>
             <p class="page-subtitle">Identités abrégées pour cette démonstration de CRM.</p>
           </div>
-          <label class="section-search">
-            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m21 21-4.7-4.7m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg>
-            <input type="search" id="patientSearch" placeholder="Chercher un patient ou un soin"/>
-          </label>
+          <div class="page-head-right">
+            <label class="section-search">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m21 21-4.7-4.7m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg>
+              <input type="search" id="patientSearch" placeholder="Chercher un patient ou un soin"/>
+            </label>
+            <button class="primary-button" type="button" data-add-patient>
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m7-10a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm6 2v6m3-3h-6"/></svg>
+              Ajouter un patient
+            </button>
+          </div>
         </div>
         <section class="panel">
           <div class="patient-list" id="patientList"></div>
@@ -321,6 +327,10 @@
             <h1>Facturation</h1>
             <p class="page-subtitle">Actes réalisés à facturer · honoraires et suivi des règlements.</p>
           </div>
+          <button class="primary-button" type="button" data-new-invoice>
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14m-7-7h14"/></svg>
+            Nouvelle facture
+          </button>
         </div>
         <div class="stat-grid" id="facturationStats" aria-label="Indicateurs de facturation"></div>
         <section class="panel">
@@ -421,6 +431,111 @@
       <div class="dialog-actions">
         <button class="secondary-button" type="button" data-close-dialog>Annuler</button>
         <button class="primary-button" type="submit">Ajouter à la tournée</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="appointment-dialog" id="patientDialog" aria-labelledby="patientDialogTitle">
+    <form id="patientForm">
+      <div class="dialog-head">
+        <div>
+          <p class="eyebrow">Patients</p>
+          <h2 id="patientDialogTitle">Ajouter un patient</h2>
+        </div>
+        <button class="close-button" type="button" data-close-patient aria-label="Fermer">×</button>
+      </div>
+      <div class="form-grid">
+        <label>
+          Initiales / nom abrégé
+          <input name="initials" required maxlength="14" placeholder="Ex. P. L."/>
+        </label>
+        <label>
+          Secteur
+          <select name="sector">
+            <option>Lyon 3e</option>
+            <option>Villeurbanne</option>
+            <option>Bron</option>
+          </select>
+        </label>
+        <label>
+          Année de naissance
+          <input name="dob" type="number" min="1900" max="2015" placeholder="1952"/>
+        </label>
+        <label>
+          Médecin traitant
+          <input name="doctor" placeholder="Dr. Martin"/>
+        </label>
+        <label>
+          N° SS (partiel, facultatif)
+          <input name="ss" placeholder="1 52 06 ..."/>
+        </label>
+        <label>
+          Mutuelle
+          <input name="mutuelle" placeholder="MGEN, AXA, Harmonie..."/>
+        </label>
+        <label class="full">
+          Soins habituels (séparés par virgule)
+          <input name="care" placeholder="Pansement, Injection, Suivi diabétique..."/>
+        </label>
+      </div>
+      <div class="dialog-actions">
+        <button class="secondary-button" type="button" data-close-patient>Annuler</button>
+        <button class="primary-button" type="submit">Ajouter le patient</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="appointment-dialog new-invoice-dialog" id="newInvoiceDialog" aria-labelledby="newInvoiceTitle">
+    <form id="newInvoiceForm">
+      <div class="dialog-head">
+        <div>
+          <p class="eyebrow">Facturation</p>
+          <h2 id="newInvoiceTitle">Nouvelle facture</h2>
+        </div>
+        <button class="close-button" type="button" data-close-new-invoice aria-label="Fermer">×</button>
+      </div>
+      <div class="form-grid">
+        <label class="full">
+          Patient
+          <select name="patientInitials" id="invoicePatientSelect" required>
+            <option value="">— Choisir un patient —</option>
+          </select>
+        </label>
+        <label>
+          Date de soin
+          <input name="date" type="date" required/>
+        </label>
+        <label>
+          Secteur
+          <input name="sector" id="invoiceSector" readonly placeholder="Auto (selon patient)"/>
+        </label>
+      </div>
+      <div class="acts-section">
+        <div class="acts-section-head">
+          <span class="acts-section-label">Actes effectués</span>
+          <button class="text-button" type="button" id="addActBtn">+ Ajouter un acte</button>
+        </div>
+        <div id="actsList"></div>
+      </div>
+      <div class="ifd-toggle-row">
+        <label class="ifd-toggle">
+          <input type="checkbox" id="ifdCheckbox" checked/>
+          IFD — Ind. forfait. déplacement · 2,50 €
+        </label>
+        <span class="live-total">Total : <strong id="liveTotal">0,00 €</strong></span>
+      </div>
+      <div class="form-grid">
+        <label class="full">
+          Notes / remarques
+          <textarea name="notes" rows="2" placeholder="Indication clinique, remarque de suivi..."></textarea>
+        </label>
+      </div>
+      <div class="dialog-actions">
+        <button class="secondary-button" type="button" data-close-new-invoice>Annuler</button>
+        <button class="primary-button" type="submit">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M9 7H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-3M13 4h5l2 2v5m-7 0 7-7"/></svg>
+          Créer & aperçu
+        </button>
       </div>
     </form>
   </dialog>

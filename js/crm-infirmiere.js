@@ -88,12 +88,13 @@
     return { ...visit, date: todayISO };
   });
 
+  let patientIdCounter = 5;
   let patients = [
-    { initials: "P. L.", sector: "Lyon 3e", care: ["Pansement"], next: "Aujourd'hui · 08:45" },
-    { initials: "M. R.", sector: "Villeurbanne", care: ["Suivi diabétique", "Ordonnance"], next: "Aujourd'hui · 09:35" },
-    { initials: "A. D.", sector: "Villeurbanne", care: ["Surveillance"], next: "Aujourd'hui · 10:15" },
-    { initials: "C. B.", sector: "Lyon 3e", care: ["Injection"], next: "Aujourd'hui · 08:00" },
-    { initials: "E. C.", sector: "Bron", care: ["Coordination"], next: "Aujourd'hui · 12:00" },
+    { id: 1, initials: "P. L.", sector: "Lyon 3e", care: ["Pansement"], next: "Aujourd'hui · 08:45", dob: "1958", doctor: "Dr. Renaud", ss: "1 58 03 ...", mutuelle: "MGEN" },
+    { id: 2, initials: "M. R.", sector: "Villeurbanne", care: ["Suivi diabétique", "Ordonnance"], next: "Aujourd'hui · 09:35", dob: "1944", doctor: "Dr. Perrin", ss: "1 44 11 ...", mutuelle: "Allianz" },
+    { id: 3, initials: "A. D.", sector: "Villeurbanne", care: ["Surveillance"], next: "Aujourd'hui · 10:15", dob: "1971", doctor: "Dr. Renaud", ss: "1 71 07 ...", mutuelle: "Harmonie" },
+    { id: 4, initials: "C. B.", sector: "Lyon 3e", care: ["Injection"], next: "Aujourd'hui · 08:00", dob: "1965", doctor: "Dr. Blanc", ss: "2 65 04 ...", mutuelle: "MGEN" },
+    { id: 5, initials: "E. C.", sector: "Bron", care: ["Coordination"], next: "Aujourd'hui · 12:00", dob: "1983", doctor: "Dr. Leblanc", ss: "2 83 09 ...", mutuelle: "AXA" },
   ];
 
   const visitList = document.getElementById("visitList");
@@ -263,17 +264,26 @@
 
     patientList.innerHTML = displayedPatients.length
       ? displayedPatients.map(function (patient) {
+        const doctorMutuelle = [patient.doctor, patient.mutuelle].filter(Boolean).join(" · ");
         return [
           '<article class="patient-row">',
-          '<div class="patient-identity"><span class="patient-initials">' + escapeHtml(patient.initials.replaceAll(".", "")) + '</span><div><strong>' + escapeHtml(patient.initials) + '</strong><small>' + escapeHtml(patient.sector) + "</small></div></div>",
+          '<div class="patient-identity"><span class="patient-initials">' + escapeHtml(patient.initials.replaceAll(".", "")) + '</span><div><strong>' + escapeHtml(patient.initials) + '</strong><small>' + escapeHtml(patient.sector) + (patient.dob ? " · né(e) " + escapeHtml(patient.dob) : "") + "</small></div></div>",
           '<div class="patient-care">' + patient.care.map(function (care) { return "<span>" + escapeHtml(care) + "</span>"; }).join("") + "</div>",
-          '<div class="patient-next"><small>Prochain soin</small><strong>' + escapeHtml(patient.next) + "</strong></div>",
-          '<button class="secondary-button" type="button" data-notify="Dossier de ' + escapeHtml(patient.initials) + ' ouvert en mode démonstration.">Ouvrir</button>',
+          '<div class="patient-next"><small>Prochain soin</small><strong>' + escapeHtml(patient.next) + "</strong>" + (doctorMutuelle ? '<small style="margin-top:4px;display:block">' + escapeHtml(doctorMutuelle) + '</small>' : '') + "</div>",
+          '<div style="display:flex;gap:8px;flex-wrap:wrap">',
+          '<button class="primary-button" type="button" style="min-height:37px;padding:0 13px;font-size:12px" data-patient-invoice="' + escapeHtml(patient.initials) + '">Facturer</button>',
+          '<button class="secondary-button" type="button" style="min-height:37px;padding:0 13px;font-size:12px" data-notify="Dossier de ' + escapeHtml(patient.initials) + ' ouvert en mode démonstration.">Ouvrir</button>',
+          '</div>',
           "</article>",
         ].join("");
       }).join("")
       : '<p class="empty-state">Aucun patient trouvé pour cette recherche.</p>';
     bindNotifyButtons(patientList);
+    patientList.querySelectorAll("[data-patient-invoice]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        openNewInvoiceDialog(btn.dataset.patientInvoice);
+      });
+    });
   }
 
   function renderServices() {
@@ -561,19 +571,33 @@
     el.innerHTML = heading + invoices.map(function (inv) {
       const date = new Intl.DateTimeFormat("fr-FR").format(new Date(inv.date + "T12:00:00"));
       const statusCls = inv.status === "payée" ? "confirmed" : "waiting";
+      const paidBtn = inv.status === "émise"
+        ? '<button class="text-button" type="button" data-mark-paid="' + escapeHtml(inv.id) + '" style="margin-right:4px">Payée ✓</button>'
+        : '';
       return '<div class="invoice-row">' +
         '<strong>' + escapeHtml(inv.id) + '</strong>' +
         '<span>' + escapeHtml(inv.patient) + '</span>' +
         '<span>' + date + '</span>' +
         '<span class="bill-amount">' + inv.total.toFixed(2).replace(".", ",") + ' €</span>' +
         '<span class="status ' + statusCls + '">' + escapeHtml(inv.status) + '</span>' +
+        '<span style="display:flex;gap:4px;align-items:center">' + paidBtn +
         '<button class="text-button" type="button" data-reprint="' + escapeHtml(inv.id) + '">Imprimer</button>' +
+        '</span>' +
         '</div>';
     }).join("");
     el.querySelectorAll("[data-reprint]").forEach(function (btn) {
       btn.addEventListener("click", function () {
         const inv = invoices.find(function (i) { return i.id === btn.dataset.reprint; });
         if (inv) printInvoice(inv);
+      });
+    });
+    el.querySelectorAll("[data-mark-paid]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        const inv = invoices.find(function (i) { return i.id === btn.dataset.markPaid; });
+        if (!inv) return;
+        inv.status = "payée";
+        renderFacturation();
+        showToast("Facture " + inv.id + " marquée comme payée.", "Règlement enregistré");
       });
     });
   }
@@ -586,32 +610,48 @@
   }
 
   function buildInvoicePreviewHTML(inv) {
-    const svc = serviceById(inv.serviceId);
     const date = new Intl.DateTimeFormat("fr-FR").format(new Date(inv.date + "T12:00:00"));
+    const actsRows = (inv.acts || []).map(function (act) {
+      return '<tr><td>' + escapeHtml(act.name) + '</td><td>' + escapeHtml(act.code) + '</td><td style="text-align:right">' + Number(act.amount).toFixed(2).replace(".", ",") + ' €</td></tr>';
+    }).join("");
+    const ifdRow = inv.ifd
+      ? '<tr><td>' + escapeHtml(IFD_LABEL) + '</td><td>IFD</td><td style="text-align:right">' + IFD_AMOUNT.toFixed(2).replace(".", ",") + ' €</td></tr>'
+      : '';
+    const notesSection = inv.notes
+      ? '<div class="invoice-footer" style="margin-bottom:10px">Note : ' + escapeHtml(inv.notes) + '</div>'
+      : '';
     return '<div class="invoice-header">' +
       '<div class="invoice-practice"><strong>Léa Martin — Infirmière DE</strong>' +
-      '<p>17, rue de la République · 69003 Lyon<br>RPPS : 12345678901 · SIRET : 898 765 432 00012</p></div>' +
+      '<p>17, rue de la République · 69003 Lyon<br>RPPS : 12345678901 · SIRET : 898 765 432 00012</p></div>' +
       '<div class="invoice-meta"><strong>' + escapeHtml(inv.id) + '</strong><p>Émise le ' + date + '</p></div>' +
       '</div>' +
       '<div class="invoice-patient">' +
       '<div><span>Patient</span><strong>' + escapeHtml(inv.patient) + '</strong></div>' +
       '<div><span>Secteur</span><strong>' + escapeHtml(inv.sector) + '</strong></div>' +
-      '<div><span>Date de soin</span><strong>' + date + ' · ' + escapeHtml(inv.visitTime) + '</strong></div>' +
+      (inv.visitTime ? '<div><span>Date de soin</span><strong>' + date + ' · ' + escapeHtml(inv.visitTime) + '</strong></div>' : '') +
       '</div>' +
       '<table class="invoice-table"><thead><tr><th>Acte effectué</th><th>Code</th><th style="text-align:right">Montant</th></tr></thead><tbody>' +
-      '<tr><td>' + escapeHtml(svc.name) + '</td><td>' + escapeHtml(svc.code) + '</td><td style="text-align:right">' + svc.amount.toFixed(2).replace(".", ",") + ' €</td></tr>' +
-      '<tr><td>' + escapeHtml(IFD_LABEL) + '</td><td>IFD</td><td style="text-align:right">' + IFD_AMOUNT.toFixed(2).replace(".", ",") + ' €</td></tr>' +
+      actsRows + ifdRow +
       '<tr class="invoice-total-row"><td colspan="2"><strong>Total honoraires</strong></td><td style="text-align:right"><strong>' + inv.total.toFixed(2).replace(".", ",") + ' €</strong></td></tr>' +
       '</tbody></table>' +
+      notesSection +
       '<div class="invoice-footer">Prise en charge Assurance Maladie : 60 % · Mutuelle : selon contrat<br>' +
-      'Règlement par virement ou chèque à l\'ordre de Léa Martin · Merci de rappeler le N° de facture.</div>';
+      'Règlement par virement ou chèque à l’ordre de Léa Martin · Merci de rappeler le N° de facture.</div>';
   }
 
   function printInvoice(inv) {
-    const svc = serviceById(inv.serviceId);
     const date = new Intl.DateTimeFormat("fr-FR").format(new Date(inv.date + "T12:00:00"));
     const win = window.open("", "_blank");
     if (!win) { showToast("Autorisez les pop-ups pour imprimer.", "Impression bloquée"); return; }
+    const actsRows = (inv.acts || []).map(function (act) {
+      return '<tr><td>' + escapeHtml(act.name) + '</td><td>' + escapeHtml(act.code) + '</td><td style="text-align:right">' + Number(act.amount).toFixed(2).replace(".", ",") + ' €</td></tr>';
+    }).join("");
+    const ifdRow = inv.ifd
+      ? '<tr><td>' + escapeHtml(IFD_LABEL) + '</td><td>IFD</td><td style="text-align:right">' + IFD_AMOUNT.toFixed(2).replace(".", ",") + ' €</td></tr>'
+      : '';
+    const notesSection = inv.notes
+      ? '<p class="ftr" style="margin-bottom:12px">Note : ' + escapeHtml(inv.notes) + '</p>'
+      : '';
     win.document.write('<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Facture ' + escapeHtml(inv.id) + '</title>' +
       '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;font-size:13px;color:#17322f;padding:32px 40px;max-width:700px;margin:0 auto}' +
       'h1{font-size:22px;color:#096a61;margin-bottom:4px}' +
@@ -626,21 +666,21 @@
       '.ftr{color:#647b78;font-size:11px;line-height:1.7;padding-top:14px;border-top:1px solid #dde8e2}' +
       '@media print{body{padding:18px 28px}}</style></head><body>' +
       '<div class="hdr">' +
-      '<div><h1>Léa Martin</h1><p class="muted">Infirmière Diplômée d\'État · Libérale<br>17, rue de la République · 69003 Lyon<br>RPPS : 12345678901 · SIRET : 898 765 432 00012</p></div>' +
+      '<div><h1>Léa Martin</h1><p class="muted">Infirmière Diplômée d’État · Libérale<br>17, rue de la République · 69003 Lyon<br>RPPS : 12345678901 · SIRET : 898 765 432 00012</p></div>' +
       '<div style="text-align:right"><p class="inv-num">FACTURE ' + escapeHtml(inv.id) + '</p><p class="muted">Émise le ' + date + '</p></div>' +
       '</div>' +
       '<div class="pbox">' +
       '<div><span>Patient</span><strong>' + escapeHtml(inv.patient) + '</strong></div>' +
       '<div><span>Secteur</span><strong>' + escapeHtml(inv.sector) + '</strong></div>' +
-      '<div><span>Date de soin</span><strong>' + date + ' à ' + escapeHtml(inv.visitTime) + '</strong></div>' +
+      (inv.visitTime ? '<div><span>Date de soin</span><strong>' + date + ' à ' + escapeHtml(inv.visitTime) + '</strong></div>' : '') +
       '</div>' +
       '<table><thead><tr><th>Acte effectué</th><th>Code NGAP</th><th style="text-align:right">Montant</th></tr></thead><tbody>' +
-      '<tr><td>' + escapeHtml(svc.name) + '</td><td>' + escapeHtml(svc.code) + '</td><td style="text-align:right">' + svc.amount.toFixed(2).replace(".", ",") + ' €</td></tr>' +
-      '<tr><td>' + escapeHtml(IFD_LABEL) + '</td><td>IFD</td><td style="text-align:right">' + IFD_AMOUNT.toFixed(2).replace(".", ",") + ' €</td></tr>' +
+      actsRows + ifdRow +
       '<tr class="tot"><td colspan="2">Total honoraires</td><td style="text-align:right">' + inv.total.toFixed(2).replace(".", ",") + ' €</td></tr>' +
       '</tbody></table>' +
-      '<div class="ftr">Prise en charge Assurance Maladie : 60 % · Mutuelle : selon contrat<br>' +
-      'Règlement par virement ou chèque à l\'ordre de Léa Martin<br>' +
+      notesSection +
+      '<div class="ftr">Prise en charge Assurance Maladie : 60 % · Mutuelle : selon contrat<br>' +
+      'Règlement par virement ou chèque à l’ordre de Léa Martin<br>' +
       'Merci de rappeler le N° de facture ' + escapeHtml(inv.id) + ' lors du règlement.</div>' +
       '</body></html>');
     win.document.close();
@@ -657,7 +697,9 @@
       date: visit.date,
       patient: visit.patient,
       sector: visit.sector,
-      serviceId: visit.serviceId,
+      acts: [{ serviceId: svc.id, name: svc.name, code: svc.code, amount: svc.amount }],
+      ifd: true,
+      notes: "",
       visitTime: visit.time,
       total: svc.amount + IFD_AMOUNT,
       status: "émise",
@@ -696,4 +738,198 @@
       });
     }
   }
+  // --- Patient dialog ---
+  const patientDialog = document.getElementById("patientDialog");
+  const patientForm = document.getElementById("patientForm");
+
+  function openPatientDialog() {
+    patientForm.reset();
+    if (typeof patientDialog.showModal === "function") patientDialog.showModal();
+    else patientDialog.setAttribute("open", "");
+  }
+
+  function closePatientDialog() {
+    if (typeof patientDialog.close === "function") patientDialog.close();
+    else patientDialog.removeAttribute("open");
+  }
+
+  document.querySelectorAll("[data-close-patient]").forEach(function (btn) {
+    btn.addEventListener("click", closePatientDialog);
+  });
+
+  document.querySelectorAll("[data-add-patient]").forEach(function (btn) {
+    btn.addEventListener("click", openPatientDialog);
+  });
+
+  patientForm.addEventListener("submit", function (event) {
+    event.preventDefault();
+    const data = new FormData(patientForm);
+    const initials = String(data.get("initials") || "").trim();
+    if (!initials) return;
+    patientIdCounter += 1;
+    patients.unshift({
+      id: patientIdCounter,
+      initials: initials,
+      sector: String(data.get("sector") || "Lyon 3e"),
+      dob: String(data.get("dob") || "").trim() || undefined,
+      doctor: String(data.get("doctor") || "").trim() || undefined,
+      ss: String(data.get("ss") || "").trim() || undefined,
+      mutuelle: String(data.get("mutuelle") || "").trim() || undefined,
+      care: String(data.get("care") || "").split(",").map(function (s) { return s.trim(); }).filter(Boolean),
+      next: "\u2014",
+    });
+    renderPatients(patientSearch.value);
+    closePatientDialog();
+    showToast("Patient " + initials + " ajout\u00e9 au dossier.", "Patient enregistr\u00e9");
+  });
+
+  // --- New invoice dialog ---
+  const newInvoiceDialog = document.getElementById("newInvoiceDialog");
+  const newInvoiceForm = document.getElementById("newInvoiceForm");
+  const actsList = document.getElementById("actsList");
+  const invoicePatientSelect = document.getElementById("invoicePatientSelect");
+  const ifdCheckbox = document.getElementById("ifdCheckbox");
+  const liveTotalEl = document.getElementById("liveTotal");
+  const invoiceSector = document.getElementById("invoiceSector");
+  const addActBtn = document.getElementById("addActBtn");
+
+  function populateInvoicePatientSelect(preselect) {
+    invoicePatientSelect.innerHTML = '<option value="">\u2014 Choisir un patient \u2014</option>' +
+      patients.map(function (p) {
+        return '<option value="' + escapeHtml(p.initials) + '"' + (p.initials === preselect ? ' selected' : '') + '>' + escapeHtml(p.initials) + ' \u00b7 ' + escapeHtml(p.sector) + '</option>';
+      }).join("");
+    const sel = patients.find(function (p) { return p.initials === preselect; });
+    invoiceSector.value = sel ? sel.sector : "";
+  }
+
+  function updateLiveTotal() {
+    let total = 0;
+    actsList.querySelectorAll(".act-row").forEach(function (row) {
+      const sel = row.querySelector(".act-select");
+      if (sel && sel.value) {
+        const svc = serviceById(sel.value);
+        total += svc ? svc.amount : 0;
+      }
+    });
+    if (ifdCheckbox.checked) total += IFD_AMOUNT;
+    liveTotalEl.textContent = total.toFixed(2).replace(".", ",") + " \u20ac";
+    return total;
+  }
+
+  function createActRow() {
+    const row = document.createElement("div");
+    row.className = "act-row";
+    row.innerHTML =
+      '<select class="act-select" aria-label="Acte">' +
+      services.map(function (svc) {
+        return '<option value="' + escapeHtml(svc.id) + '">' + escapeHtml(svc.name) + '</option>';
+      }).join("") +
+      '</select>' +
+      '<span class="act-code"></span>' +
+      '<span class="act-amount"></span>' +
+      '<button class="act-remove" type="button" aria-label="Supprimer cet acte">\u00d7</button>';
+
+    function refreshRow() {
+      const svc = serviceById(row.querySelector(".act-select").value);
+      row.querySelector(".act-code").textContent = svc ? svc.code : "";
+      row.querySelector(".act-amount").textContent = svc ? svc.amount.toFixed(2).replace(".", ",") + " \u20ac" : "";
+      updateLiveTotal();
+    }
+    row.querySelector(".act-select").addEventListener("change", refreshRow);
+    row.querySelector(".act-remove").addEventListener("click", function () {
+      row.remove();
+      updateLiveTotal();
+    });
+    refreshRow();
+    return row;
+  }
+
+  function openNewInvoiceDialog(preselect) {
+    newInvoiceForm.reset();
+    actsList.innerHTML = "";
+    populateInvoicePatientSelect(preselect || "");
+    newInvoiceForm.elements.date.value = todayISO;
+    actsList.appendChild(createActRow());
+    ifdCheckbox.checked = true;
+    updateLiveTotal();
+    if (typeof newInvoiceDialog.showModal === "function") newInvoiceDialog.showModal();
+    else newInvoiceDialog.setAttribute("open", "");
+  }
+
+  function closeNewInvoiceDialog() {
+    if (typeof newInvoiceDialog.close === "function") newInvoiceDialog.close();
+    else newInvoiceDialog.removeAttribute("open");
+  }
+
+  document.querySelectorAll("[data-close-new-invoice]").forEach(function (btn) {
+    btn.addEventListener("click", closeNewInvoiceDialog);
+  });
+
+  document.querySelectorAll("[data-new-invoice]").forEach(function (btn) {
+    btn.addEventListener("click", function () { openNewInvoiceDialog(); });
+  });
+
+  addActBtn.addEventListener("click", function () {
+    actsList.appendChild(createActRow());
+    updateLiveTotal();
+  });
+
+  invoicePatientSelect.addEventListener("change", function () {
+    const initials = invoicePatientSelect.value;
+    const patient = patients.find(function (p) { return p.initials === initials; });
+    invoiceSector.value = patient ? patient.sector : "";
+  });
+
+  ifdCheckbox.addEventListener("change", updateLiveTotal);
+
+  newInvoiceForm.addEventListener("submit", function (event) {
+    event.preventDefault();
+    const initials = invoicePatientSelect.value;
+    if (!initials) { showToast("Veuillez s\u00e9lectionner un patient.", "Champ requis"); return; }
+    const actRows = actsList.querySelectorAll(".act-row");
+    if (!actRows.length) { showToast("Ajoutez au moins un acte.", "Champ requis"); return; }
+
+    const data = new FormData(newInvoiceForm);
+    const date = String(data.get("date") || todayISO);
+    const sector = invoiceSector.value || "\u2014";
+    const notes = String(data.get("notes") || "").trim();
+
+    const acts = [];
+    actRows.forEach(function (row) {
+      const sel = row.querySelector(".act-select");
+      if (sel && sel.value) {
+        const svc = serviceById(sel.value);
+        if (svc) acts.push({ serviceId: svc.id, name: svc.name, code: svc.code, amount: svc.amount });
+      }
+    });
+
+    const actsTotal = acts.reduce(function (sum, a) { return sum + a.amount; }, 0);
+    const total = actsTotal + (ifdCheckbox.checked ? IFD_AMOUNT : 0);
+
+    invoiceCounter += 1;
+    const id = "SC-" + new Date().getFullYear() + "-" + String(invoiceCounter).padStart(3, "0");
+    const inv = {
+      id: id,
+      date: date,
+      patient: initials,
+      sector: sector,
+      acts: acts,
+      ifd: ifdCheckbox.checked,
+      notes: notes,
+      visitTime: "",
+      total: total,
+      status: "\u00e9mise",
+    };
+
+    invoices.push(inv);
+    currentInvoice = inv;
+    closeNewInvoiceDialog();
+    renderFacturation();
+    const previewEl = document.getElementById("invoicePreview");
+    if (previewEl) previewEl.innerHTML = buildInvoicePreviewHTML(inv);
+    if (typeof invoiceDialog?.showModal === "function") invoiceDialog.showModal();
+    else invoiceDialog?.setAttribute("open", "");
+    showToast("Facture " + id + " cr\u00e9\u00e9e pour " + initials + ".", "Facture g\u00e9n\u00e9r\u00e9e");
+  });
+
 }());
