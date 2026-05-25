@@ -119,6 +119,23 @@
   to = "/app/crm-dashboard.html"
   status = 302
 
+[[redirects]]
+  from = "/crm-infirmiere"
+  to = "/app/crm-infirmiere.html"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/crm-infirmiere.html"
+  to = "/app/crm-infirmiere.html"
+  status = 302
+  force = true
+
+[[headers]]
+  for = "/app/crm-infirmiere.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
 [[headers]]
   for = "/index.html"
   [headers.values]

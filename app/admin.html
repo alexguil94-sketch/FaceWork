@@ -26,6 +26,7 @@
       <a data-app-nav href="channels.html"># Canaux</a>
       <a data-app-nav href="messages.html">💬 Messages</a>
       <a data-app-nav href="crm-dashboard.html" data-admin-only class="hidden">💼 CRM</a>
+      <a data-app-nav href="crm-infirmiere.html" data-care-only class="hidden">SereinCare</a>
       <a data-app-nav href="admin.html" data-admin-only class="hidden">🛡️ Admin</a>
       <a data-app-nav href="settings.html">⚙️ Paramètres</a>
       <a data-app-nav href="../tutoriel.html">📘 Tutoriel</a>
@@ -89,6 +90,60 @@
   <div class="toast" role="status" aria-live="polite">
     <div class="t">Info</div>
     <div class="d">—</div>
+  </div>
+
+  <div class="composer-overlay hidden" id="userAdminOverlay" role="dialog" aria-modal="true" aria-label="Créer un membre">
+    <div class="card composer-modal" role="document" style="width: min(680px, 96vw)">
+      <div class="row" style="justify-content:space-between; flex-wrap:wrap; gap:12px; align-items:flex-start">
+        <div>
+          <div class="badge">Accès privé</div>
+          <h3 style="margin:10px 0 6px; font-size:22px">Créer un compte membre</h3>
+          <p class="page-sub">Créez le compte de l'infirmière puis cochez le rôle <strong>Accès SereinCare</strong>.</p>
+        </div>
+        <button class="btn icon ghost" type="button" title="Fermer" aria-label="Fermer" data-user-admin-close>×</button>
+      </div>
+
+      <div class="hr"></div>
+
+      <form id="userAdminForm" class="col" style="gap:14px" autocomplete="off">
+        <div class="grid2">
+          <div>
+            <div class="label">Nom</div>
+            <input class="input" id="userAdminName" placeholder="Prénom Nom" autocomplete="off"/>
+          </div>
+          <div>
+            <div class="label">Email</div>
+            <input class="input" id="userAdminEmail" type="email" placeholder="infirmiere@exemple.fr" autocomplete="off" required/>
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div>
+            <div class="label">Mot de passe provisoire</div>
+            <input class="input" id="userAdminPassword" type="password" placeholder="Minimum 6 caractères" autocomplete="new-password" required/>
+          </div>
+          <div>
+            <div class="label">Entreprise / workspace</div>
+            <input class="input" id="userAdminCompany" disabled/>
+          </div>
+        </div>
+
+        <div>
+          <div class="label">Rôles attribués</div>
+          <div class="checklist" id="userAdminRoles" style="margin-top:8px"></div>
+        </div>
+
+        <div class="callout" style="margin:0">
+          <strong>Partage de connexion</strong>
+          <span class="muted">Après création, transmettez-lui son email, son mot de passe provisoire et le lien SereinCare privé.</span>
+        </div>
+
+        <div class="row" style="justify-content:flex-end; gap:10px; flex-wrap:wrap">
+          <button class="btn" type="button" data-user-admin-close>Annuler</button>
+          <button class="btn primary" type="submit">Créer et autoriser</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <!-- Modal — placé en fin de body pour éviter les bugs de stacking context (backdrop-filter) -->

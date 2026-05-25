@@ -7,8 +7,18 @@
 
   const emailInput = $("#email");
 
+  function requestedDestination(){
+    try{
+      const raw = String(new URLSearchParams(window.location.search || "").get("next") || "").trim();
+      if(/^app\/[a-z0-9-]+\.html(?:[?#].*)?$/i.test(raw)){
+        return raw;
+      }
+    }catch(e){ /* ignore */ }
+    return "app/feed.html";
+  }
+
   function go(){
-    window.location.href = "app/feed.html";
+    window.location.href = requestedDestination();
   }
 
   function dateStr(){

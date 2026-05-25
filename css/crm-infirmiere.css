@@ -69,6 +69,65 @@ body {
   font-size: 14px;
 }
 
+body.access-pending .care-app,
+body.access-denied .care-app {
+  display: none;
+}
+
+.access-screen {
+  display: none;
+  min-height: 100vh;
+  padding: 26px;
+  place-content: center;
+  justify-items: center;
+  gap: 13px;
+  text-align: center;
+}
+
+body.access-pending .access-screen,
+body.access-denied .access-screen {
+  display: grid;
+}
+
+.access-screen .brand-mark {
+  margin-bottom: 12px;
+}
+
+.access-screen .eyebrow {
+  margin-bottom: 0;
+}
+
+.access-screen h1 {
+  max-width: 560px;
+  font-family: var(--font-display);
+  font-size: clamp(30px, 5vw, 44px);
+  font-weight: 500;
+  line-height: 1.13;
+  letter-spacing: -.04em;
+}
+
+.access-screen p:not(.eyebrow) {
+  max-width: 530px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.access-actions {
+  margin-top: 16px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.access-actions.hidden {
+  display: none;
+}
+
+.access-actions a {
+  text-decoration: none;
+}
+
 button,
 input,
 select,
@@ -209,6 +268,22 @@ p {
   justify-content: flex-end;
   gap: 13px;
   min-width: 0;
+}
+
+.back-to-facework {
+  padding: 11px 13px;
+  border-radius: 12px;
+  color: var(--muted-strong);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.back-to-facework:hover,
+.back-to-facework:focus-visible {
+  background: var(--surface-soft);
+  color: var(--primary);
 }
 
 .search-top,
@@ -1554,6 +1629,10 @@ html[data-theme="dark"] .care-tag.bilan {
   }
 
   .profile span:not(.avatar) {
+    display: none;
+  }
+
+  .back-to-facework {
     display: none;
   }
 

@@ -239,9 +239,51 @@
     }
   }
 
+  async function applyCareVisibility(){
+    const careLinks = Array.from(document.querySelectorAll("[data-care-only]"));
+    if(!careLinks.length) return;
+
+    const reveal = (allowed)=>{
+      careLinks.forEach(el=> el.classList.toggle("hidden", !allowed));
+    };
+    const user = getUser();
+    if(isAdminUser(user)){
+      reveal(true);
+      return;
+    }
+    reveal(false);
+
+    const sb = window.fwSupabase?.client;
+    if(!user?.id || !user?.company || !window.fwSupabase?.enabled || !sb) return;
+
+    try{
+      const memberships = await sb
+        .from("member_roles")
+        .select("role_id")
+        .eq("company", user.company)
+        .eq("user_id", user.id);
+      if(memberships.error) return;
+
+      const roleIds = (memberships.data || []).map(item=> String(item.role_id || "")).filter(Boolean);
+      if(!roleIds.length) return;
+
+      const roles = await sb
+        .from("roles")
+        .select("id,perms")
+        .eq("company", user.company)
+        .in("id", roleIds);
+      if(roles.error) return;
+
+      reveal((roles.data || []).some(role=> role?.perms?.admin === true || role?.perms?.nurseCrm === true));
+    }catch(e){
+      reveal(false);
+    }
+  }
+
   function applyVisibility(){
     applyAuthVisibility();
     applyRoleVisibility();
+    applyCareVisibility();
   }
 
   function isProtectedPage(){

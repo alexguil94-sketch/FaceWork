@@ -1791,7 +1791,7 @@
           id: cryptoRandom(),
           name: "Admin",
           color: "#ff2d78",
-          perms: { admin:true, manageRoles:true, manageMembers:true, manageChannels:true },
+          perms: { admin:true, manageRoles:true, manageMembers:true, manageChannels:true, nurseCrm:true },
           createdAt: dateStr()
         },
         {
@@ -1806,6 +1806,13 @@
           name: "Membre",
           color: "#3b82f6",
           perms: {},
+          createdAt: dateStr()
+        },
+        {
+          id: cryptoRandom(),
+          name: "Accès SereinCare",
+          color: "#096a61",
+          perms: { nurseCrm:true },
           createdAt: dateStr()
         }
       ];
@@ -5485,6 +5492,8 @@ ${s}
 
   // ---------- ADMIN (roles/members)
   const ADMIN_ACTIVE_KEY = "fwActiveAdmin";
+  const CARE_ROLE_NAME = "Accès SereinCare";
+  const CARE_PERMISSION_KEY = "nurseCrm";
 
   function loadRoles(){
     try{
@@ -5501,6 +5510,49 @@ ${s}
     }catch(e){ return []; }
   }
   function saveMembers(arr){ localStorage.setItem("fwMembers", JSON.stringify(arr || [])); }
+
+  function roleGrantsCare(role){
+    return role?.perms?.[CARE_PERMISSION_KEY] === true;
+  }
+
+  function ensureLocalCareRole(roles){
+    const list = Array.isArray(roles) ? roles.slice() : [];
+    if(list.some(roleGrantsCare)) return list;
+    list.push({
+      id: cryptoRandom(),
+      name: CARE_ROLE_NAME,
+      color: "#096a61",
+      perms: { nurseCrm: true },
+      createdAt: dateStr(),
+    });
+    saveRoles(list);
+    return list;
+  }
+
+  async function ensureSupabaseCareRole(company, roles){
+    const list = Array.isArray(roles) ? roles.slice() : [];
+    if(!isAdmin() || list.some(roleGrantsCare)) return list;
+
+    const existing = list.find(role=> String(role?.name || "").trim().toLowerCase() === CARE_ROLE_NAME.toLowerCase());
+    if(existing){
+      const perms = { ...(existing.perms || {}), nurseCrm: true };
+      const update = await sb.from("roles").update({ perms }).eq("company", company).eq("id", existing.id).select("*").single();
+      if(!update.error && update.data){
+        return list.map(role=> String(role.id) === String(existing.id) ? update.data : role);
+      }
+      return list;
+    }
+
+    const insert = await sb
+      .from("roles")
+      .insert({ company, name: CARE_ROLE_NAME, color: "#096a61", perms: { nurseCrm: true } })
+      .select("*")
+      .single();
+    if(!insert.error && insert.data){
+      return [...list, insert.data];
+    }
+    return list;
+  }
 
   function normalizeEmail(s){ return String(s || "").trim().toLowerCase(); }
   function normalizeHexColor(raw, fallback="#7c3aed"){
@@ -5660,7 +5712,7 @@ ${s}
     const selected = Array.isArray(selectedIds) ? selectedIds.map(String) : [];
     const checked = selected.includes(String(r.id));
     const color = normalizeHexColor(r.color || "#7c3aed");
-    const hint = r.perms?.admin ? "Administrateur" : (r.perms?.manageMembers || r.perms?.manageRoles ? "Gestion" : "Standard");
+    const hint = r.perms?.admin ? "Administrateur" : (roleGrantsCare(r) ? "Accès SereinCare" : (r.perms?.manageMembers || r.perms?.manageRoles ? "Gestion" : "Standard"));
     return `
       <label class="check">
         <div>
@@ -7583,6 +7635,7 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
         ${dashCardHtml({ href:"../tutos.html", icon:"🧩", title:"Tutos", desc:"Articles et pages pas‑à‑pas." })}
         ${dashCardHtml({ href:"../langages.html", icon:"📚", title:"Langages", desc:"Hubs par langage et ressources." })}
         ${dashCardHtml({ href:"settings.html", icon:"⚙️", title:"Paramètres", desc:"Profil, thème et options." })}
+        ${dashCardHtml({ href:"crm-infirmiere.html", icon:"+", title:"SereinCare", desc:"Espace infirmière privé. Attribue le rôle Accès SereinCare au membre autorisé.", meta:"Accès contrôlé" })}
       </div>
 
       <div class="spacer" style="height:18px"></div>
@@ -7746,6 +7799,14 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
               </div>
               <input type="checkbox" id="perm_manageChannels" ${perms.manageChannels ? "checked" : ""}/>
             </label>
+
+            <label class="check">
+              <div>
+                <div class="t">Accéder à SereinCare</div>
+                <div class="d">Ouvrir le CRM privé destiné à l'infirmière.</div>
+              </div>
+              <input type="checkbox" id="perm_nurseCrm" ${perms.nurseCrm ? "checked" : ""}/>
+            </label>
           </div>
         </div>
 
@@ -7818,7 +7879,7 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
             ${(roles || []).map(r=>{
               const checked = Array.isArray(m.roleIds) && m.roleIds.map(String).includes(String(r.id));
               const c = normalizeHexColor(r.color || "#7c3aed");
-              const hint = r.perms?.admin ? "Administrateur" : (r.perms?.manageMembers || r.perms?.manageRoles ? "Gestion" : "Standard");
+              const hint = r.perms?.admin ? "Administrateur" : (roleGrantsCare(r) ? "Accès SereinCare" : (r.perms?.manageMembers || r.perms?.manageRoles ? "Gestion" : "Standard"));
               return `
                 <label class="check">
                   <div>
@@ -7969,7 +8030,7 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
     const main = $("#adminMain");
     if(!rolesRoot || !membersRoot || !main) return;
 
-    let roles = loadRoles();
+    let roles = ensureLocalCareRole(loadRoles());
     let members = loadMembers();
 
     const u = getUser() || {};
@@ -8141,19 +8202,6 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
       });
     }
 
-    if(createMemberBtn && !createMemberBtn.__adminCreateBound){
-      createMemberBtn.__adminCreateBound = true;
-      createMemberBtn.addEventListener("click", (ev)=>{
-        ev.preventDefault();
-        ev.stopImmediatePropagation();
-        if(createMemberBtn.disabled){
-          window.fwToast?.("Acces refuse","Tu n'as pas la permission d'ajouter un membre.");
-          return;
-        }
-        openUserAdminModal({ roles, company });
-      }, true);
-    }
-
     if(!canManage){
       main.innerHTML = emptyAdminHtml("🔒","Accès réservé","Cette section est disponible pour les admins.");
       return;
@@ -8220,10 +8268,11 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
       const manageRolesCb = $("#perm_manageRoles", main);
       const manageMembersCb = $("#perm_manageMembers", main);
       const manageChannelsCb = $("#perm_manageChannels", main);
+      const nurseCrmCb = $("#perm_nurseCrm", main);
 
       const syncPermUi = ()=>{
         const isAdmin = !!adminCb?.checked;
-        [manageRolesCb, manageMembersCb, manageChannelsCb].forEach(cb=>{
+        [manageRolesCb, manageMembersCb, manageChannelsCb, nurseCrmCb].forEach(cb=>{
           if(!cb) return;
           cb.disabled = isAdmin;
           if(isAdmin) cb.checked = true;
@@ -8253,6 +8302,7 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
           manageRoles: !!manageRolesCb?.checked,
           manageMembers: !!manageMembersCb?.checked,
           manageChannels: !!manageChannelsCb?.checked,
+          nurseCrm: !!nurseCrmCb?.checked,
         };
 
         const roles = loadRoles().map(r=> String(r.id) === String(id) ? { ...r, name, color, perms } : r);
@@ -8374,7 +8424,8 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
       main.innerHTML = emptyAdminHtml("🛡️","Erreur","Impossible de charger les rôles.");
       return;
     }
-    const roles = rolesRes.data || [];
+    let roles = rolesRes.data || [];
+    roles = await ensureSupabaseCareRole(company, roles);
 
     const profRes = await sb
       .from("profiles")
@@ -8421,7 +8472,11 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
     const createRoleBtn = $("#createRole");
     const createMemberBtn = $("#createMember");
     if(createRoleBtn) createRoleBtn.disabled = !canManage;
-    if(createMemberBtn) createMemberBtn.disabled = !canManage;
+    if(createMemberBtn){
+      createMemberBtn.disabled = !canManage;
+      createMemberBtn.__sbRoles = roles;
+      createMemberBtn.__sbCompany = company;
+    }
 
     const sortedRoles = roles.slice().sort((a,b)=>{
       const an = String(a?.name || "");
@@ -8535,6 +8590,20 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
         localStorage.setItem(ADMIN_ACTIVE_KEY, `role:${ins.data?.id}`);
         await renderAdminSupabase();
         window.fwToast?.("Rôle créé", name);
+      });
+    }
+
+    if(createMemberBtn && !createMemberBtn.__sbBound){
+      createMemberBtn.__sbBound = true;
+      createMemberBtn.addEventListener("click", ()=>{
+        if(createMemberBtn.disabled){
+          window.fwToast?.("Accès refusé","Tu n'as pas la permission d'ajouter un membre.");
+          return;
+        }
+        openUserAdminModal({
+          roles: createMemberBtn.__sbRoles || [],
+          company: createMemberBtn.__sbCompany || companyFromUser(),
+        });
       });
     }
 
@@ -8677,10 +8746,11 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
       const manageRolesCb = $("#perm_manageRoles", main);
       const manageMembersCb = $("#perm_manageMembers", main);
       const manageChannelsCb = $("#perm_manageChannels", main);
+      const nurseCrmCb = $("#perm_nurseCrm", main);
 
       const syncPermUi = ()=>{
         const isAdmin = !!adminCb?.checked;
-        [manageRolesCb, manageMembersCb, manageChannelsCb].forEach(cb=>{
+        [manageRolesCb, manageMembersCb, manageChannelsCb, nurseCrmCb].forEach(cb=>{
           if(!cb) return;
           cb.disabled = isAdmin;
           if(isAdmin) cb.checked = true;
@@ -8710,6 +8780,7 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
           manageRoles: !!manageRolesCb?.checked,
           manageMembers: !!manageMembersCb?.checked,
           manageChannels: !!manageChannelsCb?.checked,
+          nurseCrm: !!nurseCrmCb?.checked,
         };
         const up = await sb.from("roles").update({ name, color, perms }).eq("company", company).eq("id", id);
         if(up.error){

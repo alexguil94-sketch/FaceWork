@@ -204,9 +204,10 @@ as $$
 begin
   insert into public.roles (company, name, color, perms)
   values
-    (_company, 'Admin', '#ff2d78', jsonb_build_object('admin', true, 'manageRoles', true, 'manageMembers', true, 'manageChannels', true)),
+    (_company, 'Admin', '#ff2d78', jsonb_build_object('admin', true, 'manageRoles', true, 'manageMembers', true, 'manageChannels', true, 'nurseCrm', true)),
     (_company, 'Modérateur', '#7c3aed', jsonb_build_object('manageMembers', true, 'manageChannels', true)),
-    (_company, 'Membre', '#3b82f6', '{}'::jsonb)
+    (_company, 'Membre', '#3b82f6', '{}'::jsonb),
+    (_company, 'Accès SereinCare', '#096a61', jsonb_build_object('nurseCrm', true))
   on conflict (company, name) do nothing;
 
   insert into public.channels (company, type, name)
