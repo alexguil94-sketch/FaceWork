@@ -89,6 +89,11 @@
           Documents
           <span class="nav-badge">3</span>
         </button>
+        <button type="button" data-view="facturation">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2V3Zm4 5h6m-6 4h6m-6 4h3"/></svg>
+          Facturation
+          <span class="nav-badge" data-invoice-badge style="display:none">0</span>
+        </button>
       </nav>
 
       <article class="privacy-card">
@@ -105,6 +110,10 @@
             <p class="eyebrow">Bonjour Léa</p>
             <h1>Une tournée sereine,<br/>des soins bien suivis.</h1>
             <p class="hero-text"><span data-today>Aujourd'hui</span> · Votre parcours comporte <strong data-visit-total>8 visites</strong>, dont deux soins nécessitant une transmission.</p>
+            <div class="day-progress" data-day-progress>
+              <div class="progress-track"><div class="progress-fill" data-progress-fill style="width:0%"></div></div>
+              <span class="progress-label" data-progress-label>0 / 8 réalisées</span>
+            </div>
             <div class="hero-actions">
               <button class="primary-button" type="button" data-open-appointment>Planifier un soin</button>
               <button class="secondary-button" type="button" data-export-route>Exporter la tournée</button>
@@ -305,6 +314,35 @@
         <p class="care-note">Les actes et leur facturation sont à valider selon la prescription médicale et la nomenclature applicable.</p>
       </section>
 
+      <section class="view" data-section="facturation" aria-label="Facturation" hidden>
+        <div class="page-head">
+          <div>
+            <p class="eyebrow">Suivi financier</p>
+            <h1>Facturation</h1>
+            <p class="page-subtitle">Actes réalisés à facturer · honoraires et suivi des règlements.</p>
+          </div>
+        </div>
+        <div class="stat-grid" id="facturationStats" aria-label="Indicateurs de facturation"></div>
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">À traiter</p>
+              <h2>Actes à facturer</h2>
+            </div>
+          </div>
+          <div class="bill-list" id="billList"></div>
+        </section>
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Émises</p>
+              <h2>Factures du mois</h2>
+            </div>
+          </div>
+          <div class="invoice-list" id="invoiceList"></div>
+        </section>
+      </section>
+
       <section class="view" data-section="documents" aria-label="Documents" hidden>
         <div class="page-head">
           <div>
@@ -385,6 +423,24 @@
         <button class="primary-button" type="submit">Ajouter à la tournée</button>
       </div>
     </form>
+  </dialog>
+
+  <dialog class="appointment-dialog invoice-dialog" id="invoiceDialog" aria-labelledby="invoiceTitle">
+    <div class="dialog-head">
+      <div>
+        <p class="eyebrow">Facturation</p>
+        <h2 id="invoiceTitle">Facture générée</h2>
+      </div>
+      <button class="close-button" type="button" data-close-invoice aria-label="Fermer">×</button>
+    </div>
+    <div class="invoice-preview" id="invoicePreview"></div>
+    <div class="dialog-actions">
+      <button class="secondary-button" type="button" data-close-invoice>Fermer</button>
+      <button class="primary-button" type="button" data-print-invoice>
+        <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2m-2 0v4H8v-4h8Z"/></svg>
+        Imprimer / PDF
+      </button>
+    </div>
   </dialog>
 
   <div class="toast" data-toast role="status" aria-live="polite" aria-atomic="true">

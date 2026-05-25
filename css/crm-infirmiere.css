@@ -457,6 +457,7 @@ html[data-theme="dark"] .primary-button {
   display: flex;
   flex-direction: column;
   gap: 27px;
+  overflow-y: auto;
 }
 
 .sector-card {
@@ -517,6 +518,7 @@ html[data-theme="dark"] .primary-button {
   height: 28px;
   border-radius: 0 6px 6px 0;
   background: transparent;
+  transition: background .18s ease;
 }
 
 .side-nav button:hover,
@@ -685,6 +687,7 @@ html[data-theme="dark"] .hero-illustration {
   box-shadow: 0 10px 29px rgba(32, 59, 54, .08);
   display: grid;
   gap: 6px;
+  animation: pulse-glow 2.8s ease infinite;
 }
 
 .pulse-card span {
@@ -737,6 +740,7 @@ html[data-theme="dark"] .hero-illustration {
   box-shadow: var(--shadow);
   display: flex;
   gap: 17px;
+  transition: transform .18s ease, box-shadow .18s ease;
 }
 
 .stat-icon {
@@ -931,6 +935,7 @@ html[data-theme="dark"] .stat-icon.confirmed {
   gap: 15px;
   min-height: 76px;
   border-bottom: 1px solid var(--line);
+  transition: background .15s ease;
 }
 
 .appointment:last-child {
@@ -1016,6 +1021,7 @@ html[data-theme="dark"] .stat-icon.confirmed {
   padding: 15px 14px 15px 18px;
   border-radius: 15px;
   background: var(--surface-soft);
+  transition: transform .18s ease;
 }
 
 .alert::before {
@@ -1074,6 +1080,7 @@ html[data-theme="dark"] .stat-icon.confirmed {
   padding: 17px 17px 15px;
   border: 1px solid var(--line);
   border-radius: 17px;
+  transition: border-color .18s ease, transform .18s ease, box-shadow .18s ease;
 }
 
 .care-tag {
@@ -1165,6 +1172,7 @@ html[data-theme="dark"] .care-tag.bilan {
   grid-template-columns: 40px minmax(150px, 1fr) 86px auto;
   gap: 13px;
   align-items: center;
+  transition: background .15s ease;
 }
 
 .route-visit:not(:last-child)::before {
@@ -1409,6 +1417,7 @@ html[data-theme="dark"] .care-tag.bilan {
   box-shadow: var(--shadow);
   display: flex;
   flex-direction: column;
+  transition: transform .18s ease, box-shadow .18s ease;
 }
 
 .service-card-head {
@@ -1587,8 +1596,9 @@ html[data-theme="dark"] .care-tag.bilan {
   bottom: 24px;
   z-index: 30;
   width: min(350px, calc(100vw - 34px));
-  padding: 15px 17px;
+  padding: 15px 17px 15px 14px;
   border-radius: 15px;
+  border-left: 3px solid var(--mint);
   background: var(--teal-deep);
   color: #fff;
   box-shadow: var(--shadow-raised);
@@ -1612,6 +1622,278 @@ html[data-theme="dark"] .care-tag.bilan {
 .toast span {
   color: rgba(255, 255, 255, .75);
   font-size: 12px;
+}
+
+.invoice-dialog {
+  width: min(680px, calc(100vw - 30px));
+}
+
+.invoice-preview {
+  margin: 6px 0 4px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface-soft);
+  max-height: 65vh;
+  overflow-y: auto;
+}
+
+.invoice-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 20px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--primary);
+}
+
+.invoice-practice strong {
+  display: block;
+  font-size: 15px;
+  margin-bottom: 5px;
+}
+
+.invoice-practice p {
+  color: var(--muted);
+  font-size: 11.5px;
+  line-height: 1.65;
+}
+
+.invoice-meta {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.invoice-meta strong {
+  display: block;
+  font-size: 17px;
+  font-family: var(--font-display);
+  letter-spacing: -.03em;
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+
+.invoice-meta p {
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+.invoice-patient {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 18px;
+  padding: 13px 15px;
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.invoice-patient span {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.invoice-patient strong {
+  font-size: 13px;
+}
+
+.invoice-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  margin-bottom: 14px;
+}
+
+.invoice-table th {
+  text-align: left;
+  padding: 8px 10px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--line);
+}
+
+.invoice-table td {
+  padding: 11px 10px;
+  border-bottom: 1px solid var(--surface-tint);
+}
+
+.invoice-total-row td {
+  font-weight: 700;
+  color: var(--primary);
+  font-size: 14px;
+  border-top: 2px solid var(--line) !important;
+  border-bottom: 0 !important;
+  padding-top: 13px;
+}
+
+.invoice-footer {
+  padding-top: 13px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+.bill-list,
+.invoice-list {
+  display: grid;
+}
+
+.bill-row {
+  min-height: 72px;
+  border-bottom: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: 68px minmax(110px, .7fr) minmax(190px, 1.2fr) 110px auto;
+  align-items: center;
+  gap: 18px;
+  transition: background .15s ease;
+}
+
+.bill-row:last-child {
+  border-bottom: 0;
+}
+
+.bill-row:hover {
+  background: var(--surface-soft);
+}
+
+.bill-row.heading {
+  min-height: 44px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+.bill-amount {
+  font-weight: 700;
+  color: var(--primary);
+  font-size: 14px;
+}
+
+.invoice-row {
+  min-height: 72px;
+  border-bottom: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: 130px minmax(80px, .6fr) 110px 110px 110px auto;
+  align-items: center;
+  gap: 18px;
+  transition: background .15s ease;
+}
+
+.invoice-row:last-child {
+  border-bottom: 0;
+}
+
+.invoice-row:hover {
+  background: var(--surface-soft);
+}
+
+.invoice-row.heading {
+  min-height: 44px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 10px 29px rgba(32, 59, 54, .08); }
+  50% { box-shadow: 0 10px 29px rgba(32, 59, 54, .08), 0 0 0 9px rgba(87, 182, 154, .14); }
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-raised);
+}
+
+.service-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-raised);
+}
+
+.preview-services article:hover {
+  border-color: var(--mint);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(31, 61, 55, .07);
+}
+
+.appointment:hover {
+  background: var(--surface-soft);
+}
+
+.appointment .status,
+.route-visit .status {
+  cursor: pointer;
+  user-select: none;
+  transition: transform .12s ease, filter .12s ease;
+}
+
+.appointment .status:hover,
+.route-visit .status:hover {
+  filter: brightness(1.08);
+  transform: scale(1.06);
+}
+
+.appointment .status:active,
+.route-visit .status:active {
+  transform: scale(.95);
+}
+
+.primary-button:active,
+.secondary-button:active {
+  transform: scale(.98);
+}
+
+.alert:hover {
+  transform: translateX(3px);
+}
+
+.route-visit:hover {
+  background: var(--surface-soft);
+}
+
+.day-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 14px 0 0;
+  max-width: 430px;
+}
+
+.progress-track {
+  flex: 1;
+  height: 5px;
+  border-radius: 100px;
+  background: var(--surface-tint);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 100px;
+  background: linear-gradient(90deg, var(--primary), var(--mint));
+  transition: width .5s cubic-bezier(.4, 0, .2, 1);
+  will-change: width;
+}
+
+.progress-label {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  min-width: 88px;
 }
 
 @media (max-width: 1260px) {
@@ -1683,7 +1965,7 @@ html[data-theme="dark"] .care-tag.bilan {
   }
 
   .side-nav {
-    grid-template-columns: repeat(5, max-content);
+    grid-template-columns: repeat(6, max-content);
     overflow-x: auto;
     gap: 8px;
     padding-bottom: 2px;
@@ -1832,6 +2114,37 @@ html[data-theme="dark"] .care-tag.bilan {
 
   .document-row .status {
     grid-column: 1;
+  }
+
+  .bill-row,
+  .invoice-row {
+    grid-template-columns: 1fr auto;
+    padding: 14px 0;
+    gap: 10px;
+    min-height: auto;
+  }
+
+  .bill-row.heading,
+  .invoice-row.heading {
+    display: none;
+  }
+
+  .bill-row time,
+  .invoice-row strong {
+    font-size: 12px;
+  }
+
+  .invoice-preview {
+    max-height: 55vh;
+  }
+
+  .invoice-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .invoice-meta {
+    text-align: left;
   }
 
   .form-grid {

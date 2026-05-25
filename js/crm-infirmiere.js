@@ -14,6 +14,8 @@
       tag: "Pansement",
       tagClass: "pansement",
       duration: "25 min",
+      code: "AMI 3",
+      amount: 9.45,
       detail: "Réfection du pansement, observation de la cicatrisation et transmission ciblée.",
     },
     {
@@ -23,6 +25,8 @@
       tag: "Injection",
       tagClass: "injection",
       duration: "15 min",
+      code: "AMI 1",
+      amount: 3.15,
       detail: "Administration du traitement prescrit et traçabilité de l'acte effectué.",
     },
     {
@@ -32,6 +36,8 @@
       tag: "Prélèvement",
       tagClass: "bilan",
       duration: "20 min",
+      code: "AMI 2",
+      amount: 6.30,
       detail: "Prélèvement à domicile, identification et suivi de remise au laboratoire.",
     },
     {
@@ -41,6 +47,8 @@
       tag: "Suivi",
       tagClass: "suivi",
       duration: "20 min",
+      code: "AIS 3",
+      amount: 7.95,
       detail: "Contrôle glycémique, injection prescrite si nécessaire et surveillance.",
     },
     {
@@ -50,6 +58,8 @@
       tag: "Surveillance",
       tagClass: "suivi",
       duration: "30 min",
+      code: "AIS 4",
+      amount: 10.60,
       detail: "Constantes, douleur, tolérance du traitement et alerte si besoin.",
     },
     {
@@ -59,6 +69,8 @@
       tag: "Coordination",
       tagClass: "pansement",
       duration: "30 min",
+      code: "AIS 4",
+      amount: 10.60,
       detail: "Lien avec le médecin, les aidants et les intervenants du parcours.",
     },
   ];
@@ -138,6 +150,44 @@
       });
   }
 
+  function updateProgressBar() {
+    const fill = document.querySelector("[data-progress-fill]");
+    const label = document.querySelector("[data-progress-label]");
+    if (!fill || !label) return;
+    const todaysVisits = dayVisits();
+    const done = todaysVisits.filter(function (v) { return v.status === "réalisée"; }).length;
+    const total = todaysVisits.length;
+    const pct = total ? Math.round((done / total) * 100) : 0;
+    fill.style.width = pct + "%";
+    label.textContent = done + " / " + total + (done !== 1 ? " réalisées" : " réalisée");
+  }
+
+  function setupStatusCycle() {
+    const cycle = ["à faire", "confirmée", "réalisée"];
+    const toastTitles = { "confirmée": "Visite confirmée", "réalisée": "Soin effectué", "à faire": "Remis en attente" };
+    function bindContainer(container) {
+      container.addEventListener("click", function (event) {
+        const badge = event.target.closest(".status");
+        if (!badge) return;
+        const article = badge.closest("[data-visit-patient]");
+        if (!article) return;
+        const patient = article.dataset.visitPatient;
+        const time = article.dataset.visitTime;
+        const visit = visits.find(function (v) {
+          return v.patient === patient && v.time === time && v.date === todayISO;
+        });
+        if (!visit) return;
+        const idx = cycle.indexOf(visit.status);
+        visit.status = cycle[(idx + 1) % cycle.length];
+        const service = serviceById(visit.serviceId);
+        renderAppointments();
+        showToast(visit.patient + " · " + service.name, toastTitles[visit.status] || "Statut mis à jour");
+      });
+    }
+    bindContainer(visitList);
+    bindContainer(fullVisitList);
+  }
+
   function showToast(message, title) {
     if (!toastElement) return;
     toastElement.querySelector("strong").textContent = title || "Information";
@@ -170,7 +220,7 @@
   function appointmentMarkup(visit) {
     const service = serviceById(visit.serviceId);
     return [
-      '<article class="appointment">',
+      '<article class="appointment" data-visit-patient="' + escapeHtml(visit.patient) + '" data-visit-time="' + escapeHtml(visit.time) + '">',
       '<time class="appointment-time">' + escapeHtml(visit.time) + "</time>",
       '<div class="appointment-person"><strong>' + escapeHtml(visit.patient) + "</strong><small>" + escapeHtml(visit.sector) + "</small></div>",
       '<div class="appointment-care"><strong>' + escapeHtml(service.name) + "</strong><small>" + escapeHtml(service.duration) + " · Prescription vérifiée</small></div>",
@@ -190,7 +240,7 @@
     fullVisitList.innerHTML = dayVisits().map(function (visit, index) {
       const service = serviceById(visit.serviceId);
       return [
-        '<article class="route-visit">',
+        '<article class="route-visit" data-visit-patient="' + escapeHtml(visit.patient) + '" data-visit-time="' + escapeHtml(visit.time) + '">',
         '<span class="route-index">' + (index + 1) + "</span>",
         '<div><strong>' + escapeHtml(visit.patient) + " · " + escapeHtml(service.name) + "</strong><small>" + escapeHtml(visit.sector) + " · " + escapeHtml(service.duration) + "</small></div>",
         '<time>' + escapeHtml(visit.time) + "</time>",
@@ -200,6 +250,8 @@
     }).join("");
 
     updateStats();
+    updateProgressBar();
+    updateInvoiceBadge();
   }
 
   function renderPatients(query) {
@@ -261,6 +313,7 @@
         button.removeAttribute("aria-current");
       }
     });
+    if (sectionName === "facturation") renderFacturation();
   }
 
   function populateServiceSelect() {
@@ -440,10 +493,207 @@
     showToast("La feuille de tournée PDF est prête (simulation).", "Export réussi");
   });
 
+  const IFD_AMOUNT = 2.50;
+  const IFD_LABEL = "Ind. forfait. déplacement";
+  let invoices = [];
+  let invoiceCounter = 0;
+  let currentInvoice = null;
+  const invoiceDialog = document.getElementById("invoiceDialog");
+
+  function updateInvoiceBadge() {
+    const badge = document.querySelector("[data-invoice-badge]");
+    if (!badge) return;
+    const count = visits.filter(function (v) { return v.status === "réalisée" && !v.invoiced; }).length;
+    badge.textContent = count;
+    badge.style.display = count > 0 ? "" : "none";
+  }
+
+  function renderFacturationStats() {
+    const el = document.getElementById("facturationStats");
+    if (!el) return;
+    const toInvoice = visits.filter(function (v) { return v.status === "réalisée" && !v.invoiced; }).length;
+    const monthTotal = invoices.reduce(function (sum, inv) { return sum + inv.total; }, 0);
+    const pending = invoices.filter(function (inv) { return inv.status === "émise"; }).length;
+    el.innerHTML =
+      '<article class="stat-card"><span class="stat-icon scripts" aria-hidden="true"></span><div><small>À facturer</small><strong>' + toInvoice + '</strong><p>Actes réalisés</p></div></article>' +
+      '<article class="stat-card"><span class="stat-icon visits" aria-hidden="true"></span><div><small>Facturé ce mois</small><strong>' + monthTotal.toFixed(2).replace(".", ",") + " €" + '</strong><p>Honoraires</p></div></article>' +
+      '<article class="stat-card"><span class="stat-icon transmissions" aria-hidden="true"></span><div><small>En attente règlement</small><strong>' + pending + '</strong><p>Factures émises</p></div></article>';
+  }
+
+  function renderBillList() {
+    const el = document.getElementById("billList");
+    if (!el) return;
+    const toInvoice = visits.filter(function (v) { return v.status === "réalisée" && !v.invoiced; });
+    if (!toInvoice.length) {
+      el.innerHTML = '<p class="empty-state">Aucun acte en attente de facturation.</p>';
+      return;
+    }
+    const heading = '<div class="bill-row heading"><span>Heure</span><span>Patient</span><span>Acte réalisé</span><span>Montant</span><span></span></div>';
+    el.innerHTML = heading + toInvoice.map(function (visit) {
+      const svc = serviceById(visit.serviceId);
+      const total = (svc.amount + IFD_AMOUNT).toFixed(2).replace(".", ",");
+      return '<div class="bill-row">' +
+        '<time>' + escapeHtml(visit.time) + '</time>' +
+        '<div><strong>' + escapeHtml(visit.patient) + '</strong><small>' + escapeHtml(visit.sector) + '</small></div>' +
+        '<div><strong>' + escapeHtml(svc.name) + '</strong><small>' + escapeHtml(svc.code) + ' · ' + escapeHtml(svc.duration) + '</small></div>' +
+        '<span class="bill-amount">' + total + ' €</span>' +
+        '<button class="primary-button" type="button" style="min-height:38px;padding:0 14px;font-size:12px" data-create-invoice="' + escapeHtml(visit.patient) + '" data-invoice-time="' + escapeHtml(visit.time) + '">Créer la facture</button>' +
+        '</div>';
+    }).join("");
+    el.querySelectorAll("[data-create-invoice]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        const visit = visits.find(function (v) {
+          return v.patient === btn.dataset.createInvoice && v.time === btn.dataset.invoiceTime && v.date === todayISO;
+        });
+        if (visit) openInvoicePreview(visit);
+      });
+    });
+  }
+
+  function renderInvoiceList() {
+    const el = document.getElementById("invoiceList");
+    if (!el) return;
+    if (!invoices.length) {
+      el.innerHTML = '<p class="empty-state">Aucune facture émise ce mois.</p>';
+      return;
+    }
+    const heading = '<div class="invoice-row heading"><span>N° Facture</span><span>Patient</span><span>Date</span><span>Montant</span><span>Statut</span><span></span></div>';
+    el.innerHTML = heading + invoices.map(function (inv) {
+      const date = new Intl.DateTimeFormat("fr-FR").format(new Date(inv.date + "T12:00:00"));
+      const statusCls = inv.status === "payée" ? "confirmed" : "waiting";
+      return '<div class="invoice-row">' +
+        '<strong>' + escapeHtml(inv.id) + '</strong>' +
+        '<span>' + escapeHtml(inv.patient) + '</span>' +
+        '<span>' + date + '</span>' +
+        '<span class="bill-amount">' + inv.total.toFixed(2).replace(".", ",") + ' €</span>' +
+        '<span class="status ' + statusCls + '">' + escapeHtml(inv.status) + '</span>' +
+        '<button class="text-button" type="button" data-reprint="' + escapeHtml(inv.id) + '">Imprimer</button>' +
+        '</div>';
+    }).join("");
+    el.querySelectorAll("[data-reprint]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        const inv = invoices.find(function (i) { return i.id === btn.dataset.reprint; });
+        if (inv) printInvoice(inv);
+      });
+    });
+  }
+
+  function renderFacturation() {
+    renderFacturationStats();
+    renderBillList();
+    renderInvoiceList();
+    updateInvoiceBadge();
+  }
+
+  function buildInvoicePreviewHTML(inv) {
+    const svc = serviceById(inv.serviceId);
+    const date = new Intl.DateTimeFormat("fr-FR").format(new Date(inv.date + "T12:00:00"));
+    return '<div class="invoice-header">' +
+      '<div class="invoice-practice"><strong>Léa Martin — Infirmière DE</strong>' +
+      '<p>17, rue de la République · 69003 Lyon<br>RPPS : 12345678901 · SIRET : 898 765 432 00012</p></div>' +
+      '<div class="invoice-meta"><strong>' + escapeHtml(inv.id) + '</strong><p>Émise le ' + date + '</p></div>' +
+      '</div>' +
+      '<div class="invoice-patient">' +
+      '<div><span>Patient</span><strong>' + escapeHtml(inv.patient) + '</strong></div>' +
+      '<div><span>Secteur</span><strong>' + escapeHtml(inv.sector) + '</strong></div>' +
+      '<div><span>Date de soin</span><strong>' + date + ' · ' + escapeHtml(inv.visitTime) + '</strong></div>' +
+      '</div>' +
+      '<table class="invoice-table"><thead><tr><th>Acte effectué</th><th>Code</th><th style="text-align:right">Montant</th></tr></thead><tbody>' +
+      '<tr><td>' + escapeHtml(svc.name) + '</td><td>' + escapeHtml(svc.code) + '</td><td style="text-align:right">' + svc.amount.toFixed(2).replace(".", ",") + ' €</td></tr>' +
+      '<tr><td>' + escapeHtml(IFD_LABEL) + '</td><td>IFD</td><td style="text-align:right">' + IFD_AMOUNT.toFixed(2).replace(".", ",") + ' €</td></tr>' +
+      '<tr class="invoice-total-row"><td colspan="2"><strong>Total honoraires</strong></td><td style="text-align:right"><strong>' + inv.total.toFixed(2).replace(".", ",") + ' €</strong></td></tr>' +
+      '</tbody></table>' +
+      '<div class="invoice-footer">Prise en charge Assurance Maladie : 60 % · Mutuelle : selon contrat<br>' +
+      'Règlement par virement ou chèque à l\'ordre de Léa Martin · Merci de rappeler le N° de facture.</div>';
+  }
+
+  function printInvoice(inv) {
+    const svc = serviceById(inv.serviceId);
+    const date = new Intl.DateTimeFormat("fr-FR").format(new Date(inv.date + "T12:00:00"));
+    const win = window.open("", "_blank");
+    if (!win) { showToast("Autorisez les pop-ups pour imprimer.", "Impression bloquée"); return; }
+    win.document.write('<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Facture ' + escapeHtml(inv.id) + '</title>' +
+      '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;font-size:13px;color:#17322f;padding:32px 40px;max-width:700px;margin:0 auto}' +
+      'h1{font-size:22px;color:#096a61;margin-bottom:4px}' +
+      '.hdr{display:flex;justify-content:space-between;align-items:start;padding-bottom:16px;margin-bottom:24px;border-bottom:2.5px solid #096a61}' +
+      '.inv-num{font-size:20px;font-weight:700;color:#096a61}.muted{color:#647b78;font-size:11px;line-height:1.65}' +
+      '.pbox{display:flex;gap:28px;padding:12px 16px;border:1px solid #dde8e2;border-radius:8px;margin-bottom:22px}' +
+      '.pbox span{color:#647b78;font-size:10px;display:block;margin-bottom:2px}.pbox strong{font-size:13px}' +
+      'table{width:100%;border-collapse:collapse;margin-bottom:18px}' +
+      'th{text-align:left;padding:8px 10px;font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:#647b78;border-bottom:1px solid #dde8e2}' +
+      'td{padding:10px;border-bottom:1px solid #eff5f1}' +
+      '.tot td{font-weight:700;font-size:14px;color:#096a61;border-top:2px solid #dde8e2;border-bottom:0;padding-top:14px}' +
+      '.ftr{color:#647b78;font-size:11px;line-height:1.7;padding-top:14px;border-top:1px solid #dde8e2}' +
+      '@media print{body{padding:18px 28px}}</style></head><body>' +
+      '<div class="hdr">' +
+      '<div><h1>Léa Martin</h1><p class="muted">Infirmière Diplômée d\'État · Libérale<br>17, rue de la République · 69003 Lyon<br>RPPS : 12345678901 · SIRET : 898 765 432 00012</p></div>' +
+      '<div style="text-align:right"><p class="inv-num">FACTURE ' + escapeHtml(inv.id) + '</p><p class="muted">Émise le ' + date + '</p></div>' +
+      '</div>' +
+      '<div class="pbox">' +
+      '<div><span>Patient</span><strong>' + escapeHtml(inv.patient) + '</strong></div>' +
+      '<div><span>Secteur</span><strong>' + escapeHtml(inv.sector) + '</strong></div>' +
+      '<div><span>Date de soin</span><strong>' + date + ' à ' + escapeHtml(inv.visitTime) + '</strong></div>' +
+      '</div>' +
+      '<table><thead><tr><th>Acte effectué</th><th>Code NGAP</th><th style="text-align:right">Montant</th></tr></thead><tbody>' +
+      '<tr><td>' + escapeHtml(svc.name) + '</td><td>' + escapeHtml(svc.code) + '</td><td style="text-align:right">' + svc.amount.toFixed(2).replace(".", ",") + ' €</td></tr>' +
+      '<tr><td>' + escapeHtml(IFD_LABEL) + '</td><td>IFD</td><td style="text-align:right">' + IFD_AMOUNT.toFixed(2).replace(".", ",") + ' €</td></tr>' +
+      '<tr class="tot"><td colspan="2">Total honoraires</td><td style="text-align:right">' + inv.total.toFixed(2).replace(".", ",") + ' €</td></tr>' +
+      '</tbody></table>' +
+      '<div class="ftr">Prise en charge Assurance Maladie : 60 % · Mutuelle : selon contrat<br>' +
+      'Règlement par virement ou chèque à l\'ordre de Léa Martin<br>' +
+      'Merci de rappeler le N° de facture ' + escapeHtml(inv.id) + ' lors du règlement.</div>' +
+      '</body></html>');
+    win.document.close();
+    win.focus();
+    setTimeout(function () { win.print(); }, 500);
+  }
+
+  function openInvoicePreview(visit) {
+    invoiceCounter += 1;
+    const id = "SC-" + new Date().getFullYear() + "-" + String(invoiceCounter).padStart(3, "0");
+    const svc = serviceById(visit.serviceId);
+    const inv = {
+      id: id,
+      date: visit.date,
+      patient: visit.patient,
+      sector: visit.sector,
+      serviceId: visit.serviceId,
+      visitTime: visit.time,
+      total: svc.amount + IFD_AMOUNT,
+      status: "émise",
+    };
+    visit.invoiced = true;
+    invoices.push(inv);
+    currentInvoice = inv;
+    renderFacturation();
+    const previewEl = document.getElementById("invoicePreview");
+    if (previewEl) previewEl.innerHTML = buildInvoicePreviewHTML(inv);
+    if (typeof invoiceDialog?.showModal === "function") invoiceDialog.showModal();
+    else invoiceDialog?.setAttribute("open", "");
+    showToast("Facture " + id + " créée pour " + visit.patient + ".", "Facture générée");
+  }
+
   populateServiceSelect();
   renderAppointments();
   renderPatients("");
   renderServices();
   bindNotifyButtons(document);
   setupTheme();
+  setupStatusCycle();
+  updateInvoiceBadge();
+
+  if (invoiceDialog) {
+    document.querySelectorAll("[data-close-invoice]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        if (typeof invoiceDialog.close === "function") invoiceDialog.close();
+        else invoiceDialog.removeAttribute("open");
+      });
+    });
+    const printBtn = document.querySelector("[data-print-invoice]");
+    if (printBtn) {
+      printBtn.addEventListener("click", function () {
+        if (currentInvoice) printInvoice(currentInvoice);
+      });
+    }
+  }
 }());
