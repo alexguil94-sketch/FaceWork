@@ -83,6 +83,27 @@
         ]
       }
     </script>
+  <style>
+    /* Burger visible sur desktop pour accéder aux liens outils */
+    body.landing-atelier-page .menu-toggle {
+      display: inline-flex !important;
+      align-items: center;
+      justify-content: center;
+    }
+    /* Sur desktop : réduire la col centrale pour laisser place au burger */
+    body.landing-atelier-page .header-inner {
+      grid-template-columns: auto 1fr auto auto;
+    }
+    body.landing-atelier-page .menu-toggle {
+      order: 2;
+    }
+    body.landing-atelier-page .site-nav {
+      order: 3;
+    }
+    body.landing-atelier-page .header-actions {
+      order: 4;
+    }
+  </style>
   </head>
   <body id="top" class="landing-home landing-atelier-page">
     <a class="skip-link" href="#main">Aller au contenu</a>
@@ -116,34 +137,21 @@
           <a href="#approche">Approche</a>
           <a href="#services">Services</a>
           <a href="#devis">Devis</a>
-          <a href="#pilotage">Espace prive</a>
-          <a href="#cv">CV</a>
-          <a href="#vision">Vision</a>
-          <a href="monde-different/accueil.html">Monde different</a>
           <a href="#contact">Contact</a>
-          <a href="app/crm-infirmiere.html">SereinCare</a>
+          <a class="nav-tool" href="#pilotage">Espace prive</a>
+          <a class="nav-tool" href="#cv">CV</a>
+          <a class="nav-tool" href="#vision">Vision</a>
+          <a class="nav-tool" href="monde-different/accueil.html">Monde different</a>
+          <a class="nav-tool" href="dossier-comptable/index.html">Dossier comptable</a>
+          <a class="nav-tool" href="dossier-comptable/index.html#growth">Assistant croissance</a>
+          <a class="nav-tool" href="app/crm-infirmiere.html">SereinCare</a>
+          <a class="nav-tool" href="login.html" data-guest-only>FaceWork</a>
+          <a class="nav-tool hidden" href="app/feed.html" data-session-only>FaceWork</a>
+          <a class="nav-tool hidden" href="app/crm-dashboard.html" data-admin-only>CRM</a>
           <a href="atelier-devis.html" class="nav-cta-primary">Demander un devis</a>
         </nav>
 
         <div class="header-actions">
-          <a class="button button-secondary" href="app/crm-infirmiere.html"
-            >SereinCare</a
-          >
-          <a class="button button-secondary" href="login.html" data-guest-only
-            >FaceWork</a
-          >
-          <a
-            class="button button-secondary hidden"
-            href="app/feed.html"
-            data-session-only
-            >FaceWork</a
-          >
-          <a
-            class="button button-secondary hidden"
-            href="app/crm-dashboard.html"
-            data-admin-only
-            >CRM</a
-          >
           <a class="button button-primary" href="atelier-devis.html"
             >Demander un devis</a
           >

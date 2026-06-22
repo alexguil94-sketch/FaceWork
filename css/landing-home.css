@@ -1381,6 +1381,16 @@ body.landing-home .ai-fab {
   }
 }
 
+/* Desktop : cacher les liens outils dans la nav inline */
+body.landing-home .site-nav .nav-tool {
+  display: none;
+}
+
+/* Burger ouvert : tout afficher */
+body.landing-home .site-nav.is-open .nav-tool {
+  display: flex;
+}
+
 @media (max-width: 1320px) {
   body.landing-home .header-inner {
     display: flex;

@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="description"
+        content="ComptaClair, tableau de bord simple pour suivre les recettes, dépenses et estimations d'une micro-entreprise."
+    >
+
+    <title>ComptaClair — Tableau de bord</title>
+
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+    <script src="../js/env.js" defer></script>
+    <script src="../js/supabase.js" defer></script>
+    <script src="script.js" defer></script>
+    <script src="../js/assistant-croissance.js" defer></script>
+</head>
+
+<body>
+    <div class="app-layout">
+
+        <aside class="sidebar" id="sidebar">
+            <a class="brand" href="#dashboard" aria-label="Retour au tableau de bord">
+                <span class="brand-mark">CC</span>
+                <span>
+                    <strong>ComptaClair</strong>
+                    <small>Gestion simplifiée</small>
+                </span>
+            </a>
+
+            <nav class="sidebar-nav" aria-label="Navigation principale">
+                <a class="nav-link active" href="#dashboard">
+                    <span aria-hidden="true">▦</span>
+                    Tableau de bord
+                </a>
+
+                <a class="nav-link" href="#operations">
+                    <span aria-hidden="true">↕</span>
+                    Opérations
+                </a>
+
+                <a class="nav-link" href="#invoices">
+                    <span aria-hidden="true">▤</span>
+                    Factures
+                </a>
+
+                <a class="nav-link" href="#growth">
+                    <span aria-hidden="true">◎</span>
+                    Croissance
+                </a>
+
+                <a class="nav-link" href="#settings">
+                    <span aria-hidden="true">⚙</span>
+                    Réglages
+                </a>
+
+                <a class="nav-link" href="../index.html">
+                    <span aria-hidden="true">←</span>
+                    Retour site
+                </a>
+            </nav>
+
+            <div class="sidebar-note">
+                <strong>Important</strong>
+                <p>
+                    Les calculs affichés sont des estimations. Vérifie toujours
+                    les règles applicables à ta situation.
+                </p>
+            </div>
+        </aside>
+
+        <div class="main-column">
+
+            <header class="topbar">
+                <button
+                    class="icon-button mobile-menu-button"
+                    id="menuButton"
+                    type="button"
+                    aria-label="Ouvrir le menu"
+                    aria-expanded="false"
+                >
+                    ☰
+                </button>
+
+                <div>
+                    <p class="topbar-eyebrow">Micro-entreprise</p>
+                    <h1>Bonjour 👋</h1>
+                </div>
+
+                <div class="topbar-actions">
+                    <button
+                        class="icon-button"
+                        id="themeButton"
+                        type="button"
+                        aria-label="Changer le thème"
+                        title="Changer le thème"
+                    >
+                        ☀
+                    </button>
+
+                    <button
+                        class="primary-button"
+                        id="openTransactionButton"
+                        type="button"
+                    >
+                        + Ajouter une opération
+                    </button>
+
+                    <a
+                        class="primary-button topbar-link"
+                        href="#invoices"
+                    >
+                        Importer une facture
+                    </a>
+
+                    <a
+                        class="secondary-button topbar-link"
+                        href="#growth"
+                    >
+                        Assistant croissance
+                    </a>
+                </div>
+            </header>
+
+            <main class="content">
+
+                <section class="dashboard-section" id="dashboard">
+                    <div class="section-heading">
+                        <div>
+                            <span class="section-kicker">Vue d’ensemble</span>
+                            <h2>Ton activité en un coup d’œil</h2>
+                        </div>
+
+                        <label class="month-field">
+                            <span>Période</span>
+                            <input type="month" id="monthFilter">
+                        </label>
+                    </div>
+
+                    <div class="stats-grid">
+                        <article class="stat-card income-card">
+                            <div class="stat-card-top">
+                                <span>Chiffre d’affaires encaissé</span>
+                                <span class="stat-icon" aria-hidden="true">↗</span>
+                            </div>
+
+                            <strong id="incomeAmount">0,00 €</strong>
+                            <small id="incomeCount">0 recette</small>
+                        </article>
+
+                        <article class="stat-card expense-card">
+                            <div class="stat-card-top">
+                                <span>Dépenses professionnelles</span>
+                                <span class="stat-icon" aria-hidden="true">↘</span>
+                            </div>
+
+                            <strong id="expenseAmount">0,00 €</strong>
+                            <small id="expenseCount">0 dépense</small>
+                        </article>
+
+                        <article class="stat-card contribution-card">
+                            <div class="stat-card-top">
+                                <span>Cotisations à réserver</span>
+                                <span class="stat-icon" aria-hidden="true">%</span>
+                            </div>
+
+                            <strong id="contributionAmount">0,00 €</strong>
+                            <small id="contributionRateText">Taux estimatif : 25 %</small>
+                        </article>
+
+                        <article class="stat-card available-card">
+                            <div class="stat-card-top">
+                                <span>Disponible estimé</span>
+                                <span class="stat-icon" aria-hidden="true">€</span>
+                            </div>
+
+                            <strong id="availableAmount">0,00 €</strong>
+                            <small>Après dépenses et réserves</small>
+                        </article>
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <article class="panel">
+                            <div class="panel-heading">
+                                <div>
+                                    <span class="panel-kicker">Répartition</span>
+                                    <h3>Où va ton chiffre d’affaires ?</h3>
+                                </div>
+                            </div>
+
+                            <div class="distribution-list">
+                                <div class="distribution-item">
+                                    <div class="distribution-label">
+                                        <span>Dépenses</span>
+                                        <strong id="expenseShareText">0 %</strong>
+                                    </div>
+
+                                    <div class="progress-track">
+                                        <div
+                                            class="progress-bar expense-progress"
+                                            id="expenseProgress"
+                                        ></div>
+                                    </div>
+                                </div>
+
+                                <div class="distribution-item">
+                                    <div class="distribution-label">
+                                        <span>Cotisations estimées</span>
+                                        <strong id="contributionShareText">0 %</strong>
+                                    </div>
+
+                                    <div class="progress-track">
+                                        <div
+                                            class="progress-bar contribution-progress"
+                                            id="contributionProgress"
+                                        ></div>
+                                    </div>
+                                </div>
+
+                                <div class="distribution-item">
+                                    <div class="distribution-label">
+                                        <span>Provision fiscale</span>
+                                        <strong id="taxShareText">0 %</strong>
+                                    </div>
+
+                                    <div class="progress-track">
+                                        <div
+                                            class="progress-bar tax-progress"
+                                            id="taxProgress"
+                                        ></div>
+                                    </div>
+                                </div>
+
+                                <div class="distribution-item">
+                                    <div class="distribution-label">
+                                        <span>Disponible estimé</span>
+                                        <strong id="availableShareText">0 %</strong>
+                                    </div>
+
+                                    <div class="progress-track">
+                                        <div
+                                            class="progress-bar available-progress"
+                                            id="availableProgress"
+                                        ></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+
+                        <article class="panel">
+                            <div class="panel-heading">
+                                <div>
+                                    <span class="panel-kicker">Prévision</span>
+                                    <h3>Montants à mettre de côté</h3>
+                                </div>
+                            </div>
+
+                            <div class="reserve-summary">
+                                <div>
+                                    <span>Cotisations</span>
+                                    <strong id="reserveContribution">0,00 €</strong>
+                                </div>
+
+                                <div>
+                                    <span>Impôts estimés</span>
+                                    <strong id="reserveTax">0,00 €</strong>
+                                </div>
+
+                                <div class="reserve-total">
+                                    <span>Réserve conseillée</span>
+                                    <strong id="reserveTotal">0,00 €</strong>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
+                <section class="operations-section" id="operations">
+                    <div class="section-heading">
+                        <div>
+                            <span class="section-kicker">Historique</span>
+                            <h2>Recettes et dépenses</h2>
+                        </div>
+
+                        <div class="heading-actions">
+                            <button
+                                class="secondary-button"
+                                id="exportCsvButton"
+                                type="button"
+                            >
+                                Exporter en CSV
+                            </button>
+
+                            <button
+                                class="primary-button"
+                                id="openTransactionButtonSecondary"
+                                type="button"
+                            >
+                                + Nouvelle opération
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="filters-bar">
+                        <label class="search-field">
+                            <span aria-hidden="true">⌕</span>
+                            <input
+                                id="searchInput"
+                                type="search"
+                                placeholder="Rechercher une opération..."
+                            >
+                        </label>
+
+                        <label>
+                            <span class="visually-hidden">Type d'opération</span>
+                            <select id="typeFilter">
+                                <option value="all">Tous les types</option>
+                                <option value="income">Recettes</option>
+                                <option value="expense">Dépenses</option>
+                            </select>
+                        </label>
+
+                        <label>
+                            <span class="visually-hidden">Catégorie</span>
+                            <select id="categoryFilter">
+                                <option value="all">Toutes les catégories</option>
+                            </select>
+                        </label>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Description</th>
+                                    <th>Catégorie</th>
+                                    <th>Type</th>
+                                    <th>Montant</th>
+                                    <th class="actions-column">Actions</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="transactionsTableBody"></tbody>
+                        </table>
+
+                        <div class="empty-state hidden" id="emptyState">
+                            <span aria-hidden="true">🧾</span>
+                            <h3>Aucune opération</h3>
+                            <p>Ajoute ta première recette ou dépense pour commencer.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="invoices-section" id="invoices">
+                    <div class="section-heading">
+                        <div>
+                            <span class="section-kicker">Boîte mail</span>
+                            <h2>Factures reçues</h2>
+                        </div>
+
+                        <button
+                            class="secondary-button"
+                            id="exportInvoicesButton"
+                            type="button"
+                        >
+                            Exporter les factures
+                        </button>
+                    </div>
+
+                    <div class="invoice-layout">
+                        <article class="panel invoice-form-panel">
+                            <div class="panel-heading">
+                                <div>
+                                    <span class="panel-kicker">Import email</span>
+                                    <h3 id="invoiceFormTitle">Enregistrer une pièce jointe</h3>
+                                </div>
+                            </div>
+
+                            <form id="invoiceForm" class="invoice-form">
+                                <div class="form-grid">
+                                    <label>
+                                        <span>Type détecté</span>
+                                        <select id="invoiceDocumentType">
+                                            <option value="facture">Facture</option>
+                                            <option value="devis">Devis</option>
+                                            <option value="avoir">Avoir</option>
+                                            <option value="autre">Autre document</option>
+                                        </select>
+                                    </label>
+
+                                    <label>
+                                        <span>Fournisseur</span>
+                                        <input
+                                            id="invoiceSupplier"
+                                            type="text"
+                                            maxlength="100"
+                                            placeholder="Exemple : Adobe"
+                                            required
+                                        >
+                                    </label>
+                                </div>
+
+                                <div class="form-grid">
+                                    <label>
+                                        <span>Numéro / référence</span>
+                                        <input
+                                            id="invoiceReference"
+                                            type="text"
+                                            maxlength="80"
+                                            placeholder="Exemple : FAC-2026-001"
+                                        >
+                                    </label>
+
+                                    <label>
+                                        <span>Date de facture</span>
+                                        <input id="invoiceDate" type="date" required>
+                                    </label>
+                                </div>
+
+                                <div class="form-grid">
+                                    <label>
+                                        <span>Montant TTC</span>
+                                        <div class="input-with-suffix">
+                                            <input
+                                                id="invoiceAmount"
+                                                type="number"
+                                                min="0.01"
+                                                step="0.01"
+                                                placeholder="0,00"
+                                                required
+                                            >
+                                            <span>€</span>
+                                        </div>
+                                    </label>
+
+                                    <label>
+                                        <span>TVA détectée</span>
+                                        <div class="input-with-suffix">
+                                            <input
+                                                id="invoiceVatAmount"
+                                                type="number"
+                                                min="0"
+                                                step="0.01"
+                                                placeholder="0,00"
+                                            >
+                                            <span>€</span>
+                                        </div>
+                                    </label>
+                                </div>
+
+                                <div class="form-grid">
+                                    <label>
+                                        <span>Taux TVA</span>
+                                        <div class="input-with-suffix">
+                                            <input
+                                                id="invoiceVatRate"
+                                                type="number"
+                                                min="0"
+                                                max="100"
+                                                step="0.1"
+                                                placeholder="20"
+                                            >
+                                            <span>%</span>
+                                        </div>
+                                    </label>
+
+                                    <label>
+                                        <span>Catégorie</span>
+                                        <select id="invoiceCategory" required></select>
+                                    </label>
+                                </div>
+
+                                <div class="form-grid">
+                                    <label>
+                                        <span>Email expéditeur</span>
+                                        <input
+                                            id="invoiceEmailFrom"
+                                            type="email"
+                                            maxlength="120"
+                                            placeholder="facturation@exemple.com"
+                                        >
+                                    </label>
+
+                                    <label>
+                                        <span>Objet du mail</span>
+                                        <input
+                                            id="invoiceEmailSubject"
+                                            type="text"
+                                            maxlength="140"
+                                            placeholder="Facture mensuelle"
+                                        >
+                                    </label>
+                                </div>
+
+                                <label>
+                                    <span>Facture PDF ou image</span>
+                                    <input
+                                        id="invoiceFile"
+                                        type="file"
+                                        accept=".pdf,image/*"
+                                    >
+                                    <small id="invoiceFileHelp">
+                                        Le mode de stockage se règle automatiquement.
+                                    </small>
+                                </label>
+
+                                <div class="scan-box">
+                                    <button
+                                        class="secondary-button"
+                                        id="scanInvoiceButton"
+                                        type="button"
+                                    >
+                                        Scanner la facture
+                                    </button>
+                                    <p id="invoiceScanStatus" aria-live="polite">
+                                        Ajoute un PDF ou une image, puis lance le scan.
+                                    </p>
+                                </div>
+
+                                <label class="checkbox-field">
+                                    <input id="createExpenseFromInvoice" type="checkbox" checked>
+                                    <span>Créer aussi une dépense liée</span>
+                                </label>
+
+                                <div class="invoice-form-actions">
+                                    <button
+                                        class="secondary-button hidden"
+                                        id="cancelInvoiceEditButton"
+                                        type="button"
+                                    >
+                                        Annuler la modification
+                                    </button>
+
+                                    <button
+                                        class="primary-button"
+                                        id="invoiceSubmitButton"
+                                        type="submit"
+                                    >
+                                        Enregistrer la facture
+                                    </button>
+                                </div>
+                            </form>
+                        </article>
+
+                        <article class="panel invoice-list-panel">
+                            <div class="panel-heading">
+                                <div>
+                                    <span class="panel-kicker">Archives</span>
+                                    <h3>Factures enregistrées</h3>
+                                </div>
+                            </div>
+
+                            <div class="invoice-list" id="invoiceList"></div>
+
+                            <div class="empty-state hidden" id="invoiceEmptyState">
+                                <span aria-hidden="true">▤</span>
+                                <h3>Aucune facture</h3>
+                                <p>Ajoute une facture reçue par mail pour la retrouver ici.</p>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
+                <section class="growth-section" id="growth">
+                    <div class="section-heading">
+                        <div>
+                            <span class="section-kicker">Pilotage commercial</span>
+                            <h2>Assistant croissance entreprise</h2>
+                        </div>
+
+                        <div class="growth-actions">
+                            <button class="secondary-button" type="button" id="exportCrmButton">
+                                Exporter CRM
+                            </button>
+                            <button class="secondary-button" type="button" id="resetGrowthButton">
+                                Réinitialiser
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="growth-kpi-grid" aria-label="Indicateurs croissance">
+                        <article class="growth-kpi-card">
+                            <span>Score opportunité</span>
+                            <strong id="opportunityScore">0</strong>
+                            <small id="opportunityScoreLabel">À compléter</small>
+                        </article>
+
+                        <article class="growth-kpi-card">
+                            <span>Économies détectées</span>
+                            <strong id="savingPotential">0 €</strong>
+                            <small id="savingCount">0 piste</small>
+                        </article>
+
+                        <article class="growth-kpi-card">
+                            <span>Prospects prêts</span>
+                            <strong id="prospectCount">0</strong>
+                            <small id="hotProspectCount">0 prioritaire</small>
+                        </article>
+
+                        <article class="growth-kpi-card">
+                            <span>Relances dues</span>
+                            <strong id="followUpCount">0</strong>
+                            <small id="nextFollowUp">Aucune date</small>
+                        </article>
+                    </div>
+
+                    <div class="growth-grid">
+                        <form class="growth-panel" id="profileForm">
+                            <div class="panel-heading">
+                                <div>
+                                    <span class="panel-kicker">Profil</span>
+                                    <h3>Entreprise</h3>
+                                </div>
+
+                                <button class="primary-button" type="submit">
+                                    Enregistrer
+                                </button>
+                            </div>
+
+                            <div class="form-grid">
+                                <label>
+                                    <span>Nom</span>
+                                    <input id="companyName" type="text" maxlength="80" placeholder="Atelier Martin">
+                                </label>
+
+                                <label>
+                                    <span>Secteur</span>
+                                    <select id="companySector">
+                                        <option value="services">Services aux entreprises</option>
+                                        <option value="commerce">Commerce local</option>
+                                        <option value="artisanat">Artisanat</option>
+                                        <option value="sante">Santé / bien-être</option>
+                                        <option value="restauration">Restauration</option>
+                                        <option value="formation">Formation</option>
+                                        <option value="immobilier">Immobilier</option>
+                                        <option value="digital">Digital / conseil</option>
+                                    </select>
+                                </label>
+
+                                <label>
+                                    <span>Ville</span>
+                                    <input id="companyCity" type="text" maxlength="80" placeholder="Paris">
+                                </label>
+
+                                <label>
+                                    <span>Rayon local</span>
+                                    <div class="input-with-suffix">
+                                        <input id="companyRadius" type="number" min="1" max="150" step="1" value="20">
+                                        <span>km</span>
+                                    </div>
+                                </label>
+
+                                <label>
+                                    <span>Client cible</span>
+                                    <input id="targetCustomer" type="text" maxlength="120" placeholder="TPE locales, commerçants, cabinets">
+                                </label>
+
+                                <label>
+                                    <span>Offre principale</span>
+                                    <input id="mainOffer" type="text" maxlength="140" placeholder="Site vitrine + SEO local">
+                                </label>
+
+                                <label>
+                                    <span>Panier moyen</span>
+                                    <div class="input-with-suffix">
+                                        <input id="averageBasket" type="number" min="0" step="10" value="900">
+                                        <span>€</span>
+                                    </div>
+                                </label>
+
+                                <label>
+                                    <span>Capacité</span>
+                                    <div class="input-with-suffix">
+                                        <input id="weeklyCapacity" type="number" min="0" max="80" step="1" value="8">
+                                        <span>h/sem.</span>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <label>
+                                <span>Différence claire</span>
+                                <textarea id="companyEdge" rows="3" maxlength="260" placeholder="Réactivité, accompagnement simple, livrable prêt à vendre..."></textarea>
+                            </label>
+                        </form>
+
+                        <form class="growth-panel" id="financeForm">
+                            <div class="panel-heading">
+                                <div>
+                                    <span class="panel-kicker">Finances</span>
+                                    <h3>Revenus et dépenses</h3>
+                                </div>
+
+                                <button class="primary-button" type="submit">
+                                    Analyser
+                                </button>
+                            </div>
+
+                            <div class="form-grid growth-finance-grid">
+                                <label>
+                                    <span>Revenus mensuels</span>
+                                    <div class="input-with-suffix">
+                                        <input id="monthlyRevenue" type="number" min="0" step="50" value="3500">
+                                        <span>€</span>
+                                    </div>
+                                </label>
+
+                                <label>
+                                    <span>Logiciels</span>
+                                    <div class="input-with-suffix">
+                                        <input id="expenseSoftware" type="number" min="0" step="5" value="120">
+                                        <span>€</span>
+                                    </div>
+                                </label>
+
+                                <label>
+                                    <span>Marketing</span>
+                                    <div class="input-with-suffix">
+                                        <input id="expenseMarketing" type="number" min="0" step="10" value="250">
+                                        <span>€</span>
+                                    </div>
+                                </label>
+
+                                <label>
+                                    <span>Loyer / bureau</span>
+                                    <div class="input-with-suffix">
+                                        <input id="expenseRent" type="number" min="0" step="10" value="0">
+                                        <span>€</span>
+                                    </div>
+                                </label>
+
+                                <label>
+                                    <span>Déplacements</span>
+                                    <div class="input-with-suffix">
+                                        <input id="expenseTransport" type="number" min="0" step="10" value="180">
+                                        <span>€</span>
+                                    </div>
+                                </label>
+
+                                <label>
+                                    <span>Téléphone / internet</span>
+                                    <div class="input-with-suffix">
+                                        <input id="expensePhone" type="number" min="0" step="5" value="55">
+                                        <span>€</span>
+                                    </div>
+                                </label>
+
+                                <label>
+                                    <span>Assurances</span>
+                                    <div class="input-with-suffix">
+                                        <input id="expenseInsurance" type="number" min="0" step="5" value="45">
+                                        <span>€</span>
+                                    </div>
+                                </label>
+
+                                <label>
+                                    <span>Sous-traitance</span>
+                                    <div class="input-with-suffix">
+                                        <input id="expenseSubcontracting" type="number" min="0" step="20" value="300">
+                                        <span>€</span>
+                                    </div>
+                                </label>
+
+                                <label>
+                                    <span>Autres charges</span>
+                                    <div class="input-with-suffix">
+                                        <input id="expenseOther" type="number" min="0" step="10" value="100">
+                                        <span>€</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="growth-grid growth-grid-balanced">
+                        <article class="growth-panel">
+                            <div class="panel-heading">
+                                <div>
+                                    <span class="panel-kicker">Économies</span>
+                                    <h3>Détection automatique</h3>
+                                </div>
+
+                                <span class="growth-status-pill" id="marginStatus">
+                                    Marge à calculer
+                                </span>
+                            </div>
+
+                            <div class="growth-list" id="savingsList"></div>
+                        </article>
+
+                        <article class="growth-panel">
+                            <div class="panel-heading">
+                                <div>
+                                    <span class="panel-kicker">Prospection</span>
+                                    <h3>Prospects locaux</h3>
+                                </div>
+
+                                <button class="primary-button" type="button" id="generateProspectsButton">
+                                    Chercher
+                                </button>
+                            </div>
+
+                            <div class="form-grid growth-controls">
+                                <label>
+                                    <span>Ville de recherche</span>
+                                    <input id="prospectCity" type="text" maxlength="80" placeholder="Paris, Lyon, Bordeaux…">
+                                </label>
+
+                                <label>
+                                    <span>Rayon (km)</span>
+                                    <input id="prospectRadius" type="number" min="1" max="200" step="5" placeholder="20">
+                                </label>
+
+                                <label>
+                                    <span>Besoin prioritaire</span>
+                                    <select id="prospectNeed">
+                                        <option value="visibilite">Visibilité locale</option>
+                                        <option value="site">Site ou refonte</option>
+                                        <option value="crm">Suivi client / CRM</option>
+                                        <option value="devis">Devis et factures</option>
+                                        <option value="recrutement">Recrutement / marque employeur</option>
+                                    </select>
+                                </label>
+
+                                <label>
+                                    <span>Type à cibler</span>
+                                    <input id="prospectType" type="text" maxlength="80" placeholder="commerçants, cabinets, artisans">
+                                </label>
+                            </div>
+
+                            <div class="growth-list" id="prospectList"></div>
+                        </article>
+                    </div>
+
+                    <div class="growth-grid growth-grid-balanced">
+                        <article class="growth-panel growth-message-panel">
+                            <div class="panel-heading">
+                                <div>
+                                    <span class="panel-kicker">Message</span>
+                                    <h3>Approche personnalisée</h3>
+                                </div>
+
+                                <div class="growth-actions">
+                                    <button class="secondary-button" type="button" id="copyMessageButton">
+                                        Copier
+                                    </button>
+                                    <button class="primary-button" type="button" id="generateMessageButton">
+                                        Générer
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="form-grid growth-controls">
+                                <label>
+                                    <span>Prospect</span>
+                                    <select id="messageProspect"></select>
+                                </label>
+
+                                <label>
+                                    <span>Ton</span>
+                                    <select id="messageTone">
+                                        <option value="direct">Direct</option>
+                                        <option value="chaleureux">Chaleureux</option>
+                                        <option value="premium">Premium</option>
+                                        <option value="relance">Relance courte</option>
+                                    </select>
+                                </label>
+                            </div>
+
+                            <textarea id="generatedMessage" rows="9" spellcheck="true"></textarea>
+                        </article>
+
+                        <article class="growth-panel">
+                            <div class="panel-heading">
+                                <div>
+                                    <span class="panel-kicker">CRM</span>
+                                    <h3>Relances</h3>
+                                </div>
+
+                                <button class="primary-button" type="button" id="addManualLeadButton">
+                                    Ajouter
+                                </button>
+                            </div>
+
+                            <form class="growth-lead-form" id="leadForm">
+                                <div class="form-grid">
+                                    <label>
+                                        <span>Nom</span>
+                                        <input id="leadName" type="text" maxlength="90" placeholder="Cabinet Horizon">
+                                    </label>
+
+                                    <label>
+                                        <span>Contact</span>
+                                        <input id="leadContact" type="text" maxlength="120" placeholder="email ou téléphone">
+                                    </label>
+
+                                    <label>
+                                        <span>Statut</span>
+                                        <select id="leadStatus">
+                                            <option value="nouveau">Nouveau</option>
+                                            <option value="contacte">Contacté</option>
+                                            <option value="relance">À relancer</option>
+                                            <option value="gagne">Gagné</option>
+                                            <option value="perdu">Perdu</option>
+                                        </select>
+                                    </label>
+
+                                    <label>
+                                        <span>Relance</span>
+                                        <input id="leadFollowUp" type="date">
+                                    </label>
+                                </div>
+
+                                <label>
+                                    <span>Note</span>
+                                    <textarea id="leadNote" rows="2" maxlength="260" placeholder="Besoin détecté, contexte, prochaine action..."></textarea>
+                                </label>
+
+                                <button class="secondary-button" type="submit">
+                                    Enregistrer le contact
+                                </button>
+                            </form>
+
+                            <div class="growth-list" id="crmList"></div>
+                        </article>
+                    </div>
+
+                    <article class="growth-panel growth-aid-panel">
+                        <div class="panel-heading">
+                            <div>
+                                <span class="panel-kicker">Aides publiques</span>
+                                <h3>Radar d’aides</h3>
+                            </div>
+
+                            <button class="primary-button" type="button" id="refreshAidButton">
+                                Actualiser le radar
+                            </button>
+                        </div>
+
+                        <div class="growth-aid-grid" id="aidGrid"></div>
+                    </article>
+                </section>
+
+                <section class="settings-section" id="settings">
+                    <div class="section-heading">
+                        <div>
+                            <span class="section-kicker">Personnalisation</span>
+                            <h2>Réglages des estimations</h2>
+                        </div>
+                    </div>
+
+                    <article class="settings-card">
+                        <form id="settingsForm">
+                            <label>
+                                <span>Taux estimatif de cotisations</span>
+                                <div class="input-with-suffix">
+                                    <input
+                                        id="contributionRateInput"
+                                        type="number"
+                                        min="0"
+                                        max="100"
+                                        step="0.1"
+                                        value="25"
+                                    >
+                                    <span>%</span>
+                                </div>
+
+                                <small>
+                                    Valeur personnalisable. Elle ne remplace pas
+                                    le taux officiel applicable à ton activité.
+                                </small>
+                            </label>
+
+                            <label>
+                                <span>Provision fiscale estimée</span>
+                                <div class="input-with-suffix">
+                                    <input
+                                        id="taxRateInput"
+                                        type="number"
+                                        min="0"
+                                        max="100"
+                                        step="0.1"
+                                        value="5"
+                                    >
+                                    <span>%</span>
+                                </div>
+
+                                <small>
+                                    Pour mettre de côté une marge supplémentaire
+                                    selon ta situation fiscale.
+                                </small>
+                            </label>
+
+                            <div class="settings-actions">
+                                <button class="primary-button" type="submit">
+                                    Enregistrer les réglages
+                                </button>
+
+                                <button
+                                    class="danger-button"
+                                    id="resetDataButton"
+                                    type="button"
+                                >
+                                    Effacer toutes les données
+                                </button>
+                            </div>
+                        </form>
+                    </article>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <div
+        class="modal hidden"
+        id="transactionModal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="transactionModalTitle"
+    >
+        <div class="modal-overlay" data-close-modal></div>
+
+        <article class="modal-card">
+            <button
+                class="modal-close"
+                id="closeModalButton"
+                type="button"
+                aria-label="Fermer"
+            >
+                ×
+            </button>
+
+            <div class="modal-heading">
+                <span class="section-kicker">Nouvelle écriture</span>
+                <h2 id="transactionModalTitle">Ajouter une opération</h2>
+            </div>
+
+            <form id="transactionForm">
+                <div class="form-grid">
+                    <label>
+                        <span>Type</span>
+                        <select id="transactionType" required>
+                            <option value="income">Recette</option>
+                            <option value="expense">Dépense</option>
+                        </select>
+                    </label>
+
+                    <label>
+                        <span>Date</span>
+                        <input id="transactionDate" type="date" required>
+                    </label>
+                </div>
+
+                <label>
+                    <span>Description</span>
+                    <input
+                        id="transactionDescription"
+                        type="text"
+                        maxlength="100"
+                        placeholder="Exemple : Création d'un site vitrine"
+                        required
+                    >
+                </label>
+
+                <div class="form-grid">
+                    <label>
+                        <span>Catégorie</span>
+                        <select id="transactionCategory" required></select>
+                    </label>
+
+                    <label>
+                        <span>Montant TTC</span>
+                        <div class="input-with-suffix">
+                            <input
+                                id="transactionAmount"
+                                type="number"
+                                min="0.01"
+                                step="0.01"
+                                placeholder="0,00"
+                                required
+                            >
+                            <span>€</span>
+                        </div>
+                    </label>
+                </div>
+
+                <label>
+                    <span>Note facultative</span>
+                    <textarea
+                        id="transactionNote"
+                        rows="3"
+                        maxlength="300"
+                        placeholder="Informations complémentaires..."
+                    ></textarea>
+                </label>
+
+                <div class="modal-actions">
+                    <button
+                        class="secondary-button"
+                        id="cancelTransactionButton"
+                        type="button"
+                    >
+                        Annuler
+                    </button>
+
+                    <button class="primary-button" type="submit">
+                        Enregistrer l’opération
+                    </button>
+                </div>
+            </form>
+        </article>
+    </div>
+
+    <div class="toast hidden" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
