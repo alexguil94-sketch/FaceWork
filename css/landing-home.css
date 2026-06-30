@@ -2466,6 +2466,251 @@ body.landing-home.landing-atelier-page .footer-card {
   }
 }
 
+/* Atelier light mode: keep the editorial overrides from restoring dark colors. */
+body.landing-home.landing-atelier-page.lm {
+  --landing-bg: #f8fafc;
+  --landing-bg-soft: #f1f5f9;
+  --landing-bg-deep: #ffffff;
+  --landing-panel: rgba(255, 255, 255, 0.88);
+  --landing-panel-strong: rgba(255, 255, 255, 0.96);
+  --landing-line: rgba(15, 23, 42, 0.09);
+  --landing-line-strong: rgba(15, 23, 42, 0.16);
+  --landing-text: #0f172a;
+  --landing-muted: #64748b;
+  --landing-blue: #0e7490;
+  --landing-cyan: #0891b2;
+  --landing-orange: #c2410c;
+  --landing-pink: #be123c;
+  --landing-gold: #a16207;
+  --landing-shadow: 0 28px 90px rgba(15, 23, 42, 0.1);
+  color: #0f172a;
+  background:
+    radial-gradient(circle at 12% 16%, rgba(14, 165, 233, 0.1), transparent 22%),
+    radial-gradient(circle at 86% 10%, rgba(244, 63, 94, 0.07), transparent 18%),
+    linear-gradient(180deg, #ffffff 0%, #f8fafc 42%, #f1f5f9 100%);
+}
+
+body.landing-home.landing-atelier-page.lm::before {
+  background-image: linear-gradient(rgba(15, 23, 42, 0.035) 1px, transparent 1px);
+  background-size: 100% 38px;
+  opacity: 0.45;
+}
+
+body.landing-home.landing-atelier-page.lm::after {
+  background: none;
+}
+
+body.landing-home.landing-atelier-page.lm .site-header {
+  background: rgba(248, 250, 252, 0.92);
+  border-bottom-color: rgba(15, 23, 42, 0.08);
+}
+
+body.landing-home.landing-atelier-page.lm .brand-copy span,
+body.landing-home.landing-atelier-page.lm .hero-proof p {
+  color: #64748b;
+}
+
+body.landing-home.landing-atelier-page.lm .eyebrow,
+body.landing-home.landing-atelier-page.lm .workspace-kicker,
+body.landing-home.landing-atelier-page.lm .process-card span {
+  color: #9a6700;
+}
+
+body.landing-home.landing-atelier-page.lm .site-nav {
+  border-top-color: rgba(15, 23, 42, 0.08);
+}
+
+body.landing-home.landing-atelier-page.lm .site-nav a {
+  color: #64748b;
+}
+
+body.landing-home.landing-atelier-page.lm .site-nav a:hover,
+body.landing-home.landing-atelier-page.lm .site-nav a:focus-visible {
+  color: #0f172a;
+  border-bottom-color: rgba(15, 23, 42, 0.2);
+}
+
+body.landing-home.landing-atelier-page.lm .site-nav .nav-cta-primary {
+  color: #0b0907;
+}
+
+body.landing-home.landing-atelier-page.lm .button-secondary {
+  color: #0f172a;
+  border-color: rgba(15, 23, 42, 0.16);
+  background: rgba(255, 255, 255, 0.76);
+}
+
+body.landing-home.landing-atelier-page.lm .section-band {
+  background: transparent;
+  border-top-color: rgba(15, 23, 42, 0.08);
+  border-bottom-color: rgba(15, 23, 42, 0.08);
+}
+
+body.landing-home.landing-atelier-page.lm .service-pills span,
+body.landing-home.landing-atelier-page.lm .cv-pills span {
+  color: #0f172a;
+  border-color: rgba(15, 23, 42, 0.13);
+}
+
+body.landing-home.landing-atelier-page.lm .hero-proof,
+body.landing-home.landing-atelier-page.lm .process-card,
+body.landing-home.landing-atelier-page.lm .offer-card,
+body.landing-home.landing-atelier-page.lm .workspace-card,
+body.landing-home.landing-atelier-page.lm .footer-card,
+body.landing-home.landing-atelier-page.lm .contact-notes div {
+  border-color: rgba(15, 23, 42, 0.1);
+}
+
+body.landing-home.landing-atelier-page.lm .hero-proof strong {
+  color: #475569;
+}
+
+body.landing-home.landing-atelier-page.lm .hero-main,
+body.landing-home.landing-atelier-page.lm .story-image,
+body.landing-home.landing-atelier-page.lm .offer-figure,
+body.landing-home.landing-atelier-page.lm .vision-main,
+body.landing-home.landing-atelier-page.lm .vision-side,
+body.landing-home.landing-atelier-page.lm .workspace-figure,
+body.landing-home.landing-atelier-page.lm .cv-portrait {
+  border-color: rgba(15, 23, 42, 0.11);
+  background: #ffffff;
+}
+
+body.landing-home.landing-atelier-page.lm .hero-main,
+body.landing-home.landing-atelier-page.lm .vision-side--poster img {
+  background: #f1f5f9;
+}
+
+body.landing-home.landing-atelier-page.lm .offer-figure figcaption,
+body.landing-home.landing-atelier-page.lm .vision-side figcaption {
+  color: #0f172a;
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(15, 23, 42, 0.1);
+}
+
+body.landing-home.landing-atelier-page.lm .contact-form input,
+body.landing-home.landing-atelier-page.lm .contact-form textarea {
+  color: #0f172a;
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.13);
+}
+
+body.landing-home.landing-atelier-page.lm .footer-band {
+  border-bottom-color: rgba(15, 23, 42, 0.1);
+}
+
+body.landing-home.landing-atelier-page.lm .button-primary,
+body.landing-home.landing-atelier-page.lm .site-nav .nav-cta-primary {
+  color: #20120b;
+  background: linear-gradient(135deg, #ffd166, #ff9f5a 52%, #ff6b8a);
+}
+
+body.landing-home.landing-atelier-page.lm .theme-toggle {
+  background: linear-gradient(145deg, #fff4cc, #ffe0e8);
+  border-color: rgba(234, 88, 12, 0.22);
+}
+
+body.landing-home.landing-atelier-page.lm .service-pills span:nth-child(5n + 1) {
+  color: #075985;
+  background: #e0f2fe;
+  border-color: #7dd3fc;
+}
+
+body.landing-home.landing-atelier-page.lm .service-pills span:nth-child(5n + 2) {
+  color: #9f1239;
+  background: #ffe4e6;
+  border-color: #fda4af;
+}
+
+body.landing-home.landing-atelier-page.lm .service-pills span:nth-child(5n + 3) {
+  color: #166534;
+  background: #dcfce7;
+  border-color: #86efac;
+}
+
+body.landing-home.landing-atelier-page.lm .service-pills span:nth-child(5n + 4) {
+  color: #9a3412;
+  background: #ffedd5;
+  border-color: #fdba74;
+}
+
+body.landing-home.landing-atelier-page.lm .service-pills span:nth-child(5n + 5) {
+  color: #0f766e;
+  background: #ccfbf1;
+  border-color: #5eead4;
+}
+
+body.landing-home.landing-atelier-page.lm .process-card:nth-child(3n + 1),
+body.landing-home.landing-atelier-page.lm .offer-card:nth-child(3n + 1),
+body.landing-home.landing-atelier-page.lm .workspace-card:nth-child(3n + 1) {
+  border-top-color: #38bdf8;
+}
+
+body.landing-home.landing-atelier-page.lm .process-card:nth-child(3n + 2),
+body.landing-home.landing-atelier-page.lm .offer-card:nth-child(3n + 2),
+body.landing-home.landing-atelier-page.lm .workspace-card:nth-child(3n + 2) {
+  border-top-color: #fb7185;
+}
+
+body.landing-home.landing-atelier-page.lm .process-card:nth-child(3n + 3),
+body.landing-home.landing-atelier-page.lm .offer-card:nth-child(3n + 3),
+body.landing-home.landing-atelier-page.lm .workspace-card:nth-child(3n + 3) {
+  border-top-color: #34d399;
+}
+
+body.landing-home.landing-atelier-page.lm #approche .eyebrow {
+  color: #0369a1;
+}
+
+body.landing-home.landing-atelier-page.lm #services {
+  background: rgba(224, 242, 254, 0.58);
+}
+
+body.landing-home.landing-atelier-page.lm #services .eyebrow {
+  color: #be123c;
+}
+
+body.landing-home.landing-atelier-page.lm #devis .eyebrow {
+  color: #c2410c;
+}
+
+body.landing-home.landing-atelier-page.lm #aides {
+  background: rgba(254, 249, 195, 0.38);
+}
+
+body.landing-home.landing-atelier-page.lm #aides .eyebrow {
+  color: #a16207;
+}
+
+body.landing-home.landing-atelier-page.lm #pilotage {
+  background: rgba(209, 250, 229, 0.38);
+}
+
+body.landing-home.landing-atelier-page.lm #pilotage .eyebrow,
+body.landing-home.landing-atelier-page.lm #pilotage .workspace-kicker {
+  color: #047857;
+}
+
+body.landing-home.landing-atelier-page.lm #vision .eyebrow {
+  color: #6d28d9;
+}
+
+body.landing-home.landing-atelier-page.lm #cv {
+  background: rgba(255, 228, 230, 0.5);
+}
+
+body.landing-home.landing-atelier-page.lm #cv .eyebrow {
+  color: #be185d;
+}
+
+body.landing-home.landing-atelier-page.lm #contact {
+  background: rgba(207, 250, 254, 0.42);
+}
+
+body.landing-home.landing-atelier-page.lm #contact .eyebrow {
+  color: #0e7490;
+}
+
 /* ============================================================
    Service pages + Devis page shared overrides
    (.landing-service = seo, vitrine, web-entreprise pages)
