@@ -332,4 +332,26 @@
 
   syncSessionCtas();
   loadFooterSocial();
+
+  // Bascule mode clair / sombre
+  const themeToggle = document.querySelector("[data-theme-toggle-landing]");
+  if(themeToggle){
+    const iconDark = themeToggle.querySelector(".tt-dark");
+    const iconLight = themeToggle.querySelector(".tt-light");
+
+    function applyLandingTheme(lm){
+      document.body.classList.toggle("lm", lm);
+      if(iconDark) iconDark.hidden = lm;
+      if(iconLight) iconLight.hidden = !lm;
+      try{ localStorage.setItem("ds-lm", lm ? "1" : "0"); }catch(e){}
+    }
+
+    var savedLm = null;
+    try{ savedLm = localStorage.getItem("ds-lm"); }catch(e){}
+    if(savedLm === "1") applyLandingTheme(true);
+
+    themeToggle.addEventListener("click", function(){
+      applyLandingTheme(!document.body.classList.contains("lm"));
+    });
+  }
 })();
