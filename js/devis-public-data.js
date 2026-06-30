@@ -1,5 +1,5 @@
 window.DEVIS_PUBLIC_DATA = {
-  companyName: "Digitalexis-Studio",
+  companyName: "Digitalexis Studio",
   contactEmail: "alexguil94@hotmail.fr",
   contactPhone: "+33 7 67 03 34 08",
   currency: "EUR",
@@ -8,48 +8,49 @@ window.DEVIS_PUBLIC_DATA = {
     {
       title: "Site vitrine",
       priceLabel: "A partir de 395 EUR",
-      description: "Pour lancer une presence en ligne professionnelle claire et rassurante.",
+      description: "Pour lancer une présence en ligne claire et rassurante, adaptée à votre activité.",
     },
     {
       title: "Refonte de site",
       priceLabel: "A partir de 645 EUR",
-      description: "Pour remettre a niveau le rendu, la structure et la lisibilite commerciale.",
+      description: "Pour moderniser votre site existant et lui redonner une image plus claire et plus professionnelle.",
     },
     {
-      title: "SEO",
+      title: "Référencement local",
       priceLabel: "A partir de 145 EUR",
-      description: "Pour poser une base de visibilite propre et des pages plus pertinentes sur Google.",
+      description: "Pour être mieux trouvé par vos clients sur Google à Troyes et dans l'Aube.",
     },
     {
-      title: "Strategie digitale",
-      priceLabel: "A partir de 95 EUR",
-      description: "Pour clarifier le message, la cible, le plan d'action et les bons leviers.",
+      title: "Contenus visuels",
+      priceLabel: "A partir de 25 EUR",
+      description: "Montage vidéo, affiches, réseaux sociaux — des visuels soignés pour votre activité.",
     },
     {
-      title: "Gestion reseaux sociaux",
-      priceLabel: "A partir de 145 EUR / mois",
-      description: "Pour lancer ou maintenir une presence sociale plus stable et plus coherente.",
+      title: "Accompagnement numérique",
+      priceLabel: "A partir de 20 EUR / h",
+      description: "Pour vous aider à prendre en main vos outils numériques, à votre rythme, sans jargon.",
     },
   ],
   projectTypes: [
     "Projet mixte",
-    "Strategie digitale",
     "Creation de site web",
     "Refonte de site",
-    "SEO / visibilite",
-    "Reseaux sociaux / communication",
+    "Contenus visuels",
+    "Référencement local",
+    "Reseaux sociaux et communication",
+    "Accompagnement numérique",
     "Maintenance / extras techniques",
   ],
   categories: [
     {
       id: "strategie-digitale",
-      title: "Strategie digitale",
-      description: "Pour cadrer le message, les priorites et les leviers avant execution.",
+      title: "Accompagnement numérique",
+      description: "Pour vous aider à comprendre, organiser et gérer votre présence numérique, à votre rythme.",
       items: [
         {
           id: "audit-express",
-          title: "Audit express",
-          description: "Lecture rapide du positionnement digital, points faibles visibles et priorites immediates.",
+          title: "Point de départ express",
+          description: "Un premier regard sur votre présence numérique : ce qui fonctionne, ce qui peut être amélioré, et par où commencer.",
           min: 75,
           max: 150,
           pricingLabel: "75 a 150 EUR",
@@ -59,20 +60,20 @@ window.DEVIS_PUBLIC_DATA = {
         },
         {
           id: "audit-complet-plan-action",
-          title: "Audit complet + plan d'action",
-          description: "Analyse plus poussee, recommandations structurees et feuille de route actionnable.",
+          title: "Bilan complet + plan d'action",
+          description: "Analyse de votre présence en ligne, recommandations claires et plan d'action adapté à votre activité.",
           min: 175,
           max: 450,
           pricingLabel: "175 a 450 EUR",
           fromLabel: "A partir de 195 EUR",
           billing: "one_time",
-          kindLabel: "Strategie",
+          kindLabel: "Bilan",
           featured: true,
         },
         {
           id: "accompagnement-strategie-mensuel",
-          title: "Accompagnement strategie digitale mensuel",
-          description: "Suivi recurrent pour ajuster le cap, prioriser les chantiers et garder une execution coherente.",
+          title: "Accompagnement numérique mensuel",
+          description: "Suivi régulier pour vous aider à gérer vos outils, mettre à jour vos contenus et avancer sur votre présence en ligne.",
           min: 125,
           max: 450,
           pricingLabel: "125 a 450 EUR / mois",
@@ -86,8 +87,8 @@ window.DEVIS_PUBLIC_DATA = {
         },
         {
           id: "consulting-heure",
-          title: "Consulting a l'heure",
-          description: "Bloc de conseil cible pour arbitrage, cadrage technique ou revision strategique ponctuelle.",
+          title: "Aide ponctuelle à l'heure",
+          description: "Une session de travail ciblée pour répondre à vos questions, débloquer une situation ou avancer sur un point précis.",
           min: 20,
           max: 40,
           pricingLabel: "20 a 40 EUR / h",
@@ -190,8 +191,8 @@ window.DEVIS_PUBLIC_DATA = {
     },
     {
       id: "seo-visibilite",
-      title: "SEO / visibilite",
-      description: "Pour rendre les pages plus pertinentes, plus lisibles et plus visibles sur les bonnes recherches.",
+      title: "Référencement local",
+      description: "Pour être mieux trouvé par vos clients à Troyes et dans l'Aube, sans jargon ni engagement long terme.",
       items: [
         {
           id: "optimisation-seo-base",
@@ -261,8 +262,8 @@ window.DEVIS_PUBLIC_DATA = {
     },
     {
       id: "reseaux-sociaux-communication",
-      title: "Reseaux sociaux / communication",
-      description: "Pour poser une presence sociale propre, plus reguliere et mieux alignee avec l'image de marque.",
+      title: "Contenus visuels et réseaux sociaux",
+      description: "Montage vidéo, visuels pour réseaux sociaux, affiches et gestion de présence sociale pour votre activité.",
       items: [
         {
           id: "creation-optimisation-profil",
@@ -466,24 +467,24 @@ window.DEVIS_PUBLIC_DATA = {
   ],
   faq: [
     {
-      question: "Les prix affiches sont-ils definitifs ?",
-      answer: "Non. Les montants servent de repere pour cadrer le projet. Le devis final est ajuste selon le perimetre, les contenus disponibles, les integrations et le niveau de finition attendu."
+      question: "Les prix affichés sont-ils définitifs ?",
+      answer: "Non. Les montants servent de repère pour vous donner une idée. Le devis final est ajusté selon votre projet, vos contenus et ce dont vous avez vraiment besoin."
     },
     {
-      question: "Puis-je combiner site web, SEO et reseaux sociaux ?",
-      answer: "Oui. Le simulateur est justement pense pour assembler plusieurs blocs: strategie, site vitrine, refonte, SEO, communication, maintenance et extras techniques."
+      question: "Puis-je combiner site web, contenus visuels et accompagnement ?",
+      answer: "Oui, tout à fait. Le simulateur est pensé pour assembler plusieurs services : création de site, contenus, référencement local, réseaux sociaux, maintenance et accompagnement numérique."
     },
     {
-      question: "Comment sont gerees les prestations mensuelles ?",
-      answer: "Les services mensuels affichent une fourchette par mois. La page distingue le budget mensuel recurrent et la projection sur la duree que tu choisis."
+      question: "Comment fonctionnent les services mensuels ?",
+      answer: "Les services au mois affichent une fourchette mensuelle. Vous choisissez la durée et le simulateur vous donne une estimation globale. Rien n'est engagé sans échange préalable."
     },
     {
-      question: "Quels sont les delais moyens de production ?",
-      answer: "Ils dependent du type de mission et des contenus a produire. Une landing simple peut aller vite, alors qu'une refonte premium ou un e-commerce demande plus de cadrage et de validations."
+      question: "Quels sont les délais moyens ?",
+      answer: "Ça dépend du projet. Un site simple peut être livré en quelques semaines. Une refonte ou un accompagnement plus complet demande un peu plus de temps et d'échanges."
     },
     {
-      question: "Le devis final peut-il etre personnalise ou simplifie ?",
-      answer: "Oui. Le simulateur sert a poser une base. Ensuite, on peut retirer, regrouper ou ajouter des prestations pour coller au besoin reel et au budget vise."
+      question: "Je ne suis pas sûr de ce dont j'ai besoin — est-ce un problème ?",
+      answer: "Pas du tout. Le simulateur vous aide à explorer les options, mais on peut aussi simplement en parler ensemble. Je vous guiderai vers ce qui correspond vraiment à votre situation."
     }
   ]
 };
