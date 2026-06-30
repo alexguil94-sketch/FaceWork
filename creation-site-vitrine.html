@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Creation de site vitrine | Digitalexis-Studio</title>
+  <title>Creation de site vitrine à Troyes | Digitalexis-Studio</title>
   <meta
     name="description"
-    content="Creation de site vitrine premium pour independant, TPE et petite entreprise avec design, textes, SEO de base et conversion."
+    content="Creation de site vitrine à Troyes — Alexis Guillotin, freelance web. Design premium, textes, SEO local et conversion. Devis gratuit."
   />
   <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"/>
   <meta name="author" content="Alexis Guillotin"/>
@@ -14,7 +14,7 @@
   <meta property="og:locale" content="fr_FR"/>
   <meta property="og:type" content="website"/>
   <meta property="og:site_name" content="Digitalexis-Studio"/>
-  <meta property="og:title" content="Creation de site vitrine | Digitalexis-Studio"/>
+  <meta property="og:title" content="Creation de site vitrine à Troyes | Digitalexis-Studio"/>
   <meta
     property="og:description"
     content="Un site vitrine premium pour presenter l'activite, rassurer, convertir et poser une base SEO plus propre."
@@ -23,7 +23,7 @@
   <meta property="og:image" content="https://www.digitalexis-studio.org/assets/creation-site-vitrine-og.png"/>
   <meta property="og:image:alt" content="Creation de site vitrine par Digitalexis-Studio"/>
   <meta name="twitter:card" content="summary_large_image"/>
-  <meta name="twitter:title" content="Creation de site vitrine | Digitalexis-Studio"/>
+  <meta name="twitter:title" content="Creation de site vitrine à Troyes | Digitalexis-Studio"/>
   <meta
     name="twitter:description"
     content="Site vitrine premium, messages clairs, structure rassurante et SEO on-page pour independant, TPE et petite entreprise."
@@ -37,6 +37,75 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"/>
   <link rel="stylesheet" href="css/style.css"/>
   <link rel="stylesheet" href="css/landing-home.css?v=20260419"/>
+  <style>
+    /* === Bouton CTA animé === */
+    .button-primary {
+      position: relative;
+      overflow: hidden;
+    }
+    .button-primary::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -75%;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.22), transparent);
+      transform: skewX(-20deg);
+      animation: btn-shimmer 2.6s ease-in-out infinite;
+    }
+    @keyframes btn-shimmer {
+      0%   { left: -75%; }
+      60%  { left: 125%; }
+      100% { left: 125%; }
+    }
+
+    /* === Trust strip === */
+    .trust-strip {
+      background: rgba(255,255,255,.035);
+      border-bottom: 1px solid rgba(255,255,255,.07);
+      padding: 9px 0;
+    }
+    .trust-strip-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12.5px;
+      color: #9aa3bc;
+      white-space: nowrap;
+    }
+    .trust-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 6px rgba(34,197,94,.6);
+      flex-shrink: 0;
+    }
+
+    /* === Cartes tarifs colorées === */
+    .tarif-card-blue   { border-top: 3px solid #2ab6ff !important; }
+    .tarif-card-pink   { border-top: 3px solid #ff3a8c !important; }
+    .tarif-card-orange { border-top: 3px solid #ff922c !important; }
+    .tarif-card-gold   { border-top: 3px solid #ffd38c !important; }
+    .tarif-card-cyan   { border-top: 3px solid #81ebff !important; }
+    .tarif-price {
+      font-size: 22px;
+      font-weight: 700;
+      color: #f4f7ff;
+      margin: 4px 0 6px;
+      line-height: 1.1;
+    }
+  </style>
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -51,10 +120,17 @@
             "url": "https://www.digitalexis-studio.org/",
             "logo": "https://www.digitalexis-studio.org/assets/favicon_DS.png"
           },
-          "areaServed": {
-            "@type": "Country",
-            "name": "France"
-          },
+          "areaServed": [
+            {
+              "@type": "City",
+              "name": "Troyes",
+              "sameAs": "https://www.wikidata.org/wiki/Q47740"
+            },
+            {
+              "@type": "Country",
+              "name": "France"
+            }
+          ],
           "description": "Creation de site vitrine premium pour independant, TPE et petite entreprise avec design, textes, SEO on-page et experience mobile."
         },
         {
@@ -134,14 +210,24 @@
     </div>
   </header>
 
+  <div class="trust-strip" aria-hidden="true">
+    <div class="trust-strip-inner">
+      <span class="trust-item"><span class="trust-dot"></span>Disponible</span>
+      <span class="trust-item">📍 Basé à Troyes</span>
+      <span class="trust-item">⚡ Réponse sous 48h</span>
+      <span class="trust-item">💸 Devis gratuit</span>
+      <span class="trust-item">✅ Site livré clé en main</span>
+    </div>
+  </div>
+
   <main id="main">
     <section class="hero">
       <div class="container hero-layout">
         <div class="hero-copy" data-reveal>
           <p class="eyebrow">Page SEO</p>
-          <h1>Site vitrine premium — design haut de gamme, structure claire, conversion.</h1>
+          <h1>Creation de site vitrine à Troyes — design premium, structure claire, conversion.</h1>
           <p class="hero-text">
-            Je conçois des sites vitrines qui presentent ton activite avec un rendu haut de gamme, de vrais arguments de confiance et des appels a l'action qui donnent envie de te contacter.
+            Freelance web basé à Troyes, je conçois des sites vitrines qui presentent ton activite avec un rendu haut de gamme, de vrais arguments de confiance et des appels a l'action qui donnent envie de te contacter.
           </p>
 
           <div class="cta-row">
@@ -151,9 +237,9 @@
 
           <div class="service-pills">
             <span>Site vitrine</span>
-            <span>Freelance web</span>
+            <span>Freelance web Troyes</span>
             <span>Presence en ligne</span>
-            <span>SEO on-page</span>
+            <span>SEO local</span>
           </div>
 
           <article class="surface hero-proof">
@@ -275,6 +361,49 @@
       </div>
     </section>
 
+    <section class="section" id="tarifs">
+      <div class="container">
+        <div class="section-heading" data-reveal>
+          <p class="eyebrow">Tarifs</p>
+          <h2>Des tarifs clairs pour un projet bien cadre.</h2>
+          <p>Chaque projet est different. Ces fourchettes donnent une base pour te permettre de te projeter avant le devis.</p>
+        </div>
+
+        <div class="offer-grid">
+          <article class="surface offer-card tarif-card-blue" data-reveal>
+            <p class="eyebrow" style="font-size:0.7rem;margin-bottom:0.5rem">Site vitrine</p>
+            <p class="tarif-price">À partir de 395 EUR</p>
+            <p>Pour lancer une presence en ligne claire et rassurante.</p>
+          </article>
+          <article class="surface offer-card tarif-card-pink" data-reveal data-reveal-delay="1">
+            <p class="eyebrow" style="font-size:0.7rem;margin-bottom:0.5rem">Refonte de site</p>
+            <p class="tarif-price">À partir de 645 EUR</p>
+            <p>Pour remettre a niveau le rendu, la structure et la lisibilite commerciale.</p>
+          </article>
+          <article class="surface offer-card tarif-card-orange" data-reveal data-reveal-delay="2">
+            <p class="eyebrow" style="font-size:0.7rem;margin-bottom:0.5rem">SEO</p>
+            <p class="tarif-price">À partir de 145 EUR</p>
+            <p>Pour poser une base de visibilite propre et des pages plus pertinentes sur Google.</p>
+          </article>
+          <article class="surface offer-card tarif-card-gold" data-reveal>
+            <p class="eyebrow" style="font-size:0.7rem;margin-bottom:0.5rem">Strategie digitale</p>
+            <p class="tarif-price">À partir de 95 EUR</p>
+            <p>Pour clarifier le message, la cible, le plan d'action et les bons leviers.</p>
+          </article>
+          <article class="surface offer-card tarif-card-cyan" data-reveal data-reveal-delay="1">
+            <p class="eyebrow" style="font-size:0.7rem;margin-bottom:0.5rem">Gestion reseaux sociaux</p>
+            <p class="tarif-price">À partir de 145 EUR / mois</p>
+            <p>Pour lancer ou maintenir une presence sociale plus stable et plus coherente.</p>
+          </article>
+        </div>
+
+        <div style="text-align:center; margin-top:2rem;" data-reveal>
+          <p style="margin-bottom:1rem; opacity:0.75;">Devis gratuit — reponse sous 48h</p>
+          <a class="button button-primary" href="atelier-devis.html">Obtenir mon devis gratuit</a>
+        </div>
+      </div>
+    </section>
+
     <section class="section" id="faq">
       <div class="container">
         <div class="section-heading" data-reveal>
@@ -326,8 +455,8 @@
         <div class="footer-simple-grid footer-simple-grid-compact">
           <div class="footer-simple-col">
             <p class="footer-simple-label">Studio</p>
-            <strong>Digitalexis-Studio</strong>
-            <p>Freelance web pour site vitrine, structure de contenu, SEO on-page et accompagnement numerique.</p>
+            <strong>Digitalexis-Studio — Troyes</strong>
+            <p>Freelance web basé à Troyes. Creation de site vitrine, SEO local, accompagnement numerique pour independants et TPE de l'Aube.</p>
             <a href="/">Retour studio</a>
             <a href="mailto:alexguil94@hotmail.fr">alexguil94@hotmail.fr</a>
           </div>
@@ -391,4 +520,3 @@
   <script src="js/landing-home.js"></script>
 </body>
 </html>
-
