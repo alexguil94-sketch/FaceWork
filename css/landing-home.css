@@ -1812,6 +1812,19 @@ body.landing-home.lm .site-header {
   border-bottom-color: rgba(15, 23, 42, 0.08);
 }
 
+/* Logo: drop-shadow qui suit le contour du PNG + fond circulaire discret */
+body.landing-home.lm .brand-stamp img {
+  filter:
+    drop-shadow(0 0 10px rgba(15, 23, 42, 0.14))
+    drop-shadow(0 1px 3px rgba(15, 23, 42, 0.20));
+}
+
+body.landing-home.lm .brand-stamp {
+  background: rgba(10, 15, 35, 0.06) !important;
+  border-radius: 50%;
+  padding: 5px;
+}
+
 body.landing-home.lm .site-nav a {
   color: #64748b;
 }

@@ -3151,6 +3151,8 @@
               <button class="btn crm-btn-quiet" type="button" id="crmInvoiceSend">Marquer envoyee</button>
               <button class="btn crm-btn-quiet" type="button" id="crmInvoicePdf">Generer PDF</button>
               <button class="btn crm-btn-quiet" type="button" id="crmInvoicePrint">Imprimer</button>
+              <button class="btn crm-btn-quiet" type="button" id="crmInvoiceFacturX" title="Télécharger le fichier XML Factur-X (profil MINIMUM — conforme e-facturation)">Factur-X (XML)</button>
+              <button class="btn primary" type="button" id="crmInvoicePdfFacturX" title="Générer un PDF Factur-X — XML embarqué dans le PDF (PDF/A-3b, profil MINIMUM)">PDF Factur-X ✦</button>
               <button class="btn crm-btn-quiet" type="button" id="crmInvoiceDuplicate"${invoice.id ? "" : " disabled"}>Dupliquer</button>
             </div>
           </section>
@@ -3309,6 +3311,42 @@
       const saved = await repo.saveInvoice(collectInvoiceFormData());
       state.invoiceForm = await generatePdf("invoice", saved, { print: true });
       state.invoices = await repo.listInvoices();
+      renderInvoiceEditorPage();
+    }));
+    $("#crmInvoiceFacturX", root)?.addEventListener("click", runAction("Factur-X", async ()=>{
+      const saved = await repo.saveInvoice(collectInvoiceFormData());
+      state.invoiceForm = saved;
+      state.invoices = await repo.listInvoices();
+      if(typeof window.FacturX?.downloadFacturXml === "function"){
+        window.FacturX.downloadFacturXml(saved, state.settings);
+        toast("Factur-X", `XML Factur-X téléchargé — facture ${saved.number || ""}.`);
+      } else {
+        toast("Factur-X", "Module Factur-X non chargé. Vérifiez que facturx.js est inclus.");
+      }
+      renderInvoiceEditorPage();
+    }));
+    $("#crmInvoicePdfFacturX", root)?.addEventListener("click", runAction("PDF Factur-X", async ()=>{
+      if(typeof window.FacturX?.embedInPdf !== "function"){
+        toast("Factur-X", "Module Factur-X non chargé.");
+        return;
+      }
+      const saved = await repo.saveInvoice(collectInvoiceFormData());
+      state.invoiceForm = saved;
+      state.invoices = await repo.listInvoices();
+      toast("PDF Factur-X", "Chargement de pdf-lib et génération en cours…");
+      try{
+        const jsPdfBlob = await buildPdfBlob("invoice", saved);
+        const facturXBlob = await window.FacturX.embedInPdf(jsPdfBlob, saved, state.settings);
+        triggerBlobDownload(
+          facturXBlob,
+          `factur-x_${slugify(saved.number || "facture")}.pdf`,
+          false
+        );
+        toast("PDF Factur-X", `PDF généré — XML Factur-X embarqué (${saved.number || "facture"}).`);
+      }catch(error){
+        console.error("[CRM] PDF Factur-X error:", error);
+        toast("PDF Factur-X", `Erreur : ${error.message || "génération impossible."}`);
+      }
       renderInvoiceEditorPage();
     }));
     $("#crmInvoiceDuplicate", root)?.addEventListener("click", runAction("Facture", async ()=>{
