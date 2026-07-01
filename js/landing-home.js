@@ -226,7 +226,7 @@
     });
 
     window.addEventListener("resize", function(){
-      if(window.innerWidth > 1320){
+      if(window.innerWidth > 760){
         setMenu(false);
       }
     });
