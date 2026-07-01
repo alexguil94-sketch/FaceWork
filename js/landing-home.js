@@ -2,6 +2,7 @@
   const menuToggle = document.querySelector("[data-menu-toggle]");
   const nav = document.querySelector("[data-nav]");
   const navLinks = nav ? nav.querySelectorAll("a") : [];
+  const navDropdowns = nav ? nav.querySelectorAll(".nav-dropdown") : [];
   const revealNodes = document.querySelectorAll("[data-reveal]");
   const yearNode = document.getElementById("year");
   const form = document.getElementById("contact-form");
@@ -59,6 +60,13 @@
     if(!menuToggle || !nav) return;
     menuToggle.setAttribute("aria-expanded", String(open));
     nav.classList.toggle("is-open", open);
+    if(!open) closeNavDropdowns();
+  }
+
+  function closeNavDropdowns(except){
+    navDropdowns.forEach(function(dropdown){
+      if(dropdown !== except) dropdown.open = false;
+    });
   }
 
   function syncSessionCtas(){
@@ -228,6 +236,16 @@
       if(!nav.contains(target) && !menuToggle.contains(target)){
         setMenu(false);
       }
+    });
+  }
+
+  if(navDropdowns.length){
+    document.addEventListener("click", function(event){
+      navDropdowns.forEach(function(dropdown){
+        if(dropdown.open && !dropdown.contains(event.target)){
+          dropdown.open = false;
+        }
+      });
     });
   }
 

@@ -223,6 +223,95 @@ body.landing-home .site-nav .nav-cta-primary {
   display: none;
 }
 
+/* Menu deroulant "Outils" : acces rapide aux espaces prives / autres applis */
+body.landing-home .nav-dropdown {
+  position: relative;
+}
+
+body.landing-home .nav-dropdown-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--landing-muted);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  transition:
+    color 180ms ease,
+    background-color 180ms ease;
+}
+
+body.landing-home .nav-dropdown-toggle::-webkit-details-marker {
+  display: none;
+}
+
+body.landing-home .nav-dropdown-toggle::after {
+  content: "";
+  width: 6px;
+  height: 6px;
+  margin-left: 2px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 180ms ease;
+}
+
+body.landing-home .nav-dropdown[open] > .nav-dropdown-toggle::after {
+  transform: rotate(-135deg);
+}
+
+body.landing-home .nav-dropdown-toggle:hover,
+body.landing-home .nav-dropdown-toggle:focus-visible {
+  color: var(--landing-text);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+body.landing-home .nav-dropdown-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 220px;
+  margin-top: 6px;
+  padding: 8px;
+  border-radius: 16px;
+  border: 1px solid var(--landing-line);
+  background: var(--landing-panel-strong);
+  box-shadow: var(--landing-shadow);
+}
+
+body.landing-home .nav-dropdown-panel a {
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  color: var(--landing-muted);
+}
+
+body.landing-home .nav-dropdown-panel a:hover,
+body.landing-home .nav-dropdown-panel a:focus-visible {
+  color: var(--landing-text);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+body.landing-home.lm .nav-dropdown-toggle:hover,
+body.landing-home.lm .nav-dropdown-toggle:focus-visible,
+body.landing-home.lm .nav-dropdown-panel a:hover,
+body.landing-home.lm .nav-dropdown-panel a:focus-visible {
+  background: rgba(15, 23, 42, 0.05);
+}
+
+@media (min-width: 1321px) {
+  body.landing-home .nav-dropdown-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: 40;
+  }
+}
+
 body.landing-home .header-actions {
   display: flex;
   align-items: center;
@@ -1379,16 +1468,6 @@ body.landing-home .ai-fab {
   50% {
     transform: translateY(-10px);
   }
-}
-
-/* Desktop : cacher les liens outils dans la nav inline */
-body.landing-home .site-nav .nav-tool {
-  display: none;
-}
-
-/* Burger ouvert : tout afficher */
-body.landing-home .site-nav.is-open .nav-tool {
-  display: flex;
 }
 
 @media (max-width: 1320px) {

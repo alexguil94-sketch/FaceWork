@@ -1,13 +1,38 @@
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap');
 
+:root{
+  /* CRM surface tokens (flip via html[data-theme]) */
+  --crm-ink: 255,255,255;
+  --crm-surface: 10,10,12;
+  --crm-page-bg: #0b0b0c;
+  --crm-page-glow-1: rgba(255,255,255,.09);
+  --crm-page-glow-2: rgba(255,255,255,.06);
+  --crm-page-wash-1: rgba(7,7,8,.96);
+  --crm-page-wash-2: rgba(16,16,18,.98);
+  --crm-page-wash-3: rgba(10,10,11,1);
+  --crm-page-sheen: rgba(255,255,255,.02);
+}
+
+html[data-theme="light"]{
+  --crm-ink: 18,20,24;
+  --crm-surface: 255,255,255;
+  --crm-page-bg: #f4f5f7;
+  --crm-page-glow-1: rgba(18,20,24,.05);
+  --crm-page-glow-2: rgba(18,20,24,.04);
+  --crm-page-wash-1: rgba(255,255,255,.92);
+  --crm-page-wash-2: rgba(240,241,244,.97);
+  --crm-page-wash-3: rgba(247,247,249,1);
+  --crm-page-sheen: rgba(18,20,24,.015);
+}
+
 body.crm-body{
   font-family: "Manrope", sans-serif;
-  background-color: #0b0b0c;
+  background-color: var(--crm-page-bg);
   background-image:
-    radial-gradient(1000px 540px at 10% 0%, rgba(255,255,255,.09), transparent 55%),
-    radial-gradient(900px 620px at 100% 10%, rgba(255,255,255,.06), transparent 60%),
-    linear-gradient(180deg, rgba(7,7,8,.96), rgba(16,16,18,.98) 48%, rgba(10,10,11,1)),
-    linear-gradient(135deg, rgba(255,255,255,.02), rgba(255,255,255,0));
+    radial-gradient(1000px 540px at 10% 0%, var(--crm-page-glow-1), transparent 55%),
+    radial-gradient(900px 620px at 100% 10%, var(--crm-page-glow-2), transparent 60%),
+    linear-gradient(180deg, var(--crm-page-wash-1), var(--crm-page-wash-2) 48%, var(--crm-page-wash-3)),
+    linear-gradient(135deg, var(--crm-page-sheen), rgba(255,255,255,0));
 }
 
 body.crm-body::before{
@@ -16,8 +41,8 @@ body.crm-body::before{
 }
 
 body.crm-body .appbar{
-  background: rgba(10,10,10,.82);
-  border-bottom: 1px solid rgba(255,255,255,.09);
+  background: rgba(var(--crm-surface),.82);
+  border-bottom: 1px solid rgba(var(--crm-ink),.09);
   backdrop-filter: blur(18px);
 }
 
@@ -30,19 +55,19 @@ body.crm-body .brand .logo{
 }
 
 body.crm-body .appnav a.active{
-  background: rgba(255,255,255,.12);
-  color: rgba(255,255,255,.96);
-  border-color: rgba(255,255,255,.16);
+  background: rgba(var(--crm-ink),.12);
+  color: rgba(var(--crm-ink),.96);
+  border-color: rgba(var(--crm-ink),.16);
 }
 
 body.crm-body .input{
-  background: rgba(10,10,12,.82);
-  border-color: rgba(255,255,255,.12);
-  color: rgba(255,255,255,.94);
+  background: rgba(var(--crm-surface),.82);
+  border-color: rgba(var(--crm-ink),.12);
+  color: rgba(var(--crm-ink),.94);
 }
 
 body.crm-body .input:focus{
-  border-color: rgba(255,255,255,.26);
+  border-color: rgba(var(--crm-ink),.26);
 }
 
 .crm-page{
@@ -60,8 +85,8 @@ body.crm-body .input:focus{
   position: sticky;
   top: 94px;
   padding: 18px;
-  background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
-  border: 1px solid rgba(255,255,255,.08);
+  background: linear-gradient(180deg, rgba(var(--crm-ink),.08), rgba(var(--crm-ink),.03));
+  border: 1px solid rgba(var(--crm-ink),.08);
   border-radius: 26px;
   box-shadow: 0 22px 56px rgba(0,0,0,.34);
 }
@@ -90,9 +115,9 @@ body.crm-body .input:focus{
   padding: 7px 12px;
   width: fit-content;
   border-radius: 999px;
-  border: 1px solid rgba(255,255,255,.12);
-  background: rgba(255,255,255,.05);
-  color: rgba(255,255,255,.78);
+  border: 1px solid rgba(var(--crm-ink),.12);
+  background: rgba(var(--crm-ink),.05);
+  color: rgba(var(--crm-ink),.78);
   font-size: 12px;
   font-weight: 800;
   letter-spacing: .08em;
@@ -100,7 +125,7 @@ body.crm-body .input:focus{
 }
 
 .crm-side-sub{
-  color: rgba(255,255,255,.62);
+  color: rgba(var(--crm-ink),.62);
   font-size: 13px;
   line-height: 1.5;
 }
@@ -118,7 +143,7 @@ body.crm-body .input:focus{
   padding: 12px 14px;
   border-radius: 16px;
   border: 1px solid transparent;
-  color: rgba(255,255,255,.74);
+  color: rgba(var(--crm-ink),.74);
   text-decoration: none;
   transition: transform .18s ease, background .18s ease, border-color .18s ease, color .18s ease;
 }
@@ -126,16 +151,16 @@ body.crm-body .input:focus{
 .crm-nav a:hover,
 .crm-nav a:focus-visible{
   text-decoration: none;
-  background: rgba(255,255,255,.07);
-  border-color: rgba(255,255,255,.1);
-  color: rgba(255,255,255,.92);
+  background: rgba(var(--crm-ink),.07);
+  border-color: rgba(var(--crm-ink),.1);
+  color: rgba(var(--crm-ink),.92);
   transform: translateX(4px);
 }
 
 .crm-nav a.active{
-  background: linear-gradient(135deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
-  border-color: rgba(255,255,255,.12);
-  color: #fff;
+  background: linear-gradient(135deg, rgba(var(--crm-ink),.14), rgba(var(--crm-ink),.06));
+  border-color: rgba(var(--crm-ink),.12);
+  color: rgb(var(--crm-ink));
 }
 
 .crm-nav strong{
@@ -145,7 +170,7 @@ body.crm-body .input:focus{
 
 .crm-nav span{
   font-size: 12px;
-  color: rgba(255,255,255,.5);
+  color: rgba(var(--crm-ink),.5);
 }
 
 .crm-main{
@@ -156,10 +181,10 @@ body.crm-body .input:focus{
 .crm-panel{
   padding: 20px;
   border-radius: 26px;
-  border: 1px solid rgba(255,255,255,.08);
+  border: 1px solid rgba(var(--crm-ink),.08);
   background:
-    linear-gradient(180deg, rgba(26,26,30,.97), rgba(15,15,18,.92)),
-    rgba(10,10,11,.88);
+    linear-gradient(180deg, rgba(var(--crm-surface),.97), rgba(var(--crm-surface),.92)),
+    rgba(var(--crm-surface),.88);
   box-shadow: 0 24px 60px rgba(0,0,0,.3);
 }
 
@@ -178,7 +203,7 @@ body.crm-body .input:focus{
   width: 320px;
   height: 320px;
   border-radius: 999px;
-  background: radial-gradient(circle, rgba(255,255,255,.16), transparent 62%);
+  background: radial-gradient(circle, rgba(var(--crm-ink),.16), transparent 62%);
   pointer-events: none;
 }
 
@@ -190,7 +215,7 @@ body.crm-body .input:focus{
 .crm-hero p,
 .crm-muted{
   margin: 0;
-  color: rgba(255,255,255,.64);
+  color: rgba(var(--crm-ink),.64);
   line-height: 1.65;
 }
 
@@ -219,9 +244,9 @@ body.crm-body .input:focus{
 }
 
 .crm-btn-quiet{
-  border-color: rgba(255,255,255,.12);
-  background: rgba(255,255,255,.04);
-  color: rgba(255,255,255,.86);
+  border-color: rgba(var(--crm-ink),.12);
+  background: rgba(var(--crm-ink),.04);
+  color: rgba(var(--crm-ink),.86);
 }
 
 .crm-grid{
@@ -244,12 +269,12 @@ body.crm-body .input:focus{
 .crm-stat{
   padding: 18px;
   border-radius: 22px;
-  border: 1px solid rgba(255,255,255,.08);
-  background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+  border: 1px solid rgba(var(--crm-ink),.08);
+  background: linear-gradient(180deg, rgba(var(--crm-ink),.08), rgba(var(--crm-ink),.04));
 }
 
 .crm-stat-label{
-  color: rgba(255,255,255,.58);
+  color: rgba(var(--crm-ink),.58);
   font-size: 12px;
   font-weight: 800;
   text-transform: uppercase;
@@ -265,7 +290,7 @@ body.crm-body .input:focus{
 
 .crm-stat-sub{
   margin-top: 8px;
-  color: rgba(255,255,255,.62);
+  color: rgba(var(--crm-ink),.62);
   font-size: 13px;
 }
 
@@ -290,19 +315,19 @@ body.crm-body .input:focus{
 .crm-bar-fill{
   min-height: 14px;
   border-radius: 18px 18px 8px 8px;
-  background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.28));
+  background: linear-gradient(180deg, rgba(var(--crm-ink),.92), rgba(var(--crm-ink),.28));
 }
 
 .crm-bar-label{
   font-size: 11px;
-  color: rgba(255,255,255,.56);
+  color: rgba(var(--crm-ink),.56);
   text-align: center;
 }
 
 .crm-table-wrap{
   overflow: auto;
   border-radius: 20px;
-  border: 1px solid rgba(255,255,255,.08);
+  border: 1px solid rgba(var(--crm-ink),.08);
 }
 
 .crm-table{
@@ -314,7 +339,7 @@ body.crm-body .input:focus{
 .crm-table th,
 .crm-table td{
   padding: 15px 16px;
-  border-bottom: 1px solid rgba(255,255,255,.07);
+  border-bottom: 1px solid rgba(var(--crm-ink),.07);
   text-align: left;
   vertical-align: top;
 }
@@ -322,8 +347,8 @@ body.crm-body .input:focus{
 .crm-table th{
   position: sticky;
   top: 0;
-  background: rgba(13,13,15,.94);
-  color: rgba(255,255,255,.64);
+  background: rgba(var(--crm-surface),.94);
+  color: rgba(var(--crm-ink),.64);
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: .08em;
@@ -336,12 +361,12 @@ body.crm-body .input:focus{
 
 .crm-table .row-title{
   font-weight: 800;
-  color: rgba(255,255,255,.94);
+  color: rgba(var(--crm-ink),.94);
 }
 
 .crm-table .row-meta{
   margin-top: 6px;
-  color: rgba(255,255,255,.54);
+  color: rgba(var(--crm-ink),.54);
   font-size: 13px;
 }
 
@@ -351,15 +376,15 @@ body.crm-body .input:focus{
   gap: 8px;
   padding: 8px 12px;
   border-radius: 999px;
-  border: 1px solid rgba(255,255,255,.12);
+  border: 1px solid rgba(var(--crm-ink),.12);
   font-size: 12px;
   font-weight: 800;
   letter-spacing: .04em;
   text-transform: uppercase;
 }
 
-.crm-status.draft{background: rgba(255,255,255,.06); color: rgba(255,255,255,.72)}
-.crm-status.sent{background: rgba(255,255,255,.1); color: rgba(255,255,255,.92)}
+.crm-status.draft{background: rgba(var(--crm-ink),.06); color: rgba(var(--crm-ink),.72)}
+.crm-status.sent{background: rgba(var(--crm-ink),.1); color: rgba(var(--crm-ink),.92)}
 .crm-status.pending{background: rgba(222,177,0,.14); color: #ffe28d}
 .crm-status.accepted{background: rgba(70,204,120,.16); color: #b7ffcc}
 .crm-status.rejected,
@@ -367,6 +392,14 @@ body.crm-body .input:focus{
 .crm-status.converted{background: rgba(123,167,255,.16); color: #ccddff}
 .crm-status.overdue{background: rgba(255,165,80,.18); color: #ffd2a5}
 .crm-status.paid{background: rgba(54,216,166,.18); color: #afffe7}
+
+html[data-theme="light"] .crm-status.pending{background: rgba(222,177,0,.16); color: #8a6a00}
+html[data-theme="light"] .crm-status.accepted{background: rgba(70,204,120,.18); color: #187a3d}
+html[data-theme="light"] .crm-status.rejected,
+html[data-theme="light"] .crm-status.cancelled{background: rgba(255,100,100,.18); color: #b3261e}
+html[data-theme="light"] .crm-status.converted{background: rgba(123,167,255,.2); color: #2a4fa8}
+html[data-theme="light"] .crm-status.overdue{background: rgba(255,165,80,.22); color: #a85400}
+html[data-theme="light"] .crm-status.paid{background: rgba(54,216,166,.2); color: #0d7a5b}
 
 .crm-kpi-list,
 .crm-list{
@@ -379,8 +412,8 @@ body.crm-body .input:focus{
   gap: 10px;
   padding: 16px;
   border-radius: 20px;
-  border: 1px solid rgba(255,255,255,.08);
-  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(var(--crm-ink),.08);
+  background: rgba(var(--crm-ink),.04);
 }
 
 .crm-list-card h3{
@@ -390,7 +423,7 @@ body.crm-body .input:focus{
 
 .crm-list-card p{
   margin: 0;
-  color: rgba(255,255,255,.58);
+  color: rgba(var(--crm-ink),.58);
   font-size: 14px;
   line-height: 1.55;
 }
@@ -403,8 +436,8 @@ body.crm-body .input:focus{
 .crm-form-section{
   padding: 22px;
   border-radius: 22px;
-  border: 1px solid rgba(255,255,255,.08);
-  background: linear-gradient(180deg, rgba(22,22,26,.94), rgba(14,14,17,.9));
+  border: 1px solid rgba(var(--crm-ink),.08);
+  background: linear-gradient(180deg, rgba(var(--crm-surface),.94), rgba(var(--crm-surface),.9));
 }
 
 .crm-form-section > h2,
@@ -415,7 +448,7 @@ body.crm-body .input:focus{
 
 .crm-form-section > p{
   margin: 0 0 16px;
-  color: rgba(255,255,255,.58);
+  color: rgba(var(--crm-ink),.58);
 }
 
 .crm-field{
@@ -426,7 +459,7 @@ body.crm-body .input:focus{
 .crm-field label{
   font-size: 13px;
   font-weight: 800;
-  color: rgba(255,255,255,.72);
+  color: rgba(var(--crm-ink),.72);
 }
 
 .crm-field input,
@@ -435,9 +468,9 @@ body.crm-body .input:focus{
   width: 100%;
   min-height: 48px;
   border-radius: 16px;
-  border: 1px solid rgba(255,255,255,.1);
-  background: rgba(8,8,9,.72);
-  color: rgba(255,255,255,.94);
+  border: 1px solid rgba(var(--crm-ink),.1);
+  background: rgba(var(--crm-surface),.72);
+  color: rgba(var(--crm-ink),.94);
   padding: 12px 14px;
   font: inherit;
 }
@@ -477,8 +510,8 @@ html[data-theme="light"] body.crm-body select.input optgroup{
 .crm-field select:focus,
 .crm-field textarea:focus{
   outline: 0;
-  border-color: rgba(255,255,255,.22);
-  box-shadow: 0 0 0 3px rgba(255,255,255,.05);
+  border-color: rgba(var(--crm-ink),.22);
+  box-shadow: 0 0 0 3px rgba(var(--crm-ink),.05);
 }
 
 .crm-example-grid{
@@ -492,19 +525,19 @@ html[data-theme="light"] body.crm-body select.input optgroup{
   gap: 12px;
   padding: 18px;
   border-radius: 18px;
-  border: 1px solid rgba(255,255,255,.08);
-  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.035));
+  border: 1px solid rgba(var(--crm-ink),.08);
+  background: linear-gradient(180deg, rgba(var(--crm-ink),.06), rgba(var(--crm-ink),.035));
   min-height: 100%;
 }
 
 .crm-example-card strong{
-  color: rgba(255,255,255,.96);
+  color: rgba(var(--crm-ink),.96);
   font-size: 16px;
 }
 
 .crm-example-card p{
   margin: 0;
-  color: rgba(255,255,255,.62);
+  color: rgba(var(--crm-ink),.62);
   line-height: 1.55;
 }
 
@@ -542,18 +575,18 @@ html[data-theme="light"] body.crm-body select.input optgroup{
   gap: 10px;
   padding: 16px;
   border-radius: 18px;
-  border: 1px solid rgba(255,255,255,.08);
-  background: linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.03));
+  border: 1px solid rgba(var(--crm-ink),.08);
+  background: linear-gradient(180deg, rgba(var(--crm-ink),.055), rgba(var(--crm-ink),.03));
 }
 
 .crm-service-preview-card strong{
-  color: rgba(255,255,255,.96);
+  color: rgba(var(--crm-ink),.96);
   font-size: 15px;
 }
 
 .crm-service-preview-card p{
   margin: 0;
-  color: rgba(255,255,255,.62);
+  color: rgba(var(--crm-ink),.62);
   line-height: 1.55;
 }
 
@@ -564,9 +597,9 @@ html[data-theme="light"] body.crm-body select.input optgroup{
   min-height: 30px;
   padding: 6px 10px;
   border-radius: 999px;
-  background: rgba(255,255,255,.05);
-  border: 1px solid rgba(255,255,255,.08);
-  color: rgba(255,255,255,.78);
+  background: rgba(var(--crm-ink),.05);
+  border: 1px solid rgba(var(--crm-ink),.08);
+  color: rgba(var(--crm-ink),.78);
   font-size: 12px;
   font-weight: 700;
 }
@@ -588,8 +621,8 @@ html[data-theme="light"] body.crm-body select.input optgroup{
 .crm-summary-card{
   padding: 24px;
   border-radius: 22px;
-  border: 1px solid rgba(255,255,255,.08);
-  background: linear-gradient(180deg, rgba(18,18,21,.96), rgba(11,11,13,.92));
+  border: 1px solid rgba(var(--crm-ink),.08);
+  background: linear-gradient(180deg, rgba(var(--crm-surface),.96), rgba(var(--crm-surface),.92));
   box-shadow: 0 18px 40px rgba(0,0,0,.26);
 }
 
@@ -618,17 +651,17 @@ html[data-theme="light"] body.crm-body select.input optgroup{
   display: flex;
   justify-content: space-between;
   gap: 10px;
-  color: rgba(255,255,255,.76);
+  color: rgba(var(--crm-ink),.76);
 }
 
 .crm-total-row strong{
-  color: rgba(255,255,255,.96);
+  color: rgba(var(--crm-ink),.96);
 }
 
 .crm-total-row.final{
   padding-top: 12px;
   margin-top: 8px;
-  border-top: 1px solid rgba(255,255,255,.08);
+  border-top: 1px solid rgba(var(--crm-ink),.08);
   font-size: 18px;
   font-weight: 800;
 }
@@ -643,8 +676,8 @@ html[data-theme="light"] body.crm-body select.input optgroup{
   gap: 12px;
   padding: 20px;
   border-radius: 18px;
-  border: 1px solid rgba(255,255,255,.08);
-  background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.03));
+  border: 1px solid rgba(var(--crm-ink),.08);
+  background: linear-gradient(180deg, rgba(var(--crm-ink),.05), rgba(var(--crm-ink),.03));
 }
 
 .crm-item-head{
@@ -673,8 +706,8 @@ html[data-theme="light"] body.crm-body select.input optgroup{
   padding: 24px;
   text-align: center;
   border-radius: 22px;
-  border: 1px dashed rgba(255,255,255,.14);
-  color: rgba(255,255,255,.6);
+  border: 1px dashed rgba(var(--crm-ink),.14);
+  color: rgba(var(--crm-ink),.6);
 }
 
 .crm-doc-preview{
@@ -809,8 +842,8 @@ html[data-theme="light"] body.crm-body select.input optgroup{
   gap: 10px;
   padding: 14px;
   border-radius: 16px;
-  border: 1px solid rgba(255,255,255,.08);
-  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(var(--crm-ink),.08);
+  background: rgba(var(--crm-ink),.04);
 }
 
 .crm-banner{
@@ -820,8 +853,8 @@ html[data-theme="light"] body.crm-body select.input optgroup{
   align-items: center;
   padding: 16px 18px;
   border-radius: 20px;
-  border: 1px solid rgba(255,255,255,.1);
-  background: linear-gradient(135deg, rgba(255,255,255,.09), rgba(255,255,255,.03));
+  border: 1px solid rgba(var(--crm-ink),.1);
+  background: linear-gradient(135deg, rgba(var(--crm-ink),.09), rgba(var(--crm-ink),.03));
 }
 
 .crm-modal{
@@ -841,8 +874,8 @@ html[data-theme="light"] body.crm-body select.input optgroup{
   overflow: auto;
   padding: 22px;
   border-radius: 26px;
-  background: #121214;
-  border: 1px solid rgba(255,255,255,.09);
+  background: rgb(var(--crm-surface));
+  border: 1px solid rgba(var(--crm-ink),.09);
   box-shadow: 0 28px 60px rgba(0,0,0,.42);
 }
 
@@ -852,9 +885,9 @@ html[data-theme="light"] body.crm-body select.input optgroup{
   gap: 8px;
   padding: 8px 12px;
   border-radius: 999px;
-  background: rgba(255,255,255,.05);
-  border: 1px solid rgba(255,255,255,.08);
-  color: rgba(255,255,255,.76);
+  background: rgba(var(--crm-ink),.05);
+  border: 1px solid rgba(var(--crm-ink),.08);
+  color: rgba(var(--crm-ink),.76);
   font-size: 12px;
   font-weight: 800;
 }
