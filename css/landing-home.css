@@ -948,6 +948,24 @@ body.landing-home .offer-grid {
   margin-top: 34px;
 }
 
+body.landing-home .offer-price {
+  display: inline-flex;
+  align-items: center;
+  margin: 10px 0 0;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--landing-line);
+  background: linear-gradient(135deg, rgba(42, 182, 255, 0.16), rgba(255, 146, 44, 0.16));
+  color: var(--landing-text);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+body.landing-home .offer-trust {
+  margin-top: 30px;
+}
+
 body.landing-home .offer-figure {
   grid-column: span 3;
   position: relative;
@@ -2363,6 +2381,12 @@ body.landing-home.landing-atelier-page .workspace-card h3 {
   line-height: 1.24;
 }
 
+body.landing-home.landing-atelier-page .offer-price {
+  border-color: rgba(242, 225, 197, 0.24);
+  background: linear-gradient(135deg, rgba(230, 199, 146, 0.18), rgba(224, 182, 125, 0.22));
+  color: #f3e4c8;
+}
+
 body.landing-home.landing-atelier-page .hero-main,
 body.landing-home.landing-atelier-page .story-image,
 body.landing-home.landing-atelier-page .offer-figure,
@@ -2671,6 +2695,12 @@ body.landing-home.landing-atelier-page.lm .contact-notes div {
 
 body.landing-home.landing-atelier-page.lm .hero-proof strong {
   color: #475569;
+}
+
+body.landing-home.landing-atelier-page.lm .offer-price {
+  color: #7c4a03;
+  border-color: rgba(161, 98, 7, 0.28);
+  background: linear-gradient(135deg, rgba(161, 98, 7, 0.12), rgba(224, 182, 125, 0.22));
 }
 
 body.landing-home.landing-atelier-page.lm .hero-main,
